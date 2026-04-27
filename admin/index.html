@@ -1,0 +1,1743 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Members Enquiries · Vaytoven Admin</title>
+<meta name="theme-color" content="#FBF8F3" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23FF3D8A'/><stop offset='1' stop-color='%237B2CBF'/></linearGradient></defs><path fill='url(%23g)' d='M10 10 L24 10 L32 38 L40 10 L54 10 L36 56 L28 56 Z'/><circle cx='44' cy='18' r='8' fill='url(%23g)'/><circle cx='44' cy='18' r='3' fill='white'/></svg>">
+
+<style>
+:root {
+  --brand-pink:    #FF3D8A;
+  --brand-magenta: #D63384;
+  --brand-purple:  #7B2CBF;
+  --brand-deep:    #3D1862;
+
+  --ink:        #1A1426;
+  --ink-soft:   #423853;
+  --ink-mute:   #8E879B;
+  --ink-faint:  #C9C3D6;
+  --paper:      #FBF8F3;
+  --paper-2:    #F4EFE6;
+  --paper-3:    #E8DFD0;
+  --line:       rgba(26, 20, 38, 0.08);
+  --line-strong:rgba(26, 20, 38, 0.14);
+  --surface:    #FFFFFF;
+
+  --success:    #1F8A4E;
+  --success-bg: #E5F4EB;
+  --warn:       #B25C00;
+  --warn-bg:    #FBEED9;
+  --danger:     #B41A38;
+  --danger-bg:  #FBE5EA;
+  --info:       #1E5BB6;
+  --info-bg:    #E2EBFA;
+
+  --gradient-brand: linear-gradient(135deg, #FF3D8A 0%, #D63384 38%, #7B2CBF 100%);
+  --shadow-sm:  0 1px 2px rgba(26,20,38,.06);
+  --shadow-md:  0 4px 16px -4px rgba(26,20,38,.12);
+  --shadow-lg:  0 24px 48px -12px rgba(26,20,38,.22);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  font-family: "Geist", system-ui, -apple-system, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+
+::selection { background: var(--brand-pink); color: white; }
+
+h1, h2, h3 {
+  font-family: "Fraunces", serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.05;
+}
+.mono { font-family: "Geist Mono", ui-monospace, monospace; }
+
+/* ─── Layout ────────────────────────────────────── */
+
+.app {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+}
+
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0 0.5rem;
+  font-family: "Fraunces", serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.sidebar .brand svg { width: 22px; height: 22px; }
+.sidebar .brand .admin-tag {
+  font-family: "Geist", sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-left: auto;
+  font-weight: 500;
+}
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.sidebar nav .group-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 500;
+  padding: 0 0.6rem;
+  margin: 0.5rem 0 0.4rem;
+}
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.86rem;
+  transition: background 120ms ease, color 120ms ease;
+}
+.sidebar nav a:hover { background: var(--paper-2); color: var(--ink); }
+.sidebar nav a.active {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+.sidebar nav a.active::before {
+  content: "";
+  width: 3px;
+  height: 16px;
+  background: var(--gradient-brand);
+  border-radius: 2px;
+  margin-right: -0.2rem;
+}
+.sidebar nav a svg { width: 16px; height: 16px; flex: none; opacity: 0.75; }
+.sidebar nav a .count {
+  margin-left: auto;
+  font-size: 0.74rem;
+  background: var(--paper-3);
+  padding: 0.1rem 0.45rem;
+  border-radius: 99px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.sidebar nav a.active .count {
+  background: var(--brand-magenta);
+  color: white;
+}
+
+.sidebar .me {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+.sidebar .me .avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+.sidebar .me .who { font-size: 0.84rem; font-weight: 500; }
+.sidebar .me .role { font-size: 0.72rem; color: var(--ink-mute); }
+
+/* ─── Main ──────────────────────────────────────── */
+
+.main {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.page-header {
+  padding: 1.75rem 2rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+.page-header h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.4rem;
+}
+.page-header .breadcrumb {
+  font-size: 0.78rem;
+  color: var(--ink-mute);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+}
+.page-header p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+/* Stats cards */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.85rem;
+  padding: 1.25rem 2rem 0;
+}
+@media (max-width: 1100px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+}
+.stat .label {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 500;
+}
+.stat .num {
+  font-family: "Fraunces", serif;
+  font-size: 1.8rem;
+  letter-spacing: -0.03em;
+  margin-top: 0.2rem;
+  color: var(--ink);
+  font-feature-settings: "tnum";
+}
+.stat .num.brand {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.stat .delta {
+  font-size: 0.75rem;
+  color: var(--ink-mute);
+  margin-top: 0.1rem;
+}
+.stat .delta.warn { color: var(--warn); }
+
+/* Filter bar */
+.filter-bar {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+.filter-bar .search-wrap {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+}
+.filter-bar .search-wrap svg {
+  position: absolute;
+  left: 0.85rem; top: 50%;
+  transform: translateY(-50%);
+  width: 14px; height: 14px;
+  color: var(--ink-mute);
+}
+.filter-bar input.search {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.55rem 0.85rem 0.55rem 2.2rem;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 140ms;
+}
+.filter-bar input.search:focus { border-color: var(--brand-magenta); }
+.filter-bar select {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.86rem;
+  outline: none;
+  cursor: pointer;
+}
+.filter-bar select:focus { border-color: var(--brand-magenta); }
+.filter-bar .checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.filter-bar .checkbox input { accent-color: var(--brand-magenta); }
+.filter-bar .actions { margin-left: auto; display: flex; gap: 0.5rem; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--ink);
+  transition: background 140ms, border-color 140ms;
+}
+.btn:hover { background: var(--paper-2); }
+.btn-primary {
+  background: var(--gradient-brand);
+  color: white;
+  border-color: transparent;
+}
+.btn-primary:hover { opacity: 0.92; background: var(--gradient-brand); }
+.btn-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: rgba(180, 26, 56, 0.18);
+}
+.btn-danger:hover { background: #f5d4dc; }
+.btn-success {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: rgba(31, 138, 78, 0.18);
+}
+.btn-success:hover { background: #d8edd8; }
+.btn svg { width: 14px; height: 14px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Table */
+.queue {
+  flex: 1;
+  overflow-x: auto;
+  background: var(--paper);
+  padding: 0 2rem 2rem;
+}
+.queue table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  margin-top: 1rem;
+}
+.queue thead th {
+  background: var(--paper-2);
+  text-align: left;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 500;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  user-select: none;
+}
+.queue thead th.sortable { cursor: pointer; }
+.queue thead th.sortable:hover { color: var(--ink); }
+.queue thead th .sort-arrow { color: var(--brand-magenta); margin-left: 0.2rem; }
+.queue tbody tr {
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 90ms;
+}
+.queue tbody tr:hover { background: var(--paper); }
+.queue tbody tr.flagged { background: rgba(180, 26, 56, 0.04); }
+.queue tbody tr.flagged:hover { background: rgba(180, 26, 56, 0.08); }
+.queue tbody tr:last-child { border-bottom: none; }
+.queue tbody td {
+  padding: 0.85rem 1rem;
+  font-size: 0.88rem;
+  vertical-align: middle;
+}
+.queue tbody td.who { font-weight: 500; }
+.queue tbody td.who small {
+  display: block;
+  font-weight: 400;
+  font-size: 0.78rem;
+  color: var(--ink-mute);
+  margin-top: 1px;
+}
+.queue tbody td.program {
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.queue tbody td.created { color: var(--ink-mute); font-size: 0.82rem; white-space: nowrap; }
+.queue tbody td .assignee {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.queue tbody td .assignee .av {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--paper-3);
+  color: var(--ink-soft);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+.queue tbody td .unassigned {
+  font-size: 0.78rem;
+  color: var(--ink-mute);
+  font-style: italic;
+}
+.flag-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  color: var(--danger);
+  font-weight: 500;
+  margin-left: 0.4rem;
+}
+.flag-icon svg { width: 12px; height: 12px; }
+
+/* Status pills */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.74rem;
+  font-weight: 500;
+  padding: 0.2rem 0.55rem;
+  border-radius: 99px;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  border: 1px solid transparent;
+}
+.pill.new          { background: var(--info-bg);    color: var(--info);    border-color: rgba(30,91,182,.18); }
+.pill.contacted    { background: var(--warn-bg);    color: var(--warn);    border-color: rgba(178,92,0,.18); }
+.pill.qualified    { background: var(--success-bg); color: var(--success); border-color: rgba(31,138,78,.18); }
+.pill.onboarded    { background: var(--gradient-brand); color: white; }
+.pill.rejected     { background: var(--danger-bg);  color: var(--danger);  border-color: rgba(180,26,56,.18); }
+.pill.unresponsive { background: var(--paper-3);    color: var(--ink-mute); }
+.pill.duplicate    { background: var(--paper-3);    color: var(--ink-mute); }
+.pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.empty-state {
+  text-align: center;
+  padding: 5rem 2rem;
+  color: var(--ink-mute);
+}
+.empty-state h3 {
+  font-family: "Fraunces", serif;
+  font-size: 1.4rem;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.empty-state p { font-size: 0.9rem; }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+}
+.pagination .page-buttons { display: flex; gap: 0.4rem; }
+.pagination button {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.82rem;
+}
+.pagination button:hover { background: var(--paper-2); }
+.pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ─── Drawer ────────────────────────────────────── */
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,20,38,.4);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed;
+  top: 0; right: 0;
+  height: 100vh;
+  width: min(640px, 100vw);
+  background: var(--paper);
+  z-index: 51;
+  transform: translateX(100%);
+  transition: transform 280ms cubic-bezier(.2,.8,.2,1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -24px 0 48px -12px rgba(26,20,38,.2);
+}
+.drawer.open { transform: translateX(0); }
+
+.drawer-header {
+  padding: 1.5rem 1.75rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.drawer-header h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.35rem;
+  letter-spacing: -0.02em;
+}
+.drawer-header .sub {
+  font-size: 0.86rem;
+  color: var(--ink-mute);
+  font-family: "Geist Mono", monospace;
+}
+.drawer-close {
+  background: var(--paper-2);
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex: none;
+}
+.drawer-close:hover { background: var(--paper-3); }
+.drawer-close svg { width: 14px; height: 14px; stroke: var(--ink); fill: none; stroke-width: 2.2; stroke-linecap: round; }
+
+.drawer-tabs {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.85rem 1.75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.drawer-tabs button {
+  background: none;
+  border: none;
+  padding: 0.55rem 0.85rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink-mute);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 120ms;
+}
+.drawer-tabs button:hover { color: var(--ink); }
+.drawer-tabs button.active {
+  color: var(--ink);
+  border-bottom-color: var(--brand-magenta);
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 1.75rem;
+}
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+}
+.field-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0.75rem;
+  font-size: 0.88rem;
+  align-items: start;
+}
+.field-row .label {
+  color: var(--ink-mute);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  padding-top: 2px;
+}
+.field-row .value { color: var(--ink); word-break: break-word; }
+.field-row .value.muted { color: var(--ink-mute); font-style: italic; }
+.field-row .value a { color: var(--brand-magenta); text-decoration: none; }
+.field-row .value a:hover { text-decoration: underline; }
+
+.note-block {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem;
+  font-size: 0.88rem;
+  white-space: pre-wrap;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin-top: 0.5rem;
+}
+
+.section-title {
+  font-family: "Fraunces", serif;
+  font-size: 1.15rem;
+  margin: 1.5rem 0 0.75rem;
+  letter-spacing: -0.01em;
+}
+.section-title:first-child { margin-top: 0; }
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.timeline li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 0.6rem;
+  font-size: 0.86rem;
+  position: relative;
+}
+.timeline li::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 24px;
+  bottom: -16px;
+  width: 1px;
+  background: var(--line);
+}
+.timeline li:last-child::before { display: none; }
+.timeline .dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  flex: none;
+  z-index: 1;
+}
+.timeline .dot.brand {
+  background: var(--gradient-brand);
+  border-color: transparent;
+}
+.timeline .dot svg { width: 12px; height: 12px; color: var(--ink-soft); }
+.timeline .dot.brand svg { color: white; }
+.timeline .what { font-weight: 500; }
+.timeline .when { color: var(--ink-mute); font-size: 0.78rem; margin-top: 1px; }
+.timeline .by { color: var(--ink-soft); font-size: 0.82rem; }
+
+/* Drawer actions footer */
+.drawer-footer {
+  padding: 1rem 1.75rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  background: var(--paper);
+}
+.drawer-footer .grow { flex: 1; }
+
+/* Modal (reject reason) */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(26,20,38,.55);
+  backdrop-filter: blur(6px);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.modal-card {
+  background: var(--paper);
+  border-radius: 18px;
+  width: min(440px, 100%);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-lg);
+}
+.modal-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.4rem;
+}
+.modal-card p {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  margin: 0 0 1rem;
+}
+.modal-card textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.9rem;
+  resize: vertical;
+  min-height: 100px;
+  outline: none;
+  font-family: inherit;
+}
+.modal-card textarea:focus { border-color: var(--brand-magenta); }
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  background: var(--ink);
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 99px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 280ms cubic-bezier(.2,.8,.2,1), opacity 280ms;
+  box-shadow: var(--shadow-lg);
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast svg { width: 14px; height: 14px; color: var(--brand-pink); }
+
+/* Mobile responsive */
+@media (max-width: 880px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .filter-bar .search-wrap { width: 100%; }
+  .queue table thead { display: none; }
+  .queue table, .queue tbody, .queue tr, .queue td { display: block; width: 100%; }
+  .queue tbody tr { padding: 0.85rem 1rem; }
+  .queue tbody td { padding: 0.2rem 0; border: none; }
+  .field-row { grid-template-columns: 1fr; gap: 0.25rem; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useMemo, useEffect, useRef } = React;
+
+// ═════════════════════════════════════════════════════════════════
+// MOCK BACKEND — emulates the /api/v1/admin/members-enquiries endpoints.
+// In production, replace each call with `fetch('/api/v1/...')`.
+// The shape returned here matches MembersEnquiryResource.
+// ═════════════════════════════════════════════════════════════════
+
+const PROGRAMS = [
+  "Marriott Vacation Club", "Hilton Grand Vacations", "Disney Vacation Club",
+  "Wyndham Destinations", "Hyatt Residence Club", "Diamond Resorts",
+  "Worldmark by Wyndham", "Bluegreen Vacations", "Westgate",
+  "RCI Points", "Interval International", "Other / Independent",
+];
+const STATUSES = ["new","contacted","qualified","onboarded","rejected","unresponsive","duplicate"];
+const SOURCES  = ["website","app_search","app_host","admin","import"];
+
+const SPECIALISTS = [
+  { id: 1, name: "You",        email: "you@vaytoven.com",       initials: "Y", uuid: "u-self" },
+  { id: 2, name: "Maya Reyes", email: "maya@vaytoven.com",      initials: "MR", uuid: "u-002" },
+  { id: 3, name: "Darius Vega", email: "darius@vaytoven.com",   initials: "DV", uuid: "u-003" },
+];
+
+const FIRSTS = ["Jordan","Sarah","Mike","Aaron","Lisa","Patricia","Robert","Jennifer","David","Karen","James","Susan","Daniel","Margaret","Christopher","Linda","Richard","Barbara","Joseph","Elizabeth","Thomas","Helen","Charles","Sandra","Mark","Donna","Steven","Carol","Paul","Ruth"];
+const LASTS  = ["Mitchell","Chen","Patel","Robinson","Andersson","McCarthy","Lopez","Walker","Nakamura","Brown","Davis","Wilson","Garcia","Martinez","Anderson","Taylor","Thomas","Moore","Jackson","White","Harris","Martin","Thompson","Lewis","Rodriguez","Lee","Clark","Hall","Young","Lopez"];
+const RESORTS = [
+  ["Marriott Maui Ocean Club","Lahaina HI"],
+  ["Disney's Beach Club Villas","Lake Buena Vista FL"],
+  ["Hilton Grand Vacations on the Boulevard","Las Vegas NV"],
+  ["Wyndham Bonnet Creek","Orlando FL"],
+  ["Hyatt Residence Club Maui Kā‘anapali","Lahaina HI"],
+  ["Marriott Aruba Surf Club","Palm Beach Aruba"],
+  ["Disney's Grand Californian Villas","Anaheim CA"],
+  ["Hilton Grand Vacations at Hokulani","Waikiki HI"],
+  ["Westgate Park City Resort","Park City UT"],
+  ["Bluegreen The Innsbruck","Aspen CO"],
+  ["Diamond Resorts Mystic Dunes","Celebration FL"],
+  ["Worldmark Big Bear","Big Bear Lake CA"],
+  ["Marriott's Newport Coast Villas","Newport Beach CA"],
+  ["Disney Aulani Resort","Kapolei HI"],
+  ["Hilton Grand Vacations The Crane","St. Philip Barbados"],
+];
+
+function randInt(lo, hi) { return Math.floor(Math.random() * (hi - lo + 1)) + lo; }
+function pick(arr) { return arr[randInt(0, arr.length - 1)]; }
+
+function makeMockEnquiries(n) {
+  const now = Date.now();
+  const rows = [];
+  for (let i = 0; i < n; i++) {
+    const first = pick(FIRSTS);
+    const last  = pick(LASTS);
+    const program = pick(PROGRAMS);
+    const [resort, location] = pick(RESORTS);
+    const ageDays = randInt(0, 28);
+    const status = ageDays < 1 ? "new"
+      : ageDays < 3 ? pick(["new","new","contacted"])
+      : ageDays < 7 ? pick(["contacted","contacted","qualified","new"])
+      : ageDays < 14 ? pick(["qualified","contacted","unresponsive","onboarded"])
+      : pick(["onboarded","rejected","unresponsive","qualified"]);
+    const flagged = Math.random() < 0.07;
+    const assignee = (status !== "new" || Math.random() < 0.3) ? pick(SPECIALISTS) : null;
+    const created = new Date(now - ageDays * 24 * 3600 * 1000 - randInt(0,86400) * 1000);
+
+    rows.push({
+      id: `eq-${1000 + i}`,
+      first_name: first,
+      last_name:  last,
+      full_name:  `${first} ${last}`,
+      email:      `${first.toLowerCase()}.${last.toLowerCase()}${randInt(1,99)}@${pick(["gmail.com","yahoo.com","outlook.com","icloud.com","comcast.net","aol.com"])}`,
+      phone:      `+1 ${randInt(200,989)}-${randInt(200,999)}-${randInt(1000,9999)}`,
+      program,
+      property:   `${resort}, ${location}`,
+      annual_points: pick([null, "85,000", "150,000", "200,000", "300,000", "450,000", "Multiple memberships"]),
+      best_time_to_call: pick([null,"Morning (8am – 12pm)","Afternoon (12pm – 5pm)","Evening (5pm – 8pm)","Weekends only"]),
+      notes: pick([null, null, null,
+        "Has a banking restriction on summer weeks.",
+        "Owns at two resorts under same membership.",
+        "Trying to offset 2026 maintenance fees.",
+        "Considering selling — open to alternatives.",
+        "Multiple memberships across different programs.",
+      ]),
+      consent_given: true,
+      consent_at: created.toISOString(),
+      source: pick(SOURCES.slice(0, 3)),
+      referrer_url: pick([null, "https://google.com/search", "https://facebook.com/", "https://vaytoven.com/blog/managed-listing"]),
+      ip_address: `${randInt(24,213)}.${randInt(0,255)}.${randInt(0,255)}.${randInt(0,255)}`,
+      status,
+      assigned_to: assignee ? { id: assignee.uuid, name: assignee.name, email: assignee.email } : null,
+      qualified_at: ["qualified","onboarded","rejected"].includes(status) ? new Date(created.getTime() + 86400000 * 2).toISOString() : null,
+      onboarded_at: status === "onboarded" ? new Date(created.getTime() + 86400000 * 5).toISOString() : null,
+      rejection_reason: status === "rejected" ? pick(["Property not in active markets.","Member did not respond after 3 attempts.","Program not currently supported."]) : null,
+      converted_property: status === "onboarded" ? { id: `prop-${randInt(1000,9999)}`, slug: `${first.toLowerCase()}-${last.toLowerCase()}-${randInt(1,99)}`, title: resort } : null,
+      flagged,
+      spam_score: flagged ? randInt(50, 95) : randInt(0, 25),
+      created_at: created.toISOString(),
+      updated_at: created.toISOString(),
+    });
+  }
+  return rows.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
+// In-memory mock DB
+let MOCK_DB = makeMockEnquiries(73);
+
+// Mock API client — same shape as a real fetch wrapper
+const api = {
+  async list({ status, source, program, q, includeFlagged, page = 1, perPage = 25, sort = '-created_at' } = {}) {
+    await new Promise(r => setTimeout(r, 120 + Math.random() * 100)); // simulate latency
+    let rows = [...MOCK_DB];
+    if (!includeFlagged) rows = rows.filter(r => !r.flagged);
+    if (status)  rows = rows.filter(r => r.status  === status);
+    if (source)  rows = rows.filter(r => r.source  === source);
+    if (program) rows = rows.filter(r => r.program === program);
+    if (q) {
+      const needle = q.toLowerCase();
+      rows = rows.filter(r =>
+        r.first_name.toLowerCase().includes(needle) ||
+        r.last_name.toLowerCase().includes(needle) ||
+        r.email.toLowerCase().includes(needle) ||
+        r.phone.toLowerCase().includes(needle) ||
+        r.property.toLowerCase().includes(needle)
+      );
+    }
+    // sort
+    const [field, dir] = sort.startsWith('-') ? [sort.slice(1), 'desc'] : [sort, 'asc'];
+    rows.sort((a,b) => {
+      const va = a[field], vb = b[field];
+      if (va < vb) return dir === 'asc' ? -1 : 1;
+      if (va > vb) return dir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    const total = rows.length;
+    const sliced = rows.slice((page - 1) * perPage, page * perPage);
+    return { data: sliced, meta: { total, page, perPage, lastPage: Math.max(1, Math.ceil(total / perPage)) } };
+  },
+  async stats() {
+    await new Promise(r => setTimeout(r, 80));
+    const visible = MOCK_DB.filter(r => !r.flagged);
+    const byStatus = {};
+    STATUSES.forEach(s => byStatus[s] = visible.filter(r => r.status === s).length);
+    const bySource = {};
+    SOURCES.forEach(s => bySource[s] = visible.filter(r => r.source === s).length);
+    const dayMs = 86400000;
+    const last24 = visible.filter(r => Date.now() - new Date(r.created_at).getTime() < dayMs).length;
+    const last7  = visible.filter(r => Date.now() - new Date(r.created_at).getTime() < dayMs * 7).length;
+    const unassigned = visible.filter(r => !r.assigned_to && ["new","contacted"].includes(r.status)).length;
+    const flagged = MOCK_DB.filter(r => r.flagged).length;
+    return { byStatus, bySource, last24, last7, unassigned, flagged };
+  },
+  async update(id, patch) {
+    await new Promise(r => setTimeout(r, 140));
+    const idx = MOCK_DB.findIndex(r => r.id === id);
+    if (idx < 0) throw new Error("Not found");
+    const old = MOCK_DB[idx];
+    const next = { ...old, ...patch, updated_at: new Date().toISOString() };
+    if (patch.status === 'qualified' && !old.qualified_at) next.qualified_at = new Date().toISOString();
+    if (patch.status === 'onboarded' && !old.onboarded_at) next.onboarded_at = new Date().toISOString();
+    MOCK_DB[idx] = next;
+    return next;
+  },
+  async assign(id, specialistId) {
+    await new Promise(r => setTimeout(r, 120));
+    const sp = SPECIALISTS.find(s => s.id === specialistId) || SPECIALISTS[0];
+    return this.update(id, {
+      assigned_to: { id: sp.uuid, name: sp.name, email: sp.email },
+    });
+  },
+};
+
+// ═════════════════════════════════════════════════════════════════
+// PRODUCTION API ADAPTER — drop-in replacement for the `api` const above.
+// To switch from the mock to the real Laravel backend:
+//   1. Set API_BASE below to your backend URL (or leave blank for same-origin).
+//   2. Provide an auth token via window.localStorage.setItem('auth_token', '…')
+//      OR rely on Sanctum SPA cookies (set credentials: 'include').
+//   3. Replace the line `const api = { ... mock ... }` above with:
+//        const api = createApi(API_BASE);
+//   4. Or just rename `productionApi` to `api` in the artifact.
+//
+// Endpoint contract matches MembersEnquiryController:
+//   GET    /api/v1/admin/members-enquiries          (list, paginated)
+//   GET    /api/v1/admin/members-enquiries/stats    (aggregates)
+//   GET    /api/v1/admin/members-enquiries/{id}     (single)
+//   PATCH  /api/v1/admin/members-enquiries/{id}     (status / assignee / notes)
+//   POST   /api/v1/admin/members-enquiries/{id}/assign (claim)
+//   GET    /api/v1/admin/members-enquiries/export?  (CSV stream)
+// ═════════════════════════════════════════════════════════════════
+
+const API_BASE = ""; // e.g. "https://app.vaytoven.com" — leave blank for same-origin
+function createApi(base = "") {
+  const url = (path) => `${base}/api/v1/admin/members-enquiries${path}`;
+  const headers = () => ({
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+    "X-Requested-With": "XMLHttpRequest",
+    ...(window.localStorage.getItem("auth_token")
+      ? { "Authorization": `Bearer ${window.localStorage.getItem("auth_token")}` }
+      : {}),
+  });
+  const opts = { credentials: "include" }; // Sanctum SPA cookies
+
+  // Backend uses snake_case; UI uses camelCase. Normalize stats keys here so the
+  // UI layer can stay identical between mock and prod.
+  const normalizeStats = (s) => ({
+    byStatus:    s.by_status || {},
+    bySource:    s.by_source || {},
+    last24:      s.last_24h ?? 0,
+    last7:       s.last_7d ?? 0,
+    unassigned:  s.unassigned ?? 0,
+    flagged:     s.flagged ?? 0,
+  });
+  // Laravel paginator wraps rows in {data:[], meta:{...}, links:{...}}.
+  // Mock returns {data:[], meta:{total,page,perPage,lastPage}}.
+  const normalizeList = (json) => ({
+    data: json.data,
+    meta: {
+      total:    json.meta?.total ?? json.data.length,
+      page:     json.meta?.current_page ?? 1,
+      perPage:  json.meta?.per_page ?? json.data.length,
+      lastPage: json.meta?.last_page ?? 1,
+    },
+  });
+
+  return {
+    async list({ status, source, program, q, includeFlagged,
+                 page = 1, perPage = 25, sort = "-created_at" } = {}) {
+      const params = new URLSearchParams();
+      if (status)         params.set("status", status);
+      if (source)         params.set("source", source);
+      if (program)        params.set("program", program);
+      if (q)              params.set("q", q);
+      if (includeFlagged) params.set("include_flagged", "1");
+      params.set("page", page);
+      params.set("per_page", perPage);
+      params.set("sort", sort);
+      const res = await fetch(`${url("")}?${params}`, { ...opts, headers: headers() });
+      if (!res.ok) throw new Error(`List failed: ${res.status}`);
+      return normalizeList(await res.json());
+    },
+    async stats() {
+      const res = await fetch(url("/stats"), { ...opts, headers: headers() });
+      if (!res.ok) throw new Error(`Stats failed: ${res.status}`);
+      return normalizeStats(await res.json());
+    },
+    async show(id) {
+      const res = await fetch(url(`/${id}`), { ...opts, headers: headers() });
+      if (!res.ok) throw new Error(`Show failed: ${res.status}`);
+      return (await res.json()).data;
+    },
+    async update(id, patch) {
+      const res = await fetch(url(`/${id}`), {
+        ...opts,
+        method: "PATCH",
+        headers: headers(),
+        body: JSON.stringify(patch),
+      });
+      if (!res.ok) throw new Error(`Update failed: ${res.status}`);
+      return (await res.json()).data;
+    },
+    async assign(id, userId = null) {
+      const res = await fetch(url(`/${id}/assign`), {
+        ...opts,
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify(userId ? { user_id: userId } : {}),
+      });
+      if (!res.ok) throw new Error(`Assign failed: ${res.status}`);
+      return (await res.json()).data;
+    },
+    exportUrl({ status } = {}) {
+      const params = new URLSearchParams();
+      if (status) params.set("status", status);
+      return `${url("/export")}?${params}`;
+    },
+  };
+}
+// To activate the real API instead of the mock, uncomment:
+//   const productionApi = createApi(API_BASE);
+//   Object.assign(api, productionApi);  // overrides every method on `api`
+
+// ═════════════════════════════════════════════════════════════════
+// ICONS
+// ═════════════════════════════════════════════════════════════════
+
+const Icon = {
+  Search:    () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>,
+  Inbox:     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>,
+  Users:     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  Home:      () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+  Money:     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+  Shield:    () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+  Settings:  () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  Flag:      () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
+  Close:     () => <svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>,
+  Check:     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+  X:         () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  Phone:     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+  Mail:      () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+  Download:  () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+  Plus:      () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  ArrowDown: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
+  ArrowUp:   () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>,
+  Clock:     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+};
+
+// ═════════════════════════════════════════════════════════════════
+// HELPERS
+// ═════════════════════════════════════════════════════════════════
+
+const fmtRelative = iso => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.round(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.round(diff/3600)}h ago`;
+  if (diff < 86400 * 7) return `${Math.round(diff/86400)}d ago`;
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+};
+const fmtAbsolute = iso => {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+};
+const initials = name => (name || '').split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase();
+
+const STATUS_LABEL = {
+  new: 'New', contacted: 'Contacted', qualified: 'Qualified',
+  onboarded: 'Onboarded', rejected: 'Rejected',
+  unresponsive: 'Unresponsive', duplicate: 'Duplicate',
+};
+
+const SOURCE_LABEL = {
+  website: 'Website', app_search: 'App · Search', app_host: 'App · Host', admin: 'Admin', import: 'Import',
+};
+
+// ═════════════════════════════════════════════════════════════════
+// COMPONENTS
+// ═════════════════════════════════════════════════════════════════
+
+function StatusPill({ status }) {
+  return <span className={`pill ${status}`}><span className="dot" />{STATUS_LABEL[status] || status}</span>;
+}
+
+function Sidebar({ stats }) {
+  return (
+    <aside className="sidebar">
+      <div className="brand">
+        <svg viewBox="0 0 64 64" fill="none">
+          <defs>
+            <linearGradient id="brandG" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#FF3D8A"/>
+              <stop offset="1" stopColor="#7B2CBF"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#brandG)" d="M10 10 L24 10 L32 38 L40 10 L54 10 L36 56 L28 56 Z"/>
+          <circle cx="44" cy="18" r="8" fill="url(#brandG)"/>
+          <circle cx="44" cy="18" r="3" fill="#FBF8F3"/>
+        </svg>
+        <span>Vaytoven</span>
+        <span className="admin-tag">Admin</span>
+      </div>
+
+      <nav>
+        <div className="group-label">Operations</div>
+        <a href="#"><Icon.Inbox /> Members enquiries
+          <span className="count">{stats?.byStatus?.new ?? 0}</span>
+        </a>
+        <a href="#"><Icon.Users /> Users</a>
+        <a href="#"><Icon.Home /> Listings</a>
+        <a href="#"><Icon.Inbox /> Bookings</a>
+        <a href="#"><Icon.Money /> Payouts</a>
+
+        <div className="group-label">Trust</div>
+        <a href="#"><Icon.Shield /> Disputes</a>
+        <a href="#"><Icon.Flag /> Flagged content</a>
+
+        <div className="group-label">Settings</div>
+        <a href="#"><Icon.Settings /> Configuration</a>
+      </nav>
+
+      <div className="me">
+        <div className="avatar">Y</div>
+        <div>
+          <div className="who">You</div>
+          <div className="role">Member specialist</div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function StatsRow({ stats, loading }) {
+  if (loading || !stats) {
+    return (
+      <div className="stats">
+        {[1,2,3,4,5].map(i => <div key={i} className="stat"><div className="label">Loading</div><div className="num">—</div></div>)}
+      </div>
+    );
+  }
+  const open = (stats.byStatus.new || 0) + (stats.byStatus.contacted || 0) + (stats.byStatus.qualified || 0);
+  return (
+    <div className="stats">
+      <div className="stat">
+        <div className="label">Open</div>
+        <div className="num brand">{open}</div>
+        <div className="delta">across new, contacted, qualified</div>
+      </div>
+      <div className="stat">
+        <div className="label">Last 24h</div>
+        <div className="num">{stats.last24}</div>
+        <div className="delta">new submissions</div>
+      </div>
+      <div className="stat">
+        <div className="label">Last 7d</div>
+        <div className="num">{stats.last7}</div>
+        <div className="delta">total volume</div>
+      </div>
+      <div className="stat">
+        <div className="label">Unassigned</div>
+        <div className="num">{stats.unassigned}</div>
+        <div className={"delta " + (stats.unassigned > 5 ? "warn" : "")}>{stats.unassigned > 5 ? 'needs attention' : 'on track'}</div>
+      </div>
+      <div className="stat">
+        <div className="label">Flagged spam</div>
+        <div className="num">{stats.flagged}</div>
+        <div className="delta">excluded by default</div>
+      </div>
+    </div>
+  );
+}
+
+function FilterBar({ filters, setFilters, onExport, onRefresh }) {
+  return (
+    <div className="filter-bar">
+      <div className="search-wrap">
+        <Icon.Search />
+        <input
+          className="search"
+          placeholder="Search by name, email, phone, or property…"
+          value={filters.q}
+          onChange={e => setFilters({ ...filters, q: e.target.value, page: 1 })}
+        />
+      </div>
+
+      <select
+        value={filters.status}
+        onChange={e => setFilters({ ...filters, status: e.target.value, page: 1 })}
+        aria-label="Status"
+      >
+        <option value="">All statuses</option>
+        {STATUSES.map(s => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
+      </select>
+
+      <select
+        value={filters.source}
+        onChange={e => setFilters({ ...filters, source: e.target.value, page: 1 })}
+        aria-label="Source"
+      >
+        <option value="">All sources</option>
+        {SOURCES.map(s => <option key={s} value={s}>{SOURCE_LABEL[s]}</option>)}
+      </select>
+
+      <select
+        value={filters.program}
+        onChange={e => setFilters({ ...filters, program: e.target.value, page: 1 })}
+        aria-label="Program"
+      >
+        <option value="">All programs</option>
+        {PROGRAMS.map(p => <option key={p} value={p}>{p}</option>)}
+      </select>
+
+      <label className="checkbox">
+        <input
+          type="checkbox"
+          checked={filters.includeFlagged}
+          onChange={e => setFilters({ ...filters, includeFlagged: e.target.checked, page: 1 })}
+        />
+        Include flagged
+      </label>
+
+      <div className="actions">
+        <button className="btn" onClick={onRefresh} title="Refresh">
+          <Icon.Clock /> Refresh
+        </button>
+        <button className="btn" onClick={onExport} title="Export CSV">
+          <Icon.Download /> Export CSV
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function QueueTable({ rows, loading, sort, setSort, onRowClick, page, lastPage, total, onPage }) {
+  const setS = field => () => {
+    const dir = sort === field ? `-${field}` : (sort === `-${field}` ? field : `-${field}`);
+    setSort(dir);
+  };
+  const arrow = field => {
+    if (sort === field) return <span className="sort-arrow">↑</span>;
+    if (sort === `-${field}`) return <span className="sort-arrow">↓</span>;
+    return null;
+  };
+
+  if (loading && !rows.length) {
+    return (
+      <div className="queue">
+        <div className="empty-state">
+          <p>Loading enquiries…</p>
+        </div>
+      </div>
+    );
+  }
+  if (!rows.length) {
+    return (
+      <div className="queue">
+        <div className="empty-state">
+          <h3>No enquiries match.</h3>
+          <p>Try widening the filters or include flagged submissions.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="queue">
+      <table>
+        <thead>
+          <tr>
+            <th className="sortable" onClick={setS('full_name')}>Member {arrow('full_name')}</th>
+            <th>Property</th>
+            <th>Program</th>
+            <th className="sortable" onClick={setS('status')}>Status {arrow('status')}</th>
+            <th>Source</th>
+            <th>Assigned</th>
+            <th className="sortable" onClick={setS('created_at')}>Submitted {arrow('created_at')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(r => (
+            <tr key={r.id} className={r.flagged ? 'flagged' : ''} onClick={() => onRowClick(r)}>
+              <td className="who">
+                {r.full_name}
+                <small>{r.email}</small>
+              </td>
+              <td style={{ maxWidth: 240 }}>
+                <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.property}</div>
+              </td>
+              <td className="program">{r.program}</td>
+              <td>
+                <StatusPill status={r.status} />
+                {r.flagged && <span className="flag-icon"><Icon.Flag /> flagged</span>}
+              </td>
+              <td><span className="program">{SOURCE_LABEL[r.source]}</span></td>
+              <td>
+                {r.assigned_to ? (
+                  <span className="assignee">
+                    <span className="av">{initials(r.assigned_to.name)}</span>
+                    {r.assigned_to.name}
+                  </span>
+                ) : (
+                  <span className="unassigned">unassigned</span>
+                )}
+              </td>
+              <td className="created" title={fmtAbsolute(r.created_at)}>{fmtRelative(r.created_at)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="pagination">
+        <span>Showing {rows.length ? (page - 1) * 25 + 1 : 0}–{(page - 1) * 25 + rows.length} of {total}</span>
+        <div className="page-buttons">
+          <button onClick={() => onPage(page - 1)} disabled={page <= 1}>← Previous</button>
+          <button onClick={() => onPage(page + 1)} disabled={page >= lastPage}>Next →</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Drawer({ enquiry, onClose, onUpdate, onAssign }) {
+  const [tab, setTab] = useState('details');
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [busy, setBusy] = useState(null);
+
+  useEffect(() => {
+    if (!enquiry) return;
+    setTab('details');
+    setRejectOpen(false);
+    setRejectReason('');
+    setBusy(null);
+  }, [enquiry?.id]);
+
+  if (!enquiry) return null;
+
+  const transition = async newStatus => {
+    setBusy(newStatus);
+    try {
+      const updated = await api.update(enquiry.id, { status: newStatus });
+      onUpdate(updated);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const reject = async () => {
+    if (!rejectReason.trim()) return;
+    setBusy('rejected');
+    try {
+      const updated = await api.update(enquiry.id, { status: 'rejected', rejection_reason: rejectReason.trim() });
+      onUpdate(updated);
+      setRejectOpen(false);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const claim = async () => {
+    setBusy('assign');
+    try {
+      const updated = await api.assign(enquiry.id, 1); // assign to "You" (id=1) in mock
+      onAssign(updated);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <>
+      <div className={`drawer-backdrop ${enquiry ? 'open' : ''}`} onClick={onClose} />
+      <aside className={`drawer ${enquiry ? 'open' : ''}`} role="dialog" aria-modal="true">
+        <header className="drawer-header">
+          <div>
+            <h2>{enquiry.full_name}</h2>
+            <div className="sub">{enquiry.id}  ·  submitted {fmtRelative(enquiry.created_at)}</div>
+            <div style={{ marginTop: '0.6rem', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+              <StatusPill status={enquiry.status} />
+              {enquiry.flagged && <span className="flag-icon"><Icon.Flag /> flagged · spam {enquiry.spam_score}</span>}
+            </div>
+          </div>
+          <button className="drawer-close" onClick={onClose} aria-label="Close drawer">
+            <Icon.Close />
+          </button>
+        </header>
+
+        <div className="drawer-tabs">
+          <button className={tab === 'details' ? 'active' : ''} onClick={() => setTab('details')}>Details</button>
+          <button className={tab === 'timeline' ? 'active' : ''} onClick={() => setTab('timeline')}>Timeline</button>
+          <button className={tab === 'meta' ? 'active' : ''} onClick={() => setTab('meta')}>Provenance</button>
+        </div>
+
+        <div className="drawer-body">
+          {tab === 'details' && (
+            <>
+              <div className="section-title">Contact</div>
+              <div className="field-group">
+                <div className="field-row"><span className="label">Name</span><span className="value">{enquiry.full_name}</span></div>
+                <div className="field-row"><span className="label">Email</span><span className="value"><a href={`mailto:${enquiry.email}`}>{enquiry.email}</a></span></div>
+                <div className="field-row"><span className="label">Phone</span><span className="value"><a href={`tel:${enquiry.phone}`}>{enquiry.phone}</a></span></div>
+                <div className="field-row"><span className="label">Best time</span><span className={"value " + (enquiry.best_time_to_call ? "" : "muted")}>{enquiry.best_time_to_call || 'no preference'}</span></div>
+              </div>
+
+              <div className="section-title">Portfolio</div>
+              <div className="field-group">
+                <div className="field-row"><span className="label">Program</span><span className="value">{enquiry.program}</span></div>
+                <div className="field-row"><span className="label">Property</span><span className="value">{enquiry.property}</span></div>
+                <div className="field-row"><span className="label">Annual points</span><span className={"value " + (enquiry.annual_points ? "" : "muted")}>{enquiry.annual_points || 'not provided'}</span></div>
+              </div>
+
+              {enquiry.notes && (
+                <>
+                  <div className="section-title">Notes from member</div>
+                  <div className="note-block">{enquiry.notes}</div>
+                </>
+              )}
+
+              {enquiry.rejection_reason && (
+                <>
+                  <div className="section-title">Rejection reason</div>
+                  <div className="note-block" style={{ borderColor: 'rgba(180,26,56,.2)', background: 'var(--danger-bg)', color: 'var(--danger)' }}>
+                    {enquiry.rejection_reason}
+                  </div>
+                </>
+              )}
+
+              {enquiry.converted_property && (
+                <>
+                  <div className="section-title">Converted listing</div>
+                  <div className="note-block">
+                    <strong>{enquiry.converted_property.title}</strong>
+                    <br />
+                    <span className="mono" style={{ fontSize: '0.78rem', color: 'var(--ink-mute)' }}>
+                      /listings/{enquiry.converted_property.slug}
+                    </span>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+
+          {tab === 'timeline' && (
+            <ul className="timeline">
+              <li>
+                <div className="dot brand"><Icon.Plus /></div>
+                <div>
+                  <div className="what">Submitted</div>
+                  <div className="when">{fmtAbsolute(enquiry.created_at)}</div>
+                  <div className="by">Source: {SOURCE_LABEL[enquiry.source]}</div>
+                </div>
+              </li>
+              {enquiry.status !== 'new' && (
+                <li>
+                  <div className="dot"><Icon.Phone /></div>
+                  <div>
+                    <div className="what">Contacted by specialist</div>
+                    <div className="when">approx. {fmtRelative(new Date(new Date(enquiry.created_at).getTime() + 86400000).toISOString())}</div>
+                    <div className="by">{enquiry.assigned_to?.name || '—'}</div>
+                  </div>
+                </li>
+              )}
+              {enquiry.qualified_at && (
+                <li>
+                  <div className="dot"><Icon.Check /></div>
+                  <div>
+                    <div className="what">Qualified</div>
+                    <div className="when">{fmtAbsolute(enquiry.qualified_at)}</div>
+                    <div className="by">{enquiry.assigned_to?.name || '—'}</div>
+                  </div>
+                </li>
+              )}
+              {enquiry.onboarded_at && (
+                <li>
+                  <div className="dot brand"><Icon.Check /></div>
+                  <div>
+                    <div className="what">Onboarded as managed listing</div>
+                    <div className="when">{fmtAbsolute(enquiry.onboarded_at)}</div>
+                    {enquiry.converted_property && (
+                      <div className="by mono" style={{ fontSize: '0.78rem' }}>{enquiry.converted_property.slug}</div>
+                    )}
+                  </div>
+                </li>
+              )}
+              {enquiry.status === 'rejected' && (
+                <li>
+                  <div className="dot"><Icon.X /></div>
+                  <div>
+                    <div className="what">Rejected</div>
+                    <div className="when">{fmtAbsolute(enquiry.updated_at)}</div>
+                    <div className="by">{enquiry.rejection_reason}</div>
+                  </div>
+                </li>
+              )}
+            </ul>
+          )}
+
+          {tab === 'meta' && (
+            <div className="field-group">
+              <div className="field-row"><span className="label">Source</span><span className="value">{SOURCE_LABEL[enquiry.source]}</span></div>
+              <div className="field-row"><span className="label">IP address</span><span className="value mono">{enquiry.ip_address}</span></div>
+              <div className="field-row"><span className="label">Referrer</span><span className={"value " + (enquiry.referrer_url ? "" : "muted")}>{enquiry.referrer_url || 'direct'}</span></div>
+              <div className="field-row"><span className="label">Spam score</span><span className="value mono">{enquiry.spam_score} / 100</span></div>
+              <div className="field-row"><span className="label">Consent</span><span className="value">{enquiry.consent_given ? `granted at ${fmtAbsolute(enquiry.consent_at)}` : 'not granted'}</span></div>
+              <div className="field-row"><span className="label">Created</span><span className="value">{fmtAbsolute(enquiry.created_at)}</span></div>
+              <div className="field-row"><span className="label">Last updated</span><span className="value">{fmtAbsolute(enquiry.updated_at)}</span></div>
+            </div>
+          )}
+        </div>
+
+        <footer className="drawer-footer">
+          {!enquiry.assigned_to && (
+            <button className="btn" onClick={claim} disabled={busy === 'assign'}>
+              <Icon.Plus /> {busy === 'assign' ? 'Claiming…' : 'Claim'}
+            </button>
+          )}
+          {enquiry.status === 'new' && (
+            <button className="btn" onClick={() => transition('contacted')} disabled={!!busy}>
+              <Icon.Phone /> Mark contacted
+            </button>
+          )}
+          {(enquiry.status === 'contacted' || enquiry.status === 'new') && (
+            <button className="btn btn-success" onClick={() => transition('qualified')} disabled={!!busy}>
+              <Icon.Check /> Qualify
+            </button>
+          )}
+          {enquiry.status === 'qualified' && (
+            <button className="btn btn-primary" onClick={() => transition('onboarded')} disabled={!!busy}>
+              <Icon.Check /> Onboard as listing
+            </button>
+          )}
+          {!['rejected','onboarded'].includes(enquiry.status) && (
+            <button className="btn btn-danger" onClick={() => setRejectOpen(true)} disabled={!!busy}>
+              <Icon.X /> Reject
+            </button>
+          )}
+          <span className="grow" />
+          <a className="btn" href={`mailto:${enquiry.email}`}><Icon.Mail /> Email</a>
+          <a className="btn" href={`tel:${enquiry.phone}`}><Icon.Phone /> Call</a>
+        </footer>
+      </aside>
+
+      {rejectOpen && (
+        <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setRejectOpen(false); }}>
+          <div className="modal-card" role="dialog" aria-modal="true">
+            <h3>Reject this enquiry</h3>
+            <p>Required for the audit log. The member will not see this; it's internal only.</p>
+            <textarea
+              autoFocus
+              value={rejectReason}
+              onChange={e => setRejectReason(e.target.value)}
+              placeholder="e.g. Property not in active markets, member did not respond after 3 attempts, etc."
+            />
+            <div className="modal-actions">
+              <button className="btn" onClick={() => setRejectOpen(false)}>Cancel</button>
+              <button className="btn btn-danger" onClick={reject} disabled={!rejectReason.trim() || !!busy}>
+                {busy === 'rejected' ? 'Rejecting…' : 'Reject enquiry'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function Toast({ message, onDone }) {
+  useEffect(() => {
+    if (!message) return;
+    const t = setTimeout(onDone, 2400);
+    return () => clearTimeout(t);
+  }, [message, onDone]);
+  return (
+    <div className={`toast ${message ? 'show' : ''}`}>
+      <Icon.Check /> {message}
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════
+// APP
+// ═════════════════════════════════════════════════════════════════
+
+function App() {
+  const [filters, setFilters] = useState({ q: '', status: '', source: '', program: '', includeFlagged: false, page: 1 });
+  const [sort, setSort] = useState('-created_at');
+  const [data, setData] = useState({ rows: [], meta: { total: 0, lastPage: 1 } });
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const debounce = useRef(null);
+
+  // Fetch list whenever filters/sort change (debounced for the search field)
+  useEffect(() => {
+    setLoading(true);
+    clearTimeout(debounce.current);
+    debounce.current = setTimeout(async () => {
+      const res = await api.list({ ...filters, sort });
+      setData({ rows: res.data, meta: res.meta });
+      setLoading(false);
+    }, filters.q ? 200 : 0);
+    return () => clearTimeout(debounce.current);
+  }, [filters, sort]);
+
+  // Fetch stats once + after each update
+  const refreshStats = async () => setStats(await api.stats());
+  useEffect(() => { refreshStats(); }, []);
+
+  const refreshAll = async () => {
+    setLoading(true);
+    const [list, st] = await Promise.all([
+      api.list({ ...filters, sort }),
+      api.stats(),
+    ]);
+    setData({ rows: list.data, meta: list.meta });
+    setStats(st);
+    setLoading(false);
+  };
+
+  const onUpdate = async (updated) => {
+    // Optimistic: replace in list & selected
+    setData(d => ({ ...d, rows: d.rows.map(r => r.id === updated.id ? updated : r) }));
+    setSelected(updated);
+    refreshStats();
+    setToast(`Marked ${STATUS_LABEL[updated.status].toLowerCase()}`);
+  };
+
+  const onAssign = async (updated) => {
+    setData(d => ({ ...d, rows: d.rows.map(r => r.id === updated.id ? updated : r) }));
+    setSelected(updated);
+    refreshStats();
+    setToast('Assigned to you');
+  };
+
+  const onExport = () => {
+    const visible = data.rows;
+    if (!visible.length) { setToast('Nothing to export'); return; }
+    const headers = ['ID','Created','Status','Source','First Name','Last Name','Email','Phone','Program','Property','Annual Points','Best Time','Notes','Assigned To'];
+    const csvRows = [headers.join(',')].concat(
+      visible.map(r => [
+        r.id, r.created_at, r.status, r.source,
+        r.first_name, r.last_name, r.email, r.phone,
+        r.program, r.property,
+        r.annual_points ?? '',
+        r.best_time_to_call ?? '',
+        (r.notes ?? '').replace(/"/g, '""'),
+        r.assigned_to?.name ?? '',
+      ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+    );
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `members_enquiries_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setToast(`Exported ${visible.length} rows`);
+  };
+
+  return (
+    <div className="app">
+      <Sidebar stats={stats} />
+
+      <main className="main">
+        <header className="page-header">
+          <div className="breadcrumb">Operations · Members enquiries</div>
+          <h1>Members enquiries</h1>
+          <p>Lead-capture queue for the Managed Listing Program. Follow up within one business day.</p>
+        </header>
+
+        <StatsRow stats={stats} loading={!stats} />
+
+        <FilterBar
+          filters={filters}
+          setFilters={setFilters}
+          onExport={onExport}
+          onRefresh={refreshAll}
+        />
+
+        <QueueTable
+          rows={data.rows}
+          loading={loading}
+          sort={sort}
+          setSort={setSort}
+          page={filters.page}
+          lastPage={data.meta.lastPage}
+          total={data.meta.total}
+          onPage={p => setFilters(f => ({ ...f, page: p }))}
+          onRowClick={setSelected}
+        />
+      </main>
+
+      <Drawer
+        enquiry={selected}
+        onClose={() => setSelected(null)}
+        onUpdate={onUpdate}
+        onAssign={onAssign}
+      />
+
+      <Toast message={toast} onDone={() => setToast(null)} />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

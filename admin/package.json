@@ -1,0 +1,16 @@
+{
+  "name": "vaytoven-admin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Vaytoven Rentals — operations console (admin).",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "@babel/preset-react": "^7.24.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}

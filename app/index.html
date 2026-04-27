@@ -1,0 +1,2770 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Vaytoven — App Prototype</title>
+<meta name="description" content="Interactive prototype of the Vaytoven Rentals app." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23FF3D8A'/><stop offset='1' stop-color='%237B2CBF'/></linearGradient></defs><path fill='url(%23g)' d='M10 10 L24 10 L32 38 L40 10 L54 10 L36 56 L28 56 Z'/><circle cx='44' cy='18' r='8' fill='url(%23g)'/><circle cx='44' cy='18' r='3' fill='white'/></svg>">
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js" crossorigin></script>
+
+<style>
+:root {
+  --brand-pink: #FF3D8A;
+  --brand-magenta: #D63384;
+  --brand-purple: #7B2CBF;
+  --brand-deep: #3D1862;
+  --gradient-brand: linear-gradient(135deg, #FF3D8A 0%, #D63384 38%, #7B2CBF 100%);
+  --gradient-deep: linear-gradient(160deg, #3D1862 0%, #1A0C2E 100%);
+
+  --ink: #1A1426;
+  --ink-soft: #423853;
+  --ink-mute: #8E879B;
+  --ink-faint: #C9C3D6;
+  --paper: #FBF8F3;
+  --paper-2: #F4EFE6;
+  --paper-3: #E8DFD0;
+  --line: rgba(26, 20, 38, 0.08);
+  --line-strong: rgba(26, 20, 38, 0.16);
+
+  --shadow-sm: 0 1px 2px rgba(26,20,38,.05), 0 4px 12px -2px rgba(26,20,38,.06);
+  --shadow-md: 0 1px 2px rgba(26,20,38,.06), 0 12px 32px -8px rgba(26,20,38,.14);
+  --shadow-lg: 0 30px 60px -20px rgba(123, 44, 191, 0.35);
+
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; padding: 0; min-height: 100vh; }
+body {
+  font-family: "Geist", system-ui, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; padding: 0; }
+input, select, textarea { font: inherit; color: inherit; }
+
+::selection { background: var(--brand-pink); color: white; }
+
+h1, h2, h3, h4 {
+  font-family: "Fraunces", serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0;
+  font-variation-settings: "opsz" 144;
+}
+.italic-accent { font-style: italic; }
+.gradient-text {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* ───────── App shell ───────── */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.topbar {
+  position: sticky; top: 0; z-index: 40;
+  background: rgba(251, 248, 243, 0.92);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  border-bottom: 1px solid var(--line);
+  padding: 0.85rem 1.5rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.topbar .brand {
+  display: flex; align-items: center; gap: 0.55rem;
+  font-family: "Fraunces", serif;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  cursor: pointer;
+}
+.brand-mark { width: 28px; height: 28px; flex: none; }
+.topbar-search {
+  flex: 1;
+  max-width: 600px;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: 0.4rem 0.5rem 0.4rem 1.1rem;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: box-shadow 200ms;
+}
+.topbar-search:hover { box-shadow: var(--shadow-md); }
+.topbar-search-text {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.topbar-search-text .sep { width: 1px; height: 16px; background: var(--line); display: inline-block; }
+.topbar-search-text .muted { color: var(--ink-mute); font-weight: 400; }
+.topbar-search-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  flex: none;
+}
+.topbar-actions { display: flex; align-items: center; gap: 0.35rem; }
+.topbar-mode-toggle {
+  display: flex;
+  background: var(--paper-2);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-right: 0.4rem;
+}
+.topbar-mode-toggle button {
+  padding: 0.45rem 0.95rem;
+  border-radius: var(--radius-pill);
+  color: var(--ink-soft);
+  transition: background 160ms, color 160ms;
+}
+.topbar-mode-toggle button.active {
+  background: white;
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+.icon-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 160ms;
+  position: relative;
+}
+.icon-btn:hover { background: var(--paper-2); }
+.icon-btn .badge {
+  position: absolute; top: 4px; right: 4px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--brand-pink);
+  border: 2px solid var(--paper);
+}
+.avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 500;
+  font-family: "Fraunces", serif;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+/* Mobile topbar */
+@media (max-width: 720px) {
+  .topbar { padding: 0.7rem 1rem; gap: 0.6rem; }
+  .topbar-search-text { font-size: 0.82rem; }
+  .topbar-search-text .sep, .topbar-search-text .muted:nth-of-type(2) { display: none; }
+  .topbar-mode-toggle { display: none; }
+  .topbar .brand span { display: none; }
+}
+
+/* ───────── Main ───────── */
+.main { flex: 1; }
+.page { max-width: 1280px; margin: 0 auto; padding: 1.5rem; }
+.page-wide { max-width: none; }
+
+/* ───────── Search results page ───────── */
+.results-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 420px;
+  gap: 1.25rem;
+  align-items: start;
+}
+@media (max-width: 1100px) { .results-layout { grid-template-columns: 240px 1fr; } .results-map { display: none; } }
+@media (max-width: 720px) { .results-layout { grid-template-columns: 1fr; } .results-filters { display: none; } }
+
+.results-filters {
+  position: sticky;
+  top: 80px;
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+}
+.filter-group { padding: 1rem 0; border-bottom: 1px solid var(--line); }
+.filter-group:first-child { padding-top: 0; }
+.filter-group:last-child { border-bottom: none; padding-bottom: 0; }
+.filter-group h4 {
+  font-family: "Geist", sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-mute);
+  font-weight: 500;
+  margin-bottom: 0.85rem;
+}
+.range-display {
+  display: flex; justify-content: space-between;
+  font-size: 0.92rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+.range-display .muted { color: var(--ink-mute); font-weight: 400; }
+input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 4px;
+  background: var(--paper-3);
+  border-radius: 999px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: white;
+  cursor: grab;
+  box-shadow: 0 0 0 4px rgba(255, 61, 138, 0.5);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: white; cursor: grab; border: none;
+  box-shadow: 0 0 0 4px rgba(255, 61, 138, 0.5);
+}
+
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.chip {
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  background: var(--paper-2);
+  border: 1px solid transparent;
+  transition: all 160ms;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.chip:hover { border-color: var(--line-strong); }
+.chip.active {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+
+.toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 0.92rem;
+}
+.switch {
+  width: 36px; height: 20px;
+  background: var(--paper-3);
+  border-radius: 999px;
+  position: relative;
+  transition: background 160ms;
+  flex: none;
+}
+.switch::after {
+  content: ""; position: absolute;
+  top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: left 200ms cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.switch.on { background: var(--brand-pink); }
+.switch.on::after { left: 18px; }
+
+/* Results list */
+.results-list { display: flex; flex-direction: column; gap: 1rem; }
+.results-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 0.75rem;
+}
+.results-header h1 { font-size: 1.65rem; font-family: "Fraunces", serif; }
+.results-header .sub { font-size: 0.88rem; color: var(--ink-mute); }
+.results-header select {
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: white;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.list-card {
+  background: white;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  cursor: pointer;
+  transition: border-color 200ms, transform 200ms;
+}
+.list-card:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+.list-card.highlighted { border-color: var(--brand-pink); box-shadow: 0 0 0 2px rgba(255, 61, 138, 0.15); }
+.list-card-img {
+  position: relative;
+  aspect-ratio: 4/3;
+  background: linear-gradient(135deg, var(--paper-3), var(--paper-2));
+  overflow: hidden;
+}
+.list-card-img .placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: "Fraunces", serif;
+  font-size: 1.5rem;
+  color: rgba(26, 20, 38, 0.18);
+  font-style: italic;
+}
+.list-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.list-card .heart {
+  position: absolute; top: 0.75rem; right: 0.75rem;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.92);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+}
+.list-card .heart svg { width: 16px; height: 16px; stroke: var(--ink); fill: none; stroke-width: 2; }
+.list-card .heart.active svg { fill: var(--brand-pink); stroke: var(--brand-pink); }
+.list-card .badge {
+  position: absolute; top: 0.75rem; left: 0.75rem;
+  background: rgba(255,255,255,0.95);
+  font-size: 0.72rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+}
+.list-card-body {
+  padding: 1.1rem 1.25rem;
+  display: flex; flex-direction: column;
+  gap: 0.4rem;
+}
+.list-card-body .row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
+.list-card-body .loc { font-size: 0.82rem; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.06em; }
+.list-card-body .rating { font-size: 0.85rem; display: flex; align-items: center; gap: 0.2rem; }
+.list-card-body .rating svg { width: 12px; height: 12px; fill: var(--ink); }
+.list-card-body .title { font-family: "Fraunces", serif; font-size: 1.2rem; letter-spacing: -0.01em; }
+.list-card-body .meta { font-size: 0.85rem; color: var(--ink-soft); }
+.list-card-body .price-row {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.list-card-body .price { font-size: 1.05rem; font-weight: 600; }
+.list-card-body .per { color: var(--ink-mute); font-weight: 400; font-size: 0.85rem; }
+
+@media (max-width: 720px) {
+  .list-card { grid-template-columns: 1fr; }
+  .list-card-img { aspect-ratio: 16/10; }
+}
+
+/* Map panel (faux map made of CSS) */
+.results-map {
+  position: sticky; top: 80px;
+  height: calc(100vh - 100px);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, #E8E2D2 0%, #DDD3BF 100%);
+}
+.map-canvas {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(ellipse at 30% 20%, rgba(123, 44, 191, 0.06), transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(255, 61, 138, 0.06), transparent 60%);
+}
+.map-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(26, 20, 38, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 20, 38, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.map-roads {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+}
+.map-pin {
+  position: absolute;
+  background: white;
+  border: 1px solid var(--line);
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  transition: all 200ms;
+  box-shadow: var(--shadow-sm);
+  z-index: 1;
+}
+.map-pin:hover { transform: translate(-50%, -50%) scale(1.08); z-index: 2; }
+.map-pin.active {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+  z-index: 3;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+.map-watermark {
+  position: absolute;
+  bottom: 8px; right: 8px;
+  font-size: 0.7rem;
+  color: rgba(26, 20, 38, 0.4);
+  font-style: italic;
+}
+
+/* ───────── Listing detail page ───────── */
+.detail-back {
+  display: flex; align-items: center; gap: 0.45rem;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  margin-bottom: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+.detail-back:hover { color: var(--ink); }
+.detail-back svg { width: 16px; height: 16px; }
+
+.detail-header { margin-bottom: 1.25rem; }
+.detail-header h1 { font-size: clamp(1.8rem, 3vw, 2.6rem); margin-bottom: 0.4rem; }
+.detail-header .meta {
+  display: flex; align-items: center; gap: 0.85rem;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  flex-wrap: wrap;
+}
+.detail-header .meta .dot { color: var(--ink-faint); }
+.detail-header .meta strong { font-weight: 500; color: var(--ink); }
+
+.detail-gallery {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 0.5rem;
+  height: 460px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.detail-gallery > div {
+  background: linear-gradient(135deg, var(--paper-3), var(--paper-2));
+  position: relative;
+}
+.detail-gallery > div:nth-child(1) { grid-row: 1 / 3; }
+.gallery-tile {
+  display: flex; align-items: center; justify-content: center;
+  font-family: "Fraunces", serif;
+  font-style: italic;
+  color: rgba(26, 20, 38, 0.18);
+  font-size: 1.2rem;
+}
+.gallery-tile.tinted-1 { background: linear-gradient(135deg, #FFE0EC, #F4DAEC); }
+.gallery-tile.tinted-2 { background: linear-gradient(135deg, #E0E5FF, #DAEAEC); }
+.gallery-tile.tinted-3 { background: linear-gradient(135deg, #FFF4E0, #F4ECD0); }
+.gallery-tile.tinted-4 { background: linear-gradient(135deg, #E8E0FF, #D8D0EC); }
+.gallery-tile.tinted-5 { background: linear-gradient(135deg, #FFE8E0, #F4D6CC); }
+
+@media (max-width: 720px) {
+  .detail-gallery { grid-template-columns: 1fr; grid-template-rows: 250px; height: auto; }
+  .detail-gallery > div:nth-child(n+2) { display: none; }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 3rem;
+  align-items: start;
+}
+@media (max-width: 980px) { .detail-grid { grid-template-columns: 1fr; } }
+
+.detail-section {
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.detail-section:first-child { padding-top: 0; }
+.detail-section h2 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+.host-row {
+  display: flex; align-items: center; gap: 1rem;
+}
+.host-row .avatar { width: 56px; height: 56px; font-size: 1.3rem; }
+.host-row .role { color: var(--ink-mute); font-size: 0.88rem; }
+
+.amenity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+}
+.amenity {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.6rem 0;
+  font-size: 0.95rem;
+}
+.amenity svg { width: 18px; height: 18px; flex: none; color: var(--ink-soft); }
+
+/* Booking sidebar */
+.book-card {
+  position: sticky; top: 80px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+}
+.book-card .price-row { display: flex; align-items: baseline; gap: 0.4rem; margin-bottom: 1rem; }
+.book-card .price-row .price { font-size: 1.6rem; font-weight: 600; }
+.book-card .price-row .per { color: var(--ink-mute); font-size: 0.92rem; }
+.book-card .price-row .rating {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 0.25rem;
+  font-size: 0.88rem;
+}
+.book-card .price-row .rating svg { width: 12px; height: 12px; fill: var(--ink); }
+
+.date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+.date-input {
+  padding: 0.7rem 0.95rem;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.85rem;
+}
+.date-input + .date-input { border-left: 1px solid var(--line); }
+.date-input label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 0.15rem;
+}
+.guests-input {
+  width: 100%;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  background: white;
+  cursor: pointer;
+}
+.guests-input label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 0.15rem;
+}
+.btn-primary {
+  width: 100%;
+  padding: 0.95rem;
+  background: var(--gradient-brand);
+  color: white;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: transform 180ms, box-shadow 180ms;
+  box-shadow: 0 6px 18px -4px rgba(214, 51, 132, 0.45);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 26px -6px rgba(214, 51, 132, 0.6); }
+.btn-secondary {
+  width: 100%;
+  padding: 0.95rem;
+  background: white;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: border-color 180ms;
+}
+.btn-secondary:hover { border-color: var(--ink); }
+
+.cost-row {
+  display: flex; justify-content: space-between;
+  font-size: 0.9rem;
+  padding: 0.4rem 0;
+  color: var(--ink-soft);
+}
+.cost-row.total {
+  border-top: 1px solid var(--line);
+  margin-top: 0.5rem;
+  padding-top: 0.85rem;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--ink);
+}
+.cost-row .underline { text-decoration: underline; cursor: help; }
+
+/* ───────── Modal ───────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(26, 20, 38, 0.5);
+  z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 200ms ease;
+}
+.modal {
+  background: var(--paper);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  display: flex; flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 280ms cubic-bezier(.2,.8,.2,1);
+}
+.modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h2 { font-size: 1.4rem; }
+.modal-close {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { background: var(--paper-2); }
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+.modal-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--line);
+  display: flex; gap: 0.75rem;
+}
+
+/* ───────── Members program (vacation properties) ───────── */
+.members-banner {
+  background: linear-gradient(135deg, rgba(255, 61, 138, 0.08) 0%, rgba(123, 44, 191, 0.08) 100%);
+  border: 1px solid rgba(214, 51, 132, 0.18);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  cursor: pointer;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+.members-banner:hover { border-color: var(--brand-magenta); transform: translateY(-1px); }
+.members-banner-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--gradient-brand);
+  display: flex; align-items: center; justify-content: center;
+  flex: none;
+  color: white;
+}
+.members-banner-text { flex: 1; min-width: 0; }
+.members-banner-text strong {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+.members-banner-text span {
+  font-size: 0.82rem;
+  color: var(--ink-mute);
+}
+.members-banner-arrow {
+  color: var(--brand-magenta);
+  flex: none;
+}
+@media (max-width: 600px) {
+  .members-banner-text strong { font-size: 0.88rem; }
+  .members-banner-text span { display: none; }
+}
+
+/* Members modal form fields */
+.mform { display: flex; flex-direction: column; gap: 0.85rem; }
+.mform-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+@media (max-width: 540px) { .mform-row { grid-template-columns: 1fr; } }
+.mfield { display: flex; flex-direction: column; gap: 0.35rem; }
+.mfield label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.mfield label .req { color: var(--brand-magenta); }
+.mfield input,
+.mfield select,
+.mfield textarea {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.92rem;
+  background: white;
+  color: var(--ink);
+  outline: none;
+  font-family: inherit;
+  transition: border-color 160ms, box-shadow 160ms;
+}
+.mfield input:focus,
+.mfield select:focus,
+.mfield textarea:focus {
+  border-color: var(--brand-magenta);
+  box-shadow: 0 0 0 3px rgba(214, 51, 132, 0.12);
+}
+.mfield textarea { resize: vertical; min-height: 70px; }
+.mfield .hint { font-size: 0.74rem; color: var(--ink-mute); }
+.mcheckbox {
+  display: flex;
+  gap: 0.55rem;
+  align-items: start;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+  cursor: pointer;
+}
+.mcheckbox input { margin-top: 3px; accent-color: var(--brand-magenta); flex: none; }
+.mform-error {
+  background: rgba(214, 51, 132, 0.08);
+  border: 1px solid rgba(214, 51, 132, 0.25);
+  color: var(--brand-magenta);
+  padding: 0.6rem 0.85rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+.members-success {
+  padding: 2rem 1.5rem 2.5rem;
+  text-align: center;
+}
+.members-success .check {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  margin: 0 auto 1rem;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+}
+.members-success h3 {
+  font-family: "Fraunces", serif;
+  font-size: 1.3rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+.members-success p {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  max-width: 32ch;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Members tab in host sidebar (added as a sixth tab) */
+
+/* ───────── Booking confirmation ───────── */
+.confirm-hero {
+  background: var(--gradient-deep);
+  color: white;
+  padding: 4rem 2rem;
+  border-radius: var(--radius-lg);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.confirm-hero::before {
+  content: "";
+  position: absolute; inset: -10%;
+  background:
+    radial-gradient(circle at 70% 30%, rgba(255, 61, 138, 0.3), transparent 50%),
+    radial-gradient(circle at 30% 70%, rgba(123, 44, 191, 0.4), transparent 50%);
+}
+.confirm-hero > * { position: relative; z-index: 1; }
+.confirm-check {
+  width: 72px; height: 72px;
+  margin: 0 auto 1.5rem;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+.confirm-check svg { width: 36px; height: 36px; stroke: white; stroke-width: 2.5; }
+.confirm-hero h1 { font-size: 2.4rem; margin-bottom: 0.5rem; }
+.confirm-hero p { color: rgba(255, 255, 255, 0.75); max-width: 32ch; margin: 0 auto; }
+.confirm-code {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.45rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  font-feature-settings: "tnum";
+}
+
+.confirm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  background: white;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+}
+@media (max-width: 720px) { .confirm-grid { grid-template-columns: 1fr; } }
+.confirm-block h3 {
+  font-family: "Geist", sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-mute);
+  font-weight: 500;
+  margin-bottom: 0.6rem;
+}
+.confirm-block p {
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+/* ───────── Trips page ───────── */
+.trips-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 1.5rem;
+}
+.trips-tab {
+  padding: 0.85rem 0;
+  margin-right: 1.75rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--ink-mute);
+  border-bottom: 2px solid transparent;
+  transition: color 160ms, border-color 160ms;
+}
+.trips-tab.active {
+  color: var(--ink);
+  border-bottom-color: var(--brand-pink);
+}
+
+.trip-row {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 0.85rem;
+  cursor: pointer;
+  transition: border-color 180ms;
+}
+.trip-row:hover { border-color: var(--line-strong); }
+.trip-thumb {
+  width: 100px; height: 100px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--paper-3), var(--paper-2));
+  flex: none;
+}
+.trip-info .loc { font-size: 0.78rem; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.08em; }
+.trip-info .title { font-family: "Fraunces", serif; font-size: 1.2rem; margin: 0.15rem 0 0.35rem; }
+.trip-info .dates { font-size: 0.88rem; color: var(--ink-soft); }
+.trip-status {
+  font-size: 0.78rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.trip-status.confirmed { background: #E8F5EE; color: #1F7A4D; }
+.trip-status.upcoming { background: #FCF0F6; color: var(--brand-magenta); }
+.trip-status.completed { background: var(--paper-2); color: var(--ink-soft); }
+
+@media (max-width: 720px) {
+  .trip-row { grid-template-columns: 80px 1fr; }
+  .trip-thumb { width: 80px; height: 80px; }
+  .trip-status { grid-column: 1 / -1; justify-self: start; margin-top: 0.4rem; }
+}
+
+/* ───────── Inbox page ───────── */
+.inbox-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 0;
+  height: calc(100vh - 90px);
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+@media (max-width: 880px) { .inbox-layout { grid-template-columns: 1fr; } .inbox-thread.hide-mobile { display: none; } }
+
+.inbox-list {
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
+.inbox-list-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--line);
+  font-family: "Fraunces", serif;
+  font-size: 1.5rem;
+}
+.inbox-item {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 0.85rem;
+  cursor: pointer;
+  transition: background 160ms;
+}
+.inbox-item:hover { background: var(--paper); }
+.inbox-item.active { background: var(--paper-2); }
+.inbox-item .avatar { width: 44px; height: 44px; font-size: 1.05rem; }
+.inbox-item .info { min-width: 0; }
+.inbox-item .row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
+.inbox-item .name { font-weight: 500; font-size: 0.95rem; }
+.inbox-item .time { font-size: 0.75rem; color: var(--ink-mute); flex: none; }
+.inbox-item .preview {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 0.15rem;
+}
+.inbox-item.unread .name { font-weight: 600; }
+.inbox-item.unread .preview { color: var(--ink); font-weight: 500; }
+.inbox-item.unread::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--brand-pink);
+  position: absolute;
+  margin-left: -16px;
+  margin-top: 18px;
+}
+
+.inbox-thread {
+  display: flex;
+  flex-direction: column;
+}
+.inbox-thread-header {
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 1rem;
+}
+.inbox-thread-header .info .name { font-weight: 500; }
+.inbox-thread-header .info .stay { font-size: 0.82rem; color: var(--ink-mute); margin-top: 0.1rem; }
+
+.thread-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex; flex-direction: column;
+  gap: 0.75rem;
+}
+.msg {
+  max-width: 70%;
+  padding: 0.65rem 0.95rem;
+  border-radius: 16px;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+.msg.them {
+  background: var(--paper-2);
+  border-bottom-left-radius: 6px;
+  align-self: flex-start;
+}
+.msg.me {
+  background: var(--gradient-brand);
+  color: white;
+  border-bottom-right-radius: 6px;
+  align-self: flex-end;
+}
+.msg-time {
+  font-size: 0.72rem;
+  color: var(--ink-mute);
+  margin-top: 0.1rem;
+}
+.msg.me + .msg-time { align-self: flex-end; }
+
+.thread-composer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--line);
+  display: flex; gap: 0.5rem;
+  align-items: end;
+}
+.thread-composer textarea {
+  flex: 1;
+  resize: none;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.7rem 0.95rem;
+  font-size: 0.92rem;
+  outline: none;
+  transition: border-color 160ms;
+  min-height: 42px;
+  max-height: 120px;
+}
+.thread-composer textarea:focus { border-color: var(--brand-pink); }
+.thread-composer button {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  flex: none;
+}
+.thread-composer button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.empty-state {
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--ink-mute);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0.5rem;
+}
+.empty-state svg { width: 48px; height: 48px; opacity: 0.3; }
+
+/* ───────── Host dashboard ───────── */
+.host-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+.host-tabs button {
+  padding: 0.85rem 0;
+  margin-right: 1.75rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--ink-mute);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.host-tabs button.active {
+  color: var(--ink);
+  border-bottom-color: var(--brand-pink);
+}
+
+.host-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.host-stat {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+.host-stat .label {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-mute);
+  font-weight: 500;
+}
+.host-stat .value {
+  font-family: "Fraunces", serif;
+  font-size: 2rem;
+  margin-top: 0.5rem;
+  letter-spacing: -0.02em;
+}
+.host-stat .delta {
+  font-size: 0.82rem;
+  margin-top: 0.35rem;
+}
+.host-stat .delta.up { color: #1F7A4D; }
+.host-stat .delta.down { color: #C41E3A; }
+
+.host-listings {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.host-listings-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.host-listings-header h2 { font-size: 1.3rem; }
+
+.host-listing {
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+.host-listing:last-child { border-bottom: none; }
+.host-listing-thumb {
+  width: 60px; height: 60px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--paper-3), var(--paper-2));
+}
+.host-listing .title { font-weight: 500; }
+.host-listing .sub { font-size: 0.85rem; color: var(--ink-mute); margin-top: 0.15rem; }
+.host-listing .actions { display: flex; gap: 0.4rem; }
+.host-listing .actions button {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  border-radius: var(--radius-pill);
+  background: var(--paper-2);
+  font-weight: 500;
+  transition: background 160ms;
+}
+.host-listing .actions button:hover { background: var(--paper-3); }
+.host-listing .status-pill {
+  font-size: 0.74rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+.host-listing .status-pill.active { background: #E8F5EE; color: #1F7A4D; }
+.host-listing .status-pill.pending { background: #FCF0F6; color: var(--brand-magenta); }
+
+/* ───────── Animations ───────── */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 1.5rem; left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: white;
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  display: flex; align-items: center; gap: 0.55rem;
+  animation: slideUp 240ms cubic-bezier(.2,.8,.2,1);
+}
+.toast svg { width: 16px; height: 16px; }
+.toast.success svg { color: #6FE2A0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useMemo, useEffect, useRef, createContext, useContext } = React;
+
+// ═════════════════════════════════════════════════════════════════
+// MOCK DATA
+// ═════════════════════════════════════════════════════════════════
+
+const PROPERTIES = [
+  {
+    id: 1,
+    title: "Cliffside Villa with Private Pool",
+    city: "Uluwatu", country: "Bali, Indonesia",
+    type: "villa",
+    price: 285, rating: 4.96, reviews: 124,
+    beds: 3, baths: 2.5, guests: 6,
+    instantBook: true, superhost: true, beachfront: true,
+    coords: { x: 18, y: 32 },
+    host: { name: "Putu Wijaya", initial: "P", joinedYear: 2021, isSuperhost: true },
+    description: "Perched on a cliff above the Indian Ocean, this villa pairs warm Balinese craftsmanship with a 12-meter infinity pool that vanishes into the horizon. Wake up to surf you can hear from the bedroom.",
+    amenities: ["Wi-Fi", "Pool", "Beachfront", "Free parking", "Kitchen", "Air conditioning", "Workspace", "Washer"],
+    tint: 1,
+  },
+  {
+    id: 2,
+    title: "Modern Cabin with Hot Tub",
+    city: "Lake Tahoe", country: "California, USA",
+    type: "cabin",
+    price: 412, rating: 4.91, reviews: 47,
+    beds: 4, baths: 3, guests: 8,
+    instantBook: false, superhost: true,
+    coords: { x: 65, y: 18 },
+    host: { name: "Darius Vance", initial: "D", joinedYear: 2023, isSuperhost: true },
+    description: "Floor-to-ceiling windows, a stone fireplace, and a private hot tub looking straight at the lake. Built in 2022 with reclaimed cedar from the property.",
+    amenities: ["Wi-Fi", "Hot tub", "Fireplace", "Free parking", "Kitchen", "Heating", "Workspace", "Washer", "Dryer"],
+    tint: 2,
+  },
+  {
+    id: 3,
+    title: "Historic Pied-à-Terre, Tower View",
+    city: "Le Marais", country: "Paris, France",
+    type: "apartment",
+    price: 229, rating: 4.97, reviews: 203,
+    beds: 1, baths: 1, guests: 2,
+    instantBook: true, superhost: true,
+    coords: { x: 42, y: 48 },
+    host: { name: "Margaux Laurent", initial: "M", joinedYear: 2019, isSuperhost: true },
+    description: "Top-floor walkup in a 17th-century building. Hand-restored herringbone floors, a working fireplace, and a window that frames the Eiffel Tower like a painting.",
+    amenities: ["Wi-Fi", "Kitchen", "Heating", "Workspace", "Washer", "TV", "Iron"],
+    tint: 3,
+  },
+  {
+    id: 4,
+    title: "Beachfront Bungalow with Plunge Pool",
+    city: "Tulum", country: "Quintana Roo, Mexico",
+    type: "villa",
+    price: 198, rating: 4.94, reviews: 89,
+    beds: 2, baths: 2, guests: 4,
+    instantBook: true, superhost: false, beachfront: true,
+    coords: { x: 28, y: 75 },
+    host: { name: "Sofia Reyes", initial: "S", joinedYear: 2022, isSuperhost: false },
+    description: "Step from your hammock onto sand. Open-air shower, palapa roof, locally crafted hardwood furnishings. The plunge pool is salt, not chlorine.",
+    amenities: ["Wi-Fi", "Pool", "Beachfront", "Kitchen", "Air conditioning", "Outdoor shower"],
+    tint: 4,
+  },
+  {
+    id: 5,
+    title: "Lofted Studio, Shibuya Crossing",
+    city: "Shibuya", country: "Tokyo, Japan",
+    type: "loft",
+    price: 138, rating: 4.89, reviews: 312,
+    beds: 1, baths: 1, guests: 2,
+    instantBook: true, superhost: true,
+    coords: { x: 78, y: 42 },
+    host: { name: "Kenji Mori", initial: "K", joinedYear: 2020, isSuperhost: true },
+    description: "Two-floor concrete loft a block from the world's busiest crossing. Designed by an architect who also designed the building. Elevator opens directly into the unit.",
+    amenities: ["Wi-Fi", "Kitchen", "Air conditioning", "Heating", "Workspace", "Washer", "TV"],
+    tint: 5,
+  },
+  {
+    id: 6,
+    title: "Whitewashed Villa in the Caldera",
+    city: "Oia", country: "Santorini, Greece",
+    type: "villa",
+    price: 386, rating: 4.93, reviews: 156,
+    beds: 2, baths: 2, guests: 4,
+    instantBook: false, superhost: true,
+    coords: { x: 52, y: 28 },
+    host: { name: "Alexios Petros", initial: "A", joinedYear: 2018, isSuperhost: true },
+    description: "Cycladic vault carved into the volcanic cliff. Private hot tub on the terrace facing the most photographed sunset on earth. Sleeps four comfortably.",
+    amenities: ["Wi-Fi", "Hot tub", "Kitchen", "Air conditioning", "Workspace", "TV", "Iron"],
+    tint: 1,
+  },
+  {
+    id: 7,
+    title: "Eichler-Era Mid-Century Home",
+    city: "Palm Springs", country: "California, USA",
+    type: "house",
+    price: 327, rating: 4.88, reviews: 91,
+    beds: 3, baths: 2, guests: 6,
+    instantBook: true, superhost: true,
+    coords: { x: 12, y: 58 },
+    host: { name: "Dianna Khan", initial: "D", joinedYear: 2021, isSuperhost: true },
+    description: "Untouched 1962 Eichler with a glass-walled atrium, original terrazzo floors, and a black-tile pool in the courtyard. Mountain views from every room.",
+    amenities: ["Wi-Fi", "Pool", "Free parking", "Kitchen", "Air conditioning", "Heating", "BBQ"],
+    tint: 2,
+  },
+  {
+    id: 8,
+    title: "Treehouse Cabin in the Forest",
+    city: "Asheville", country: "North Carolina, USA",
+    type: "cabin",
+    price: 175, rating: 4.95, reviews: 218,
+    beds: 1, baths: 1, guests: 2,
+    instantBook: true, superhost: true,
+    coords: { x: 88, y: 65 },
+    host: { name: "Bella Hartwood", initial: "B", joinedYear: 2019, isSuperhost: true },
+    description: "Twenty feet up in old-growth oaks. Wood stove, copper soaking tub, and a deck with a hammock. No road noise. Just the forest.",
+    amenities: ["Wi-Fi", "Wood stove", "Free parking", "Kitchenette", "Outdoor shower", "Workspace"],
+    tint: 3,
+  },
+];
+
+const PROPERTY_TYPES = [
+  { slug: "all", label: "All" },
+  { slug: "villa", label: "Villa" },
+  { slug: "cabin", label: "Cabin" },
+  { slug: "apartment", label: "Apartment" },
+  { slug: "house", label: "House" },
+  { slug: "loft", label: "Loft" },
+];
+
+const AMENITY_FILTERS = ["Wi-Fi", "Pool", "Hot tub", "Beachfront", "Kitchen", "Free parking", "Workspace"];
+
+const INITIAL_THREADS = [
+  {
+    id: "t1", hostId: 1, hostName: "Putu Wijaya", hostInitial: "P",
+    propertyTitle: "Cliffside Villa with Private Pool",
+    lastTime: "2h",
+    unread: true,
+    messages: [
+      { from: "them", text: "Hi! Welcome — looking forward to hosting you. Your check-in is at 3 PM. Want me to arrange airport pickup?", time: "2h" },
+      { from: "me", text: "Yes please! That would be amazing. We land at 11:40 AM at DPS.", time: "1h" },
+      { from: "them", text: "Perfect. I'll send my driver Wayan with a Vaytoven sign. Have a safe flight.", time: "12m" },
+    ],
+  },
+  {
+    id: "t2", hostId: 2, hostName: "Darius Vance", hostInitial: "D",
+    propertyTitle: "Modern Cabin with Hot Tub",
+    lastTime: "1d",
+    unread: false,
+    messages: [
+      { from: "me", text: "Quick question — is the hot tub heated year-round?", time: "1d" },
+      { from: "them", text: "Yep, year-round. Even in winter, it stays at 102°F. Just give it 30 min to warm up after you arrive.", time: "1d" },
+    ],
+  },
+  {
+    id: "t3", hostId: 3, hostName: "Margaux Laurent", hostInitial: "M",
+    propertyTitle: "Historic Pied-à-Terre, Tower View",
+    lastTime: "5d",
+    unread: false,
+    messages: [
+      { from: "them", text: "Bon voyage! Café down the block opens at 7 — get the croissant aux amandes.", time: "5d" },
+    ],
+  },
+];
+
+const INITIAL_TRIPS = [
+  {
+    id: "b1", propertyId: 1,
+    title: "Cliffside Villa with Private Pool",
+    location: "Uluwatu, Bali",
+    checkIn: "May 14, 2026", checkOut: "May 19, 2026",
+    nights: 5, total: 1635, status: "confirmed", code: "VYT-A8K2X4",
+    when: "upcoming",
+  },
+  {
+    id: "b2", propertyId: 5,
+    title: "Lofted Studio, Shibuya Crossing",
+    location: "Tokyo, Japan",
+    checkIn: "Jul 8, 2026", checkOut: "Jul 14, 2026",
+    nights: 6, total: 996, status: "confirmed", code: "VYT-M3F7Q1",
+    when: "upcoming",
+  },
+  {
+    id: "b3", propertyId: 4,
+    title: "Beachfront Bungalow with Plunge Pool",
+    location: "Tulum, Mexico",
+    checkIn: "Mar 12, 2026", checkOut: "Mar 18, 2026",
+    nights: 6, total: 1346, status: "completed", code: "VYT-T6P9R2",
+    when: "past",
+  },
+];
+
+// Host mode mock data
+const HOST_LISTINGS = [
+  { id: 1, title: "Cliffside Villa with Private Pool", location: "Uluwatu, Bali", status: "active", price: 285, occupancy: 84, tint: 1 },
+  { id: 6, title: "Whitewashed Villa in the Caldera", location: "Santorini, Greece", status: "active", price: 386, occupancy: 71, tint: 2 },
+  { id: "draft1", title: "Hillside Treehouse (draft)", location: "Ubud, Bali", status: "pending", price: 145, occupancy: 0, tint: 3 },
+];
+
+// ═════════════════════════════════════════════════════════════════
+// ICONS (inline SVGs, kept tiny)
+// ═════════════════════════════════════════════════════════════════
+
+const Icon = {
+  Search:   (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" {...p}><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>,
+  Heart:    (p) => <svg viewBox="0 0 24 24" {...p}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+  Star:     (p) => <svg viewBox="0 0 24 24" {...p}><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>,
+  Bell:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
+  Mail:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 6l10 8 10-8"/></svg>,
+  Send:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
+  Back:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
+  Close:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...p}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  Check:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="20 6 9 17 4 12"/></svg>,
+  Wifi:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>,
+  Bed:      (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M2 4v16"/><path d="M22 8v12"/><path d="M2 16h20"/><path d="M2 8h12a4 4 0 0 1 4 4"/></svg>,
+  Bath:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5 1.5 1.5 0 0 0-1 .5L3 5"/><path d="M2 12h20"/><path d="M22 12v3a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-3"/><line x1="6" y1="20" x2="6" y2="17"/><line x1="18" y1="20" x2="18" y2="17"/></svg>,
+  Users:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  Pool:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M2 20c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/><path d="M2 16c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/><path d="M6 12V4a2 2 0 0 1 2-2h4"/><path d="M18 12V4a2 2 0 0 0-2-2h-1"/></svg>,
+  Tv:       (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>,
+  Kitchen:  (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>,
+  Car:      (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M5 17h14"/><path d="M5 11h14l-1.5-4.5a2 2 0 0 0-1.9-1.5h-7.2a2 2 0 0 0-1.9 1.5L5 11z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>,
+  Shield:   (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+  Plus:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...p}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  Calendar: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+};
+
+const AMENITY_ICON = {
+  "Wi-Fi": Icon.Wifi, "Pool": Icon.Pool, "Hot tub": Icon.Pool, "Beachfront": Icon.Pool,
+  "Kitchen": Icon.Kitchen, "Kitchenette": Icon.Kitchen, "Free parking": Icon.Car, "TV": Icon.Tv,
+  "Workspace": Icon.Tv, "Air conditioning": Icon.Tv, "Heating": Icon.Tv, "Washer": Icon.Tv, "Dryer": Icon.Tv,
+  "Fireplace": Icon.Tv, "Wood stove": Icon.Tv, "Iron": Icon.Tv, "BBQ": Icon.Tv, "Outdoor shower": Icon.Pool,
+};
+
+// ═════════════════════════════════════════════════════════════════
+// APP STATE (Context)
+// ═════════════════════════════════════════════════════════════════
+
+const AppCtx = createContext(null);
+const useApp = () => useContext(AppCtx);
+
+function AppProvider({ children }) {
+  const [route, setRoute] = useState({ name: "search" }); // {name, params}
+  const [mode, setMode] = useState("guest"); // 'guest' | 'host'
+  const [saved, setSaved] = useState(new Set([3]));
+  const [trips, setTrips] = useState(INITIAL_TRIPS);
+  const [threads, setThreads] = useState(INITIAL_THREADS);
+  const [filters, setFilters] = useState({
+    type: "all",
+    priceMin: 50, priceMax: 600,
+    instantBookOnly: false,
+    superhostOnly: false,
+    amenities: new Set(),
+  });
+  const [sort, setSort] = useState("relevance");
+  const [hoveredId, setHoveredId] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [membersOpen, setMembersOpen] = useState(false);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2200);
+  };
+
+  const navigate = (name, params) => {
+    setRoute({ name, params });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const toggleSaved = (id) => {
+    setSaved(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+    showToast(saved.has(id) ? "Removed from wishlist" : "Saved to wishlist");
+  };
+
+  const value = {
+    route, navigate, mode, setMode,
+    saved, toggleSaved,
+    trips, setTrips,
+    threads, setThreads,
+    filters, setFilters,
+    sort, setSort,
+    hoveredId, setHoveredId,
+    toast, showToast,
+    membersOpen, setMembersOpen,
+  };
+  return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
+}
+
+// ═════════════════════════════════════════════════════════════════
+// SHARED COMPONENTS
+// ═════════════════════════════════════════════════════════════════
+
+function BrandMark({ size = 28 }) {
+  const id = `brandG${Math.random().toString(36).slice(2,6)}`;
+  return (
+    <svg className="brand-mark" viewBox="0 0 64 64" width={size} height={size} fill="none">
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#FF3D8A"/>
+          <stop offset="1" stopColor="#7B2CBF"/>
+        </linearGradient>
+      </defs>
+      <path fill={`url(#${id})`} d="M10 10 L24 10 L32 38 L40 10 L54 10 L36 56 L28 56 Z"/>
+      <circle cx="44" cy="18" r="8" fill={`url(#${id})`}/>
+      <circle cx="44" cy="18" r="3" fill="#FBF8F3"/>
+    </svg>
+  );
+}
+
+function Topbar() {
+  const { mode, setMode, navigate, threads, route } = useApp();
+  const unreadCount = threads.filter(t => t.unread).length;
+
+  return (
+    <header className="topbar">
+      <div className="brand" onClick={() => navigate("search")}>
+        <BrandMark size={28} />
+        <span>Vaytoven</span>
+      </div>
+
+      <div className="topbar-search" onClick={() => navigate("search")}>
+        <div className="topbar-search-text">
+          <span>Anywhere</span>
+          <span className="sep" />
+          <span className="muted">Any week</span>
+          <span className="sep" />
+          <span className="muted">Add guests</span>
+        </div>
+        <button className="topbar-search-btn" aria-label="Search">
+          <Icon.Search style={{ width: 14, height: 14 }} />
+        </button>
+      </div>
+
+      <div className="topbar-actions">
+        <div className="topbar-mode-toggle">
+          <button className={mode === "guest" ? "active" : ""} onClick={() => { setMode("guest"); navigate("search"); }}>Travel</button>
+          <button className={mode === "host" ? "active" : ""} onClick={() => { setMode("host"); navigate("host"); }}>Host</button>
+        </div>
+        <button className="icon-btn" onClick={() => navigate("inbox")} aria-label="Messages">
+          <Icon.Mail style={{ width: 18, height: 18, color: "var(--ink-soft)" }} />
+          {unreadCount > 0 && <span className="badge" />}
+        </button>
+        <button className="icon-btn" aria-label="Notifications">
+          <Icon.Bell style={{ width: 18, height: 18, color: "var(--ink-soft)" }} />
+        </button>
+        <button className="icon-btn" onClick={() => navigate("trips")} aria-label="Trips">
+          <Icon.Calendar style={{ width: 18, height: 18, color: "var(--ink-soft)" }} />
+        </button>
+        <div className="avatar" title="Christian">C</div>
+      </div>
+    </header>
+  );
+}
+
+function Toast() {
+  const { toast } = useApp();
+  if (!toast) return null;
+  return (
+    <div className="toast success">
+      <Icon.Check style={{ width: 16, height: 16 }} />
+      <span>{toast}</span>
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════
+// SEARCH / RESULTS PAGE
+// ═════════════════════════════════════════════════════════════════
+
+function FilterPanel() {
+  const { filters, setFilters } = useApp();
+
+  const setF = (patch) => setFilters(f => ({ ...f, ...patch }));
+
+  const toggleAmenity = (a) => setFilters(f => {
+    const next = new Set(f.amenities);
+    next.has(a) ? next.delete(a) : next.add(a);
+    return { ...f, amenities: next };
+  });
+
+  return (
+    <aside className="results-filters">
+      <div className="filter-group">
+        <h4>Property type</h4>
+        <div className="chip-row">
+          {PROPERTY_TYPES.map(t => (
+            <button
+              key={t.slug}
+              className={`chip ${filters.type === t.slug ? "active" : ""}`}
+              onClick={() => setF({ type: t.slug })}
+            >{t.label}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="filter-group">
+        <h4>Price range</h4>
+        <div className="range-display">
+          <span><strong>${filters.priceMin}</strong> <span className="muted">/ night</span></span>
+          <span><strong>${filters.priceMax}</strong>{filters.priceMax >= 600 && "+"}</span>
+        </div>
+        <input
+          type="range" min={50} max={600} step={10}
+          value={filters.priceMax}
+          onChange={e => setF({ priceMax: +e.target.value })}
+        />
+      </div>
+
+      <div className="filter-group">
+        <h4>Amenities</h4>
+        <div className="chip-row">
+          {AMENITY_FILTERS.map(a => (
+            <button
+              key={a}
+              className={`chip ${filters.amenities.has(a) ? "active" : ""}`}
+              onClick={() => toggleAmenity(a)}
+            >{a}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="filter-group">
+        <div className="toggle">
+          <span>Instant book</span>
+          <button
+            className={`switch ${filters.instantBookOnly ? "on" : ""}`}
+            onClick={() => setF({ instantBookOnly: !filters.instantBookOnly })}
+            aria-label="Instant book filter"
+          />
+        </div>
+        <div className="toggle" style={{ marginTop: "0.85rem" }}>
+          <span>Superhosts only</span>
+          <button
+            className={`switch ${filters.superhostOnly ? "on" : ""}`}
+            onClick={() => setF({ superhostOnly: !filters.superhostOnly })}
+            aria-label="Superhost filter"
+          />
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function ListCard({ p, isHighlighted }) {
+  const { saved, toggleSaved, navigate, setHoveredId } = useApp();
+  const isSaved = saved.has(p.id);
+  return (
+    <article
+      className={`list-card ${isHighlighted ? "highlighted" : ""}`}
+      onClick={() => navigate("detail", { id: p.id })}
+      onMouseEnter={() => setHoveredId(p.id)}
+      onMouseLeave={() => setHoveredId(null)}
+    >
+      <div className="list-card-img">
+        <div className={`gallery-tile tinted-${p.tint}`} style={{ position: "absolute", inset: 0 }}>
+          <span>{p.city}</span>
+        </div>
+        {p.superhost && <span className="badge">Superhost</span>}
+        <button
+          className={`heart ${isSaved ? "active" : ""}`}
+          onClick={(e) => { e.stopPropagation(); toggleSaved(p.id); }}
+          aria-label="Save"
+        ><Icon.Heart /></button>
+      </div>
+      <div className="list-card-body">
+        <div className="row1">
+          <span className="loc">{p.country}</span>
+          <span className="rating"><Icon.Star /> {p.rating} ({p.reviews})</span>
+        </div>
+        <h3 className="title">{p.title}</h3>
+        <div className="meta">{p.beds} {p.beds === 1 ? "bed" : "beds"} · {p.baths} bath · up to {p.guests} guests</div>
+        <div className="price-row">
+          <span><span className="price">${p.price}</span> <span className="per">/ night</span></span>
+          {p.instantBook && <span className="loc" style={{ color: "var(--brand-magenta)" }}>⚡ Instant book</span>}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function MapPanel({ properties }) {
+  const { hoveredId, setHoveredId, navigate } = useApp();
+  return (
+    <div className="results-map">
+      <div className="map-canvas">
+        <div className="map-grid" />
+        {/* Faux roads */}
+        <svg className="map-roads" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path d="M0,30 Q30,28 50,35 T100,40" stroke="rgba(26,20,38,0.15)" strokeWidth="0.3" fill="none" />
+          <path d="M20,0 Q22,30 30,50 T35,100" stroke="rgba(26,20,38,0.12)" strokeWidth="0.25" fill="none" />
+          <path d="M60,0 Q58,40 70,60 T80,100" stroke="rgba(26,20,38,0.1)" strokeWidth="0.2" fill="none" />
+          <path d="M0,70 Q40,68 70,75 T100,72" stroke="rgba(26,20,38,0.13)" strokeWidth="0.28" fill="none" />
+        </svg>
+        {properties.map(p => (
+          <button
+            key={p.id}
+            className={`map-pin ${hoveredId === p.id ? "active" : ""}`}
+            style={{ left: `${p.coords.x}%`, top: `${p.coords.y}%` }}
+            onMouseEnter={() => setHoveredId(p.id)}
+            onMouseLeave={() => setHoveredId(null)}
+            onClick={() => navigate("detail", { id: p.id })}
+          >${p.price}</button>
+        ))}
+      </div>
+      <div className="map-watermark">Map preview</div>
+    </div>
+  );
+}
+
+function SearchPage() {
+  const { filters, sort, setSort, hoveredId } = useApp();
+
+  const filtered = useMemo(() => {
+    let list = PROPERTIES.filter(p => {
+      if (filters.type !== "all" && p.type !== filters.type) return false;
+      if (p.price < filters.priceMin || p.price > filters.priceMax) return false;
+      if (filters.instantBookOnly && !p.instantBook) return false;
+      if (filters.superhostOnly && !p.superhost) return false;
+      if (filters.amenities.size > 0) {
+        for (const a of filters.amenities) {
+          if (!p.amenities.includes(a)) return false;
+        }
+      }
+      return true;
+    });
+    if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
+    else if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
+    else if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
+    return list;
+  }, [filters, sort]);
+
+  return (
+    <div className="page page-wide" style={{ padding: "1.25rem 1.5rem" }}>
+      <div className="results-layout">
+        <FilterPanel />
+        <div>
+          <MembersBanner context="search" />
+          <header className="results-header">
+            <div>
+              <h1>{filtered.length} {filtered.length === 1 ? "stay" : "stays"}</h1>
+              <div className="sub">Featured destinations · Curated by Vaytoven</div>
+            </div>
+            <select value={sort} onChange={e => setSort(e.target.value)} aria-label="Sort">
+              <option value="relevance">Sort: Relevance</option>
+              <option value="price-asc">Price: Low → High</option>
+              <option value="price-desc">Price: High → Low</option>
+              <option value="rating">Top rated</option>
+            </select>
+          </header>
+          <div className="results-list">
+            {filtered.length === 0 ? (
+              <div className="empty-state">
+                <Icon.Search style={{ width: 48, height: 48, opacity: 0.3 }} />
+                <strong>No stays match these filters</strong>
+                <span>Try widening your price range or removing amenities.</span>
+              </div>
+            ) : filtered.map(p => (
+              <ListCard key={p.id} p={p} isHighlighted={hoveredId === p.id} />
+            ))}
+          </div>
+        </div>
+        <MapPanel properties={filtered} />
+      </div>
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════
+// LISTING DETAIL PAGE
+// ═════════════════════════════════════════════════════════════════
+
+function DetailPage({ params }) {
+  const { navigate, saved, toggleSaved } = useApp();
+  const p = PROPERTIES.find(x => x.id === params.id);
+  if (!p) return <div className="page">Listing not found.</div>;
+
+  const isSaved = saved.has(p.id);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [guests, setGuests] = useState(2);
+
+  // Default dates: a week starting in 30 days
+  useEffect(() => {
+    const today = new Date();
+    const ci = new Date(today.getTime() + 30 * 86400000);
+    const co = new Date(ci.getTime() + 5 * 86400000);
+    const fmt = d => d.toISOString().slice(0, 10);
+    setCheckIn(fmt(ci));
+    setCheckOut(fmt(co));
+  }, []);
+
+  const nights = useMemo(() => {
+    if (!checkIn || !checkOut) return 0;
+    const diff = (new Date(checkOut) - new Date(checkIn)) / 86400000;
+    return Math.max(0, Math.round(diff));
+  }, [checkIn, checkOut]);
+
+  const cleaningFee = 75;
+  const serviceFee = Math.round(p.price * nights * 0.14);
+  const taxes = Math.round((p.price * nights + cleaningFee) * 0.085);
+  const total = p.price * nights + cleaningFee + serviceFee + taxes;
+
+  return (
+    <div className="page">
+      <button className="detail-back" onClick={() => navigate("search")}>
+        <Icon.Back /> Back to search
+      </button>
+
+      <div className="detail-header">
+        <h1>{p.title}</h1>
+        <div className="meta">
+          <span><Icon.Star style={{ width: 14, height: 14, fill: "var(--ink)", verticalAlign: "middle" }} /> <strong>{p.rating}</strong> · {p.reviews} reviews</span>
+          {p.superhost && <><span className="dot">·</span><span>Superhost</span></>}
+          <span className="dot">·</span>
+          <span>{p.country}</span>
+          <span style={{ marginLeft: "auto", display: "flex", gap: "0.5rem" }}>
+            <button className="chip" onClick={() => toggleSaved(p.id)}>
+              {isSaved ? "♥ Saved" : "♡ Save"}
+            </button>
+          </span>
+        </div>
+      </div>
+
+      <div className="detail-gallery">
+        <div className={`gallery-tile tinted-${p.tint}`}><span>{p.city}</span></div>
+        <div className="gallery-tile tinted-2"><span>Living room</span></div>
+        <div className="gallery-tile tinted-3"><span>Bedroom</span></div>
+        <div className="gallery-tile tinted-4"><span>Kitchen</span></div>
+        <div className="gallery-tile tinted-5"><span>{p.amenities[1] || "View"}</span></div>
+      </div>
+
+      <div className="detail-grid">
+        <div>
+          <section className="detail-section">
+            <h2>Hosted by {p.host.name}</h2>
+            <div className="host-row">
+              <div className="avatar" style={{ width: 56, height: 56, fontSize: "1.3rem" }}>{p.host.initial}</div>
+              <div>
+                <div style={{ fontWeight: 500 }}>{p.host.isSuperhost && "★ Superhost · "}Joined {p.host.joinedYear}</div>
+                <div className="role">Responds within an hour · Speaks English, Spanish</div>
+              </div>
+            </div>
+          </section>
+
+          <section className="detail-section">
+            <h2>About this place</h2>
+            <p style={{ color: "var(--ink-soft)" }}>{p.description}</p>
+            <div style={{ display: "flex", gap: "1.5rem", marginTop: "1rem", flexWrap: "wrap" }}>
+              <span style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}><Icon.Users style={{ width: 18, height: 18 }} /> {p.guests} guests</span>
+              <span style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}><Icon.Bed style={{ width: 18, height: 18 }} /> {p.beds} {p.beds === 1 ? "bed" : "beds"}</span>
+              <span style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}><Icon.Bath style={{ width: 18, height: 18 }} /> {p.baths} bath</span>
+            </div>
+          </section>
+
+          <section className="detail-section">
+            <h2>What's included</h2>
+            <div className="amenity-grid">
+              {p.amenities.map(a => {
+                const Cmp = AMENITY_ICON[a] || Icon.Check;
+                return (
+                  <div className="amenity" key={a}>
+                    <Cmp />
+                    <span>{a}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="detail-section">
+            <h2>Trust & safety</h2>
+            <div style={{ display: "flex", gap: "0.85rem", alignItems: "start" }}>
+              <Icon.Shield style={{ width: 24, height: 24, color: "var(--brand-magenta)", flex: "none" }} />
+              <div>
+                <div style={{ fontWeight: 500, marginBottom: "0.3rem" }}>Verified host · $1M property protection</div>
+                <p style={{ color: "var(--ink-soft)", margin: 0, fontSize: "0.95rem" }}>
+                  Every host is ID-verified. Every booking includes guest trip protection. 24-hour human support, no chatbot loops.
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside className="book-card">
+          <div className="price-row">
+            <span className="price">${p.price}</span>
+            <span className="per">/ night</span>
+            <span className="rating"><Icon.Star /> {p.rating}</span>
+          </div>
+
+          <div className="date-row">
+            <div className="date-input">
+              <label>Check-in</label>
+              <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)} />
+            </div>
+            <div className="date-input">
+              <label>Check-out</label>
+              <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)} />
+            </div>
+          </div>
+
+          <div className="guests-input">
+            <label>Guests</label>
+            <select value={guests} onChange={e => setGuests(+e.target.value)} style={{ border: "none", outline: "none", background: "transparent", padding: 0, cursor: "pointer" }}>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
+                <option key={n} value={n} disabled={n > p.guests}>{n} {n === 1 ? "guest" : "guests"}{n > p.guests ? " (max exceeded)" : ""}</option>
+              ))}
+            </select>
+          </div>
+
+          <button className="btn-primary" onClick={() => setBookingOpen(true)} disabled={nights === 0}>
+            {p.instantBook ? "Reserve" : "Request to book"}
+          </button>
+          <p style={{ fontSize: "0.78rem", color: "var(--ink-mute)", textAlign: "center", margin: "0.5rem 0 1rem" }}>
+            You won't be charged yet
+          </p>
+
+          {nights > 0 && (
+            <>
+              <div className="cost-row">
+                <span className="underline">${p.price} × {nights} nights</span>
+                <span>${p.price * nights}</span>
+              </div>
+              <div className="cost-row">
+                <span className="underline">Cleaning fee</span>
+                <span>${cleaningFee}</span>
+              </div>
+              <div className="cost-row">
+                <span className="underline">Vaytoven service fee</span>
+                <span>${serviceFee}</span>
+              </div>
+              <div className="cost-row">
+                <span className="underline">Taxes</span>
+                <span>${taxes}</span>
+              </div>
+              <div className="cost-row total">
+                <span>Total</span>
+                <span>${total}</span>
+              </div>
+            </>
+          )}
+        </aside>
+      </div>
+
+      {bookingOpen && (
+        <BookingModal
+          p={p}
+          checkIn={checkIn}
+          checkOut={checkOut}
+          guests={guests}
+          nights={nights}
+          total={total}
+          onClose={() => setBookingOpen(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════
+// BOOKING MODAL → CONFIRMATION
+// ═════════════════════════════════════════════════════════════════
+
+function BookingModal({ p, checkIn, checkOut, guests, nights, total, onClose }) {
+  const { trips, setTrips, navigate, showToast } = useApp();
+  const [step, setStep] = useState(1); // 1: review, 2: payment, 3: confirmed
+  const [name, setName] = useState("");
+  const [card, setCard] = useState("");
+
+  const fmtDate = (s) => new Date(s).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const code = useMemo(() => "VYT-" + Math.random().toString(36).slice(2, 8).toUpperCase(), []);
+
+  const handleConfirm = () => {
+    const newTrip = {
+      id: "b" + Date.now(),
+      propertyId: p.id,
+      title: p.title,
+      location: `${p.city}, ${p.country.split(",")[0]}`,
+      checkIn: fmtDate(checkIn), checkOut: fmtDate(checkOut),
+      nights, total,
+      status: "confirmed",
+      code,
+      when: "upcoming",
+    };
+    setTrips([newTrip, ...trips]);
+    setStep(3);
+  };
+
+  const handleDone = () => {
+    onClose();
+    showToast("Booking confirmed");
+    navigate("trips");
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>{step === 3 ? "You're booked!" : step === 2 ? "Add payment" : "Confirm and pay"}</h2>
+          {step !== 3 && (
+            <button className="modal-close" onClick={onClose} aria-label="Close"><Icon.Close /></button>
+          )}
+        </div>
+
+        <div className="modal-body">
+          {step === 1 && (
+            <>
+              <div style={{ display: "flex", gap: "0.85rem", paddingBottom: "1.25rem", borderBottom: "1px solid var(--line)" }}>
+                <div className={`gallery-tile tinted-${p.tint}`} style={{ width: 80, height: 80, borderRadius: 12, fontSize: "0.9rem", flex: "none" }}>
+                  <span>{p.city}</span>
+                </div>
+                <div>
+                  <div style={{ fontFamily: "Fraunces, serif", fontSize: "1.1rem", marginBottom: "0.2rem" }}>{p.title}</div>
+                  <div style={{ fontSize: "0.85rem", color: "var(--ink-mute)" }}>{p.country} · Hosted by {p.host.name}</div>
+                </div>
+              </div>
+
+              <div style={{ padding: "1.25rem 0", borderBottom: "1px solid var(--line)" }}>
+                <h4 style={{ fontFamily: "Geist, sans-serif", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--ink-mute)", marginBottom: "0.65rem" }}>Your trip</h4>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                  <div>
+                    <div style={{ fontWeight: 500 }}>Dates</div>
+                    <div style={{ fontSize: "0.88rem", color: "var(--ink-soft)" }}>{fmtDate(checkIn)} → {fmtDate(checkOut)}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 500 }}>Guests</div>
+                    <div style={{ fontSize: "0.88rem", color: "var(--ink-soft)" }}>{guests} {guests === 1 ? "guest" : "guests"}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: "1.25rem 0" }}>
+                <h4 style={{ fontFamily: "Geist, sans-serif", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--ink-mute)", marginBottom: "0.65rem" }}>Total cost</h4>
+                <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "Fraunces, serif", fontSize: "1.6rem" }}>
+                  <span>{nights} {nights === 1 ? "night" : "nights"}</span>
+                  <span>${total}</span>
+                </div>
+                <div style={{ fontSize: "0.82rem", color: "var(--ink-mute)", marginTop: "0.3rem" }}>
+                  All taxes and Vaytoven fees included
+                </div>
+              </div>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <p style={{ marginBottom: "1.5rem", color: "var(--ink-soft)" }}>
+                This is a prototype — no real card details are required or transmitted.
+              </p>
+              <label style={{ display: "block", marginBottom: "1rem" }}>
+                <div style={{ fontSize: "0.78rem", color: "var(--ink-mute)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.4rem" }}>Cardholder name</div>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Christian Smith"
+                  style={{ width: "100%", padding: "0.7rem 0.95rem", border: "1px solid var(--line)", borderRadius: 12, fontSize: "0.92rem", outline: "none" }}
+                />
+              </label>
+              <label style={{ display: "block", marginBottom: "1.5rem" }}>
+                <div style={{ fontSize: "0.78rem", color: "var(--ink-mute)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.4rem" }}>Card number</div>
+                <input
+                  type="text"
+                  value={card}
+                  onChange={e => setCard(e.target.value.replace(/\D/g, "").slice(0, 16).replace(/(\d{4})(?=\d)/g, "$1 "))}
+                  placeholder="4242 4242 4242 4242"
+                  style={{ width: "100%", padding: "0.7rem 0.95rem", border: "1px solid var(--line)", borderRadius: 12, fontSize: "0.92rem", outline: "none", fontFeatureSettings: "'tnum'" }}
+                />
+              </label>
+              <div style={{ background: "var(--paper-2)", padding: "1rem", borderRadius: 12, fontSize: "0.85rem", display: "flex", gap: "0.55rem", alignItems: "start" }}>
+                <Icon.Shield style={{ width: 18, height: 18, color: "var(--brand-magenta)", flex: "none", marginTop: 2 }} />
+                <span style={{ color: "var(--ink-soft)" }}>
+                  Your card is authorized today and charged when you check in. Cancel for free up to 5 days before your stay.
+                </span>
+              </div>
+            </>
+          )}
+
+          {step === 3 && (
+            <>
+              <div className="confirm-hero" style={{ padding: "3rem 1.5rem", marginBottom: "1.5rem" }}>
+                <div className="confirm-check"><Icon.Check /></div>
+                <h1>You're booked!</h1>
+                <p>Confirmation sent to your email and added to Trips.</p>
+                <div className="confirm-code">{code}</div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem", marginBottom: "1rem" }}>
+                <div>
+                  <div style={{ fontSize: "0.74rem", textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--ink-mute)", marginBottom: "0.35rem" }}>Stay</div>
+                  <div style={{ fontWeight: 500 }}>{p.title}</div>
+                  <div style={{ fontSize: "0.88rem", color: "var(--ink-soft)" }}>{p.country}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: "0.74rem", textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--ink-mute)", marginBottom: "0.35rem" }}>Total charged</div>
+                  <div style={{ fontWeight: 500 }}>${total}</div>
+                  <div style={{ fontSize: "0.88rem", color: "var(--ink-soft)" }}>{nights} nights · {guests} guests</div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          {step === 1 && (
+            <>
+              <button className="btn-secondary" onClick={onClose} style={{ flex: 1 }}>Cancel</button>
+              <button className="btn-primary" onClick={() => setStep(2)} style={{ flex: 2 }}>Continue to payment</button>
+            </>
+          )}
+          {step === 2 && (
+            <>
+              <button className="btn-secondary" onClick={() => setStep(1)} style={{ flex: 1 }}>Back</button>
+              <button className="btn-primary" onClick={handleConfirm} style={{ flex: 2 }} disabled={!name}>
+                Confirm and pay ${total}
+              </button>
+            </>
+          )}
+          {step === 3 && (
+            <button className="btn-primary" onClick={handleDone}>View my trips</button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════
+// TRIPS PAGE
+// ═════════════════════════════════════════════════════════════════
+
+function TripsPage() {
+  const { trips, navigate } = useApp();
+  const [tab, setTab] = useState("upcoming");
+  const filtered = trips.filter(t => t.when === tab || (tab === "upcoming" && t.status === "confirmed" && t.when !== "past"));
+
+  return (
+    <div className="page">
+      <h1 style={{ fontSize: "2rem", marginBottom: "1.25rem" }}>Trips</h1>
+      <div className="trips-tabs">
+        <button className={`trips-tab ${tab === "upcoming" ? "active" : ""}`} onClick={() => setTab("upcoming")}>
+          Upcoming ({trips.filter(t => t.when === "upcoming").length})
+        </button>
+        <button className={`trips-tab ${tab === "past" ? "active" : ""}`} onClick={() => setTab("past")}>
+          Past ({trips.filter(t => t.when === "past").length})
+        </button>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="empty-state">
+          <Icon.Calendar style={{ width: 48, height: 48, opacity: 0.3 }} />
+          <strong>No {tab} trips yet</strong>
+          <span>When you book a stay, it'll show up here.</span>
+        </div>
+      ) : (
+        filtered.map(t => {
+          const p = PROPERTIES.find(x => x.id === t.propertyId);
+          return (
+            <div className="trip-row" key={t.id} onClick={() => p && navigate("detail", { id: t.propertyId })}>
+              <div className={`trip-thumb gallery-tile tinted-${p?.tint || 1}`}>
+                <span style={{ fontSize: "0.75rem" }}>{p?.city}</span>
+              </div>
+              <div className="trip-info">
+                <div className="loc">{t.location}</div>
+                <div className="title">{t.title}</div>
+                <div className="dates">{t.checkIn} → {t.checkOut}  ·  {t.nights} nights  ·  ${t.total} total</div>
+                <div style={{ fontSize: "0.78rem", color: "var(--ink-mute)", marginTop: "0.25rem", letterSpacing: "0.04em" }}>{t.code}</div>
+              </div>
+              <span className={`trip-status ${tab === "past" ? "completed" : "upcoming"}`}>
+                {tab === "past" ? "Completed" : "Upcoming"}
+              </span>
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════
+// INBOX PAGE
+// ═════════════════════════════════════════════════════════════════
+
+function InboxPage() {
+  const { threads, setThreads } = useApp();
+  const [activeId, setActiveId] = useState(threads[0]?.id);
+  const [draft, setDraft] = useState("");
+  const messagesEnd = useRef();
+
+  const active = threads.find(t => t.id === activeId);
+
+  // Mark as read on selection
+  useEffect(() => {
+    if (active?.unread) {
+      setThreads(ts => ts.map(t => t.id === active.id ? { ...t, unread: false } : t));
+    }
+  }, [activeId]);
+
+  useEffect(() => {
+    messagesEnd.current?.scrollIntoView({ behavior: "smooth" });
+  }, [active?.messages?.length]);
+
+  const send = () => {
+    if (!draft.trim()) return;
+    setThreads(ts => ts.map(t => t.id === activeId
+      ? { ...t, messages: [...t.messages, { from: "me", text: draft.trim(), time: "now" }], lastTime: "now" }
+      : t));
+    setDraft("");
+    // Simulate host reply after 2s
+    setTimeout(() => {
+      setThreads(ts => ts.map(t => t.id === activeId
+        ? { ...t, messages: [...t.messages, { from: "them", text: "Thanks for reaching out — I'll get back to you shortly.", time: "now" }], lastTime: "now" }
+        : t));
+    }, 1800);
+  };
+
+  return (
+    <div className="page page-wide" style={{ padding: "1rem 1.5rem" }}>
+      <div className="inbox-layout">
+        <div className="inbox-list">
+          <div className="inbox-list-header">Messages</div>
+          {threads.map(t => (
+            <div
+              key={t.id}
+              className={`inbox-item ${t.id === activeId ? "active" : ""} ${t.unread ? "unread" : ""}`}
+              onClick={() => setActiveId(t.id)}
+            >
+              <div className="avatar">{t.hostInitial}</div>
+              <div className="info">
+                <div className="row1">
+                  <span className="name">{t.hostName}</span>
+                  <span className="time">{t.lastTime}</span>
+                </div>
+                <div className="preview">{t.messages[t.messages.length - 1]?.text}</div>
+                <div style={{ fontSize: "0.75rem", color: "var(--ink-mute)", marginTop: "0.2rem", fontStyle: "italic" }}>
+                  {t.propertyTitle}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="inbox-thread">
+          {active ? (
+            <>
+              <div className="inbox-thread-header">
+                <div className="avatar" style={{ width: 44, height: 44 }}>{active.hostInitial}</div>
+                <div className="info">
+                  <div className="name">{active.hostName}</div>
+                  <div className="stay">{active.propertyTitle}</div>
+                </div>
+              </div>
+              <div className="thread-messages">
+                {active.messages.map((m, i) => (
+                  <React.Fragment key={i}>
+                    <div className={`msg ${m.from}`}>{m.text}</div>
+                  </React.Fragment>
+                ))}
+                <div ref={messagesEnd} />
+              </div>
+              <div className="thread-composer">
+                <textarea
+                  rows={1}
+                  placeholder="Type a message…"
+                  value={draft}
+                  onChange={e => setDraft(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                />
+                <button onClick={send} disabled={!draft.trim()} aria-label="Send"><Icon.Send /></button>
+              </div>
+            </>
+          ) : (
+            <div className="empty-state">
+              <Icon.Mail style={{ width: 48, height: 48, opacity: 0.3 }} />
+              <strong>No conversations yet</strong>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════
+// HOST DASHBOARD
+// ═════════════════════════════════════════════════════════════════
+
+function HostPage() {
+  const [tab, setTab] = useState("overview");
+  return (
+    <div className="page">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+        <div>
+          <h1 style={{ fontSize: "2rem" }}>Host dashboard</h1>
+          <p style={{ color: "var(--ink-mute)", margin: 0 }}>Welcome back, Christian.</p>
+        </div>
+        <button className="btn-primary" style={{ width: "auto", padding: "0.7rem 1.25rem" }}>
+          + Add new listing
+        </button>
+      </div>
+
+      <MembersBanner context="host" />
+
+      <div className="host-tabs">
+        {["overview", "listings", "calendar", "earnings", "reviews"].map(t => (
+          <button key={t} className={tab === t ? "active" : ""} onClick={() => setTab(t)}>
+            {t.charAt(0).toUpperCase() + t.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {tab === "overview" && <HostOverview />}
+      {tab === "listings" && <HostListings />}
+      {tab === "calendar" && <HostCalendar />}
+      {tab === "earnings" && <HostEarnings />}
+      {tab === "reviews" && <HostReviews />}
+    </div>
+  );
+}
+
+function HostOverview() {
+  return (
+    <>
+      <div className="host-grid">
+        <div className="host-stat">
+          <div className="label">Earnings this month</div>
+          <div className="value gradient-text">$8,432</div>
+          <div className="delta up">↑ 18% from last month</div>
+        </div>
+        <div className="host-stat">
+          <div className="label">Booked nights</div>
+          <div className="value">42<span style={{ fontSize: "1rem", color: "var(--ink-mute)" }}>/ 60</span></div>
+          <div className="delta up">↑ 7 vs last month</div>
+        </div>
+        <div className="host-stat">
+          <div className="label">Avg rating</div>
+          <div className="value">4.94</div>
+          <div className="delta" style={{ color: "var(--ink-mute)" }}>From 124 reviews</div>
+        </div>
+        <div className="host-stat">
+          <div className="label">Response rate</div>
+          <div className="value">100<span style={{ fontSize: "1rem" }}>%</span></div>
+          <div className="delta up">avg 12 min</div>
+        </div>
+      </div>
+
+      <div className="host-listings">
+        <div className="host-listings-header">
+          <h2>Recent activity</h2>
+          <span style={{ fontSize: "0.85rem", color: "var(--ink-mute)" }}>Last 7 days</span>
+        </div>
+        {[
+          { who: "Maya R.", what: "booked", listing: "Cliffside Villa", when: "2h ago", amount: "$1,635" },
+          { who: "Tom K.", what: "messaged about", listing: "Cliffside Villa", when: "5h ago" },
+          { who: "Anya L.", what: "reviewed", listing: "Whitewashed Villa", when: "1d ago", rating: "5.0" },
+          { who: "Sam P.", what: "requested booking for", listing: "Cliffside Villa", when: "2d ago", amount: "$2,280" },
+        ].map((a, i) => (
+          <div key={i} className="host-listing">
+            <div className="avatar" style={{ width: 40, height: 40, fontSize: "0.9rem" }}>{a.who[0]}</div>
+            <div>
+              <div><strong>{a.who}</strong> {a.what} <strong>{a.listing}</strong></div>
+              <div className="sub">{a.when}{a.amount && ` · ${a.amount}`}{a.rating && ` · ★ ${a.rating}`}</div>
+            </div>
+            <button className="chip">View</button>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function HostListings() {
+  return (
+    <div className="host-listings">
+      <div className="host-listings-header">
+        <h2>Your listings ({HOST_LISTINGS.length})</h2>
+      </div>
+      {HOST_LISTINGS.map(l => (
+        <div key={l.id} className="host-listing">
+          <div className={`host-listing-thumb gallery-tile tinted-${l.tint}`}>
+            <span style={{ fontSize: "0.65rem" }}>{l.location.split(",")[0]}</span>
+          </div>
+          <div>
+            <div className="title">
+              {l.title}
+              <span className={`status-pill ${l.status === "active" ? "active" : "pending"}`}>
+                {l.status === "active" ? "Live" : "Pending review"}
+              </span>
+            </div>
+            <div className="sub">{l.location} · ${l.price}/night · {l.occupancy}% occupancy</div>
+          </div>
+          <div className="actions">
+            <button>Edit</button>
+            <button>Calendar</button>
+            <button>Stats</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HostCalendar() {
+  // Simple month grid showing booked / blocked / available days
+  const today = new Date();
+  const month = today.getMonth();
+  const year = today.getFullYear();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const monthName = today.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+  // Mock booked dates (deterministic)
+  const booked = new Set([5, 6, 7, 8, 14, 15, 16, 22, 23]);
+  const blocked = new Set([18, 19]);
+
+  return (
+    <div style={{ background: "white", padding: "2rem", borderRadius: "var(--radius)", border: "1px solid var(--line)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "1.5rem" }}>
+        <h2 style={{ fontSize: "1.4rem" }}>{monthName}</h2>
+        <div style={{ display: "flex", gap: "1.25rem", fontSize: "0.85rem" }}>
+          <span><span style={{ display: "inline-block", width: 12, height: 12, borderRadius: 3, background: "var(--brand-pink)", marginRight: 6, verticalAlign: "middle" }} /> Booked</span>
+          <span><span style={{ display: "inline-block", width: 12, height: 12, borderRadius: 3, background: "var(--ink-faint)", marginRight: 6, verticalAlign: "middle" }} /> Blocked</span>
+          <span><span style={{ display: "inline-block", width: 12, height: 12, borderRadius: 3, background: "var(--paper-2)", border: "1px solid var(--line)", marginRight: 6, verticalAlign: "middle" }} /> Available</span>
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, fontSize: "0.78rem", color: "var(--ink-mute)", marginBottom: "0.5rem" }}>
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => <div key={d} style={{ textAlign: "center", padding: "0.5rem 0", fontWeight: 500 }}>{d}</div>)}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
+        {Array.from({ length: firstDay }).map((_, i) => <div key={`pad${i}`} />)}
+        {Array.from({ length: daysInMonth }).map((_, i) => {
+          const d = i + 1;
+          const isBooked = booked.has(d);
+          const isBlocked = blocked.has(d);
+          const isToday = d === today.getDate();
+          return (
+            <div
+              key={d}
+              style={{
+                aspectRatio: 1,
+                borderRadius: 8,
+                background: isBooked ? "var(--brand-pink)" : isBlocked ? "var(--ink-faint)" : "var(--paper-2)",
+                color: isBooked ? "white" : isBlocked ? "white" : "var(--ink)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "0.92rem",
+                fontWeight: isToday ? 600 : 400,
+                border: isToday ? "2px solid var(--brand-purple)" : "1px solid transparent",
+                cursor: "pointer",
+              }}
+            >{d}</div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function HostEarnings() {
+  // Simple SVG bar chart
+  const months = [
+    { m: "Nov", v: 4200 },
+    { m: "Dec", v: 5800 },
+    { m: "Jan", v: 3900 },
+    { m: "Feb", v: 5100 },
+    { m: "Mar", v: 6200 },
+    { m: "Apr", v: 7100 },
+    { m: "May", v: 8432 },
+  ];
+  const max = Math.max(...months.map(x => x.v));
+  return (
+    <div style={{ background: "white", padding: "2rem", borderRadius: "var(--radius)", border: "1px solid var(--line)" }}>
+      <h2 style={{ fontSize: "1.4rem", marginBottom: "0.3rem" }}>Earnings — last 7 months</h2>
+      <p style={{ color: "var(--ink-mute)", marginBottom: "2rem" }}>After Vaytoven's 3% host fee. Stripe Connect deposits direct to your account 24h after each check-in.</p>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${months.length}, 1fr)`, gap: "0.75rem", height: 280, alignItems: "end" }}>
+        {months.map((b, i) => {
+          const h = (b.v / max) * 240;
+          const last = i === months.length - 1;
+          return (
+            <div key={b.m} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <div style={{ fontSize: "0.78rem", fontWeight: 500, color: last ? "var(--brand-magenta)" : "var(--ink-soft)" }}>${b.v.toLocaleString()}</div>
+              <div style={{
+                width: "100%", height: h, borderRadius: "8px 8px 0 0",
+                background: last ? "var(--gradient-brand)" : "var(--paper-3)",
+                transition: "height 600ms cubic-bezier(.2,.8,.2,1)",
+              }} />
+              <div style={{ fontSize: "0.78rem", color: "var(--ink-mute)" }}>{b.m}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function HostReviews() {
+  const reviews = [
+    { who: "Maya R.", initial: "M", date: "2 weeks ago", rating: 5, text: "Putu's hospitality made the trip. The villa is exactly as photographed, and the airport pickup he arranged saved us a stressful first day." },
+    { who: "Tom K.", initial: "T", date: "1 month ago", rating: 5, text: "Sunset from the infinity pool is unreal. The kitchen is fully stocked, and the cleaning staff was discreet but always available." },
+    { who: "Anya L.", initial: "A", date: "1 month ago", rating: 5, text: "Pictures don't do it justice. We'll be back. Putu, if you read this — thank you for the welcome basket. The salak fruit was a revelation." },
+  ];
+  return (
+    <div>
+      {reviews.map((r, i) => (
+        <div key={i} style={{ background: "white", padding: "1.5rem", borderRadius: "var(--radius)", border: "1px solid var(--line)", marginBottom: "0.85rem" }}>
+          <div style={{ display: "flex", gap: "0.85rem", marginBottom: "0.85rem" }}>
+            <div className="avatar">{r.initial}</div>
+            <div>
+              <div style={{ fontWeight: 500 }}>{r.who}</div>
+              <div style={{ fontSize: "0.85rem", color: "var(--ink-mute)" }}>
+                {Array.from({ length: r.rating }).map((_, k) => <Icon.Star key={k} style={{ width: 12, height: 12, fill: "var(--ink)", display: "inline" }} />)}  ·  {r.date}
+              </div>
+            </div>
+          </div>
+          <p style={{ margin: 0, color: "var(--ink-soft)" }}>{r.text}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════
+// MEMBERS PROGRAM (vacation properties / points)
+// ═════════════════════════════════════════════════════════════════
+
+function MembersBanner({ context = "search" }) {
+  const { setMembersOpen } = useApp();
+  const copy = context === "host"
+    ? { title: "Own vacation property in a points program?", sub: "Earn from unused weeks — managed end-to-end." }
+    : { title: "Own vacation property points?", sub: "Earn rental income on the weeks you don't use." };
+  return (
+    <div className="members-banner" onClick={() => setMembersOpen(true)} role="button" tabIndex={0}
+         onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setMembersOpen(true); } }}>
+      <div className="members-banner-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div className="members-banner-text">
+        <strong>{copy.title}</strong>
+        <span>{copy.sub}</span>
+      </div>
+      <svg className="members-banner-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"/>
+        <polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </div>
+  );
+}
+
+function MembersModal() {
+  const { membersOpen, setMembersOpen, showToast } = useApp();
+  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({
+    firstName: "", lastName: "", email: "", phone: "",
+    program: "", property: "", points: "", bestTime: "", notes: "",
+    consent: false,
+  });
+  const [error, setError] = useState("");
+
+  if (!membersOpen) return null;
+
+  const close = () => {
+    setMembersOpen(false);
+    // Reset after fade-out
+    setTimeout(() => {
+      setSubmitted(false);
+      setForm({
+        firstName: "", lastName: "", email: "", phone: "",
+        program: "", property: "", points: "", bestTime: "", notes: "",
+        consent: false,
+      });
+      setError("");
+    }, 250);
+  };
+
+  const update = (k) => (e) => {
+    const v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    setForm(prev => ({ ...prev, [k]: v }));
+  };
+
+  const submit = (e) => {
+    e.preventDefault();
+    // Required-field check
+    const missing = [];
+    if (!form.firstName.trim()) missing.push("First name");
+    if (!form.lastName.trim()) missing.push("Last name");
+    if (!form.email.trim()) missing.push("Email");
+    if (!form.phone.trim()) missing.push("Phone");
+    if (!form.program) missing.push("Program");
+    if (!form.property.trim()) missing.push("Property");
+    if (!form.consent) missing.push("Consent");
+    if (missing.length) {
+      setError(`Please complete: ${missing.join(", ")}.`);
+      return;
+    }
+    // Basic email sanity
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      setError("That email doesn't look right.");
+      return;
+    }
+    setError("");
+    // In production this would POST to an endpoint that fans out to CRM + Slack + email
+    console.log("Members enquiry:", form);
+    setSubmitted(true);
+    showToast("Submitted — we'll be in touch within one business day.");
+    setTimeout(close, 4500);
+  };
+
+  return (
+    <div className="modal-overlay" onClick={close}>
+      <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
+        {!submitted ? (
+          <>
+            <div className="modal-header">
+              <div>
+                <div style={{ fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--ink-mute)", marginBottom: "0.3rem" }}>
+                  Managed listing program
+                </div>
+                <h2>Tell us about your vacation property.</h2>
+              </div>
+              <button className="modal-close" onClick={close} aria-label="Close"><Icon.Close /></button>
+            </div>
+
+            <div className="modal-body">
+              <p style={{ color: "var(--ink-soft)", fontSize: "0.92rem", marginBottom: "1.25rem", lineHeight: 1.5 }}>
+                A member specialist will reach out within one business day to walk through how the program works for your specific portfolio.
+              </p>
+
+              <form className="mform" onSubmit={submit} noValidate>
+                {error && <div className="mform-error">{error}</div>}
+
+                <div className="mform-row">
+                  <div className="mfield">
+                    <label>First name <span className="req">*</span></label>
+                    <input type="text" value={form.firstName} onChange={update("firstName")} autoComplete="given-name" />
+                  </div>
+                  <div className="mfield">
+                    <label>Last name <span className="req">*</span></label>
+                    <input type="text" value={form.lastName} onChange={update("lastName")} autoComplete="family-name" />
+                  </div>
+                </div>
+
+                <div className="mform-row">
+                  <div className="mfield">
+                    <label>Email <span className="req">*</span></label>
+                    <input type="email" value={form.email} onChange={update("email")} autoComplete="email" />
+                  </div>
+                  <div className="mfield">
+                    <label>Phone <span className="req">*</span></label>
+                    <input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" />
+                  </div>
+                </div>
+
+                <div className="mfield">
+                  <label>Vacation club / program <span className="req">*</span></label>
+                  <select value={form.program} onChange={update("program")}>
+                    <option value="">Select a program</option>
+                    <option>Marriott Vacation Club</option>
+                    <option>Hilton Grand Vacations</option>
+                    <option>Disney Vacation Club</option>
+                    <option>Wyndham Destinations</option>
+                    <option>Hyatt Residence Club</option>
+                    <option>Diamond Resorts</option>
+                    <option>Worldmark by Wyndham</option>
+                    <option>Bluegreen Vacations</option>
+                    <option>Westgate</option>
+                    <option>RCI Points</option>
+                    <option>Interval International</option>
+                    <option>Other / Independent</option>
+                  </select>
+                </div>
+
+                <div className="mfield">
+                  <label>Property name &amp; location <span className="req">*</span></label>
+                  <input type="text" value={form.property} onChange={update("property")} placeholder="e.g. Marriott Maui Ocean Club, Lahaina HI" />
+                  <span className="hint">If you have multiple, list one — we'll discuss the rest on the call.</span>
+                </div>
+
+                <div className="mform-row">
+                  <div className="mfield">
+                    <label>Annual points balance</label>
+                    <input type="text" value={form.points} onChange={update("points")} placeholder="e.g. 250,000" />
+                  </div>
+                  <div className="mfield">
+                    <label>Best time to call</label>
+                    <select value={form.bestTime} onChange={update("bestTime")}>
+                      <option value="">No preference</option>
+                      <option>Morning (8am – 12pm)</option>
+                      <option>Afternoon (12pm – 5pm)</option>
+                      <option>Evening (5pm – 8pm)</option>
+                      <option>Weekends only</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mfield">
+                  <label>Anything we should know?</label>
+                  <textarea value={form.notes} onChange={update("notes")} placeholder="Banking restrictions, blackout weeks, multiple memberships, etc." />
+                </div>
+
+                <label className="mcheckbox">
+                  <input type="checkbox" checked={form.consent} onChange={update("consent")} />
+                  <span>I'd like to be contacted about Vaytoven's managed listing program. I understand my information will be reviewed by a member specialist.</span>
+                </label>
+
+                <button type="submit" className="btn-primary" style={{ marginTop: "0.4rem", justifyContent: "center" }}>
+                  Submit and schedule a call
+                </button>
+              </form>
+            </div>
+          </>
+        ) : (
+          <div className="members-success">
+            <div className="check">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <h3>Thanks — we got it.</h3>
+            <p>A member specialist will reach out within one business day. In the meantime, watch your inbox for a confirmation email.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════
+// ROUTER + APP ROOT
+// ═════════════════════════════════════════════════════════════════
+
+function Router() {
+  const { route } = useApp();
+  switch (route.name) {
+    case "search": return <SearchPage />;
+    case "detail": return <DetailPage params={route.params} />;
+    case "trips":  return <TripsPage />;
+    case "inbox":  return <InboxPage />;
+    case "host":   return <HostPage />;
+    default:       return <SearchPage />;
+  }
+}
+
+function App() {
+  return (
+    <AppProvider>
+      <div className="app">
+        <Topbar />
+        <main className="main">
+          <Router />
+        </main>
+        <Toast />
+        <MembersModal />
+      </div>
+    </AppProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
