@@ -12,10 +12,12 @@ Local Laravel app path:
 /Users/christiandior/Documents/Codex/2026-04-27/master-prompt-vaytoven-rentals-laravel-blade/vaytoven
 ```
 
-New local app commit:
+Local app commits:
 
 ```text
 326f4e0 refactor(models): add foundation relationships
+abdd4f4 build(frontend): add npm lockfile
+c1b4d6f fix(database): enable gist equality extension
 ```
 
 What changed:
@@ -47,11 +49,15 @@ What changed:
   - `ChargebackDispute`
 - Marked tables without standard Laravel timestamps so Eloquent does not write missing `updated_at` columns.
 - Fixed `ChargebackDispute::scopeEvidenceDue()` to use `evidence_due_at`, matching the migration.
+- Removed accidental React/Inertia package changes from the local app and restored Blade/Livewire-only Vite config.
+- Added `package-lock.json` after npm install succeeded from the available package set.
+- Added `btree_gist` to the PostgreSQL extension migration because the booking no-overlap GiST exclusion constraint needs equality support for `property_id`.
 
 Verification run:
 
 ```bash
 php artisan test --filter SmokeTest
+npm run build
 find app/Models app/Services tests database -type f -name '*.php' -print0 | xargs -0 -n1 php -l
 ```
 
@@ -59,21 +65,23 @@ Result:
 
 ```text
 Smoke test passes.
+Vite build passes.
 PHP syntax checks pass.
 ```
 
 Still blocked by environment:
 
-- npm DNS still fails with `getaddrinfo ENOTFOUND registry.npmjs.org`.
-- PostgreSQL startup is still blocked by sandbox shared-memory restrictions.
-- PostGIS is still not available in the local PostgreSQL extension directory.
+- `php artisan migrate:fresh --seed` fails because this sandbox cannot connect to PostgreSQL at `127.0.0.1:5432`.
+- `php artisan serve` and `php -S` both fail in this sandbox with `Operation not permitted` when trying to listen on a local port.
+- Installing PostGIS into the project-local Homebrew was attempted from cache, but Homebrew failed with `Operation not permitted - bind(2)` while creating an internal fork socket.
 - Full migrations and database-backed tests cannot run until PostgreSQL 15+ with PostGIS is available outside the sandbox.
 
 Next recommended task:
 
-1. Get npm working and run `npm install && npm run build`.
-2. Get PostgreSQL 15+ with PostGIS running.
+1. In a normal Mac Terminal or VS Code terminal, start PostgreSQL 15+ with PostGIS.
+2. Run `createdb vaytoven && createdb vaytoven_test`.
 3. Run `php artisan migrate:fresh --seed`.
 4. Fix any executable migration issues while preserving `docs/schema.sql` intent.
 5. Run `php artisan test --filter SmokeTest`.
-6. Commit Phase 1 only when migrations and smoke test both pass.
+6. Run `php artisan serve` and open `http://127.0.0.1:8000`.
+7. Commit Phase 1 only when migrations and smoke test both pass.
