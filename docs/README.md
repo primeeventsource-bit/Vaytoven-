@@ -13,6 +13,7 @@ The source of truth for what Vaytoven is, how it's built, and what's coming next
 | [`roadmap.docx`](roadmap.docx) | Roadmap in Word format. | DOCX |
 | [`landing-page-spec.md`](landing-page-spec.md) | Content + design decisions for the marketing site. | Markdown |
 | [`pitch-deck.pptx`](pitch-deck.pptx) | Investor and partner narrative. 14 slides. | PPTX |
+| [`CODEX_HANDOFF.md`](CODEX_HANDOFF.md) | Current Laravel build state, environment blockers, local setup commands, and VS Code/Codex continuation prompt. | Markdown |
 
 ## Updating these docs
 
@@ -20,6 +21,7 @@ The source of truth for what Vaytoven is, how it's built, and what's coming next
 - **schema.sql** — keep this in sync with `backend/database/migrations/` line-for-line. The migrations are the source of truth for the running DB; this file is the source of truth for the design.
 - **architecture.md** — update whenever a service is added, replaced, or significantly redesigned.
 - **roadmap.md** — update at the start of each milestone with what actually shipped vs. planned, and re-baseline the remaining timeline.
+- **CODEX_HANDOFF.md** — update when the active Laravel build state, local blockers, or continuation prompt changes.
 
 ## Versioning
 
