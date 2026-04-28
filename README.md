@@ -2,7 +2,7 @@
 
 **Find your place anywhere.**
 
-Vaytoven Rentals is now a Laravel 11 application at the repository root so Laravel Cloud can detect and deploy it directly.
+Vaytoven Rentals is a Laravel 11 application at the repository root so Laravel Cloud can detect and deploy it directly.
 
 ## Laravel Cloud
 
@@ -24,21 +24,11 @@ npm install
 cp .env.example .env
 php artisan key:generate
 npm run build
-php artisan migrate:fresh --seed
 php artisan serve
 ```
 
-The database must be PostgreSQL 15+ with PostGIS enabled.
-
-## Documentation
-
-The product specification remains in `docs/`:
-
-- `docs/SRS.md`
-- `docs/schema.sql`
-- `docs/architecture.md`
-- `docs/roadmap.md`
+The full project specification remains in `docs/`.
 
 ## Language Rule
 
-User-facing copy must not use the legal industry term for vacation club ownership. Use vacation property, vacation club, points-based ownership, and member.
+User-facing copy must use vacation property, vacation club, points-based ownership, and member.

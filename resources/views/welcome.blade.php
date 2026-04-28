@@ -21,7 +21,7 @@
             <div class="eyebrow">Find your place anywhere.</div>
             <h1><span class="brand">Vaytoven</span> Rentals</h1>
             <p>Vacation rentals for travelers, hosts, and vacation club members who want unused stays turned into managed listings.</p>
-            <div class="panel">Laravel is running from the repository root. Phase 1 foundation is ready for database migration once PostgreSQL with PostGIS is attached.</div>
+            <div class="panel">Laravel is running from the repository root.</div>
         </section>
     </main>
 </body>
