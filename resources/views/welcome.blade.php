@@ -3,26 +3,1211 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Vaytoven Rentals</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Vaytoven Rentals — Find your place anywhere.</title>
+    <meta name="description" content="Curated vacation rentals for travelers, hosts, and vacation club members.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23FF3D8A'/%3E%3Cstop offset='.5' stop-color='%23D63384'/%3E%3Cstop offset='1' stop-color='%237B2CBF'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M10 8h12l10 30 10-30h12L34 56h-8z'/%3E%3Ccircle cx='48' cy='14' r='8' fill='url(%23g)'/%3E%3Ccircle cx='48' cy='14' r='3' fill='%23fff'/%3E%3C/svg%3E">
     <style>
-        body { margin: 0; min-height: 100vh; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1A1426; background: #FBF8F3; }
-        main { min-height: 100vh; display: grid; place-items: center; padding: 32px; }
-        section { max-width: 880px; }
-        .eyebrow { color: #D63384; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; }
-        h1 { margin: 16px 0; font-size: clamp(44px, 8vw, 88px); line-height: .95; }
-        p { max-width: 660px; font-size: 20px; line-height: 1.6; color: rgba(26, 20, 38, .78); }
-        .brand { background: linear-gradient(135deg, #FF3D8A, #D63384 45%, #7B2CBF); -webkit-background-clip: text; color: transparent; }
-        .panel { margin-top: 32px; border: 1px solid rgba(123, 44, 191, .18); background: rgba(255,255,255,.72); padding: 24px; border-radius: 8px; }
+        :root {
+            --pink: #FF3D8A;
+            --magenta: #D63384;
+            --purple: #7B2CBF;
+            --ink: #1A1426;
+            --paper: #FBF8F3;
+            --paper-2: #F5F0E8;
+            --line: rgba(26, 20, 38, 0.10);
+            --muted: rgba(26, 20, 38, 0.62);
+            --gradient: linear-gradient(135deg, #FF3D8A 0%, #D63384 45%, #7B2CBF 100%);
+            --section-x: clamp(1.25rem, 5vw, 4.5rem);
+            --section-y: clamp(4rem, 8vw, 7rem);
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--ink);
+            background: var(--paper);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .display { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
+        .grad-text {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+        .grad-bg { background: var(--gradient); }
+        .eyebrow {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--magenta);
+        }
+        a { color: inherit; text-decoration: none; }
+        button { font: inherit; cursor: pointer; border: 0; background: transparent; color: inherit; }
+        img { max-width: 100%; display: block; }
+
+        /* Brand mark */
+        .brand-mark { display: inline-flex; align-items: center; gap: 10px; }
+        .brand-mark svg { width: 32px; height: 32px; }
+        .brand-mark-text { font-family: 'Fraunces', serif; font-weight: 600; font-size: 22px; letter-spacing: -0.01em; }
+
+        /* Nav */
+        .nav {
+            position: sticky; top: 0; z-index: 50;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px var(--section-x);
+            background: rgba(251, 248, 243, 0.85);
+            backdrop-filter: saturate(140%) blur(12px);
+            -webkit-backdrop-filter: saturate(140%) blur(12px);
+            border-bottom: 1px solid var(--line);
+        }
+        .nav-links { display: flex; gap: 32px; align-items: center; }
+        .nav-links a { font-size: 14px; font-weight: 500; color: rgba(26, 20, 38, 0.75); transition: color .2s; }
+        .nav-links a:hover { color: var(--ink); }
+        .nav-cta {
+            padding: 10px 18px; border-radius: 999px;
+            background: var(--ink); color: var(--paper);
+            font-size: 14px; font-weight: 500;
+        }
+        @media (max-width: 820px) { .nav-links a:not(.nav-cta) { display: none; } }
+
+        /* Hero */
+        .hero { padding: clamp(2.5rem, 6vw, 5rem) var(--section-x) var(--section-y); }
+        .hero h1 {
+            font-size: clamp(48px, 9vw, 120px);
+            margin: 0 0 24px;
+            max-width: 12ch;
+        }
+        .hero h1 em { font-style: italic; font-weight: 500; }
+        .hero p { font-size: clamp(17px, 1.5vw, 21px); max-width: 56ch; color: var(--muted); margin: 0 0 40px; }
+
+        /* Search */
+        .search {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr 1fr auto;
+            gap: 1px;
+            background: var(--line);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px -16px rgba(123, 44, 191, 0.18);
+            max-width: 880px;
+        }
+        .search-field { background: #fff; padding: 14px 22px; }
+        .search-field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+        .search-field input { width: 100%; border: 0; outline: 0; font: inherit; font-size: 16px; color: var(--ink); background: transparent; padding: 0; }
+        .search-field input::placeholder { color: rgba(26, 20, 38, 0.4); }
+        .search-submit {
+            background: var(--gradient); color: #fff;
+            padding: 0 28px; font-weight: 600; font-size: 15px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .search-submit svg { width: 18px; height: 18px; }
+        @media (max-width: 720px) {
+            .search { grid-template-columns: 1fr; }
+            .search-submit { padding: 16px; justify-content: center; }
+        }
+
+        /* Stats */
+        .hero-stats { display: flex; gap: clamp(28px, 5vw, 64px); margin-top: 56px; flex-wrap: wrap; }
+        .hero-stat-num { font-family: 'Fraunces', serif; font-size: clamp(28px, 3vw, 36px); font-weight: 600; }
+        .hero-stat-label { font-size: 13px; color: var(--muted); }
+
+        /* Section header */
+        .section-header { margin-bottom: 3.5rem; max-width: 760px; }
+        .section-header h2 { margin: 14px 0 16px; font-size: clamp(34px, 4.5vw, 56px); }
+        .section-header h2 em { font-style: italic; font-weight: 500; }
+        .section-header p { margin: 0; color: var(--muted); font-size: 17px; }
+
+        /* Destinations */
+        .section { padding: var(--section-y) var(--section-x); }
+        .destinations-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            grid-template-rows: 280px 280px;
+            gap: 16px;
+        }
+        .dest-card {
+            position: relative; border-radius: 18px; overflow: hidden;
+            background: linear-gradient(135deg, #2a1f3d, #4a2c5a);
+            color: #fff;
+            transition: transform .4s cubic-bezier(.2,.7,.3,1);
+        }
+        .dest-card:hover { transform: translateY(-4px); }
+        .dest-card:nth-child(1) { grid-row: span 2; }
+        .dest-card img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+        .dest-card::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.6) 100%);
+        }
+        .dest-card-body {
+            position: absolute; left: 24px; right: 24px; bottom: 22px; z-index: 2;
+            display: flex; justify-content: space-between; align-items: end; gap: 12px;
+        }
+        .dest-card h3 { font-family: 'Fraunces', serif; font-size: 26px; margin: 0; font-weight: 600; }
+        .dest-card-meta { font-size: 13px; opacity: .85; }
+        .dest-card-price {
+            background: rgba(255,255,255,.95); color: var(--ink);
+            padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;
+        }
+        @media (max-width: 900px) {
+            .destinations-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 240px 240px 240px; }
+            .dest-card:nth-child(1) { grid-row: span 1; grid-column: span 2; }
+        }
+        @media (max-width: 560px) {
+            .destinations-grid { grid-template-columns: 1fr; grid-template-rows: repeat(5, 220px); }
+            .dest-card:nth-child(1) { grid-column: span 1; }
+        }
+
+        /* Featured */
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+        .feature-card { position: relative; }
+        .feature-img {
+            position: relative; aspect-ratio: 4/5; border-radius: 16px; overflow: hidden;
+            background: linear-gradient(135deg, #f0e8de, #d8c8d8);
+        }
+        .feature-img img { width: 100%; height: 100%; object-fit: cover; }
+        .feature-heart {
+            position: absolute; top: 12px; right: 12px; z-index: 2;
+            width: 36px; height: 36px; border-radius: 999px;
+            background: rgba(255,255,255,.9); display: grid; place-items: center;
+            transition: transform .15s;
+        }
+        .feature-heart:active { transform: scale(.92); }
+        .feature-heart svg { width: 18px; height: 18px; stroke: var(--ink); fill: none; stroke-width: 2; transition: all .2s; }
+        .feature-heart.is-saved svg { fill: var(--pink); stroke: var(--pink); }
+        .feature-card h3 { margin: 14px 0 4px; font-size: 17px; font-weight: 600; }
+        .feature-meta { font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+        .feature-rating { display: inline-flex; align-items: center; gap: 4px; font-weight: 500; color: var(--ink); }
+        .feature-price { margin-top: 6px; font-weight: 600; }
+        .feature-price span { font-weight: 400; color: var(--muted); }
+        @media (max-width: 1100px) { .featured-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 540px) { .featured-grid { grid-template-columns: 1fr; } }
+
+        /* Trust */
+        .trust-section { background: var(--paper-2); }
+        .trust-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: clamp(2rem, 5vw, 5rem);
+            align-items: center;
+        }
+        .trust-list { list-style: none; padding: 0; margin: 0; counter-reset: trust; display: grid; gap: 28px; }
+        .trust-list li { counter-increment: trust; display: grid; grid-template-columns: 36px 1fr; gap: 18px; align-items: start; }
+        .trust-list li::before {
+            content: counter(trust, decimal-leading-zero);
+            font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600;
+            background: var(--gradient); -webkit-background-clip: text; color: transparent;
+        }
+        .trust-list h4 { margin: 0 0 4px; font-size: 17px; font-weight: 600; }
+        .trust-list p { margin: 0; color: var(--muted); font-size: 15px; }
+
+        .trust-panel {
+            background: linear-gradient(160deg, #1A1426 0%, #2D1B4E 50%, #4A1F5C 100%);
+            color: #fff;
+            border-radius: 28px;
+            padding: clamp(2rem, 4vw, 3rem);
+            position: relative; overflow: hidden;
+            min-height: 380px;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .trust-panel::before {
+            content: ''; position: absolute; top: -100px; right: -100px;
+            width: 280px; height: 280px;
+            background: radial-gradient(circle, rgba(255, 61, 138, 0.4), transparent 70%);
+        }
+        .trust-shield {
+            width: 96px; height: 110px; position: relative; z-index: 1;
+        }
+        .trust-panel h3 { font-family: 'Fraunces', serif; font-size: clamp(28px, 3vw, 36px); margin: 24px 0 8px; max-width: 18ch; line-height: 1.05; }
+        .trust-panel p { color: rgba(255,255,255,.75); margin: 0; max-width: 38ch; }
+        @media (max-width: 900px) { .trust-grid { grid-template-columns: 1fr; } }
+
+        /* Host CTA */
+        .host-cta {
+            background: linear-gradient(160deg, #1A1426 0%, #3D1F4E 60%, #5B2C8C 100%);
+            color: #fff;
+        }
+        .host-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+        .host-benefits { list-style: none; padding: 0; margin: 32px 0 0; display: grid; gap: 18px; }
+        .host-benefits li { display: grid; grid-template-columns: 24px 1fr; gap: 14px; align-items: start; font-size: 15px; }
+        .host-benefits svg { width: 24px; height: 24px; stroke: var(--pink); fill: none; stroke-width: 2.5; }
+        .host-cta .section-header h2, .host-cta .section-header p { color: #fff; }
+        .host-cta .section-header p { color: rgba(255,255,255,.72); }
+        .host-cta .eyebrow { color: var(--pink); }
+
+        .calc-card {
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 24px;
+            padding: clamp(1.75rem, 3vw, 2.25rem);
+            backdrop-filter: blur(12px);
+        }
+        .calc-card h4 { font-family: 'Fraunces', serif; font-size: 17px; margin: 0 0 4px; font-weight: 500; color: rgba(255,255,255,.7); }
+        .calc-earnings {
+            font-family: 'Fraunces', serif; font-size: clamp(48px, 6vw, 72px); font-weight: 600;
+            background: var(--gradient); -webkit-background-clip: text; color: transparent;
+            line-height: 1;
+            margin: 6px 0 8px;
+        }
+        .calc-period { color: rgba(255,255,255,.55); font-size: 14px; margin-bottom: 28px; }
+        .calc-row { margin-bottom: 22px; }
+        .calc-row:last-child { margin-bottom: 0; }
+        .calc-label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; }
+        .calc-label span:last-child { font-weight: 600; color: var(--pink); }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-runnable-track { height: 4px; background: rgba(255,255,255,.18); border-radius: 4px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 999px; background: var(--gradient); margin-top: -9px; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+        input[type=range]::-moz-range-track { height: 4px; background: rgba(255,255,255,.18); border-radius: 4px; }
+        input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 999px; background: linear-gradient(135deg, #FF3D8A, #7B2CBF); border: 3px solid #fff; }
+        @media (max-width: 900px) { .host-grid { grid-template-columns: 1fr; } }
+
+        /* Members section */
+        .members-section { background: var(--paper-2); }
+        .members-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+        .members-list { list-style: none; padding: 0; margin: 32px 0; display: grid; gap: 18px; }
+        .members-list li { display: grid; grid-template-columns: 24px 1fr; gap: 14px; align-items: start; font-size: 16px; }
+        .members-list svg { width: 24px; height: 24px; stroke: var(--magenta); fill: none; stroke-width: 2.5; }
+        .members-cta {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 14px 26px; border-radius: 999px;
+            background: var(--gradient); color: #fff;
+            font-weight: 600; font-size: 15px;
+            box-shadow: 0 8px 24px -8px rgba(214, 51, 132, 0.5);
+            transition: transform .15s;
+        }
+        .members-cta:hover { transform: translateY(-1px); }
+        .earnings-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: clamp(1.75rem, 3vw, 2.25rem);
+        }
+        .earnings-card h4 { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 0 0 24px; }
+        .earnings-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-top: 1px solid var(--line); }
+        .earnings-row:first-of-type { border-top: 0; }
+        .earnings-row strong { font-weight: 500; }
+        .earnings-row em { font-style: normal; color: var(--muted); font-size: 13px; display: block; margin-top: 2px; }
+        .earnings-amt { font-family: 'Fraunces', serif; font-weight: 600; font-size: 17px; }
+        .earnings-total { padding-top: 22px; margin-top: 14px; border-top: 2px solid var(--ink); display: flex; justify-content: space-between; align-items: baseline; }
+        .earnings-total-num { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 600; background: var(--gradient); -webkit-background-clip: text; color: transparent; line-height: 1; }
+        .earnings-disclaimer { font-style: italic; font-size: 12px; color: var(--muted); margin-top: 18px; line-height: 1.5; }
+        @media (max-width: 900px) { .members-grid { grid-template-columns: 1fr; } }
+
+        /* App download */
+        .app-section { padding: var(--section-y) var(--section-x); }
+        .app-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+        .phone-mockup {
+            width: 280px; max-width: 100%;
+            aspect-ratio: 9/19;
+            background: var(--ink);
+            border-radius: 44px;
+            padding: 12px;
+            margin: 0 auto;
+            box-shadow: 0 30px 60px -20px rgba(123, 44, 191, 0.3);
+            position: relative;
+        }
+        .phone-screen { width: 100%; height: 100%; background: var(--paper); border-radius: 32px; overflow: hidden; padding: 22px 16px; }
+        .phone-notch {
+            position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+            width: 100px; height: 22px; background: var(--ink); border-radius: 999px;
+        }
+        .phone-search {
+            background: #fff; border-radius: 999px; padding: 10px 16px;
+            font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 8px;
+            border: 1px solid var(--line);
+        }
+        .phone-card { background: #fff; border-radius: 14px; padding: 8px; margin-top: 12px; }
+        .phone-card-img { aspect-ratio: 4/3; border-radius: 8px; background: var(--gradient); margin-bottom: 8px; }
+        .phone-card-body { padding: 0 4px 4px; font-size: 10px; }
+        .phone-card-body strong { display: block; margin-bottom: 2px; }
+        .phone-card-body span { color: var(--muted); }
+
+        .store-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+        .store-btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: var(--ink); color: var(--paper);
+            padding: 12px 20px; border-radius: 14px; font-size: 14px;
+        }
+        .store-btn small { display: block; font-size: 10px; opacity: .8; }
+        .store-btn strong { display: block; font-size: 16px; font-weight: 500; }
+        @media (max-width: 800px) { .app-grid { grid-template-columns: 1fr; } }
+
+        /* Testimonials */
+        .testimonials-section { background: var(--paper-2); }
+        .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .testimonial {
+            background: #fff; border: 1px solid var(--line);
+            border-radius: 20px; padding: 28px;
+            position: relative;
+        }
+        .testimonial-quote {
+            font-family: 'Fraunces', serif; font-size: 64px; line-height: 1;
+            color: var(--pink); position: absolute; top: 16px; right: 24px;
+        }
+        .testimonial p { margin: 8px 0 24px; font-size: 16px; line-height: 1.55; }
+        .testimonial-who { display: flex; gap: 12px; align-items: center; }
+        .testimonial-avatar {
+            width: 40px; height: 40px; border-radius: 999px;
+            background: var(--gradient); flex-shrink: 0;
+        }
+        .testimonial-name { font-weight: 600; font-size: 14px; }
+        .testimonial-role { font-size: 12px; color: var(--muted); }
+        @media (max-width: 900px) { .testimonials-grid { grid-template-columns: 1fr; } }
+
+        /* FAQ */
+        .faq-list { max-width: 760px; margin: 0 auto; }
+        .faq-item {
+            border-bottom: 1px solid var(--line);
+            padding: 4px 0;
+        }
+        .faq-item summary {
+            font-family: 'Fraunces', serif; font-size: clamp(18px, 2vw, 22px); font-weight: 500;
+            padding: 22px 0; cursor: pointer; list-style: none;
+            display: flex; justify-content: space-between; gap: 16px; align-items: start;
+        }
+        .faq-item summary::-webkit-details-marker { display: none; }
+        .faq-item summary::after { content: '+'; font-size: 28px; font-weight: 300; color: var(--magenta); transition: transform .2s; }
+        .faq-item[open] summary::after { transform: rotate(45deg); }
+        .faq-item-body { padding: 0 0 22px; color: var(--muted); font-size: 16px; max-width: 60ch; }
+
+        /* Footer */
+        .footer {
+            background: var(--ink); color: rgba(255,255,255,.78);
+            padding: clamp(3rem, 6vw, 5rem) var(--section-x) 2rem;
+        }
+        .footer-grid {
+            display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 48px;
+            padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,.1);
+        }
+        .footer-grid h5 { color: #fff; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 18px; }
+        .footer-grid ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; font-size: 14px; }
+        .footer-brand .brand-mark-text { color: #fff; }
+        .footer-brand p { font-size: 14px; max-width: 32ch; margin-top: 16px; color: rgba(255,255,255,.6); }
+        .footer-bottom { padding-top: 24px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: rgba(255,255,255,.5); }
+        @media (max-width: 800px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; } }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 100;
+            background: rgba(26, 20, 38, 0.55);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: none; align-items: center; justify-content: center;
+            padding: 20px; overflow-y: auto;
+        }
+        .modal-overlay.is-open { display: flex; }
+        .modal {
+            background: #fff;
+            border-radius: 24px;
+            width: 100%; max-width: 580px;
+            padding: clamp(1.5rem, 3vw, 2.5rem);
+            position: relative;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        .modal-close {
+            position: absolute; top: 18px; right: 20px;
+            width: 36px; height: 36px; border-radius: 999px;
+            background: var(--paper-2); display: grid; place-items: center;
+            font-size: 22px; line-height: 1; color: var(--ink);
+        }
+        .modal-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--magenta); }
+        .modal h3 { font-family: 'Fraunces', serif; font-size: clamp(24px, 3vw, 32px); font-weight: 600; margin: 8px 0 24px; line-height: 1.1; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+        .form-field { display: block; }
+        .form-field label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+        .form-field label .req { color: var(--pink); }
+        .form-field input, .form-field select, .form-field textarea {
+            width: 100%; padding: 12px 14px;
+            border: 1px solid var(--line); border-radius: 10px;
+            font: inherit; font-size: 15px; color: var(--ink);
+            background: #fff;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+            outline: none; border-color: var(--pink);
+            box-shadow: 0 0 0 3px rgba(255, 61, 138, 0.15);
+        }
+        .form-field .hint { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; font-style: italic; }
+        .form-field-full { margin-bottom: 14px; }
+        .consent-row { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; padding: 12px 0; font-size: 13px; color: var(--muted); }
+        .consent-row input { margin-top: 2px; accent-color: var(--magenta); }
+        .form-error {
+            background: rgba(255, 61, 138, 0.08);
+            color: var(--magenta);
+            border: 1px solid rgba(255, 61, 138, 0.25);
+            padding: 10px 14px; border-radius: 10px;
+            font-size: 13px; margin-bottom: 14px;
+            display: none;
+        }
+        .form-error.is-visible { display: block; }
+        .form-submit {
+            width: 100%; padding: 14px 22px; margin-top: 8px;
+            background: var(--gradient); color: #fff;
+            border-radius: 12px; font-weight: 600; font-size: 15px;
+            transition: transform .15s, opacity .2s;
+        }
+        .form-submit:hover { transform: translateY(-1px); }
+        .form-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+        @media (max-width: 540px) { .form-row { grid-template-columns: 1fr; } }
+
+        .modal-success { text-align: center; padding: 18px 8px 8px; }
+        .modal-success-icon {
+            width: 72px; height: 72px; border-radius: 999px;
+            background: var(--gradient);
+            display: grid; place-items: center; margin: 0 auto 22px;
+        }
+        .modal-success-icon svg { width: 36px; height: 36px; stroke: #fff; fill: none; stroke-width: 3; }
+        .modal-success h3 { margin: 0 0 12px; }
+        .modal-success p { color: var(--muted); max-width: 38ch; margin: 0 auto; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: var(--ink); color: #fff;
+            padding: 12px 22px; border-radius: 999px;
+            font-size: 14px; font-weight: 500;
+            box-shadow: 0 12px 32px -8px rgba(0,0,0,.3);
+            opacity: 0; pointer-events: none;
+            transition: opacity .2s, transform .25s cubic-bezier(.2,.7,.3,1);
+            z-index: 200;
+        }
+        .toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
     </style>
 </head>
 <body>
-    <main>
-        <section>
-            <div class="eyebrow">Find your place anywhere.</div>
-            <h1><span class="brand">Vaytoven</span> Rentals</h1>
-            <p>Vacation rentals for travelers, hosts, and vacation club members who want unused stays turned into managed listings.</p>
-            <div class="panel">Laravel is running from the repository root.</div>
-        </section>
-    </main>
+
+<!-- Brand mark SVG (defs reused everywhere) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+        <linearGradient id="brand-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#FF3D8A"/>
+            <stop offset="50%" stop-color="#D63384"/>
+            <stop offset="100%" stop-color="#7B2CBF"/>
+        </linearGradient>
+    </defs>
+</svg>
+
+<nav class="nav">
+    <a href="/" class="brand-mark" aria-label="Vaytoven">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+            <path fill="url(#brand-grad)" d="M10 8h12l10 30 10-30h12L34 56h-8z"/>
+            <circle cx="48" cy="14" r="8" fill="url(#brand-grad)"/>
+            <circle cx="48" cy="14" r="3" fill="#fff"/>
+        </svg>
+        <span class="brand-mark-text">Vaytoven</span>
+    </a>
+    <div class="nav-links">
+        <a href="#destinations">Stays</a>
+        <a href="#host">Become a host</a>
+        <a href="#members">Members</a>
+        <a href="#app" class="nav-cta">Get the app</a>
+    </div>
+</nav>
+
+<header class="hero">
+    <h1 class="display">Find your place <em class="grad-text">anywhere.</em></h1>
+    <p>Curated vacation properties across the world's best places to stay. Booked simply, hosted with care.</p>
+
+    <form class="search" action="#" onsubmit="event.preventDefault();">
+        <div class="search-field">
+            <label for="s-where">Where</label>
+            <input id="s-where" type="text" placeholder="Anywhere on earth">
+        </div>
+        <div class="search-field">
+            <label for="s-when">When</label>
+            <input id="s-when" type="text" placeholder="Any week">
+        </div>
+        <div class="search-field">
+            <label for="s-who">Who</label>
+            <input id="s-who" type="text" placeholder="Add guests">
+        </div>
+        <button type="submit" class="search-submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+            Search
+        </button>
+    </form>
+
+    <div class="hero-stats">
+        <div>
+            <div class="hero-stat-num">120+</div>
+            <div class="hero-stat-label">Destinations curated</div>
+        </div>
+        <div>
+            <div class="hero-stat-num">4.9★</div>
+            <div class="hero-stat-label">Average guest rating</div>
+        </div>
+        <div>
+            <div class="hero-stat-num">$0</div>
+            <div class="hero-stat-label">Hidden booking fees</div>
+        </div>
+    </div>
+</header>
+
+<section class="section" id="destinations">
+    <div class="section-header">
+        <div class="eyebrow">Where to next</div>
+        <h2 class="display">Cities and coastlines worth <em class="grad-text">the trip.</em></h2>
+        <p>A short, hand-picked list — no infinite scroll, no algorithmic guesswork.</p>
+    </div>
+
+    <div class="destinations-grid">
+        <a href="#" class="dest-card">
+            <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200&q=80" alt="Bali rice terraces" loading="lazy">
+            <div class="dest-card-body">
+                <div>
+                    <h3>Bali</h3>
+                    <div class="dest-card-meta">Ubud · Seminyak · Uluwatu</div>
+                </div>
+                <span class="dest-card-price">from $84</span>
+            </div>
+        </a>
+        <a href="#" class="dest-card">
+            <img src="https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=800&q=80" alt="Santorini white buildings and blue sea" loading="lazy">
+            <div class="dest-card-body">
+                <div>
+                    <h3>Santorini</h3>
+                    <div class="dest-card-meta">Oia · Imerovigli</div>
+                </div>
+                <span class="dest-card-price">from $210</span>
+            </div>
+        </a>
+        <a href="#" class="dest-card">
+            <img src="https://images.unsplash.com/photo-1551524559-8af4e6624178?w=800&q=80" alt="Lake Tahoe pines and water" loading="lazy">
+            <div class="dest-card-body">
+                <div>
+                    <h3>Lake Tahoe</h3>
+                    <div class="dest-card-meta">South Shore · Heavenly</div>
+                </div>
+                <span class="dest-card-price">from $146</span>
+            </div>
+        </a>
+        <a href="#" class="dest-card">
+            <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80" alt="Paris skyline with Eiffel Tower" loading="lazy">
+            <div class="dest-card-body">
+                <div>
+                    <h3>Paris</h3>
+                    <div class="dest-card-meta">Le Marais · 7e</div>
+                </div>
+                <span class="dest-card-price">from $172</span>
+            </div>
+        </a>
+        <a href="#" class="dest-card">
+            <img src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&q=80" alt="Tokyo skyline at night" loading="lazy">
+            <div class="dest-card-body">
+                <div>
+                    <h3>Tokyo</h3>
+                    <div class="dest-card-meta">Shibuya · Shimokitazawa</div>
+                </div>
+                <span class="dest-card-price">from $128</span>
+            </div>
+        </a>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-header">
+        <div class="eyebrow">Featured stays</div>
+        <h2 class="display">Stays our team <em class="grad-text">booked themselves.</em></h2>
+        <p>If we wouldn't sleep there, we don't list it.</p>
+    </div>
+
+    <div class="featured-grid">
+        <article class="feature-card">
+            <div class="feature-img">
+                <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80" alt="" loading="lazy">
+                <button class="feature-heart" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            </div>
+            <h3>Cliffside cottage, Big Sur</h3>
+            <div class="feature-meta">
+                <span>Sleeps 4 · 2 bed</span>
+                <span class="feature-rating">★ 4.96</span>
+            </div>
+            <div class="feature-price">$310 <span>/ night · May 12–17</span></div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-img">
+                <img src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=600&q=80" alt="" loading="lazy">
+                <button class="feature-heart" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            </div>
+            <h3>Olive grove villa, Puglia</h3>
+            <div class="feature-meta">
+                <span>Sleeps 6 · 3 bed</span>
+                <span class="feature-rating">★ 4.98</span>
+            </div>
+            <div class="feature-price">$245 <span>/ night · Jun 04–11</span></div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-img">
+                <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&q=80" alt="" loading="lazy">
+                <button class="feature-heart" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            </div>
+            <h3>Cedar A-frame, Catskills</h3>
+            <div class="feature-meta">
+                <span>Sleeps 4 · 2 bed</span>
+                <span class="feature-rating">★ 4.92</span>
+            </div>
+            <div class="feature-price">$198 <span>/ night · Jul 22–27</span></div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-img">
+                <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80" alt="" loading="lazy">
+                <button class="feature-heart" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            </div>
+            <h3>Riad with rooftop, Marrakech</h3>
+            <div class="feature-meta">
+                <span>Sleeps 5 · 3 bed</span>
+                <span class="feature-rating">★ 4.95</span>
+            </div>
+            <div class="feature-price">$156 <span>/ night · Sep 08–14</span></div>
+        </article>
+    </div>
+</section>
+
+<section class="section trust-section">
+    <div class="trust-grid">
+        <div>
+            <div class="eyebrow">Why Vaytoven</div>
+            <h2 class="display" style="margin: 14px 0 16px; font-size: clamp(34px, 4.5vw, 52px);">Trust, built into <em class="grad-text">every booking.</em></h2>
+            <p style="color: var(--muted); margin: 0 0 32px;">No surprise fees. No fake reviews. No questions about who's behind the listing. Here's how we keep it that way.</p>
+
+            <ol class="trust-list">
+                <li>
+                    <div>
+                        <h4>Verified hosts</h4>
+                        <p>Every host clears identity, ownership, and tax documentation before going live. No proxies, no fronts.</p>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <h4>Real-stay reviews only</h4>
+                        <p>Reviews come from confirmed bookings — never anonymous, never gameable.</p>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <h4>Transparent pricing</h4>
+                        <p>What you see at search is what you pay at checkout. Cleaning, taxes, and fees broken out, never hidden.</p>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <h4>24/7 trip support</h4>
+                        <p>A real human, in your timezone, within minutes — not a chatbot, not a queue.</p>
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+        <div class="trust-panel">
+            <svg class="trust-shield" viewBox="0 0 96 110" fill="none">
+                <path d="M48 4 L88 20 L88 56 C88 80 70 100 48 106 C26 100 8 80 8 56 L8 20 Z" stroke="rgba(255,255,255,.4)" stroke-width="2" fill="rgba(255,61,138,.08)"/>
+                <path d="M30 56 L42 68 L66 44" stroke="#FF3D8A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div>
+                <h3>Backed by a $1M trip protection guarantee.</h3>
+                <p>If a stay doesn't match what was booked, we relocate you within 24 hours and refund the difference. Always.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section host-cta" id="host">
+    <div class="section-header">
+        <div class="eyebrow">Become a host</div>
+        <h2 class="display">Your second home, <em class="grad-text">earning its keep.</em></h2>
+        <p>Half the take-home of a hotel. Twice the booking pace of generic listing sites. List once, we handle the rest.</p>
+    </div>
+
+    <div class="host-grid">
+        <div>
+            <div class="eyebrow" style="color: var(--pink);">What's different</div>
+            <ul class="host-benefits">
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">3% host fee.</strong> Not 15. Not 20. Three.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Direct payouts.</strong> Funds clear within 24 hours of guest check-in.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Damage cover, baked in.</strong> Up to $250K per stay, no separate purchase.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Listing concierge.</strong> Photography, copy, pricing — handled by our team, not yours.</span></li>
+            </ul>
+        </div>
+
+        <div class="calc-card">
+            <h4>Estimated annual earnings</h4>
+            <div class="calc-earnings" id="calc-earnings">$24,696</div>
+            <div class="calc-period">After our 3% fee · taxes and cleaning excluded</div>
+
+            <div class="calc-row">
+                <div class="calc-label"><span>Average nightly rate</span><span id="calc-rate">$280</span></div>
+                <input type="range" id="calc-rate-input" min="80" max="800" value="280" step="10">
+            </div>
+
+            <div class="calc-row">
+                <div class="calc-label"><span>Booked weeks per year</span><span id="calc-weeks">13</span></div>
+                <input type="range" id="calc-weeks-input" min="2" max="40" value="13" step="1">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section members-section" id="members">
+    <div class="members-grid">
+        <div>
+            <div class="eyebrow">For vacation club members</div>
+            <h2 class="display" style="margin: 14px 0 16px; font-size: clamp(34px, 4.5vw, 56px);">Turn unused points into <em class="grad-text">real income.</em></h2>
+            <p style="color: var(--muted); margin: 0;">If you own points-based vacation property — Marriott, Hilton, Disney, Wyndham, RCI, Interval, or any major club — Vaytoven's managed listing program lets you rent the weeks you don't use, with zero hassle and full compliance with your program rules.</p>
+
+            <ul class="members-list">
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>We list, market, and book your weeks across our network and partner channels.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>Net-to-member payouts after our 12% managed-program fee — quoted up front, no surprises.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>Compliant with your club's rental policy — we work within your program's rules.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>You stay in control — keep, gift, or rent whichever weeks you want each year.</span></li>
+            </ul>
+
+            <button class="members-cta" type="button" data-open-members-modal>
+                Get on the program
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+
+        <div class="earnings-card">
+            <h4>Sample member earnings · 3 weeks</h4>
+
+            <div class="earnings-row">
+                <div>
+                    <strong>Maui beachfront, 1BR</strong>
+                    <em>1 week, peak season</em>
+                </div>
+                <div class="earnings-amt">$5,280</div>
+            </div>
+            <div class="earnings-row">
+                <div>
+                    <strong>Orlando studio</strong>
+                    <em>1 week, school break</em>
+                </div>
+                <div class="earnings-amt">$1,920</div>
+            </div>
+            <div class="earnings-row">
+                <div>
+                    <strong>Cabo San Lucas villa</strong>
+                    <em>1 week, shoulder season</em>
+                </div>
+                <div class="earnings-amt">$3,240</div>
+            </div>
+
+            <div class="earnings-total">
+                <div>
+                    <div style="font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600;">Net to member</div>
+                    <div style="font-size:13px;color:var(--muted);">After 12% managed-program fee</div>
+                </div>
+                <div class="earnings-total-num">$10,440</div>
+            </div>
+
+            <p class="earnings-disclaimer">Illustrative only — actual payouts vary by property, season, club, and inventory. We'll quote your specific portfolio after a quick call.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section app-section" id="app">
+    <div class="app-grid">
+        <div class="phone-mockup">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+                <div class="phone-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+                    Where to?
+                </div>
+                <div class="phone-card">
+                    <div class="phone-card-img"></div>
+                    <div class="phone-card-body">
+                        <strong>Cliffside cottage, Big Sur</strong>
+                        <span>★ 4.96 · $310 / night</span>
+                    </div>
+                </div>
+                <div class="phone-card">
+                    <div class="phone-card-img" style="background: linear-gradient(135deg, #4A2C5A, #7B2CBF);"></div>
+                    <div class="phone-card-body">
+                        <strong>Olive grove villa, Puglia</strong>
+                        <span>★ 4.98 · $245 / night</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="eyebrow">Get the app</div>
+            <h2 class="display" style="margin: 14px 0 16px; font-size: clamp(34px, 4.5vw, 52px);">Your trips. Your messages. <em class="grad-text">In your pocket.</em></h2>
+            <p style="color: var(--muted); margin: 0; max-width: 44ch;">iOS and Android. Search, save, message your host, and get directions to the door — all in one place.</p>
+
+            <div class="store-buttons">
+                <a href="#" class="store-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                    <span><small>Download on the</small><strong>App Store</strong></span>
+                </a>
+                <a href="#" class="store-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M3.6 1.6c-.4.4-.6.9-.6 1.6v17.6c0 .7.2 1.3.6 1.6L13 12 3.6 1.6zm10.5 11.6L17 16.4 5.6 23l8.5-9.8zM20 10.8c.7.4 1 .9 1 1.4s-.3 1-1 1.4L17 15.2l-3.5-3.2L17 8.8l3 2zM5.6 1L17 7.6l-2.9 3.2L5.6 1z"/></svg>
+                    <span><small>Get it on</small><strong>Google Play</strong></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section testimonials-section">
+    <div class="section-header" style="text-align: center; margin-left: auto; margin-right: auto;">
+        <div class="eyebrow">What guests say</div>
+        <h2 class="display">Travelers, hosts, members. <em class="grad-text">All in.</em></h2>
+    </div>
+
+    <div class="testimonials-grid">
+        <div class="testimonial">
+            <div class="testimonial-quote">"</div>
+            <p>The cottage was exactly the photos. Host messaged before we even landed. First Vaytoven booking — definitely not the last.</p>
+            <div class="testimonial-who">
+                <div class="testimonial-avatar"></div>
+                <div>
+                    <div class="testimonial-name">Maya R.</div>
+                    <div class="testimonial-role">Booked Big Sur · April</div>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial">
+            <div class="testimonial-quote">"</div>
+            <p>I list one property and it stays booked. The 3% fee vs. 15% elsewhere added up to $14K extra last year. Real numbers.</p>
+            <div class="testimonial-who">
+                <div class="testimonial-avatar" style="background: linear-gradient(135deg, #7B2CBF, #FF3D8A);"></div>
+                <div>
+                    <div class="testimonial-name">David K.</div>
+                    <div class="testimonial-role">Host · Tahoe</div>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial">
+            <div class="testimonial-quote">"</div>
+            <p>I had three weeks of points sitting unused. Vaytoven put $9,200 in my account. Honestly didn't think it was real until I saw the deposit.</p>
+            <div class="testimonial-who">
+                <div class="testimonial-avatar" style="background: linear-gradient(135deg, #D63384, #4A2C5A);"></div>
+                <div>
+                    <div class="testimonial-name">Carmen L.</div>
+                    <div class="testimonial-role">Vacation club member</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-header" style="text-align: center; margin-left: auto; margin-right: auto;">
+        <div class="eyebrow">Frequently asked</div>
+        <h2 class="display">Quick answers <em class="grad-text">first.</em></h2>
+    </div>
+
+    <div class="faq-list">
+        <details class="faq-item">
+            <summary>How is Vaytoven different from other rental sites?</summary>
+            <div class="faq-item-body">A 3% host fee instead of 15+%. Verified hosts only. Real-stay reviews. And a managed listing program for vacation club members that doesn't exist anywhere else.</div>
+        </details>
+        <details class="faq-item">
+            <summary>What does the managed listing program for members involve?</summary>
+            <div class="faq-item-body">If you own points-based vacation property in a program like Marriott, Hilton, Disney, RCI, or Interval, we handle marketing, booking, and guest communications for the weeks you don't use — fully compliant with your club's rental rules. A specialist will walk you through specifics on a 20-minute call.</div>
+        </details>
+        <details class="faq-item">
+            <summary>Are there hidden fees?</summary>
+            <div class="faq-item-body">No. The price you see at search is what you pay. Cleaning, taxes, and fees are itemized at checkout, not buried.</div>
+        </details>
+        <details class="faq-item">
+            <summary>How does host payout work?</summary>
+            <div class="faq-item-body">Direct bank deposit within 24 hours of guest check-in. No 7-day holds.</div>
+        </details>
+        <details class="faq-item">
+            <summary>What happens if there's a problem with my stay?</summary>
+            <div class="faq-item-body">Trip support is on-call 24/7 in your timezone. If a stay doesn't match what was booked, we relocate you within 24 hours and refund the difference under our $1M trip protection guarantee.</div>
+        </details>
+        <details class="faq-item">
+            <summary>When does the app launch?</summary>
+            <div class="faq-item-body">iOS and Android beta is rolling out in waves through Q3. Sign up via the app section above to get an invite when your region opens.</div>
+        </details>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <div class="brand-mark">
+                <svg viewBox="0 0 64 64" width="32" height="32" aria-hidden="true">
+                    <path fill="url(#brand-grad)" d="M10 8h12l10 30 10-30h12L34 56h-8z"/>
+                    <circle cx="48" cy="14" r="8" fill="url(#brand-grad)"/>
+                    <circle cx="48" cy="14" r="3" fill="#fff"/>
+                </svg>
+                <span class="brand-mark-text">Vaytoven</span>
+            </div>
+            <p>Curated vacation properties. Built for travelers, hosts, and vacation club members who want the trip to feel right.</p>
+        </div>
+        <div>
+            <h5>Travel</h5>
+            <ul>
+                <li><a href="#destinations">Destinations</a></li>
+                <li><a href="#">All stays</a></li>
+                <li><a href="#app">Mobile app</a></li>
+                <li><a href="#">Trip support</a></li>
+            </ul>
+        </div>
+        <div>
+            <h5>Earn</h5>
+            <ul>
+                <li><a href="#host">Become a host</a></li>
+                <li><a href="#members">Members program</a></li>
+                <li><a href="#">Host resources</a></li>
+                <li><a href="#">Earnings calculator</a></li>
+            </ul>
+        </div>
+        <div>
+            <h5>Company</h5>
+            <ul>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Press</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div>© {{ date('Y') }} Vaytoven Rentals LLC. All rights reserved.</div>
+        <div><a href="#" style="margin-right:18px;">Privacy</a><a href="#" style="margin-right:18px;">Terms</a><a href="#">Cookies</a></div>
+    </div>
+</footer>
+
+<!-- Members modal -->
+<div class="modal-overlay" id="members-modal" role="dialog" aria-modal="true" aria-labelledby="members-modal-title">
+    <div class="modal" role="document">
+        <button type="button" class="modal-close" aria-label="Close" data-close-members-modal>×</button>
+
+        <div data-modal-form-view>
+            <div class="modal-eyebrow">Managed listing program</div>
+            <h3 id="members-modal-title">Tell us about your vacation property.</h3>
+
+            <div class="form-error" id="members-form-error" role="alert"></div>
+
+            <form id="members-form" novalidate>
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="m-first">First name <span class="req">*</span></label>
+                        <input id="m-first" name="first_name" type="text" required autocomplete="given-name">
+                    </div>
+                    <div class="form-field">
+                        <label for="m-last">Last name <span class="req">*</span></label>
+                        <input id="m-last" name="last_name" type="text" required autocomplete="family-name">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="m-email">Email <span class="req">*</span></label>
+                        <input id="m-email" name="email" type="email" required autocomplete="email">
+                    </div>
+                    <div class="form-field">
+                        <label for="m-phone">Phone <span class="req">*</span></label>
+                        <input id="m-phone" name="phone" type="tel" required autocomplete="tel">
+                    </div>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="m-club">Vacation club <span class="req">*</span></label>
+                    <select id="m-club" name="club" required>
+                        <option value="">Choose your program</option>
+                        <option>Marriott Vacation Club</option>
+                        <option>Hilton Grand Vacations</option>
+                        <option>Disney Vacation Club</option>
+                        <option>Wyndham</option>
+                        <option>Hyatt Residence Club</option>
+                        <option>Diamond Resorts</option>
+                        <option>Worldmark by Wyndham</option>
+                        <option>Bluegreen Vacations</option>
+                        <option>Westgate Resorts</option>
+                        <option>RCI Points</option>
+                        <option>Interval International</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="m-property">Property name &amp; location <span class="req">*</span></label>
+                        <input id="m-property" name="property" type="text" required placeholder="e.g. Grande Ocean, Hilton Head">
+                        <span class="hint">If you have multiple properties, list one — we'll discuss the rest on the call.</span>
+                    </div>
+                    <div class="form-field">
+                        <label for="m-points">Annual points balance <span class="req">*</span></label>
+                        <input id="m-points" name="points" type="text" required placeholder="e.g. 75,000">
+                    </div>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="m-when">Best time to be contacted</label>
+                    <input id="m-when" name="contact_window" type="text" placeholder="e.g. weekday afternoons, ET">
+                </div>
+
+                <label class="consent-row">
+                    <input type="checkbox" name="consent" required>
+                    <span>I agree to be contacted by Vaytoven about the managed listing program. I can opt out at any time.</span>
+                </label>
+
+                <button type="submit" class="form-submit" id="members-submit">Request a call</button>
+            </form>
+        </div>
+
+        <div data-modal-success-view style="display:none;">
+            <div class="modal-success">
+                <div class="modal-success-icon">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <h3>Thanks — we got it.</h3>
+                <p>A managed-program specialist will reach out within one business day to walk you through your portfolio and quote the program for your specific properties.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+    // Calc widget
+    (function() {
+        const rateInput = document.getElementById('calc-rate-input');
+        const weeksInput = document.getElementById('calc-weeks-input');
+        const rateLabel = document.getElementById('calc-rate');
+        const weeksLabel = document.getElementById('calc-weeks');
+        const earnings = document.getElementById('calc-earnings');
+        const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+        function update() {
+            const rate = parseInt(rateInput.value, 10);
+            const weeks = parseInt(weeksInput.value, 10);
+            rateLabel.textContent = '$' + rate;
+            weeksLabel.textContent = weeks;
+            const gross = rate * weeks * 7;
+            const net = gross * 0.97;
+            earnings.textContent = fmt.format(net);
+        }
+        rateInput.addEventListener('input', update);
+        weeksInput.addEventListener('input', update);
+        update();
+    })();
+
+    // Save heart toggle
+    document.querySelectorAll('.feature-heart').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.preventDefault();
+            btn.classList.toggle('is-saved');
+        });
+    });
+
+    // Members modal
+    (function() {
+        const overlay = document.getElementById('members-modal');
+        const formView = overlay.querySelector('[data-modal-form-view]');
+        const successView = overlay.querySelector('[data-modal-success-view]');
+        const form = document.getElementById('members-form');
+        const submit = document.getElementById('members-submit');
+        const errorBox = document.getElementById('members-form-error');
+        const toast = document.getElementById('toast');
+
+        function open() {
+            formView.style.display = '';
+            successView.style.display = 'none';
+            errorBox.classList.remove('is-visible');
+            errorBox.textContent = '';
+            form.reset();
+            overlay.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => document.getElementById('m-first').focus(), 50);
+        }
+        function close() {
+            overlay.classList.remove('is-open');
+            document.body.style.overflow = '';
+        }
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add('is-visible');
+            setTimeout(() => toast.classList.remove('is-visible'), 4500);
+        }
+
+        document.querySelectorAll('[data-open-members-modal]').forEach(b => b.addEventListener('click', open));
+        document.querySelectorAll('[data-close-members-modal]').forEach(b => b.addEventListener('click', close));
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('is-open')) close(); });
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            errorBox.classList.remove('is-visible');
+
+            const data = Object.fromEntries(new FormData(form).entries());
+            const missing = [];
+            if (!data.first_name) missing.push('First name');
+            if (!data.last_name) missing.push('Last name');
+            if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) missing.push('Email');
+            if (!data.phone) missing.push('Phone');
+            if (!data.club) missing.push('Vacation club');
+            if (!data.property) missing.push('Property');
+            if (!data.points) missing.push('Points balance');
+            if (!form.consent.checked) missing.push('Consent');
+
+            if (missing.length) {
+                errorBox.textContent = 'Please complete: ' + missing.join(', ');
+                errorBox.classList.add('is-visible');
+                return;
+            }
+
+            submit.disabled = true;
+            submit.textContent = 'Sending…';
+
+            try {
+                const res = await fetch('/members/enquiry', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.message || 'Submission failed.');
+                }
+
+                formView.style.display = 'none';
+                successView.style.display = '';
+                showToast("Submitted — we'll be in touch within one business day.");
+            } catch (e) {
+                errorBox.textContent = e.message || 'Something went wrong. Please try again.';
+                errorBox.classList.add('is-visible');
+            } finally {
+                submit.disabled = false;
+                submit.textContent = 'Request a call';
+            }
+        });
+    })();
+</script>
+
 </body>
 </html>
