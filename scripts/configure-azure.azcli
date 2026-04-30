@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Vaytoven · Azure App Service one-time configuration
+#
+# Run from Azure Cloud Shell (Bash) after the latest deploy has landed.
+# Sets the Startup Command (so nginx loads our Laravel-aware config) and
+# seeds the required app settings (APP_KEY, debug, drivers).
+#
+# Usage:
+#   bash scripts/configure-azure.azcli
+# or paste the lines below into Cloud Shell directly.
+
+set -euo pipefail
+
+APP_NAME="Vayrepo"
+
+echo "Looking up resource group for App Service '$APP_NAME'..."
+RG=$(az webapp list --query "[?name=='$APP_NAME'].resourceGroup | [0]" -o tsv)
+if [[ -z "$RG" ]]; then
+    echo "ERROR: could not find an App Service named '$APP_NAME' in this subscription."
+    exit 1
+fi
+echo "Resource group: $RG"
+
+# Generate a fresh APP_KEY only if one isn't already set, so reruns are safe.
+EXISTING_KEY=$(az webapp config appsettings list \
+    --resource-group "$RG" --name "$APP_NAME" \
+    --query "[?name=='APP_KEY'].value | [0]" -o tsv || true)
+if [[ -z "$EXISTING_KEY" ]]; then
+    APP_KEY="base64:$(openssl rand -base64 32)"
+    echo "Generated new APP_KEY."
+else
+    APP_KEY="$EXISTING_KEY"
+    echo "APP_KEY already set; preserving existing value."
+fi
+
+echo "Setting startup command..."
+az webapp config set \
+    --resource-group "$RG" \
+    --name "$APP_NAME" \
+    --startup-file "bash /home/site/wwwroot/startup.sh" \
+    --output none
+
+echo "Setting application environment variables..."
+az webapp config appsettings set \
+    --resource-group "$RG" \
+    --name "$APP_NAME" \
+    --settings \
+        APP_NAME="Vaytoven Rentals" \
+        APP_ENV="production" \
+        APP_KEY="$APP_KEY" \
+        APP_DEBUG="true" \
+        APP_URL="https://${APP_NAME,,}-dugbdzathrbkemec.centralus-01.azurewebsites.net" \
+        LOG_CHANNEL="errorlog" \
+        LOG_STACK="single" \
+        LOG_LEVEL="debug" \
+        SESSION_DRIVER="file" \
+        SESSION_LIFETIME="120" \
+        CACHE_STORE="file" \
+        QUEUE_CONNECTION="sync" \
+        DB_CONNECTION="sqlite" \
+        MAIL_MAILER="log" \
+        SCM_DO_BUILD_DURING_DEPLOYMENT="false" \
+    --output none
+
+echo "Restarting App Service so the new startup command + env take effect..."
+az webapp restart --resource-group "$RG" --name "$APP_NAME" --output none
+
+echo
+echo "Done. Watch the site come up here:"
+echo "  https://${APP_NAME,,}-dugbdzathrbkemec.centralus-01.azurewebsites.net"
+echo
+echo "If you still see a 500, stream the logs in another Cloud Shell tab:"
+echo "  az webapp log tail --resource-group \"$RG\" --name \"$APP_NAME\""
+echo
+echo "Once the site is rendering, flip APP_DEBUG back to false:"
+echo "  az webapp config appsettings set --resource-group \"$RG\" --name \"$APP_NAME\" --settings APP_DEBUG=false"
