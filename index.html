@@ -463,6 +463,125 @@
             z-index: 200;
         }
         .toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+
+        .vc-bubble {
+            position: fixed; bottom: 24px; right: 24px; z-index: 90;
+            width: 60px; height: 60px; border-radius: 999px;
+            background: var(--gradient); color: #fff;
+            display: grid; place-items: center;
+            box-shadow: 0 12px 32px -8px rgba(123, 44, 191, .5);
+            transition: transform .15s, box-shadow .2s, opacity .2s;
+        }
+        .vc-bubble:hover { transform: translateY(-2px); box-shadow: 0 16px 40px -8px rgba(123, 44, 191, .6); }
+        .vc-bubble svg { width: 26px; height: 26px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .vc-bubble.is-hidden { transform: scale(0); opacity: 0; pointer-events: none; }
+
+        .vc-panel {
+            position: fixed; bottom: 24px; right: 24px; z-index: 91;
+            width: 380px; max-width: calc(100vw - 32px);
+            height: 560px; max-height: calc(100vh - 80px);
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 24px 60px -12px rgba(26, 20, 38, .25);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .2s, transform .25s cubic-bezier(.2,.7,.3,1);
+        }
+        .vc-panel.is-open { display: flex; opacity: 1; transform: translateY(0); }
+
+        .vc-header {
+            background: var(--gradient); color: #fff;
+            padding: 18px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px;
+        }
+        .vc-header-content { flex: 1; }
+        .vc-header h4 { font-family: 'Fraunces', serif; font-size: 18px; margin: 0; font-weight: 600; line-height: 1.2; }
+        .vc-header p { margin: 2px 0 0; font-size: 12px; opacity: .85; }
+        .vc-close {
+            width: 32px; height: 32px; border-radius: 999px;
+            background: rgba(255,255,255,.18); color: #fff;
+            display: grid; place-items: center;
+            font-size: 20px; line-height: 1;
+        }
+        .vc-close:hover { background: rgba(255,255,255,.28); }
+
+        .vc-body {
+            flex: 1; overflow-y: auto; padding: 18px 16px;
+            display: flex; flex-direction: column; gap: 10px;
+            background: var(--paper);
+        }
+        .vc-msg { max-width: 84%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.45; word-wrap: break-word; }
+        .vc-msg-bot { background: #fff; border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 4px; color: var(--ink); }
+        .vc-msg-user { background: var(--gradient); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .vc-msg strong { font-weight: 600; }
+
+        .vc-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .vc-quick-btn {
+            padding: 7px 12px; border-radius: 999px;
+            background: #fff; border: 1px solid var(--line);
+            font: inherit; font-size: 12px; font-weight: 500; color: var(--ink);
+            cursor: pointer; transition: border-color .15s, color .15s;
+        }
+        .vc-quick-btn:hover { border-color: var(--magenta); color: var(--magenta); }
+
+        .vc-input-row {
+            display: flex; gap: 8px;
+            padding: 12px 14px;
+            border-top: 1px solid var(--line);
+            background: #fff;
+        }
+        .vc-input {
+            flex: 1; border: 1px solid var(--line); border-radius: 999px;
+            padding: 10px 16px; font: inherit; font-size: 14px; outline: none;
+            transition: border-color .15s;
+            color: var(--ink);
+        }
+        .vc-input:focus { border-color: var(--pink); }
+        .vc-send {
+            width: 38px; height: 38px; border-radius: 999px;
+            background: var(--gradient); color: #fff;
+            display: grid; place-items: center;
+            transition: opacity .15s;
+        }
+        .vc-send:disabled { opacity: .4; cursor: not-allowed; }
+        .vc-send svg { width: 16px; height: 16px; fill: #fff; }
+
+        .vc-footer {
+            padding: 8px 16px 12px;
+            font-size: 11px; text-align: center;
+            color: var(--muted);
+            background: #fff;
+            border-top: 1px solid var(--line);
+        }
+        .vc-footer a { color: var(--magenta); font-weight: 500; cursor: pointer; }
+        .vc-footer a:hover { text-decoration: underline; }
+
+        .vc-form { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+        .vc-form p { margin: 0 0 4px; font-size: 13px; color: var(--muted); }
+        .vc-form label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+        .vc-form input, .vc-form textarea {
+            border: 1px solid var(--line); border-radius: 10px;
+            padding: 10px 12px; font: inherit; font-size: 14px;
+            outline: none; color: var(--ink); background: #fff;
+            transition: border-color .15s;
+        }
+        .vc-form textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+        .vc-form input:focus, .vc-form textarea:focus { border-color: var(--pink); }
+        .vc-form button {
+            margin-top: 8px; padding: 12px 16px;
+            background: var(--gradient); color: #fff;
+            border-radius: 10px; font-weight: 600; font-size: 14px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 480px) {
+            .vc-panel { right: 8px; bottom: 8px; left: 8px; width: auto; height: calc(100vh - 16px); border-radius: 16px; }
+            .vc-bubble { right: 16px; bottom: 16px; }
+        }
     </style>
 </head>
 <body>
@@ -858,6 +977,32 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<button type="button" class="vc-bubble" id="vc-bubble" aria-label="Open help chat">
+    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</button>
+
+<div class="vc-panel" id="vc-panel" role="dialog" aria-label="Vaytoven help chat" aria-hidden="true">
+    <div class="vc-header">
+        <div class="vc-header-content">
+            <h4>How can we help?</h4>
+            <p>Replies in seconds &middot; Real human handoff anytime</p>
+        </div>
+        <button type="button" class="vc-close" id="vc-close" aria-label="Close chat">&times;</button>
+    </div>
+
+    <div class="vc-body" id="vc-body" data-view="chat"></div>
+
+    <div class="vc-input-row" id="vc-input-row">
+        <input type="text" class="vc-input" id="vc-input" placeholder="Ask a question&hellip;" autocomplete="off">
+        <button type="button" class="vc-send" id="vc-send" aria-label="Send" disabled>
+            <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+        </button>
+    </div>
+    <div class="vc-footer" id="vc-footer">
+        <a id="vc-handoff-link">Talk to a real person</a>
+    </div>
+</div>
+
 <script>
     (function() {
         const rateInput = document.getElementById('calc-rate-input');
@@ -955,6 +1100,241 @@
                 submit.disabled = false;
                 submit.textContent = 'Request a call';
             }
+        });
+    })();
+
+    (function() {
+        const bubble = document.getElementById('vc-bubble');
+        const panel = document.getElementById('vc-panel');
+        const close = document.getElementById('vc-close');
+        const body = document.getElementById('vc-body');
+        const input = document.getElementById('vc-input');
+        const send = document.getElementById('vc-send');
+        const footer = document.getElementById('vc-footer');
+        const handoffLink = document.getElementById('vc-handoff-link');
+        const inputRow = document.getElementById('vc-input-row');
+
+        const faqs = [
+            {
+                keywords: ['fee', 'commission', 'cost', 'how much', 'percent', '3%', 'pricing', 'price'],
+                answer: "Travelers pay no booking fees — what you see at search is what you pay at checkout. Hosts pay a flat <strong>3% fee</strong> on each booking (vs. 15–20% on most other sites). Cleaning, taxes, and per-stay charges are itemized at checkout, never hidden."
+            },
+            {
+                keywords: ['member', 'vacation club', 'points', 'rci', 'marriott', 'disney', 'hilton', 'wyndham', 'hyatt', 'managed', 'program', 'club'],
+                answer: "Our managed listing program is for vacation club members with points-based ownership. We list, market, and book the weeks you don't use, fully compliant with your club's rules. Net-to-member payout after our 12% program fee. Tap <strong>Get on the program</strong> in the Members section above to talk to a specialist."
+            },
+            {
+                keywords: ['cancel', 'refund', 'policy', 'change my booking'],
+                answer: "Cancellation policy is set per listing — flexible (full refund up to 24h before check-in), moderate (full refund up to 5 days before), or strict (50% refund up to 7 days before). The exact policy is shown clearly on every listing before you book."
+            },
+            {
+                keywords: ['become a host', 'list my', 'rent out', 'add a property', 'host'],
+                answer: "Becoming a host takes about 20 minutes. We help with listing copy, professional photography, and pricing. Direct payouts within 24 hours of guest check-in, $250K damage cover baked in, and a 3% fee. Tap <strong>Become a host</strong> at the top to start."
+            },
+            {
+                keywords: ['app', 'ios', 'android', 'mobile', 'download', 'launch', 'apple', 'google play'],
+                answer: "iOS and Android beta is rolling out in waves through Q3. The store buttons in the app section above will activate when your region opens — sign up with your email and we'll send an invite the moment it's ready."
+            },
+            {
+                keywords: ['airbnb', 'vrbo', 'booking.com', 'compete', 'different', 'better than'],
+                answer: "Three things make Vaytoven different: a 3% host fee instead of 15–20%, every host is identity-verified before going live, and we run the only managed listing program for vacation club members. No fake reviews, no hidden fees, no chatbot-only support."
+            },
+            {
+                keywords: ['trust', 'safe', 'safety', 'verified', 'verify', 'scam', 'review', 'authentic'],
+                answer: "Every host clears identity, ownership, and tax documentation before going live. Reviews come only from confirmed bookings — never anonymous, never gameable. Bookings are backed by our $1M trip protection guarantee: if a stay doesn't match what was booked, we relocate you within 24 hours and refund the difference."
+            },
+            {
+                keywords: ['contact', 'support', 'phone', 'email', 'speak to', 'human', 'agent', 'rep'],
+                answer: "Trip support is available 24/7 in your timezone, via chat or phone. You can also tap <strong>Talk to a real person</strong> at the bottom of this panel to leave a message and we'll reach out within one business day."
+            },
+            {
+                keywords: ['payment', 'pay', 'card', 'credit', 'debit', 'stripe', 'how do i pay'],
+                answer: "We accept all major credit and debit cards, processed securely via Stripe. Payment is taken at the time of booking; refunds go back to the same card within 5–10 business days when applicable."
+            },
+            {
+                keywords: ['where', 'destination', 'cities', 'places', 'available', 'location', 'countries'],
+                answer: "We're live in 120+ destinations across the US, Europe, Asia, and the Caribbean — every city or region we list has been hand-curated by our team. The destinations grid above shows our top picks; full search rolls out with the app."
+            }
+        ];
+
+        const QUICK_REPLIES = [
+            { label: 'How fees work', q: 'How do fees work?' },
+            { label: 'Members program', q: 'Tell me about the members program' },
+            { label: 'Cancellations', q: 'What is the cancellation policy?' },
+            { label: 'Become a host', q: 'How do I become a host?' }
+        ];
+
+        let opened = false;
+        let inForm = false;
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        function appendMessage(role, html) {
+            const div = document.createElement('div');
+            div.className = 'vc-msg vc-msg-' + role;
+            div.innerHTML = html;
+            body.appendChild(div);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function appendQuickReplies() {
+            const wrap = document.createElement('div');
+            wrap.className = 'vc-quick';
+            QUICK_REPLIES.forEach(r => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'vc-quick-btn';
+                btn.textContent = r.label;
+                btn.addEventListener('click', () => {
+                    wrap.remove();
+                    handleUserText(r.q);
+                });
+                wrap.appendChild(btn);
+            });
+            body.appendChild(wrap);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function findAnswer(text) {
+            const lower = text.toLowerCase();
+            for (const faq of faqs) {
+                for (const kw of faq.keywords) {
+                    if (lower.indexOf(kw) !== -1) return faq.answer;
+                }
+            }
+            return null;
+        }
+
+        function handleUserText(text) {
+            text = text.trim();
+            if (!text) return;
+            appendMessage('user', escapeHtml(text));
+            setTimeout(() => {
+                const answer = findAnswer(text);
+                if (answer) {
+                    appendMessage('bot', answer);
+                } else {
+                    appendMessage('bot', "I don't have a quick answer for that — but a real person can help. Tap <strong>Talk to a real person</strong> below and a Vaytoven specialist will reply within one business day.");
+                }
+            }, 300);
+        }
+
+        function showHandoffForm() {
+            inForm = true;
+            body.dataset.view = 'form';
+            body.innerHTML = '';
+            const form = document.createElement('div');
+            form.className = 'vc-form';
+
+            const intro = document.createElement('p');
+            intro.textContent = 'Leave us a note. We reply within one business day.';
+            form.appendChild(intro);
+
+            const labelName = document.createElement('label');
+            labelName.htmlFor = 'vc-h-name';
+            labelName.textContent = 'Name';
+            const inName = document.createElement('input');
+            inName.id = 'vc-h-name'; inName.type = 'text'; inName.autocomplete = 'name';
+
+            const labelEmail = document.createElement('label');
+            labelEmail.htmlFor = 'vc-h-email';
+            labelEmail.textContent = 'Email';
+            const inEmail = document.createElement('input');
+            inEmail.id = 'vc-h-email'; inEmail.type = 'email'; inEmail.autocomplete = 'email';
+
+            const labelMsg = document.createElement('label');
+            labelMsg.htmlFor = 'vc-h-msg';
+            labelMsg.textContent = 'Message';
+            const inMsg = document.createElement('textarea');
+            inMsg.id = 'vc-h-msg';
+
+            const submit = document.createElement('button');
+            submit.type = 'button';
+            submit.textContent = 'Send message';
+
+            form.appendChild(labelName); form.appendChild(inName);
+            form.appendChild(labelEmail); form.appendChild(inEmail);
+            form.appendChild(labelMsg); form.appendChild(inMsg);
+            form.appendChild(submit);
+            body.appendChild(form);
+
+            inputRow.style.display = 'none';
+            footer.style.display = 'none';
+            setTimeout(() => inName.focus(), 50);
+
+            submit.addEventListener('click', () => {
+                const name = inName.value.trim();
+                const email = inEmail.value.trim();
+                const msg = inMsg.value.trim();
+                if (!name || !/^\S+@\S+\.\S+$/.test(email) || !msg) {
+                    alert('Please complete all fields with a valid email.');
+                    return;
+                }
+                const stored = JSON.parse(localStorage.getItem('vaytoven_chat_handoffs') || '[]');
+                stored.push({ name, email, msg, ts: new Date().toISOString() });
+                localStorage.setItem('vaytoven_chat_handoffs', JSON.stringify(stored));
+
+                body.innerHTML = '';
+                body.dataset.view = 'chat';
+                inForm = false;
+                appendMessage('bot', 'Got it — thanks ' + escapeHtml(name.split(' ')[0]) + ". A specialist will be in touch within one business day at " + escapeHtml(email) + '.');
+                inputRow.style.display = '';
+                footer.style.display = '';
+            });
+        }
+
+        function openPanel() {
+            if (opened) return;
+            opened = true;
+            panel.classList.add('is-open');
+            panel.setAttribute('aria-hidden', 'false');
+            bubble.classList.add('is-hidden');
+            if (!body.children.length) {
+                appendMessage('bot', "Hi — I'm the Vaytoven help bot. Ask me about fees, the members program, cancellations, or how to become a host. For anything I can't answer, you can <strong>talk to a real person</strong>.");
+                appendQuickReplies();
+            }
+            setTimeout(() => input.focus(), 250);
+        }
+
+        function closePanel() {
+            opened = false;
+            panel.classList.remove('is-open');
+            panel.setAttribute('aria-hidden', 'true');
+            bubble.classList.remove('is-hidden');
+        }
+
+        bubble.addEventListener('click', openPanel);
+        close.addEventListener('click', closePanel);
+
+        input.addEventListener('input', () => {
+            send.disabled = input.value.trim().length === 0;
+        });
+
+        function submitInput() {
+            if (inForm) return;
+            const v = input.value;
+            input.value = '';
+            send.disabled = true;
+            handleUserText(v);
+        }
+
+        send.addEventListener('click', submitInput);
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitInput();
+            }
+        });
+
+        handoffLink.addEventListener('click', e => {
+            e.preventDefault();
+            showHandoffForm();
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && opened) closePanel();
         });
     })();
 </script>
