@@ -151,12 +151,10 @@ Defaults already configured. Verify:
   php artisan migrate --force
   php artisan storage:link
   php artisan config:cache
+  php artisan route:cache
   php artisan view:cache
   php artisan event:cache
   ```
-  `route:cache` is intentionally absent — the closure in
-  `routes/web.php` for `/members/enquiry` isn't serializable. Will land
-  once that closure becomes a controller.
 
 ## Phase E — Workers and scheduler
 
@@ -284,18 +282,16 @@ runbook if the actual flags differ.
 
 These don't block first deploy but should be queued:
 
-1. **Move `/members/enquiry` closure into a `MemberEnquiryController`** so
-   `route:cache` becomes possible (and joins the deploy hook).
-2. **Add a `/health` endpoint** that pings DB + Redis. Cloud uses `/up`
+1. **Add a `/health` endpoint** that pings DB + Redis. Cloud uses `/up`
    by default but a deeper check is useful for your own dashboards.
-3. **Switch `LOG_CHANNEL=stderr` to JSON** via a Monolog formatter — makes
+2. **Switch `LOG_CHANNEL=stderr` to JSON** via a Monolog formatter — makes
    Cloud's log search dramatically more useful.
-4. **Wire exception tracking** (Sentry / Flare / Bugsnag).
-5. **Add the Stripe webhook route + controller** before configuring Stripe
+3. **Wire exception tracking** (Sentry / Flare / Bugsnag).
+4. **Add the Stripe webhook route + controller** before configuring Stripe
    webhooks against any environment.
-6. **Hibernation** — turn on for `development` + `sandbox`, off for
+5. **Hibernation** — turn on for `development` + `sandbox`, off for
    `staging` + `production`.
-7. **Branch protection** in GitHub on `production` (and arguably
+6. **Branch protection** in GitHub on `production` (and arguably
    `staging`): require PR + review, disallow force-push.
 
 ## What was deleted in this pivot
