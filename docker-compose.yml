@@ -1,0 +1,56 @@
+# Local development data services for Vaytoven Rentals.
+#
+# Production hosting is Laravel Cloud (cloud.laravel.com), which builds and
+# runs the app itself — there is no app container here. This compose file
+# only stands up Postgres, Redis, and a mail catcher so that running
+# `php artisan serve` on the host has somewhere to talk to.
+#
+# Usage:
+#   docker compose up -d
+#   php artisan migrate
+#   php artisan serve
+#   open http://localhost:8000/
+#
+# Mailpit UI:  http://localhost:8025
+#
+# Stop everything:
+#   docker compose down
+# Wipe DB volume (forces fresh schema next time):
+#   docker compose down -v
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: vaytoven
+      POSTGRES_USER: vaytoven
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vaytoven -d vaytoven"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  postgres-data:
