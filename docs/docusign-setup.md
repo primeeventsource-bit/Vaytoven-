@@ -106,11 +106,19 @@ Repeat steps 2–6 against the production DocuSign account.
 
 ## Composer dependencies
 
+The DocuSign service classes (`app/Services/DocuSign/*`) use runtime
+`class_exists()` guards so they don't break the build before the SDK is
+installed. **Before going live**, install both packages:
+
 ```bash
-composer require docusign/esign-client firebase/php-jwt
+composer require "docusign/esign-client:^8.0" "firebase/php-jwt:^6.10|^7.0"
 ```
 
-These are also declared in `composer.json` so `composer install` on deploy will pull them in automatically.
+Versions verified against Packagist as of May 2026 (docusign-esign latest 8.x, php-jwt latest 7.x). Pin to whatever is current when you run the install — both libraries follow semver.
+
+These are intentionally **not** declared in `composer.json` yet so the
+Azure deploy pipeline (`composer install`) doesn't fail before auth and
+the rest of the prereqs are in place.
 
 ---
 
