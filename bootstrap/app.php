@@ -11,7 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // DocuSign Connect webhooks don't carry a CSRF token; they're
+        // authenticated by the X-DocuSign-Signature-* HMAC headers instead
+        // (see App\Services\DocuSign\WebhookVerifier).
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/docusign',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
