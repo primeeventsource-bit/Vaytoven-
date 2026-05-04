@@ -3,8 +3,8 @@
 use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Client\ContractController as ClientContractController;
 use App\Http\Controllers\Webhooks\DocuSignWebhookController;
+use App\Models\MemberEnquiry;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -22,10 +22,19 @@ Route::post('/members/enquiry', function (Request $request) {
         'consent'         => ['accepted'],
     ]);
 
-    Log::channel('single')->info('members_enquiry', [
-        'data' => $data,
-        'ip'   => $request->ip(),
-        'ua'   => substr((string) $request->userAgent(), 0, 240),
+    MemberEnquiry::create([
+        'first_name'     => $data['first_name'],
+        'last_name'      => $data['last_name'],
+        'email'          => $data['email'],
+        'phone'          => $data['phone'],
+        'club'           => $data['club'],
+        'property'       => $data['property'],
+        'points'         => $data['points'],
+        'contact_window' => $data['contact_window'] ?? null,
+        'consented_at'   => now(),
+        'source_url'     => substr((string) $request->headers->get('referer', ''), 0, 500) ?: null,
+        'ip'             => $request->ip(),
+        'user_agent'     => $request->userAgent(),
     ]);
 
     return response()->json(['ok' => true]);
