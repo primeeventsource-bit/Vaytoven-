@@ -282,17 +282,24 @@ runbook if the actual flags differ.
 
 These don't block first deploy but should be queued:
 
-1. **Add a `/health` endpoint** that pings DB + Redis. Cloud uses `/up`
-   by default but a deeper check is useful for your own dashboards.
-2. **Switch `LOG_CHANNEL=stderr` to JSON** via a Monolog formatter — makes
-   Cloud's log search dramatically more useful.
-3. **Wire exception tracking** (Sentry / Flare / Bugsnag).
-4. **Add the Stripe webhook route + controller** before configuring Stripe
+1. **Wire exception tracking** (Sentry / Flare / Bugsnag).
+2. **Add the Stripe webhook route + controller** before configuring Stripe
    webhooks against any environment.
-5. **Hibernation** — turn on for `development` + `sandbox`, off for
+3. **Hibernation** — turn on for `development` + `sandbox`, off for
    `staging` + `production`.
-6. **Branch protection** in GitHub on `production` (and arguably
+4. **Branch protection** in GitHub on `production` (and arguably
    `staging`): require PR + review, disallow force-push.
+
+### Already done
+
+- `/members/enquiry` extracted to `MemberEnquiryController` →
+  `php artisan route:cache` works in the deploy hook.
+- `/health` endpoint at `GET /health` pings DB + Redis, returns 503 if
+  either is down. Cloud's default readiness probe uses `/up`; switch to
+  `/health` in the dashboard if you want strict DB-aware readiness.
+- `stderr` log channel emits JSON via `Monolog\Formatter\JsonFormatter`
+  for queryable Cloud log search. Local dev uses the `single` channel
+  by default and stays human-readable.
 
 ## What was deleted in this pivot
 

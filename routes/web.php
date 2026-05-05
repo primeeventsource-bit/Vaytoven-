@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Client\ContractController as ClientContractController;
+use App\Http\Controllers\HealthController;
 use App\Http\Controllers\MemberEnquiryController;
 use App\Http\Controllers\Webhooks\DocuSignWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,11 @@ Route::view('/', 'welcome');
 
 Route::post('/members/enquiry', [MemberEnquiryController::class, 'store'])
     ->name('members.enquiry');
+
+// Deeper health check than Laravel 11's built-in /up. Pings DB and Redis
+// and returns 503 if either is down — useful as a strict readiness probe
+// and for external monitoring dashboards.
+Route::get('/health', HealthController::class)->name('health');
 
 // ---------------------------------------------------------------------------
 // DocuSign integration
