@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\UserCertificateController as AdminUserCertificate
 use App\Http\Controllers\Client\ContractController as ClientContractController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HelpController;
+use App\Http\Controllers\LegalController;
 use App\Http\Controllers\MemberEnquiryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Webhooks\DocuSignWebhookController;
@@ -26,13 +27,29 @@ Route::get('/help', [HelpController::class, 'index'])->name('help.index');
 Route::get('/help/search', [HelpController::class, 'search'])->name('help.search');
 Route::get('/help/{slug}', [HelpController::class, 'show'])->name('help.show');
 
+// ---------------------------------------------------------------------------
+// Legal docs (FR-13). Public, anonymous-friendly. The /legal/versions JSON
+// endpoint exposes which version+hash is currently in force per kind so
+// auditors and the chat agent can reconcile against terms_versions.
+// ---------------------------------------------------------------------------
+Route::get('/legal/tos',              [LegalController::class, 'tos'])->name('legal.tos');
+Route::get('/legal/privacy',          [LegalController::class, 'privacy'])->name('legal.privacy');
+Route::get('/legal/chargeback',       [LegalController::class, 'chargeback'])->name('legal.chargeback');
+Route::get('/legal/member-agreement', [LegalController::class, 'memberAgreement'])->name('legal.member-agreement');
+Route::get('/legal/versions',         [LegalController::class, 'versions'])->name('legal.versions');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/legal/review-and-accept',  [LegalController::class, 'reviewAndAccept'])->name('legal.review-and-accept');
+    Route::post('/legal/review-and-accept', [LegalController::class, 'acceptCurrent'])->name('legal.review-and-accept.submit');
+});
+
 // Deeper health check than Laravel 11's built-in /up. Pings DB and Redis
 // and returns 503 if either is down — useful as a strict readiness probe
 // and for external monitoring dashboards.
 Route::get('/health', HealthController::class)->name('health');
 
 Route::view('/dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'terms.current'])
     ->name('dashboard');
 
 // ---------------------------------------------------------------------------

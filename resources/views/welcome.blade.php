@@ -1032,7 +1032,12 @@
     </div>
     <div class="footer-bottom">
         <div>© {{ date('Y') }} Vaytoven Rentals LLC. All rights reserved.</div>
-        <div><a href="#" style="margin-right:18px;">Privacy</a><a href="#" style="margin-right:18px;">Terms</a><a href="#">Cookies</a></div>
+        <div>
+            <a href="{{ route('legal.privacy') }}" style="margin-right:18px;" data-track-audience="traveler" data-track-cta="footer_privacy">Privacy</a>
+            <a href="{{ route('legal.tos') }}" style="margin-right:18px;" data-track-audience="traveler" data-track-cta="footer_tos">Terms</a>
+            <a href="{{ route('legal.chargeback') }}" style="margin-right:18px;" data-track-audience="traveler" data-track-cta="footer_chargeback">Chargeback Policy</a>
+            <a href="{{ route('legal.member-agreement') }}" data-track-audience="member" data-track-cta="footer_member_agreement">Member Agreement</a>
+        </div>
     </div>
 </footer>
 

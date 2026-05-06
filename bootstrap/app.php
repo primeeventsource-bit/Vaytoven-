@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureAdmin::class,
+            'terms.current' => \App\Http\Middleware\EnsureCurrentTermsAccepted::class,
         ]);
 
         // Captures X-Vaytoven-Surface on every API request so login_sessions and

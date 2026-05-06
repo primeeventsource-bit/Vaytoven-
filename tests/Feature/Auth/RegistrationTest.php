@@ -18,11 +18,17 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
+        // Phase 13: registration now requires explicit ToS + Privacy
+        // acceptance. Materialise the current versions first so the controller
+        // can record TermsAcceptance rows for them.
+        app(\App\Services\Legal\LegalDocumentRegistry::class)->materialiseAll();
+
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'accept_terms' => '1',
         ]);
 
         $this->assertAuthenticated();
