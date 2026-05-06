@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Admin\UserCertificateController as AdminUserCertificateController;
 use App\Http\Controllers\Client\ContractController as ClientContractController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\LegalController;
@@ -48,7 +49,7 @@ Route::middleware('auth')->group(function () {
 // and for external monitoring dashboards.
 Route::get('/health', HealthController::class)->name('health');
 
-Route::view('/dashboard', 'dashboard')
+Route::get('/dashboard', [DashboardController::class, 'show'])
     ->middleware(['auth', 'verified', 'terms.current'])
     ->name('dashboard');
 
