@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\PropertyController;
+use App\Http\Controllers\Api\TrackingEventController;
 use Illuminate\Support\Facades\Route;
 
 // All routes here are mounted under /api/v1 by bootstrap/app.php.
@@ -14,6 +15,10 @@ Route::post('auth/login',    [AuthController::class, 'login']);
 // Public property search + show — no auth required (browse-without-login).
 Route::get('properties',                [PropertyController::class, 'index']);
 Route::get('properties/{property}',     [PropertyController::class, 'show']);
+
+// Public tracking ingest (anonymous or auth-optional) — rate limited.
+Route::post('tracking/events', [TrackingEventController::class, 'store'])
+    ->middleware('throttle:60,1');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
