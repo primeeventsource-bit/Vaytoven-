@@ -21,11 +21,11 @@ Status legend: 🔲 not started · 🟡 in progress · 🟢 implemented + tested
 
 | ID | Requirement | Status |
 |---|---|---|
-| FR-2.1 | A host can create a property with title, description, photos (multi-upload), location, capacity, amenities, base nightly price (cents), and cancellation policy. | 🔲 |
-| FR-2.2 | Listings have a `listing_source` field: `host` (self-listed) or `managed` (created by Member specialist via FR-9 conversion). | 🔲 |
-| FR-2.3 | Properties have a `status` lifecycle: `draft` → `pending_review` → `active` → `paused` → `archived`. Admin moderation gates the `active` transition. | 🔲 |
-| FR-2.4 | Geographic search uses MySQL spatial functions: bounding-box `WHERE ST_Within(location, ...)` then `ST_Distance` for sort. | 🔲 |
-| FR-2.5 | Amenities live in a normalized catalogue (`amenities` table) and join via `property_amenities`. Seeder ships 50+ canonical amenity types. | 🔲 |
+| FR-2.1 | A host can create a property with title, description, photos (multi-upload), location, capacity, amenities, base nightly price (cents), and cancellation policy. | 🟡 (schema + model 🟢; controllers / API in Phase 3) |
+| FR-2.2 | Listings have a `listing_source` field: `host` (self-listed) or `managed` (created by Member specialist via FR-9 conversion). | 🟢 |
+| FR-2.3 | Properties have a `status` lifecycle: `draft` → `pending_review` → `active` → `paused` → `archived`. Admin moderation gates the `active` transition. | 🟡 (enum + default 🟢; admin transition flow Phase 7) |
+| FR-2.4 | Geographic search uses MySQL spatial functions: bounding-box `WHERE ST_Within(location, ...)` then `ST_Distance` for sort. | 🟡 (lat/lng columns + index 🟢; spatial column / queries in follow-up MySQL-only migration) |
+| FR-2.5 | Amenities live in a normalized catalogue (`amenities` table) and join via `property_amenities`. Seeder ships 50+ canonical amenity types. | 🟢 (54 amenities seeded) |
 
 ## 3. Booking flow
 

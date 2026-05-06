@@ -96,10 +96,14 @@ CREATE TABLE members_enquiries (
 );
 
 -- =============================================================================
--- 🔲 PHASE 2 — CORE MARKETPLACE
+-- 🟢 PHASE 2A (shipped) — properties + amenities + property_amenities + property_photos
 -- =============================================================================
 
 -- properties — vacation rental listings
+-- 🟢 status: shipped (2026_05_06_000011)
+-- NOTE: location stored as DECIMAL latitude/longitude (NOT POINT) for SQLite test
+-- portability. Bounding-box prefilter in app code; spatial column to be added in
+-- a follow-up MySQL-only migration once search load is measured.
 CREATE TABLE properties (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     host_id BIGINT UNSIGNED NOT NULL,
