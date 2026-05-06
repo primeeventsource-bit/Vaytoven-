@@ -119,6 +119,12 @@
                         — set <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">STRIPE_SECRET</code> + <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">STRIPE_KEY</code> to enable live payment.
                     </div>
                 @endif
+
+                @if (! $booking->status->isTerminal())
+                    <a href="{{ route('bookings.cancel.form', $booking) }}" style="display:block; text-align:center; margin-top:14px; font-size:13px; color:var(--muted);">
+                        Cancel this booking
+                    </a>
+                @endif
             </div>
         </aside>
     </div>

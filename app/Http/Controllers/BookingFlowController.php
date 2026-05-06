@@ -6,9 +6,11 @@ use App\Enums\BookingStatus;
 use App\Enums\PropertyStatus;
 use App\Exceptions\BookingConflictException;
 use App\Models\Booking;
+use App\Models\Charge;
 use App\Models\PaymentIntent;
 use App\Models\Property;
 use App\Services\Bookings\BookingService;
+use App\Services\Payments\RefundCalculator;
 use App\Services\Payments\Stripe\StripeService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -217,6 +219,92 @@ class BookingFlowController extends Controller
             'publishableKey'  => (string) (config('services.stripe.key') ?? ''),
             'returnUrl'       => route('bookings.show', $booking),
         ]);
+    }
+
+    /**
+     * GET /bookings/{booking}/cancel — show refund preview before confirming.
+     */
+    public function cancelForm(Request $request, Booking $booking): View|RedirectResponse
+    {
+        if ($booking->traveler_id !== $request->user()->id) {
+            abort(404);
+        }
+
+        if ($booking->status->isTerminal()) {
+            return redirect()
+                ->route('bookings.show', $booking)
+                ->with('booking_error', 'This booking is already in a terminal state.');
+        }
+
+        $breakdown = RefundCalculator::compute($booking);
+
+        return view('bookings.cancel', [
+            'booking'   => $booking->load('property:id,title,city,country'),
+            'breakdown' => $breakdown,
+        ]);
+    }
+
+    /**
+     * POST /bookings/{booking}/cancel — transition to cancelled, optionally
+     * issue Stripe refund when live + a successful charge exists.
+     */
+    public function cancel(Request $request, Booking $booking): RedirectResponse
+    {
+        if ($booking->traveler_id !== $request->user()->id) {
+            abort(404);
+        }
+
+        if ($booking->status->isTerminal()) {
+            return redirect()
+                ->route('bookings.show', $booking)
+                ->with('booking_error', 'This booking is already in a terminal state.');
+        }
+
+        $reason = (string) $request->string('reason')->limit(255) ?: 'traveler_cancelled';
+
+        $breakdown = RefundCalculator::compute($booking);
+
+        $booking->transitionTo(
+            BookingStatus::Cancelled,
+            actorUserId: $request->user()->id,
+            reason: $reason,
+        );
+
+        $refundIssued = false;
+        if ($this->stripeConfigured() && $breakdown->total_cents > 0) {
+            // Find the most recent successful charge against this booking and
+            // issue a Stripe refund. Idempotency key in StripeService prevents
+            // double-refunding on accidental double-submit.
+            $charge = Charge::query()
+                ->where('booking_id', $booking->id)
+                ->whereNotNull('external_charge_id')
+                ->latest('created_at')
+                ->first();
+
+            if ($charge) {
+                try {
+                    $this->stripe->refundCharge($charge, $breakdown, actorUserId: $request->user()->id, reason: $reason);
+                    $refundIssued = true;
+                } catch (Throwable $e) {
+                    Log::error('booking flow: stripe refund failed', [
+                        'booking_id' => $booking->id,
+                        'error'      => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
+
+        $message = $breakdown->total_cents > 0
+            ? sprintf(
+                'Booking cancelled. %s%s',
+                $refundIssued ? "Refund of $".number_format($breakdown->total_cents/100, 2).' is on its way.' : "You're owed a $".number_format($breakdown->total_cents/100, 2).' refund per the cancellation policy.',
+                $refundIssued ? '' : ' We will process it within 1 business day.',
+            )
+            : 'Booking cancelled. Per the cancellation policy, no refund is due.';
+
+        return redirect()
+            ->route('bookings.show', $booking)
+            ->with('booking_success', $message);
     }
 
     private function priceBreakdown(Property $property, int $nights): array

@@ -34,6 +34,8 @@ Route::middleware(['auth', 'terms.current'])->group(function () {
     Route::post('/properties/{property}/book', [BookingFlowController::class, 'store'])->name('bookings.store');
     Route::get('/bookings/{booking}',          [BookingFlowController::class, 'show'])->name('bookings.show');
     Route::get('/bookings/{booking}/pay',      [BookingFlowController::class, 'pay'])->name('bookings.pay');
+    Route::get('/bookings/{booking}/cancel',   [BookingFlowController::class, 'cancelForm'])->name('bookings.cancel.form');
+    Route::post('/bookings/{booking}/cancel',  [BookingFlowController::class, 'cancel'])->name('bookings.cancel');
 });
 
 // ---------------------------------------------------------------------------
