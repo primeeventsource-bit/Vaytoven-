@@ -21,6 +21,21 @@ return [
         'anonymous_mmdb_path' => env('MAXMIND_ANONYMOUS_MMDB_PATH'),
     ],
 
+    // Per-processor chargeback rebuttal portal URLs (Phase 12). Each processor
+    // adapter falls back to a sane default if the env var is unset; override to
+    // route ops to a sandbox/staging portal in non-production environments.
+    'chargeback' => [
+        'authorizenet' => ['portal_url' => env('CHARGEBACK_PORTAL_AUTHORIZENET')],
+        'nmi'          => ['portal_url' => env('CHARGEBACK_PORTAL_NMI')],
+        'nuvei'        => ['portal_url' => env('CHARGEBACK_PORTAL_NUVEI')],
+        'mes'          => ['portal_url' => env('CHARGEBACK_PORTAL_MES')],
+        'paymentcloud' => ['portal_url' => env('CHARGEBACK_PORTAL_PAYMENTCLOUD')],
+        'ems'          => ['portal_url' => env('CHARGEBACK_PORTAL_EMS')],
+        'nexio'        => ['portal_url' => env('CHARGEBACK_PORTAL_NEXIO')],
+        'netevia'      => ['portal_url' => env('CHARGEBACK_PORTAL_NETEVIA')],
+        'kurv'         => ['portal_url' => env('CHARGEBACK_PORTAL_KURV')],
+    ],
+
     // Slack incoming webhook for ops notifications (member enquiries, etc.).
     // Leave SLACK_OPS_WEBHOOK_URL unset and the SlackNotifier binding falls
     // back to NoOpSlackNotifier so jobs run cleanly in dev and CI.

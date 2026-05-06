@@ -2,22 +2,28 @@
 
 namespace App\Services\Payments\Nexio;
 
-use App\Exceptions\NotImplementedException;
-use App\Services\Chargeback\EvidenceBundle;
-use App\Services\Payments\DisputeAdapter;
-use App\Services\Payments\DisputeSubmissionResult;
+use App\Services\Payments\PortalPdfDisputeAdapter;
 
 /**
- * Nexio dispute adapter (Phase 12 deliverable).
- *
- * Stub exists so DisputeAdapterRegistry can resolve the right adapter today.
- * Implementation pending Phase 12 ? for processors without a structured API,
- * this will produce a printable PDF for portal upload (mode='manual_pdf').
+ * Nexio publishes a dispute API but enrolment is per-merchant; we keep the
+ * portal-PDF path as the default. Operator can switch to API submission once
+ * Nexio enables the dispute endpoints on the merchant account.
  */
-class NexioDisputeAdapter implements DisputeAdapter
+class NexioDisputeAdapter extends PortalPdfDisputeAdapter
 {
-    public function submit(string $externalDisputeId, EvidenceBundle $bundle): DisputeSubmissionResult
+    public function processorKey(): string
     {
-        throw NotImplementedException::for(self::class, 'Nexio adapter pending Phase 12');
+        return 'nexio';
+    }
+
+    public function portalUploadUrl(): string
+    {
+        return (string) (config('services.chargeback.nexio.portal_url')
+            ?? 'https://dashboard.nexiopay.com/');
+    }
+
+    public function submissionInstructions(): string
+    {
+        return 'Dashboard → Disputes → open case → Add Evidence → upload this PDF.';
     }
 }

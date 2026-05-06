@@ -2,22 +2,28 @@
 
 namespace App\Services\Payments\Nuvei;
 
-use App\Exceptions\NotImplementedException;
-use App\Services\Chargeback\EvidenceBundle;
-use App\Services\Payments\DisputeAdapter;
-use App\Services\Payments\DisputeSubmissionResult;
+use App\Services\Payments\PortalPdfDisputeAdapter;
 
 /**
- * Nuvei dispute adapter (Phase 12 deliverable).
- *
- * Stub exists so DisputeAdapterRegistry can resolve the right adapter today.
- * Implementation pending Phase 12 ? for processors without a structured API,
- * this will produce a printable PDF for portal upload (mode='manual_pdf').
+ * Nuvei (Safecharge) disputes are managed in the Merchant Control Panel
+ * under the Risk > Chargebacks section. Their REST API supports submission
+ * but is gated behind a separate enablement; default path is portal upload.
  */
-class NuveiDisputeAdapter implements DisputeAdapter
+class NuveiDisputeAdapter extends PortalPdfDisputeAdapter
 {
-    public function submit(string $externalDisputeId, EvidenceBundle $bundle): DisputeSubmissionResult
+    public function processorKey(): string
     {
-        throw NotImplementedException::for(self::class, 'Nuvei adapter pending Phase 12');
+        return 'nuvei';
+    }
+
+    public function portalUploadUrl(): string
+    {
+        return (string) (config('services.chargeback.nuvei.portal_url')
+            ?? 'https://controlpanel.nuvei.com/');
+    }
+
+    public function submissionInstructions(): string
+    {
+        return 'Risk → Chargebacks → select case → Reply tab → upload PDF and add a one-line rebuttal summary.';
     }
 }

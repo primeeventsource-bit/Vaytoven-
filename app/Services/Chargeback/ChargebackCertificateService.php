@@ -40,6 +40,19 @@ class ChargebackCertificateService
     }
 
     /**
+     * Generate certificate PDF binary directly from an EvidenceBundle.
+     *
+     * Used by per-processor DisputeAdapters that have already built the bundle
+     * (typically via EvidenceBundleService::generateForDispute) and don't want
+     * to re-fetch from the booking. Looks up the user by id internally.
+     */
+    public function forBundle(EvidenceBundle $bundle): string
+    {
+        $user = $bundle->user_id ? User::find($bundle->user_id) : null;
+        return $this->renderPdf($bundle, $user);
+    }
+
+    /**
      * Suggested filename for a download response.
      */
     public function filenameFor(?string $confirmationCode = null, ?int $userId = null): string

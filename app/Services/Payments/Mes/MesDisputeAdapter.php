@@ -2,22 +2,28 @@
 
 namespace App\Services\Payments\Mes;
 
-use App\Exceptions\NotImplementedException;
-use App\Services\Chargeback\EvidenceBundle;
-use App\Services\Payments\DisputeAdapter;
-use App\Services\Payments\DisputeSubmissionResult;
+use App\Services\Payments\PortalPdfDisputeAdapter;
 
 /**
- * Merchant E Solutions dispute adapter (Phase 12 deliverable).
- *
- * Stub exists so DisputeAdapterRegistry can resolve the right adapter today.
- * Implementation pending Phase 12 ? for processors without a structured API,
- * this will produce a printable PDF for portal upload (mode='manual_pdf').
+ * Merchant e-Solutions handles disputes through MeS Customer Service Portal.
+ * No public API; rebuttal documents are emailed to chargebacks@merchante-solutions.com
+ * or uploaded through the portal's case file upload.
  */
-class MesDisputeAdapter implements DisputeAdapter
+class MesDisputeAdapter extends PortalPdfDisputeAdapter
 {
-    public function submit(string $externalDisputeId, EvidenceBundle $bundle): DisputeSubmissionResult
+    public function processorKey(): string
     {
-        throw NotImplementedException::for(self::class, 'Merchant E Solutions adapter pending Phase 12');
+        return 'mes';
+    }
+
+    public function portalUploadUrl(): string
+    {
+        return (string) (config('services.chargeback.mes.portal_url')
+            ?? 'https://portal.merchante-solutions.com/');
+    }
+
+    public function submissionInstructions(): string
+    {
+        return 'Customer Service Portal → Chargebacks → open case → Upload Documents → attach this PDF; copy chargebacks@merchante-solutions.com.';
     }
 }

@@ -2,22 +2,27 @@
 
 namespace App\Services\Payments\Kurv;
 
-use App\Exceptions\NotImplementedException;
-use App\Services\Chargeback\EvidenceBundle;
-use App\Services\Payments\DisputeAdapter;
-use App\Services\Payments\DisputeSubmissionResult;
+use App\Services\Payments\PortalPdfDisputeAdapter;
 
 /**
- * Kurv dispute adapter (Phase 12 deliverable).
- *
- * Stub exists so DisputeAdapterRegistry can resolve the right adapter today.
- * Implementation pending Phase 12 ? for processors without a structured API,
- * this will produce a printable PDF for portal upload (mode='manual_pdf').
+ * Kurv (formerly Curve Payments) handles chargebacks through its merchant
+ * dashboard. No public submission API at this time.
  */
-class KurvDisputeAdapter implements DisputeAdapter
+class KurvDisputeAdapter extends PortalPdfDisputeAdapter
 {
-    public function submit(string $externalDisputeId, EvidenceBundle $bundle): DisputeSubmissionResult
+    public function processorKey(): string
     {
-        throw NotImplementedException::for(self::class, 'Kurv adapter pending Phase 12');
+        return 'kurv';
+    }
+
+    public function portalUploadUrl(): string
+    {
+        return (string) (config('services.chargeback.kurv.portal_url')
+            ?? 'https://merchant.kurv.com/');
+    }
+
+    public function submissionInstructions(): string
+    {
+        return 'Dashboard → Disputes → open case → Reply with Evidence → upload this PDF.';
     }
 }

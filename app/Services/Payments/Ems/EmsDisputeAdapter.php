@@ -2,22 +2,27 @@
 
 namespace App\Services\Payments\Ems;
 
-use App\Exceptions\NotImplementedException;
-use App\Services\Chargeback\EvidenceBundle;
-use App\Services\Payments\DisputeAdapter;
-use App\Services\Payments\DisputeSubmissionResult;
+use App\Services\Payments\PortalPdfDisputeAdapter;
 
 /**
- * EMS dispute adapter (Phase 12 deliverable).
- *
- * Stub exists so DisputeAdapterRegistry can resolve the right adapter today.
- * Implementation pending Phase 12 ? for processors without a structured API,
- * this will produce a printable PDF for portal upload (mode='manual_pdf').
+ * Electronic Merchant Systems (EMS) routes disputes through the eMerchant View
+ * portal. Operator opens the chargeback case and uploads the rebuttal PDF.
  */
-class EmsDisputeAdapter implements DisputeAdapter
+class EmsDisputeAdapter extends PortalPdfDisputeAdapter
 {
-    public function submit(string $externalDisputeId, EvidenceBundle $bundle): DisputeSubmissionResult
+    public function processorKey(): string
     {
-        throw NotImplementedException::for(self::class, 'EMS adapter pending Phase 12');
+        return 'ems';
+    }
+
+    public function portalUploadUrl(): string
+    {
+        return (string) (config('services.chargeback.ems.portal_url')
+            ?? 'https://emerchantview.com/');
+    }
+
+    public function submissionInstructions(): string
+    {
+        return 'eMerchantView → Chargebacks → select case → Respond → upload this PDF as documentation.';
     }
 }

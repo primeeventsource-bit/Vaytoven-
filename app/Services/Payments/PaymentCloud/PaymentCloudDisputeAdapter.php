@@ -2,22 +2,28 @@
 
 namespace App\Services\Payments\PaymentCloud;
 
-use App\Exceptions\NotImplementedException;
-use App\Services\Chargeback\EvidenceBundle;
-use App\Services\Payments\DisputeAdapter;
-use App\Services\Payments\DisputeSubmissionResult;
+use App\Services\Payments\PortalPdfDisputeAdapter;
 
 /**
- * Payment Cloud dispute adapter (Phase 12 deliverable).
- *
- * Stub exists so DisputeAdapterRegistry can resolve the right adapter today.
- * Implementation pending Phase 12 ? for processors without a structured API,
- * this will produce a printable PDF for portal upload (mode='manual_pdf').
+ * Payment Cloud is a high-risk reseller — disputes route to the underlying
+ * acquirer but Payment Cloud's portal is the operator's surface for filing
+ * rebuttals. No first-party API.
  */
-class PaymentCloudDisputeAdapter implements DisputeAdapter
+class PaymentCloudDisputeAdapter extends PortalPdfDisputeAdapter
 {
-    public function submit(string $externalDisputeId, EvidenceBundle $bundle): DisputeSubmissionResult
+    public function processorKey(): string
     {
-        throw NotImplementedException::for(self::class, 'Payment Cloud adapter pending Phase 12');
+        return 'paymentcloud';
+    }
+
+    public function portalUploadUrl(): string
+    {
+        return (string) (config('services.chargeback.paymentcloud.portal_url')
+            ?? 'https://portal.paymentcloudinc.com/');
+    }
+
+    public function submissionInstructions(): string
+    {
+        return 'Merchant Portal → Chargebacks → flag case as Disputed → upload this PDF and email risk@paymentcloudinc.com with the case id.';
     }
 }

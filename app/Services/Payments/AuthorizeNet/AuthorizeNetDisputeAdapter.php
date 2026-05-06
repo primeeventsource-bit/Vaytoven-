@@ -2,22 +2,28 @@
 
 namespace App\Services\Payments\AuthorizeNet;
 
-use App\Exceptions\NotImplementedException;
-use App\Services\Chargeback\EvidenceBundle;
-use App\Services\Payments\DisputeAdapter;
-use App\Services\Payments\DisputeSubmissionResult;
+use App\Services\Payments\PortalPdfDisputeAdapter;
 
 /**
- * Authorize.Net dispute adapter (Phase 12 deliverable).
- *
- * Authorize.Net has a chargeback rebuttal API; this stub exists so calling
- * code can resolve the right adapter today. Implementation pending counsel
- * sign-off on the rebuttal letter template.
+ * Authorize.Net rebuttals are filed through the Merchant Interface > Reports
+ * > Chargeback Statistics page — operator uploads the cert PDF as supporting
+ * documentation and a one-paragraph rebuttal.
  */
-class AuthorizeNetDisputeAdapter implements DisputeAdapter
+class AuthorizeNetDisputeAdapter extends PortalPdfDisputeAdapter
 {
-    public function submit(string $externalDisputeId, EvidenceBundle $bundle): DisputeSubmissionResult
+    public function processorKey(): string
     {
-        throw NotImplementedException::for(self::class, 'Authorize.Net adapter pending Phase 12');
+        return 'authorizenet';
+    }
+
+    public function portalUploadUrl(): string
+    {
+        return (string) (config('services.chargeback.authorizenet.portal_url')
+            ?? 'https://account.authorize.net/');
+    }
+
+    public function submissionInstructions(): string
+    {
+        return 'Reports → Chargeback Statistics → select dispute → Reply with this PDF as the supporting document.';
     }
 }

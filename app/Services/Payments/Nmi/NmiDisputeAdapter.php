@@ -2,22 +2,27 @@
 
 namespace App\Services\Payments\Nmi;
 
-use App\Exceptions\NotImplementedException;
-use App\Services\Chargeback\EvidenceBundle;
-use App\Services\Payments\DisputeAdapter;
-use App\Services\Payments\DisputeSubmissionResult;
+use App\Services\Payments\PortalPdfDisputeAdapter;
 
 /**
- * NMI dispute adapter (Phase 12 deliverable).
- *
- * Stub exists so DisputeAdapterRegistry can resolve the right adapter today.
- * Implementation pending Phase 12 ? for processors without a structured API,
- * this will produce a printable PDF for portal upload (mode='manual_pdf').
+ * NMI's chargeback workflow lives under the Control Panel > Disputes tab.
+ * No public submission API; merchants reply with a PDF attachment.
  */
-class NmiDisputeAdapter implements DisputeAdapter
+class NmiDisputeAdapter extends PortalPdfDisputeAdapter
 {
-    public function submit(string $externalDisputeId, EvidenceBundle $bundle): DisputeSubmissionResult
+    public function processorKey(): string
     {
-        throw NotImplementedException::for(self::class, 'NMI adapter pending Phase 12');
+        return 'nmi';
+    }
+
+    public function portalUploadUrl(): string
+    {
+        return (string) (config('services.chargeback.nmi.portal_url')
+            ?? 'https://secure.nmi.com/merchants/');
+    }
+
+    public function submissionInstructions(): string
+    {
+        return 'Control Panel → Disputes → open the case → Add Response → upload this PDF.';
     }
 }

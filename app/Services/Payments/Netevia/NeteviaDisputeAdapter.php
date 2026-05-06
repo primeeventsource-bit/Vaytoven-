@@ -2,22 +2,27 @@
 
 namespace App\Services\Payments\Netevia;
 
-use App\Exceptions\NotImplementedException;
-use App\Services\Chargeback\EvidenceBundle;
-use App\Services\Payments\DisputeAdapter;
-use App\Services\Payments\DisputeSubmissionResult;
+use App\Services\Payments\PortalPdfDisputeAdapter;
 
 /**
- * Netevia dispute adapter (Phase 12 deliverable).
- *
- * Stub exists so DisputeAdapterRegistry can resolve the right adapter today.
- * Implementation pending Phase 12 ? for processors without a structured API,
- * this will produce a printable PDF for portal upload (mode='manual_pdf').
+ * Netevia disputes are managed through the Netevia Merchant Portal. No public
+ * dispute API; rebuttals are uploaded as PDF documents per case.
  */
-class NeteviaDisputeAdapter implements DisputeAdapter
+class NeteviaDisputeAdapter extends PortalPdfDisputeAdapter
 {
-    public function submit(string $externalDisputeId, EvidenceBundle $bundle): DisputeSubmissionResult
+    public function processorKey(): string
     {
-        throw NotImplementedException::for(self::class, 'Netevia adapter pending Phase 12');
+        return 'netevia';
+    }
+
+    public function portalUploadUrl(): string
+    {
+        return (string) (config('services.chargeback.netevia.portal_url')
+            ?? 'https://merchant.netevia.com/');
+    }
+
+    public function submissionInstructions(): string
+    {
+        return 'Merchant Portal → Reports → Chargebacks → select case → Submit Documents → upload this PDF.';
     }
 }

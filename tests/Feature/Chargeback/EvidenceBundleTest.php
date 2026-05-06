@@ -3,7 +3,6 @@
 namespace Tests\Feature\Chargeback;
 
 use App\Enums\PaymentProcessor;
-use App\Exceptions\NotImplementedException;
 use App\Models\Booking;
 use App\Models\Charge;
 use App\Models\LoginSession;
@@ -134,21 +133,34 @@ class EvidenceBundleTest extends TestCase
         }
     }
 
-    public function test_non_stripe_adapters_throw_not_implemented(): void
+    public function test_non_stripe_adapters_produce_manual_pdf_artifacts(): void
     {
+        \Illuminate\Support\Facades\Storage::fake();
+
+        // Stub the certificate service so dompdf isn't invoked nine times in
+        // a single test — that's a real memory sink and the contract we're
+        // verifying here is the adapter shape, not PDF rendering.
+        $this->app->instance(\App\Services\Chargeback\ChargebackCertificateService::class, new class extends \App\Services\Chargeback\ChargebackCertificateService {
+            public function __construct() {}
+            public function forBundle(\App\Services\Chargeback\EvidenceBundle $bundle): string
+            {
+                return '%PDF-1.4 stub';
+            }
+        });
+
         $reg = $this->app->make(DisputeAdapterRegistry::class);
         $bundle = $this->app->make(EvidenceBundleService::class)
             ->generateForBooking(Booking::factory()->create());
 
-        $stubs = ['authorizenet', 'nmi', 'nuvei', 'mes', 'paymentcloud', 'ems', 'nexio', 'netevia', 'kurv'];
+        $portalProcessors = ['authorizenet', 'nmi', 'nuvei', 'mes', 'paymentcloud', 'ems', 'nexio', 'netevia', 'kurv'];
 
-        foreach ($stubs as $proc) {
-            try {
-                $reg->for($proc)->submit('dp_test_'.$proc, $bundle);
-                $this->fail("{$proc} adapter should throw NotImplementedException");
-            } catch (NotImplementedException $e) {
-                $this->assertStringContainsString('pending Phase 12', $e->getMessage());
-            }
+        foreach ($portalProcessors as $proc) {
+            $result = $reg->for($proc)->submit('dp_test_'.$proc, $bundle);
+
+            $this->assertSame($proc, $result->processor);
+            $this->assertSame('manual_pdf', $result->mode);
+            $this->assertNotNull($result->artifact_path);
+            $this->assertStringContainsString("disputes/{$proc}/", $result->artifact_path);
         }
     }
 
