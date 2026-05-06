@@ -145,7 +145,8 @@ class PropertyBrowseTest extends TestCase
         $resp->assertOk();
         $resp->assertSee('Test Villa');
         $resp->assertSee('A lovely place to stay near the water.');
-        $resp->assertSee('Request to book');
+        // Booking date-picker CTA replaced the old disabled "Request to book" button.
+        $resp->assertSee('Continue to review');
     }
 
     public function test_show_404s_inactive_property(): void

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Admin\UserCertificateController as AdminUserCertificateController;
+use App\Http\Controllers\BookingFlowController;
 use App\Http\Controllers\Client\ContractController as ClientContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HealthController;
@@ -23,6 +24,15 @@ Route::post('/members/enquiry', [MemberEnquiryController::class, 'store'])
 // ?destination= (alias for city), ?min_capacity=, ?max_price=.
 Route::get('/properties', [PropertyBrowseController::class, 'index'])->name('properties.index');
 Route::get('/properties/{property}', [PropertyBrowseController::class, 'show'])->name('properties.show');
+
+// Booking flow — auth-required so unauthenticated visitors get bounced to
+// /login with intended URL, then back to the review page after sign-in.
+// terms.current keeps the legal-acceptance gate on the booking funnel too.
+Route::middleware(['auth', 'terms.current'])->group(function () {
+    Route::get('/properties/{property}/book',  [BookingFlowController::class, 'review'])->name('bookings.review');
+    Route::post('/properties/{property}/book', [BookingFlowController::class, 'store'])->name('bookings.store');
+    Route::get('/bookings/{booking}',          [BookingFlowController::class, 'show'])->name('bookings.show');
+});
 
 // ---------------------------------------------------------------------------
 // Help center (FR-11.5). Public, anonymous-friendly. Search lives at

@@ -100,12 +100,32 @@
                         <div class="props-meta" style="margin-top:6px;">+ ${{ number_format($property->cleaning_fee_cents / 100) }} cleaning fee</div>
                     @endif
 
-                    <button type="button" class="props-book-cta" data-track-audience="traveler" data-track-cta="property_book_request" data-track-meta-id="{{ $property->id }}" disabled title="Booking flow lands in the next phase">
-                        Request to book
-                    </button>
+                    @if (session('booking_error'))
+                        <div style="margin-top:14px; padding:12px 14px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:10px; font-size:13px;">
+                            {{ session('booking_error') }}
+                        </div>
+                    @endif
+
+                    <form method="GET" action="{{ route('bookings.review', $property) }}" style="margin-top:18px; display:grid; gap:10px;">
+                        <div>
+                            <label for="b-checkin" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:4px;">Check-in</label>
+                            <input id="b-checkin" type="date" name="check_in" required min="{{ now()->toDateString() }}" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; background:var(--bg); outline:none;">
+                        </div>
+                        <div>
+                            <label for="b-checkout" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:4px;">Check-out</label>
+                            <input id="b-checkout" type="date" name="check_out" required min="{{ now()->addDay()->toDateString() }}" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; background:var(--bg); outline:none;">
+                        </div>
+                        <div>
+                            <label for="b-guests" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:4px;">Guests</label>
+                            <input id="b-guests" type="number" name="guests" min="1" max="{{ $property->capacity }}" value="2" required style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; background:var(--bg); outline:none;">
+                        </div>
+                        <button type="submit" class="props-book-cta" data-track-audience="traveler" data-track-cta="property_book_request" data-track-meta-id="{{ $property->id }}">
+                            Continue to review
+                        </button>
+                    </form>
 
                     <p class="props-book-fineprint">
-                        Booking flow opens in the next release. For early access, <a href="/help">contact support</a>.
+                        Min stay: {{ $property->minimum_nights }} {{ Str::plural('night', $property->minimum_nights) }} · Max guests: {{ $property->capacity }}
                     </p>
                 </div>
             </aside>
