@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Admin\UserCertificateController as AdminUserCertificateController;
 use App\Http\Controllers\Client\ContractController as ClientContractController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\HelpController;
 use App\Http\Controllers\MemberEnquiryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Webhooks\DocuSignWebhookController;
@@ -14,6 +15,16 @@ Route::view('/', 'welcome');
 
 Route::post('/members/enquiry', [MemberEnquiryController::class, 'store'])
     ->name('members.enquiry');
+
+// ---------------------------------------------------------------------------
+// Help center (FR-11.5). Public, anonymous-friendly. Search lives at
+// /help/search (JSON) — used by the help page's live search and by the
+// support chat agent's search_help_articles tool. /help/{slug} is wildcard
+// after /help/search so the literal route wins.
+// ---------------------------------------------------------------------------
+Route::get('/help', [HelpController::class, 'index'])->name('help.index');
+Route::get('/help/search', [HelpController::class, 'search'])->name('help.search');
+Route::get('/help/{slug}', [HelpController::class, 'show'])->name('help.show');
 
 // Deeper health check than Laravel 11's built-in /up. Pings DB and Redis
 // and returns 503 if either is down — useful as a strict readiness probe

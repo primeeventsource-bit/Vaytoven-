@@ -552,6 +552,7 @@
         <a href="#destinations" data-track-audience="traveler" data-track-cta="nav_stays">Stays</a>
         <a href="#host" data-track-audience="host" data-track-cta="nav_become_host">Become a host</a>
         <a href="#members" data-track-audience="member" data-track-cta="nav_members">Members</a>
+        <a href="/help" data-track-audience="traveler" data-track-cta="nav_help">Help</a>
         <a href="#app" class="nav-cta" data-track-audience="traveler" data-track-cta="nav_get_app">Get the app</a>
     </div>
 </nav>
@@ -1006,6 +1007,7 @@
                 <li><a href="#destinations" data-track-audience="traveler" data-track-cta="footer_destinations">Destinations</a></li>
                 <li><a href="#" data-track-audience="traveler" data-track-cta="footer_all_stays">All stays</a></li>
                 <li><a href="#app" data-track-audience="traveler" data-track-cta="footer_mobile_app">Mobile app</a></li>
+                <li><a href="/help" data-track-audience="traveler" data-track-cta="footer_help">Help center</a></li>
                 <li><a href="#" data-track-audience="traveler" data-track-cta="footer_trip_support">Trip support</a></li>
             </ul>
         </div>

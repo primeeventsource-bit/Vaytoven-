@@ -130,8 +130,22 @@ class SupportChatTest extends TestCase
         $this->assertSame($session->id, $ticket->session_id);
     }
 
-    public function test_search_help_articles_returns_canned_articles(): void
+    public function test_search_help_articles_returns_db_backed_articles(): void
     {
+        // Seed the article the tool should find. The tool now hits the
+        // HelpArticleSearch service rather than an inline array — this test
+        // doubles as the regression for that wiring.
+        \App\Models\HelpArticle::create([
+            'slug' => 'cancellation-flexible',
+            'audience' => \App\Enums\HelpAudience::Traveler,
+            'category' => 'cancellation',
+            'title' => 'Flexible cancellation policy',
+            'summary' => 'Full refund 24+ hours before check-in.',
+            'body' => 'Bookings on the Flexible policy refund the full nightly rate when cancelled at least 24 hours before check-in.',
+            'search_keywords' => 'cancel, flexible',
+            'is_published' => true,
+        ]);
+
         $this->fake->enqueue($this->toolUseResponse('search_help_articles', ['query' => 'flexible cancellation']));
         $this->fake->enqueue($this->textResponse("With flexible bookings, full refund up to 24h before."));
 
@@ -142,7 +156,7 @@ class SupportChatTest extends TestCase
         $this->assertStringContainsString('flexible', strtolower($reply));
 
         $tool = SupportMessage::where('session_id', $session->id)->where('role', 'tool')->first();
-        $this->assertStringContainsString('Flexible bookings', $tool->content);
+        $this->assertStringContainsString('Flexible policy', $tool->content);
     }
 
     public function test_get_recent_charges_scoped_to_authenticated_user(): void

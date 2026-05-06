@@ -66,7 +66,7 @@ class SupportChatService
 
         // 2. Resolve the user (could be null for anon).
         $user = $session->user;
-        $tools = new ToolRegistry($user);
+        $tools = app(ToolRegistry::class, ['user' => $user]);
 
         // 3. Build conversation history for Claude.
         $messages = $this->buildMessageHistory($session);

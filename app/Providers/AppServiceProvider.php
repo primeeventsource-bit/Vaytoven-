@@ -8,6 +8,8 @@ use App\Services\GeoIp\CachedGeoIpService;
 use App\Services\GeoIp\GeoIpService;
 use App\Services\GeoIp\MaxMindGeoIpService;
 use App\Services\GeoIp\NoOpGeoIpService;
+use App\Services\Help\DatabaseHelpArticleSearch;
+use App\Services\Help\HelpArticleSearch;
 use App\Services\Notifications\HttpSlackNotifier;
 use App\Services\Notifications\NoOpSlackNotifier;
 use App\Services\Notifications\SlackNotifier;
@@ -64,6 +66,14 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(SupportChatService::class, function ($app) {
             return new SupportChatService($app->make(ClaudeClient::class));
+        });
+
+        // HelpArticleSearch — DB-backed by default. The interface is the swap
+        // point for Meilisearch when the article catalogue grows beyond what
+        // a few LIKE queries comfortably serve. Singleton so request-scoped
+        // sessions reuse a single search instance.
+        $this->app->singleton(HelpArticleSearch::class, function () {
+            return new DatabaseHelpArticleSearch();
         });
 
         // SlackNotifier — wires HttpSlackNotifier when SLACK_OPS_WEBHOOK_URL is

@@ -4,9 +4,11 @@ namespace App\Services\SupportChat\Tools;
 
 use App\Models\Booking;
 use App\Models\Charge;
+use App\Models\HelpArticle;
 use App\Models\SupportChatSession;
 use App\Models\SupportTicket;
 use App\Models\User;
+use App\Services\Help\HelpArticleSearch;
 
 /**
  * Defines the 4 tools the chat agent has access to (FR-11.3) and dispatches
@@ -20,8 +22,10 @@ use App\Models\User;
  */
 class ToolRegistry
 {
-    public function __construct(private readonly ?User $user)
-    {
+    public function __construct(
+        private readonly ?User $user,
+        private readonly ?HelpArticleSearch $helpSearch = null,
+    ) {
     }
 
     /**
@@ -146,54 +150,31 @@ class ToolRegistry
     }
 
     /**
-     * Stub help article store (FR-11.5 — Meilisearch swap is Phase 11).
-     * The 6 articles cover the most common policy questions; the system prompt
-     * instructs the model to quote these verbatim and NOT make up policy.
+     * Searches the curated help center via the bound HelpArticleSearch
+     * implementation (DB-backed today; Meilisearch swap is one container
+     * binding away). The system prompt instructs the model to quote these
+     * verbatim and NOT make up policy.
+     *
+     * Falls back to a clear "no help articles indexed" hint when the service
+     * isn't bound (legacy callers passing a null HelpArticleSearch — keeps
+     * older tests compiling).
      */
     private function searchHelpArticles(string $query): array
     {
-        $articles = [
-            [
-                'slug' => 'cancellation-flexible',
-                'title' => 'Flexible cancellation policy',
-                'body' => 'Flexible bookings: full refund if you cancel at least 24 hours before check-in. Within 24 hours, no refund of the nightly rate or cleaning fee.',
-            ],
-            [
-                'slug' => 'cancellation-moderate',
-                'title' => 'Moderate cancellation policy',
-                'body' => 'Moderate bookings: full refund if you cancel at least 5 days before check-in. Between 5 days and 24 hours, you receive 50% back. Within 24 hours, no refund.',
-            ],
-            [
-                'slug' => 'cancellation-strict',
-                'title' => 'Strict cancellation policy',
-                'body' => 'Strict bookings: 50% refund if you cancel at least 7 days before check-in. Within 7 days, no refund.',
-            ],
-            [
-                'slug' => 'service-fee',
-                'title' => 'Service fee',
-                'body' => 'The Vaytoven service fee covers operational costs and is non-refundable to travelers in any cancellation scenario, regardless of policy.',
-            ],
-            [
-                'slug' => 'host-payouts',
-                'title' => 'Host payouts',
-                'body' => 'Host payouts are issued via Stripe Connect 24 hours after guest check-in. Hosts must complete identity verification before charges and payouts are enabled.',
-            ],
-            [
-                'slug' => 'managed-listing',
-                'title' => 'Managed Listing Program',
-                'body' => 'The Managed Listing Program is for vacation property owners in points-based programs (Marriott, Hilton, Disney, RCI, Interval). A specialist contacts you within one business day after enquiry to onboard the listing under Vaytoven\'s escrow account.',
-            ],
-        ];
+        $search = $this->helpSearch ?? app(HelpArticleSearch::class);
 
-        // Naive substring match — Phase 11 swaps for Meilisearch.
-        $needle = mb_strtolower($query);
-        $matches = array_filter($articles, function ($a) use ($needle) {
-            return str_contains(mb_strtolower($a['title']), $needle)
-                || str_contains(mb_strtolower($a['body']), $needle)
-                || str_contains(mb_strtolower($a['slug']), $needle);
-        });
+        $matches = $search->search($query, audience: null, limit: 5);
 
-        return array_values($matches) ?: ['note' => 'No help articles matched. Consider create_ticket if the user needs human help.'];
+        if ($matches->isEmpty()) {
+            return ['note' => 'No help articles matched. Consider create_ticket if the user needs human help.'];
+        }
+
+        return $matches->map(fn (HelpArticle $a) => [
+            'slug'    => $a->slug,
+            'title'   => $a->title,
+            'summary' => $a->summary,
+            'body'    => $a->body,
+        ])->all();
     }
 
     private function createTicket(string $subject, string $body, SupportChatSession $session): array
