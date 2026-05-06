@@ -66,6 +66,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        // TrackAuthEvents subscriber is picked up automatically by Laravel 11's
+        // event auto-discovery (any class in app/Listeners/ with a subscribe()
+        // method gets registered). Don't call Event::subscribe() here — that
+        // causes the listener to fire twice for each auth event.
     }
 }

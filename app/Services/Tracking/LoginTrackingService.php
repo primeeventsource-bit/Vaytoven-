@@ -6,6 +6,7 @@ use App\Enums\Surface;
 use App\Models\LoginSession;
 use App\Models\User;
 use App\Services\GeoIp\GeoIpService;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 
 /**
@@ -21,8 +22,10 @@ use Illuminate\Http\Request;
  */
 class LoginTrackingService
 {
-    public function __construct(private readonly GeoIpService $geoIp)
-    {
+    public function __construct(
+        private readonly GeoIpService $geoIp,
+        private readonly AnomalyDetector $anomalyDetector,
+    ) {
     }
 
     public function record(
@@ -39,6 +42,13 @@ class LoginTrackingService
         $ip = $request->ip();
         $ua = $request->userAgent();
         $geo = $this->geoIp->lookup($ip);
+
+        // Anomaly detection (FR-10.8). Only applies to successful logins —
+        // failed-attempt anomalies follow a different path (rate limiting,
+        // not user-side surfacing).
+        $reasons = ($authEvent === 'login')
+            ? $this->anomalyDetector->detect($user, $geo, $ua, CarbonImmutable::now())
+            : [];
 
         return LoginSession::create([
             'user_id' => $user->id,
@@ -59,8 +69,8 @@ class LoginTrackingService
             'os' => $this->extractOs($ua),
             'browser' => $this->extractBrowser($ua),
             'user_agent' => $ua ? mb_substr($ua, 0, 512) : null,
-            'is_suspicious' => false,             // computed by AnomalyDetector in Phase 8
-            'suspicious_reasons' => null,
+            'is_suspicious' => count($reasons) > 0,
+            'suspicious_reasons' => $reasons ?: null,
             'occurred_at' => now(),
         ]);
     }
