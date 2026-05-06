@@ -489,6 +489,7 @@
         .toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
     </style>
     <script src="/vyt-track.js" defer></script>
+    <script src="/vyt-chat.js" defer></script>
 </head>
 <body>
 
