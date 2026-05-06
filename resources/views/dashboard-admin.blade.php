@@ -1,159 +1,198 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Operations dashboard
-            <span class="ml-2 inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">{{ auth()->user()->role->value }}</span>
-        </h2>
-    </x-slot>
+@extends('dashboard.layout')
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+@section('eyebrow', 'Operations')
+@section('title', 'Operations dashboard')
+@section('header_meta', 'Live signals · refresh for the latest')
 
-            {{-- Summary tiles -------------------------------------------------- --}}
-            <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <x-admin-tile label="New enquiries" :value="$enquiriesNew" href="#enquiries" tone="pink" />
-                <x-admin-tile label="Open tickets" :value="$ticketsOpen" tone="amber" />
-                <x-admin-tile label="Open disputes" :value="$disputesOpen" tone="red" />
-                <x-admin-tile label="Help articles" :value="$helpArticleCount" href="/help" tone="purple" />
+@section('content')
 
-                <x-admin-tile label="Charges 7d" :value="'$'.number_format($chargesLast7dCents/100)" tone="emerald" />
-                <x-admin-tile label="Refunds 7d" :value="'$'.number_format($refundsLast7dCents/100)" tone="slate" />
-                <x-admin-tile label="Tracking events 24h" :value="number_format($trackingEvents24h)" tone="blue" />
-                <x-admin-tile label="Suspicious logins 24h" :value="$suspiciousLogins24h" tone="red" />
-            </section>
+    {{-- Top tile row — funnel + risk at a glance ----------------------------- --}}
+    <section class="vyt-section">
+        <div class="vyt-tiles">
+            <a class="vyt-tile" href="#enquiries">
+                <div class="vyt-tile-label">New enquiries</div>
+                <span class="vyt-tile-value t-pink">{{ $enquiriesNew }}</span>
+            </a>
+            <div class="vyt-tile">
+                <div class="vyt-tile-label">Open tickets</div>
+                <span class="vyt-tile-value t-amber">{{ $ticketsOpen }}</span>
+            </div>
+            <div class="vyt-tile">
+                <div class="vyt-tile-label">Open disputes</div>
+                <span class="vyt-tile-value t-red">{{ $disputesOpen }}</span>
+            </div>
+            <a class="vyt-tile" href="/help">
+                <div class="vyt-tile-label">Help articles</div>
+                <span class="vyt-tile-value t-purple">{{ $helpArticleCount }}</span>
+            </a>
+        </div>
+    </section>
 
-            {{-- Bookings + Users --------------------------------------------- --}}
-            <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                    <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Bookings by status</h3>
+    {{-- Second row — money + activity -------------------------------------- --}}
+    <section class="vyt-section">
+        <div class="vyt-tiles">
+            <div class="vyt-tile">
+                <div class="vyt-tile-label">Charges · last 7d</div>
+                <span class="vyt-tile-value t-emerald">${{ number_format($chargesLast7dCents/100) }}</span>
+            </div>
+            <div class="vyt-tile">
+                <div class="vyt-tile-label">Refunds · last 7d</div>
+                <span class="vyt-tile-value t-slate">${{ number_format($refundsLast7dCents/100) }}</span>
+            </div>
+            <div class="vyt-tile">
+                <div class="vyt-tile-label">Tracking events · 24h</div>
+                <span class="vyt-tile-value t-blue">{{ number_format($trackingEvents24h) }}</span>
+            </div>
+            <div class="vyt-tile">
+                <div class="vyt-tile-label">Suspicious logins · 24h</div>
+                <span class="vyt-tile-value {{ $suspiciousLogins24h > 0 ? 't-red' : 't-slate' }}">{{ $suspiciousLogins24h }}</span>
+            </div>
+        </div>
+    </section>
+
+    {{-- Bookings + Users breakdown ----------------------------------------- --}}
+    <section class="vyt-section">
+        <div class="vyt-row-2">
+            <div class="vyt-card">
+                <div class="vyt-card-header"><h3>Bookings by status</h3></div>
+                <div class="vyt-card-body">
                     @if ($bookingsByStatus->isEmpty())
-                        <p class="text-sm text-gray-500">No bookings yet.</p>
+                        <p class="vyt-faint" style="margin:0;">No bookings yet.</p>
                     @else
-                        <ul class="space-y-2">
+                        <ul class="vyt-kv">
                             @foreach ($bookingsByStatus as $status => $count)
-                                <li class="flex justify-between text-sm">
-                                    <span class="text-gray-700">{{ ucfirst(str_replace('_', ' ', $status)) }}</span>
-                                    <span class="font-semibold">{{ $count }}</span>
-                                </li>
+                                <li><span class="k">{{ str_replace('_', ' ', $status) }}</span><span class="v">{{ $count }}</span></li>
                             @endforeach
                         </ul>
                     @endif
                 </div>
+            </div>
 
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                    <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Users by role</h3>
+            <div class="vyt-card">
+                <div class="vyt-card-header"><h3>Users by role</h3></div>
+                <div class="vyt-card-body">
                     @if ($usersByRole->isEmpty())
-                        <p class="text-sm text-gray-500">No users yet.</p>
+                        <p class="vyt-faint" style="margin:0;">No users yet.</p>
                     @else
-                        <ul class="space-y-2">
+                        <ul class="vyt-kv">
                             @foreach ($usersByRole as $role => $count)
-                                <li class="flex justify-between text-sm">
-                                    <span class="text-gray-700">{{ ucfirst(str_replace('_', ' ', $role)) }}</span>
-                                    <span class="font-semibold">{{ $count }}</span>
-                                </li>
+                                <li><span class="k">{{ str_replace('_', ' ', $role) }}</span><span class="v">{{ $count }}</span></li>
                             @endforeach
                         </ul>
                     @endif
                 </div>
-            </section>
+            </div>
+        </div>
+    </section>
 
-            {{-- Recent member enquiries ------------------------------------- --}}
-            <section class="bg-white rounded-lg shadow-sm" id="enquiries">
-                <header class="flex items-center justify-between px-6 py-4 border-b">
-                    <h3 class="font-semibold text-gray-900">Recent member enquiries</h3>
-                    <span class="text-xs text-gray-500">Latest 5</span>
-                </header>
-                @if ($enquiriesRecent->isEmpty())
-                    <p class="px-6 py-8 text-sm text-gray-500">No enquiries yet — the form on the landing posts here.</p>
-                @else
-                    <table class="w-full text-sm">
-                        <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+    {{-- Recent member enquiries ------------------------------------------ --}}
+    <section class="vyt-section" id="enquiries">
+        <div class="vyt-card">
+            <div class="vyt-card-header">
+                <h3>Recent member enquiries</h3>
+                <span class="vyt-section-meta">Latest 5</span>
+            </div>
+            @if ($enquiriesRecent->isEmpty())
+                <div class="vyt-card-empty">No enquiries yet — the form on the landing posts here.</div>
+            @else
+                <table class="vyt-table">
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Name</th>
+                            <th>Club</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($enquiriesRecent as $enquiry)
                             <tr>
-                                <th class="text-left px-6 py-2 font-medium">Reference</th>
-                                <th class="text-left px-6 py-2 font-medium">Name</th>
-                                <th class="text-left px-6 py-2 font-medium">Club</th>
-                                <th class="text-left px-6 py-2 font-medium">Status</th>
-                                <th class="text-left px-6 py-2 font-medium">Submitted</th>
+                                <td><span class="vyt-mono">{{ $enquiry->reference }}</span></td>
+                                <td>{{ $enquiry->fullName() }}</td>
+                                <td class="vyt-faint">{{ $enquiry->club }}</td>
+                                <td><span class="vyt-pill">{{ $enquiry->status->value }}</span></td>
+                                <td class="vyt-faint">{{ $enquiry->created_at?->diffForHumans() }}</td>
                             </tr>
-                        </thead>
-                        <tbody class="divide-y">
-                            @foreach ($enquiriesRecent as $enquiry)
-                                <tr>
-                                    <td class="px-6 py-3 font-mono text-xs text-purple-700">{{ $enquiry->reference }}</td>
-                                    <td class="px-6 py-3">{{ $enquiry->fullName() }}</td>
-                                    <td class="px-6 py-3 text-gray-600">{{ $enquiry->club }}</td>
-                                    <td class="px-6 py-3"><span class="text-xs px-2 py-0.5 rounded bg-gray-100">{{ $enquiry->status->value }}</span></td>
-                                    <td class="px-6 py-3 text-gray-500 text-xs">{{ $enquiry->created_at?->diffForHumans() }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @endif
-            </section>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
+    </section>
 
-            {{-- Recent bookings ---------------------------------------------- --}}
-            <section class="bg-white rounded-lg shadow-sm">
-                <header class="flex items-center justify-between px-6 py-4 border-b">
-                    <h3 class="font-semibold text-gray-900">Recent bookings</h3>
-                    <span class="text-xs text-gray-500">Latest 5</span>
-                </header>
-                @if ($bookingsRecent->isEmpty())
-                    <p class="px-6 py-8 text-sm text-gray-500">No bookings yet.</p>
-                @else
-                    <table class="w-full text-sm">
-                        <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+    {{-- Recent bookings -------------------------------------------------- --}}
+    <section class="vyt-section">
+        <div class="vyt-card">
+            <div class="vyt-card-header">
+                <h3>Recent bookings</h3>
+                <span class="vyt-section-meta">Latest 5</span>
+            </div>
+            @if ($bookingsRecent->isEmpty())
+                <div class="vyt-card-empty">No bookings yet.</div>
+            @else
+                <table class="vyt-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Property</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($bookingsRecent as $booking)
                             <tr>
-                                <th class="text-left px-6 py-2 font-medium">Code</th>
-                                <th class="text-left px-6 py-2 font-medium">Property</th>
-                                <th class="text-left px-6 py-2 font-medium">Status</th>
-                                <th class="text-left px-6 py-2 font-medium">Total</th>
-                                <th class="text-left px-6 py-2 font-medium">Created</th>
+                                <td><span class="vyt-mono">{{ $booking->confirmation_code }}</span></td>
+                                <td>{{ $booking->property?->title ?? '—' }}</td>
+                                <td><span class="vyt-pill">{{ $booking->status->value }}</span></td>
+                                <td>${{ number_format($booking->total_cents / 100, 2) }}</td>
+                                <td class="vyt-faint">{{ $booking->created_at?->diffForHumans() }}</td>
                             </tr>
-                        </thead>
-                        <tbody class="divide-y">
-                            @foreach ($bookingsRecent as $booking)
-                                <tr>
-                                    <td class="px-6 py-3 font-mono text-xs text-purple-700">{{ $booking->confirmation_code }}</td>
-                                    <td class="px-6 py-3">{{ $booking->property?->title ?? '—' }}</td>
-                                    <td class="px-6 py-3"><span class="text-xs px-2 py-0.5 rounded bg-gray-100">{{ $booking->status->value }}</span></td>
-                                    <td class="px-6 py-3">${{ number_format($booking->total_cents / 100, 2) }}</td>
-                                    <td class="px-6 py-3 text-gray-500 text-xs">{{ $booking->created_at?->diffForHumans() }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @endif
-            </section>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
+    </section>
 
-            {{-- Legal coverage + chat sessions ------------------------------ --}}
-            <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                    <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Legal versions in force</h3>
+    {{-- Legal versions + activity ---------------------------------------- --}}
+    <section class="vyt-section">
+        <div class="vyt-row-2">
+            <div class="vyt-card">
+                <div class="vyt-card-header">
+                    <h3>Legal versions in force</h3>
+                    <a href="/legal/versions" class="vyt-section-meta" style="text-transform: none; letter-spacing: 0;">JSON →</a>
+                </div>
+                <div class="vyt-card-body">
                     @if ($legalVersions->isEmpty())
-                        <p class="text-sm text-gray-500">No legal versions seeded — run <code class="text-xs bg-gray-100 px-1.5 py-0.5 rounded">php artisan db:seed</code>.</p>
+                        <p class="vyt-faint" style="margin:0;">No legal versions seeded — run <code style="font-family:'SFMono-Regular',Consolas,monospace; font-size:12px; background:#f5f3ff; padding:2px 6px; border-radius:4px;">php artisan db:seed</code>.</p>
                     @else
-                        <ul class="space-y-2 text-sm">
+                        <ul class="vyt-kv">
                             @foreach ($legalVersions as $version)
-                                <li class="flex justify-between items-center">
-                                    <span class="text-gray-700 capitalize">{{ str_replace('_', ' ', $version->kind) }}</span>
-                                    <span class="text-xs text-gray-500 font-mono">{{ $version->version_label }} · {{ substr($version->content_hash, 0, 8) }}</span>
+                                <li>
+                                    <span class="k">{{ str_replace('_', ' ', $version->kind) }}</span>
+                                    <span class="h">{{ $version->version_label }} · {{ substr($version->content_hash, 0, 8) }}</span>
                                 </li>
                             @endforeach
                         </ul>
-                        <p class="mt-4 text-xs text-gray-500">DRAFT until counsel review. <a href="/legal/versions" class="text-purple-700 hover:underline">JSON</a></p>
+                        <p class="vyt-faint" style="margin: 14px 0 0;">DRAFT until counsel review.</p>
                     @endif
                 </div>
+            </div>
 
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                    <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Activity (last 24h)</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li class="flex justify-between"><span>Chat sessions started</span><span class="font-semibold">{{ $chatSessions24h }}</span></li>
-                        <li class="flex justify-between"><span>Tracking events recorded</span><span class="font-semibold">{{ number_format($trackingEvents24h) }}</span></li>
-                        <li class="flex justify-between"><span>Suspicious logins</span><span class="font-semibold {{ $suspiciousLogins24h > 0 ? 'text-red-600' : '' }}">{{ $suspiciousLogins24h }}</span></li>
+            <div class="vyt-card">
+                <div class="vyt-card-header"><h3>Activity (last 24h)</h3></div>
+                <div class="vyt-card-body">
+                    <ul class="vyt-kv">
+                        <li><span class="k">Chat sessions started</span><span class="v">{{ $chatSessions24h }}</span></li>
+                        <li><span class="k">Tracking events recorded</span><span class="v">{{ number_format($trackingEvents24h) }}</span></li>
+                        <li><span class="k">Suspicious logins</span><span class="v {{ $suspiciousLogins24h > 0 ? 'danger' : '' }}">{{ $suspiciousLogins24h }}</span></li>
                     </ul>
                 </div>
-            </section>
-
+            </div>
         </div>
-    </div>
-</x-app-layout>
+    </section>
+
+@endsection
