@@ -5,6 +5,13 @@ return [
     'ses' => ['key' => env('AWS_ACCESS_KEY_ID'), 'secret' => env('AWS_SECRET_ACCESS_KEY'), 'region' => env('AWS_DEFAULT_REGION', 'us-east-1')],
     'stripe' => ['secret' => env('STRIPE_SECRET'), 'webhook_secret' => env('STRIPE_WEBHOOK_SECRET')],
 
+    // Anthropic Claude — AI Support Chat (Phase 7). When ANTHROPIC_API_KEY is
+    // unset the controller returns 503 with a generic graceful fallback message.
+    'anthropic' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+        'model'   => env('ANTHROPIC_MODEL', 'claude-sonnet-4-6'),
+    ],
+
     // MaxMind GeoIP2 (Phase 9). City db is required for country/city/lat-lng;
     // anonymous db (separate file) adds VPN/Tor/datacenter detection. Either
     // mount the .mmdb files via the deploy filesystem and set the absolute

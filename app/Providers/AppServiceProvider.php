@@ -11,6 +11,9 @@ use App\Services\GeoIp\NoOpGeoIpService;
 use App\Services\Payments\Stripe\StripeService;
 use App\Services\Payments\Stripe\StripeWebhookSignatureVerifier;
 use App\Services\Payments\Stripe\WebhookSignatureVerifier;
+use App\Services\SupportChat\AnthropicClaudeClient;
+use App\Services\SupportChat\ClaudeClient;
+use App\Services\SupportChat\SupportChatService;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\ServiceProvider;
 use Stripe\StripeClient;
@@ -49,6 +52,16 @@ class AppServiceProvider extends ServiceProvider
         // GeoIP — MaxMind in production (when MAXMIND_MMDB_PATH points to a
         // readable .mmdb file), NoOp otherwise (CI, fresh local dev, etc).
         // Always wrapped in CachedGeoIpService so repeat lookups hit Redis.
+        $this->app->singleton(ClaudeClient::class, function () {
+            return new AnthropicClaudeClient(
+                apiKey: (string) (config('services.anthropic.api_key') ?? ''),
+            );
+        });
+
+        $this->app->singleton(SupportChatService::class, function ($app) {
+            return new SupportChatService($app->make(ClaudeClient::class));
+        });
+
         $this->app->singleton(GeoIpService::class, function ($app) {
             $cityPath = config('services.maxmind.mmdb_path');
             $anonPath = config('services.maxmind.anonymous_mmdb_path');

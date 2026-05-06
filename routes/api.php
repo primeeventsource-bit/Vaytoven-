@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\LoginHistoryController;
 use App\Http\Controllers\Api\PropertyController;
+use App\Http\Controllers\Api\SupportChatController;
 use App\Http\Controllers\Api\TrackingEventController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,11 @@ Route::get('properties/{property}',     [PropertyController::class, 'show']);
 // Public tracking ingest (anonymous or auth-optional) — rate limited.
 Route::post('tracking/events', [TrackingEventController::class, 'store'])
     ->middleware('throttle:60,1');
+
+// AI support chat (FR-11). Anonymous chat allowed for marketing-page visitors;
+// auth-optional via Sanctum guard. Per-IP rate-limited (FR-11.8: 30/IP/min).
+Route::post('support/chat', [SupportChatController::class, 'chat'])
+    ->middleware('throttle:30,1');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
