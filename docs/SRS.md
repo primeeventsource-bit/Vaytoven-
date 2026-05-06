@@ -41,12 +41,12 @@ Status legend: 🔲 not started · 🟡 in progress · 🟢 implemented + tested
 
 | ID | Requirement | Status |
 |---|---|---|
-| FR-4.1 | Stripe Connect is the primary processor. Hosts are onboarded as Express accounts; payouts route via `host_payout_accounts`. | 🔲 |
-| FR-4.2 | Bookings create a `payment_intent` on Stripe; on `payment_intent.succeeded` webhook, the booking transitions to `confirmed`. | 🔲 |
-| FR-4.3 | All processor webhooks are idempotent. Each processor has its own `<processor>_events` table with `event_id` UNIQUE; replayed events are no-ops. | 🔲 |
-| FR-4.4 | Refunds are issued via the original processor's API, recorded in `refunds`, with full reason and admin actor. | 🔲 |
-| FR-4.5 | Disputes (chargebacks) flowing in via webhook create a `chargeback_disputes` row, link the booking, and trigger the evidence bundle pipeline (FR-10). | 🔲 |
-| FR-4.6 | Ten processors are supported: Stripe, Authorize.Net, NMI, Nuvei, Merchant E Solutions, Payment Cloud, EMS, Nexio, Netevia, Kurv. Each has a `DisputeAdapter` in `app/Services/Payments/<Processor>/`. | 🔲 |
+| FR-4.1 | Stripe Connect is the primary processor. Hosts are onboarded as Express accounts; payouts route via `host_payout_accounts`. | 🟡 (schema 🟢; StripeService + onboarding flow Phase 5) |
+| FR-4.2 | Bookings create a `payment_intent` on Stripe; on `payment_intent.succeeded` webhook, the booking transitions to `confirmed`. | 🟡 (schema 🟢; webhook handler Phase 5) |
+| FR-4.3 | All processor webhooks are idempotent. Each processor has its own `<processor>_events` table with `event_id` UNIQUE; replayed events are no-ops. | 🟢 (10 tables shipped; idempotency contract test covers all 10) |
+| FR-4.4 | Refunds are issued via the original processor's API, recorded in `refunds`, with full reason and admin actor. | 🟡 (schema 🟢; RefundService Phase 5) |
+| FR-4.5 | Disputes (chargebacks) flowing in via webhook create a `chargeback_disputes` row, link the booking, and trigger the evidence bundle pipeline (FR-10). | 🔲 (Phase 6 — chargeback_disputes table is FR-10.x territory) |
+| FR-4.6 | Ten processors are supported: Stripe, Authorize.Net, NMI, Nuvei, Merchant E Solutions, Payment Cloud, EMS, Nexio, Netevia, Kurv. Each has a `DisputeAdapter` in `app/Services/Payments/<Processor>/`. | 🟡 (PaymentProcessor enum + 10 events tables 🟢; adapters in Phase 12) |
 
 ## 5. Reviews and messaging
 
