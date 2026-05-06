@@ -26,11 +26,9 @@ Route::view('/dashboard', 'dashboard')
 // DocuSign integration
 // ---------------------------------------------------------------------------
 //
-// Admin contract management — assumes an `admin` middleware that gates on
-// staff role. Until that middleware is registered, the `auth` gate alone
-// will reject anonymous traffic, but any authenticated user could reach
-// these. Add an admin role check before exposing publicly.
-Route::middleware(['auth'])
+// Admin contract management — gated on the `admin` middleware (EnsureAdmin),
+// which checks the user's role enum is `admin` or `super_admin`.
+Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
