@@ -46,11 +46,11 @@ class AudienceCtaTest extends TestCase
             'Traveler primary CTA (search_submit) is missing or unbound.',
         );
 
-        // Host primary: "List your property" mailto button.
+        // Host primary: "List your property" → /host/onboarding (was a mailto pre-Connect onboarding).
         $this->assertMatchesRegularExpression(
-            '/class="host-primary-cta"[^>]*data-track-cta="host_email_open"/s',
+            '/class="host-primary-cta"[^>]*data-track-cta="host_onboarding_open"/s',
             $body,
-            'Host primary CTA (host_email_open) is missing or unbound.',
+            'Host primary CTA (host_onboarding_open) is missing or unbound.',
         );
 
         // Member primary: "Get on the program" modal opener.
@@ -89,7 +89,7 @@ class AudienceCtaTest extends TestCase
             'visitor_id' => '11111111-2222-3333-4444-555555555555',
             'metadata' => [
                 'audience' => 'host',
-                'cta'      => 'host_email_open',
+                'cta'      => 'host_onboarding_open',
             ],
         ];
 
@@ -100,7 +100,7 @@ class AudienceCtaTest extends TestCase
         $event = TrackingEvent::first();
         $this->assertSame('cta_click', $event->event_type);
         $this->assertSame('host', $event->metadata['audience'] ?? null);
-        $this->assertSame('host_email_open', $event->metadata['cta'] ?? null);
+        $this->assertSame('host_onboarding_open', $event->metadata['cta'] ?? null);
     }
 
     public function test_enquiry_submitted_conversion_event_is_persisted(): void

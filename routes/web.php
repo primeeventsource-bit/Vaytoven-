@@ -7,6 +7,7 @@ use App\Http\Controllers\Client\ContractController as ClientContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HelpController;
+use App\Http\Controllers\HostOnboardingController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\MemberEnquiryController;
 use App\Http\Controllers\ProfileController;
@@ -36,6 +37,12 @@ Route::middleware(['auth', 'terms.current'])->group(function () {
     Route::get('/bookings/{booking}/pay',      [BookingFlowController::class, 'pay'])->name('bookings.pay');
     Route::get('/bookings/{booking}/cancel',   [BookingFlowController::class, 'cancelForm'])->name('bookings.cancel.form');
     Route::post('/bookings/{booking}/cancel',  [BookingFlowController::class, 'cancel'])->name('bookings.cancel');
+
+    // Stripe Connect host onboarding (FR-5.x). All routes auth + terms.current.
+    Route::get('/host/onboarding',          [HostOnboardingController::class, 'index'])->name('host.onboarding.index');
+    Route::post('/host/onboarding',         [HostOnboardingController::class, 'start'])->name('host.onboarding.start');
+    Route::get('/host/onboarding/refresh',  [HostOnboardingController::class, 'refresh'])->name('host.onboarding.refresh');
+    Route::get('/host/onboarding/return',   [HostOnboardingController::class, 'return'])->name('host.onboarding.return');
 });
 
 // ---------------------------------------------------------------------------

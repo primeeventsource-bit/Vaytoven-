@@ -784,7 +784,7 @@
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Listing concierge.</strong> Photography, copy, pricing — handled by our team, not yours.</span></li>
             </ul>
 
-            <a class="host-primary-cta" href="mailto:hosts@vaytoven.com?subject=I%27d%20like%20to%20list%20my%20property" data-track-audience="host" data-track-cta="host_email_open">
+            <a class="host-primary-cta" href="{{ route('host.onboarding.index') }}" data-track-audience="host" data-track-cta="host_onboarding_open">
                 List your property
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
             </a>

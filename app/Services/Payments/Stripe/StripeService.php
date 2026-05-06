@@ -129,6 +129,67 @@ class StripeService
     }
 
     /**
+     * Create or fetch the host's Stripe Connect Express account and persist
+     * a HostPayoutAccount row. Idempotent on host_id — re-running for a host
+     * that already has an account returns the existing row.
+     *
+     * Express accounts give us the simplest hosted KYC flow; Stripe runs the
+     * collection UI and we just react to account.updated webhooks. The
+     * `business_type: individual` default suits the typical Vaytoven host
+     * (single property owner) but Stripe lets the host change it during KYC.
+     */
+    public function createConnectAccount(\App\Models\User $host): \App\Models\HostPayoutAccount
+    {
+        $existing = \App\Models\HostPayoutAccount::query()
+            ->where('host_id', $host->id)
+            ->where('processor', PaymentProcessor::Stripe->value)
+            ->first();
+        if ($existing) {
+            return $existing;
+        }
+
+        $account = $this->stripe->accounts->create([
+            'type'         => 'express',
+            'email'        => $host->email,
+            'capabilities' => [
+                'card_payments' => ['requested' => true],
+                'transfers'     => ['requested' => true],
+            ],
+            'metadata' => [
+                'host_id' => (string) $host->id,
+            ],
+        ]);
+
+        return \App\Models\HostPayoutAccount::create([
+            'host_id'             => $host->id,
+            'processor'           => PaymentProcessor::Stripe->value,
+            'external_account_id' => $account->id,
+            'status'              => 'pending_kyc',
+            'payouts_enabled'     => false,
+            'charges_enabled'     => false,
+            'last_synced_at'      => now(),
+            'metadata'            => method_exists($account, 'toArray') ? $account->toArray() : (array) $account,
+        ]);
+    }
+
+    /**
+     * Create a Stripe AccountLink so the host can complete (or resume)
+     * onboarding. AccountLinks are short-lived (~minutes) one-time URLs;
+     * call this each time the user clicks "Continue onboarding."
+     */
+    public function createAccountLink(\App\Models\HostPayoutAccount $account, string $returnUrl, string $refreshUrl): string
+    {
+        $link = $this->stripe->accountLinks->create([
+            'account'     => $account->external_account_id,
+            'refresh_url' => $refreshUrl,
+            'return_url'  => $returnUrl,
+            'type'        => 'account_onboarding',
+        ]);
+
+        return (string) $link->url;
+    }
+
+    /**
      * Stripe accepts only a small enum of refund reasons; map our strings.
      */
     private function mapReason(string $ourReason): ?string
