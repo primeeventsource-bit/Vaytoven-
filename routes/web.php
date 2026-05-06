@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ContractController as AdminContractController;
+use App\Http\Controllers\Admin\UserCertificateController as AdminUserCertificateController;
 use App\Http\Controllers\Client\ContractController as ClientContractController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\MemberEnquiryController;
@@ -40,6 +41,11 @@ Route::middleware(['auth', 'admin'])
         Route::get('contracts/{contract}/signed.pdf',      [AdminContractController::class, 'downloadSigned'])->name('contracts.download.signed');
         Route::get('contracts/{contract}/certificate.pdf', [AdminContractController::class, 'downloadCertificate'])->name('contracts.download.certificate');
         Route::post('contracts/{contract}/void', [AdminContractController::class, 'void'])->name('contracts.void');
+
+        // FR-10.13: per-user login history + Service Usage Confirmation Certificate.
+        // Used by admins responding to chargebacks.
+        Route::get('users/{user}/login-history',  [AdminUserCertificateController::class, 'loginHistory'])->name('users.login-history');
+        Route::get('users/{user}/certificate.pdf', [AdminUserCertificateController::class, 'certificate'])->name('users.certificate');
     });
 
 // Client-facing contract dashboard. Mounted at /account/contracts.

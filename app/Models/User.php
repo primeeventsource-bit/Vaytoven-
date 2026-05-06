@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Property::class, 'host_id');
     }
+
+    public function loginSessions(): HasMany
+    {
+        return $this->hasMany(LoginSession::class);
+    }
 }

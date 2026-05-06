@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\LoginHistoryController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\TrackingEventController;
 use Illuminate\Support\Facades\Route;
@@ -28,4 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('bookings',              [BookingController::class, 'store']);
     Route::get('bookings/{booking}',     [BookingController::class, 'show']);
     Route::post('bookings/{booking}/cancel', [BookingController::class, 'cancel']);
+
+    // FR-10.7: user-side login history + activity map
+    Route::get('me/login-history', [LoginHistoryController::class, 'mine']);
+    Route::get('me/activity-map',  [LoginHistoryController::class, 'activityMap']);
 });
