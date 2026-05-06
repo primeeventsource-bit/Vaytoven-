@@ -24,6 +24,10 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $attributes = [
+        'role' => UserRole::Traveler->value,
+    ];
+
     protected function casts(): array
     {
         return [
