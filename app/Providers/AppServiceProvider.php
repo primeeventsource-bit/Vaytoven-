@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Services\DocuSign\DocuSignClient;
 use App\Services\DocuSign\WebhookVerifier;
+use App\Services\Payments\Stripe\StripeService;
 use Illuminate\Support\ServiceProvider;
+use Stripe\StripeClient;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +23,14 @@ class AppServiceProvider extends ServiceProvider
             return new WebhookVerifier(
                 (array) config('services.docusign.hmac_keys', []),
             );
+        });
+
+        $this->app->singleton(StripeClient::class, function () {
+            return new StripeClient(config('services.stripe.secret') ?: 'sk_test_dummy');
+        });
+
+        $this->app->singleton(StripeService::class, function ($app) {
+            return new StripeService($app->make(StripeClient::class));
         });
     }
 
