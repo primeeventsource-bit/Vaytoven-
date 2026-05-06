@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\PropertyController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,4 +18,9 @@ Route::get('properties/{property}',     [PropertyController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
     Route::get('auth/me',      [AuthController::class, 'me']);
+
+    Route::get('bookings',               [BookingController::class, 'index']);
+    Route::post('bookings',              [BookingController::class, 'store']);
+    Route::get('bookings/{booking}',     [BookingController::class, 'show']);
+    Route::post('bookings/{booking}/cancel', [BookingController::class, 'cancel']);
 });
