@@ -87,7 +87,8 @@
             <div class="vyt-card-header"><h3>Quick links</h3></div>
             <div class="vyt-card-body">
                 <div style="display:flex; gap:10px; flex-wrap: wrap;">
-                    <a href="/help" style="padding:8px 16px; border-radius:999px; background:#f5f3ff; color:var(--purple); font-size:13px; font-weight:500;">Help center</a>
+                    <a href="{{ route('bookings.index') }}" style="padding:8px 16px; border-radius:999px; background:#f5f3ff; color:var(--purple); font-size:13px; font-weight:500;">My bookings</a>
+                    <a href="/help" style="padding:8px 16px; border-radius:999px; background:#fafaf9; color:var(--ink); font-size:13px; font-weight:500;">Help center</a>
                     <a href="{{ route('profile.edit') }}" style="padding:8px 16px; border-radius:999px; background:#fafaf9; color:var(--ink); font-size:13px; font-weight:500;">Profile</a>
                     <a href="{{ route('legal.tos') }}" style="padding:8px 16px; border-radius:999px; background:#fafaf9; color:var(--ink); font-size:13px; font-weight:500;">Terms</a>
                     <a href="{{ route('legal.privacy') }}" style="padding:8px 16px; border-radius:999px; background:#fafaf9; color:var(--ink); font-size:13px; font-weight:500;">Privacy</a>

@@ -29,6 +29,7 @@ Route::get('/properties/{property}', [PropertyBrowseController::class, 'show'])-
 // /login with intended URL, then back to the review page after sign-in.
 // terms.current keeps the legal-acceptance gate on the booking funnel too.
 Route::middleware(['auth', 'terms.current'])->group(function () {
+    Route::get('/account/bookings',            [BookingFlowController::class, 'index'])->name('bookings.index');
     Route::get('/properties/{property}/book',  [BookingFlowController::class, 'review'])->name('bookings.review');
     Route::post('/properties/{property}/book', [BookingFlowController::class, 'store'])->name('bookings.store');
     Route::get('/bookings/{booking}',          [BookingFlowController::class, 'show'])->name('bookings.show');

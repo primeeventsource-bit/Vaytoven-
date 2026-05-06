@@ -42,6 +42,23 @@ class BookingFlowController extends Controller
     ) {
     }
 
+    /**
+     * GET /account/bookings — paginated list of the signed-in user's bookings,
+     * newest first by check-in date.
+     */
+    public function index(Request $request): View
+    {
+        $bookings = Booking::query()
+            ->where('traveler_id', $request->user()->id)
+            ->with('property:id,title,city,country')
+            ->orderByDesc('check_in_date')
+            ->paginate(15);
+
+        return view('bookings.index', [
+            'bookings' => $bookings,
+        ]);
+    }
+
     public function review(Request $request, Property $property): View|RedirectResponse
     {
         if ($property->status !== PropertyStatus::Active) {
