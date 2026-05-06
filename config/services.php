@@ -21,6 +21,13 @@ return [
         'anonymous_mmdb_path' => env('MAXMIND_ANONYMOUS_MMDB_PATH'),
     ],
 
+    // Slack incoming webhook for ops notifications (member enquiries, etc.).
+    // Leave SLACK_OPS_WEBHOOK_URL unset and the SlackNotifier binding falls
+    // back to NoOpSlackNotifier so jobs run cleanly in dev and CI.
+    'slack' => [
+        'ops_webhook_url' => env('SLACK_OPS_WEBHOOK_URL'),
+    ],
+
     'docusign' => [
         // Switch oauth_base + api_base to https://account.docusign.com /
         // https://www.docusign.net for production. Defaults are demo / sandbox.

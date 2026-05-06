@@ -3,14 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMemberEnquiryRequest;
+use App\Jobs\NotifyOpsOfMemberEnquiry;
+use App\Mail\MemberEnquiryReceived;
 use App\Models\MemberEnquiry;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class MemberEnquiryController extends Controller
 {
     public function store(StoreMemberEnquiryRequest $request): JsonResponse
     {
-        MemberEnquiry::create([
+        $enquiry = MemberEnquiry::create([
             'first_name'     => $request->validated('first_name'),
             'last_name'      => $request->validated('last_name'),
             'email'          => $request->validated('email'),
@@ -25,6 +30,23 @@ class MemberEnquiryController extends Controller
             'user_agent'     => $request->userAgent(),
         ]);
 
-        return response()->json(['ok' => true]);
+        // Confirmation email to the prospect (queued — instant form return).
+        try {
+            Mail::to($enquiry->email)->queue(new MemberEnquiryReceived($enquiry));
+        } catch (Throwable $e) {
+            // Mail driver is misconfigured? Log and continue — the row is the
+            // source of truth and ops still gets the Slack ping below.
+            Log::warning('member enquiry: confirmation mail dispatch failed: '.$e->getMessage(), [
+                'enquiry_id' => $enquiry->id,
+            ]);
+        }
+
+        // Slack ping to ops so a human can pick it up.
+        NotifyOpsOfMemberEnquiry::dispatch($enquiry);
+
+        return response()->json([
+            'ok'        => true,
+            'reference' => $enquiry->reference,
+        ]);
     }
 }

@@ -8,6 +8,9 @@ use App\Services\GeoIp\CachedGeoIpService;
 use App\Services\GeoIp\GeoIpService;
 use App\Services\GeoIp\MaxMindGeoIpService;
 use App\Services\GeoIp\NoOpGeoIpService;
+use App\Services\Notifications\HttpSlackNotifier;
+use App\Services\Notifications\NoOpSlackNotifier;
+use App\Services\Notifications\SlackNotifier;
 use App\Services\Payments\Stripe\StripeService;
 use App\Services\Payments\Stripe\StripeWebhookSignatureVerifier;
 use App\Services\Payments\Stripe\WebhookSignatureVerifier;
@@ -15,6 +18,7 @@ use App\Services\SupportChat\AnthropicClaudeClient;
 use App\Services\SupportChat\ClaudeClient;
 use App\Services\SupportChat\SupportChatService;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Support\ServiceProvider;
 use Stripe\StripeClient;
 
@@ -60,6 +64,17 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(SupportChatService::class, function ($app) {
             return new SupportChatService($app->make(ClaudeClient::class));
+        });
+
+        // SlackNotifier — wires HttpSlackNotifier when SLACK_OPS_WEBHOOK_URL is
+        // set, NoOp otherwise. Bound as singleton so jobs share the underlying
+        // Http client instance across a worker's lifetime.
+        $this->app->singleton(SlackNotifier::class, function ($app) {
+            $url = (string) (config('services.slack.ops_webhook_url') ?? '');
+            if ($url === '') {
+                return new NoOpSlackNotifier();
+            }
+            return new HttpSlackNotifier($app->make(HttpFactory::class), $url);
         });
 
         $this->app->singleton(GeoIpService::class, function ($app) {

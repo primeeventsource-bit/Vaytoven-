@@ -474,6 +474,32 @@
         .modal-success-icon svg { width: 36px; height: 36px; stroke: #fff; fill: none; stroke-width: 3; }
         .modal-success h3 { margin: 0 0 12px; }
         .modal-success p { color: var(--muted); max-width: 38ch; margin: 0 auto; }
+        .modal-success-reference {
+            display: inline-flex; align-items: center; gap: 10px;
+            margin: 18px auto 0;
+            padding: 8px 14px;
+            background: #f5f3ff;
+            border-radius: 8px;
+        }
+        .modal-success-reference-label {
+            font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em;
+        }
+        .modal-success-reference-value {
+            font-family: 'SFMono-Regular', Consolas, monospace;
+            font-size: 14px; font-weight: 600; color: #7B2CBF; letter-spacing: .02em;
+        }
+        .modal-success-followup { margin-top: 14px !important; font-size: 13px; }
+        .modal-success-actions {
+            display: flex; gap: 10px; justify-content: center; margin-top: 22px; flex-wrap: wrap;
+        }
+        .modal-success-cta {
+            text-decoration: none; padding: 10px 18px; border-radius: 999px;
+            font-size: 13px; font-weight: 600;
+            transition: transform .12s ease;
+        }
+        .modal-success-cta:hover { transform: translateY(-1px); }
+        .modal-success-cta.primary { background: var(--gradient); color: #fff; }
+        .modal-success-cta.secondary { background: #f5f3ff; color: #7B2CBF; }
 
         /* Toast */
         .toast {
@@ -1082,6 +1108,18 @@
                 </div>
                 <h3>Thanks — we got it.</h3>
                 <p>A managed-program specialist will reach out within one business day to walk you through your portfolio and quote the program for your specific properties.</p>
+
+                <div class="modal-success-reference" data-modal-reference-row style="display:none;">
+                    <span class="modal-success-reference-label">Your reference</span>
+                    <span class="modal-success-reference-value" data-modal-reference></span>
+                </div>
+
+                <p class="modal-success-followup">Check your inbox — we just sent a confirmation. Quote this reference if you reply.</p>
+
+                <div class="modal-success-actions">
+                    <a class="modal-success-cta primary" href="#how-it-works" data-close-members-modal>See how it works</a>
+                    <a class="modal-success-cta secondary" href="#faq" data-close-members-modal>Read FAQ</a>
+                </div>
             </div>
         </div>
     </div>
@@ -1195,6 +1233,16 @@
                 if (!res.ok) {
                     const err = await res.json().catch(() => ({}));
                     throw new Error(err.message || 'Submission failed.');
+                }
+
+                const out = await res.json().catch(() => ({}));
+                const refRow = successView.querySelector('[data-modal-reference-row]');
+                const refValue = successView.querySelector('[data-modal-reference]');
+                if (out && out.reference && refRow && refValue) {
+                    refValue.textContent = out.reference;
+                    refRow.style.display = '';
+                } else if (refRow) {
+                    refRow.style.display = 'none';
                 }
 
                 formView.style.display = 'none';

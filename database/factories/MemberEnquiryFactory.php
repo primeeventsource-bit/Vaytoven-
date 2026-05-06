@@ -2,13 +2,17 @@
 
 namespace Database\Factories;
 
+use App\Enums\MemberEnquiryStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class MemberEnquiryFactory extends Factory
 {
     public function definition(): array
     {
         return [
+            'reference' => 'VYT-'.strtoupper(Str::random(8)),
+            'status'    => MemberEnquiryStatus::New,
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
