@@ -1,0 +1,32 @@
+Vaytoven Rentals — coding agent rules. Full rulebook: AGENTS.md.
+
+Stack: Laravel 11, PHP 8.3+, MySQL 8.4 (NOT Postgres), Redis, Blade + Livewire/Volt, Sanctum, hosted on Laravel Cloud.
+
+Hard rules (never violate):
+- Money is integer cents. BIGINT in DB, int in PHP, number (cents) in JS. Never float.
+- Bookings cannot overlap — SELECT FOR UPDATE in transaction + unique check on (property_id, check_in_date, check_out_date).
+- Webhooks are idempotent — record event_id, replays no-op.
+- Admin actions write to admin_audit_logs via AdminAuditLogService::log(...).
+- tracking_events is append-only — MySQL trigger blocks UPDATE/DELETE.
+- Confirmation codes: VYT- + 6 uppercase alphanumeric, server-generated.
+- The T-word is banned in user-facing copy. Use "vacation property", "vacation club", "points-based ownership", "member".
+- Migrations are forward-only. Never modify a shipped migration.
+- No Vite/Next/CRA/React unless explicitly approved.
+- No hardcoded secrets, no PII in logs, no card data in tracking payloads.
+
+Documentation read order: docs/SRS.md → docs/schema.sql → docs/architecture.md → docs/roadmap.md.
+
+Coding conventions:
+- PSR-12 via laravel/pint.
+- Form requests for all writes; API resources for all reads.
+- Services in app/Services/<Domain>/<Action>Service.php — controllers stay thin.
+- Eloquent over raw SQL; named routes always.
+- Tests required for business logic. Use RefreshDatabase + WithFaker.
+- Update docs in the same PR as the code.
+
+Branch + deploy:
+- Land on `development` first → push-to-deploy to v-app-dev-main-oyo1n9.laravel.cloud
+- Verify before merging to `sandbox`, then `production`
+- Each env has its own MySQL cluster + Redis — credentials never shared
+
+When SRS and code disagree, SRS wins. Update both in the same PR.
