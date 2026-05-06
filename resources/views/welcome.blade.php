@@ -549,7 +549,7 @@
         <span class="brand-mark-text">Vaytoven</span>
     </a>
     <div class="nav-links">
-        <a href="#destinations" data-track-audience="traveler" data-track-cta="nav_stays">Stays</a>
+        <a href="{{ route('properties.index') }}" data-track-audience="traveler" data-track-cta="nav_stays">Stays</a>
         <a href="#host" data-track-audience="host" data-track-cta="nav_become_host">Become a host</a>
         <a href="#members" data-track-audience="member" data-track-cta="nav_members">Members</a>
         <a href="/help" data-track-audience="traveler" data-track-cta="nav_help">Help</a>
@@ -561,18 +561,18 @@
     <h1 class="display">Find your place <em class="grad-text">anywhere.</em></h1>
     <p>Curated vacation properties across the world's best places to stay. Booked simply, hosted with care.</p>
 
-    <form class="search" action="#" onsubmit="event.preventDefault();">
+    <form class="search" action="{{ route('properties.index') }}" method="GET">
         <div class="search-field">
             <label for="s-where">Where</label>
-            <input id="s-where" type="text" placeholder="Anywhere on earth">
+            <input id="s-where" name="q" type="text" placeholder="Anywhere on earth">
         </div>
         <div class="search-field">
             <label for="s-when">When</label>
-            <input id="s-when" type="text" placeholder="Any week">
+            <input id="s-when" type="text" placeholder="Any week" disabled title="Date filter coming with the booking flow">
         </div>
         <div class="search-field">
             <label for="s-who">Who</label>
-            <input id="s-who" type="text" placeholder="Add guests">
+            <input id="s-who" name="min_capacity" type="number" min="1" max="20" placeholder="Add guests">
         </div>
         <button type="submit" class="search-submit" data-track-audience="traveler" data-track-cta="search_submit">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
@@ -604,7 +604,7 @@
     </div>
 
     <div class="destinations-grid">
-        <a href="#" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="bali">
+        <a href="{{ route('properties.index', ['destination' => 'bali']) }}" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="bali">
             <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200&q=80" alt="Bali rice terraces" loading="lazy">
             <div class="dest-card-body">
                 <div>
@@ -614,7 +614,7 @@
                 <span class="dest-card-price">from $84</span>
             </div>
         </a>
-        <a href="#" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="santorini">
+        <a href="{{ route('properties.index', ['destination' => 'santorini']) }}" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="santorini">
             <img src="https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=800&q=80" alt="Santorini white buildings and blue sea" loading="lazy">
             <div class="dest-card-body">
                 <div>
@@ -624,7 +624,7 @@
                 <span class="dest-card-price">from $210</span>
             </div>
         </a>
-        <a href="#" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="lake-tahoe">
+        <a href="{{ route('properties.index', ['destination' => 'lake-tahoe']) }}" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="lake-tahoe">
             <img src="https://images.unsplash.com/photo-1551524559-8af4e6624178?w=800&q=80" alt="Lake Tahoe pines and water" loading="lazy">
             <div class="dest-card-body">
                 <div>
@@ -634,7 +634,7 @@
                 <span class="dest-card-price">from $146</span>
             </div>
         </a>
-        <a href="#" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="paris">
+        <a href="{{ route('properties.index', ['destination' => 'paris']) }}" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="paris">
             <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80" alt="Paris skyline with Eiffel Tower" loading="lazy">
             <div class="dest-card-body">
                 <div>
@@ -644,7 +644,7 @@
                 <span class="dest-card-price">from $172</span>
             </div>
         </a>
-        <a href="#" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="tokyo">
+        <a href="{{ route('properties.index', ['destination' => 'tokyo']) }}" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="tokyo">
             <img src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&q=80" alt="Tokyo skyline at night" loading="lazy">
             <div class="dest-card-body">
                 <div>
@@ -1005,7 +1005,7 @@
             <h5>Travel</h5>
             <ul>
                 <li><a href="#destinations" data-track-audience="traveler" data-track-cta="footer_destinations">Destinations</a></li>
-                <li><a href="#" data-track-audience="traveler" data-track-cta="footer_all_stays">All stays</a></li>
+                <li><a href="{{ route('properties.index') }}" data-track-audience="traveler" data-track-cta="footer_all_stays">All stays</a></li>
                 <li><a href="#app" data-track-audience="traveler" data-track-cta="footer_mobile_app">Mobile app</a></li>
                 <li><a href="/help" data-track-audience="traveler" data-track-cta="footer_help">Help center</a></li>
                 <li><a href="#" data-track-audience="traveler" data-track-cta="footer_trip_support">Trip support</a></li>

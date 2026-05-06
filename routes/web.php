@@ -9,6 +9,7 @@ use App\Http\Controllers\HelpController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\MemberEnquiryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PropertyBrowseController;
 use App\Http\Controllers\Webhooks\DocuSignWebhookController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,11 @@ Route::view('/', 'welcome');
 
 Route::post('/members/enquiry', [MemberEnquiryController::class, 'store'])
     ->name('members.enquiry');
+
+// Property browse — public surface for visitors. Index supports ?q=, ?city=,
+// ?destination= (alias for city), ?min_capacity=, ?max_price=.
+Route::get('/properties', [PropertyBrowseController::class, 'index'])->name('properties.index');
+Route::get('/properties/{property}', [PropertyBrowseController::class, 'show'])->name('properties.show');
 
 // ---------------------------------------------------------------------------
 // Help center (FR-11.5). Public, anonymous-friendly. Search lives at
