@@ -15,9 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         // DocuSign Connect webhooks don't carry a CSRF token; they're
         // authenticated by the X-DocuSign-Signature-* HMAC headers instead
-        // (see App\Services\DocuSign\WebhookVerifier).
+        // (see App\Services\DocuSign\WebhookVerifier). Stripe webhooks are
+        // authenticated by the Stripe-Signature header (FR-4.3).
         $middleware->validateCsrfTokens(except: [
             'webhooks/docusign',
+            'webhooks/stripe',
         ]);
 
         $middleware->alias([

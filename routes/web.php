@@ -6,6 +6,7 @@ use App\Http\Controllers\HealthController;
 use App\Http\Controllers\MemberEnquiryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Webhooks\DocuSignWebhookController;
+use App\Http\Controllers\Webhooks\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -62,5 +63,10 @@ Route::middleware('auth')->group(function () {
 // authenticated via HMAC signature (WebhookVerifier).
 Route::post('/webhooks/docusign', DocuSignWebhookController::class)
     ->name('webhooks.docusign');
+
+// Inbound Stripe webhooks. CSRF-excluded via bootstrap/app.php;
+// authenticated via Stripe-Signature header (StripeWebhookSignatureVerifier).
+Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])
+    ->name('webhooks.stripe');
 
 require __DIR__.'/auth.php';

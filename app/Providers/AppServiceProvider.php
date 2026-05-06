@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Services\DocuSign\DocuSignClient;
 use App\Services\DocuSign\WebhookVerifier;
 use App\Services\Payments\Stripe\StripeService;
+use App\Services\Payments\Stripe\StripeWebhookSignatureVerifier;
+use App\Services\Payments\Stripe\WebhookSignatureVerifier;
 use Illuminate\Support\ServiceProvider;
 use Stripe\StripeClient;
 
@@ -31,6 +33,12 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(StripeService::class, function ($app) {
             return new StripeService($app->make(StripeClient::class));
+        });
+
+        $this->app->singleton(WebhookSignatureVerifier::class, function () {
+            return new StripeWebhookSignatureVerifier(
+                config('services.stripe.webhook_secret') ?: 'whsec_test_dummy'
+            );
         });
     }
 
