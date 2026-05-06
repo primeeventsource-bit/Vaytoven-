@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Client\ContractController as ClientContractController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\MemberEnquiryController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Webhooks\DocuSignWebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,10 @@ Route::post('/members/enquiry', [MemberEnquiryController::class, 'store'])
 // and returns 503 if either is down — useful as a strict readiness probe
 // and for external monitoring dashboards.
 Route::get('/health', HealthController::class)->name('health');
+
+Route::view('/dashboard', 'dashboard')
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 // ---------------------------------------------------------------------------
 // DocuSign integration
@@ -49,7 +54,15 @@ Route::middleware(['auth'])
         Route::get('contracts/{contract}/signed.pdf', [ClientContractController::class, 'downloadSigned'])->name('contracts.download');
     });
 
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
 // Inbound DocuSign Connect webhook. CSRF-excluded via bootstrap/app.php;
 // authenticated via HMAC signature (WebhookVerifier).
 Route::post('/webhooks/docusign', DocuSignWebhookController::class)
     ->name('webhooks.docusign');
+
+require __DIR__.'/auth.php';
