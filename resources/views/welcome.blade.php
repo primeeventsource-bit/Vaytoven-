@@ -290,6 +290,15 @@
             transition: transform .15s;
         }
         .members-cta:hover { transform: translateY(-1px); }
+        .host-primary-cta {
+            display: inline-flex; align-items: center; gap: 10px; margin-top: 28px;
+            padding: 14px 26px; border-radius: 999px;
+            background: var(--gradient); color: #fff;
+            font-weight: 600; font-size: 15px; text-decoration: none;
+            box-shadow: 0 8px 24px -8px rgba(214, 51, 132, 0.5);
+            transition: transform .15s;
+        }
+        .host-primary-cta:hover { transform: translateY(-1px); }
         .earnings-card {
             background: #fff;
             border: 1px solid var(--line);
@@ -540,10 +549,10 @@
         <span class="brand-mark-text">Vaytoven</span>
     </a>
     <div class="nav-links">
-        <a href="#destinations">Stays</a>
-        <a href="#host">Become a host</a>
-        <a href="#members">Members</a>
-        <a href="#app" class="nav-cta">Get the app</a>
+        <a href="#destinations" data-track-audience="traveler" data-track-cta="nav_stays">Stays</a>
+        <a href="#host" data-track-audience="host" data-track-cta="nav_become_host">Become a host</a>
+        <a href="#members" data-track-audience="member" data-track-cta="nav_members">Members</a>
+        <a href="#app" class="nav-cta" data-track-audience="traveler" data-track-cta="nav_get_app">Get the app</a>
     </div>
 </nav>
 
@@ -564,7 +573,7 @@
             <label for="s-who">Who</label>
             <input id="s-who" type="text" placeholder="Add guests">
         </div>
-        <button type="submit" class="search-submit">
+        <button type="submit" class="search-submit" data-track-audience="traveler" data-track-cta="search_submit">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
             Search
         </button>
@@ -594,7 +603,7 @@
     </div>
 
     <div class="destinations-grid">
-        <a href="#" class="dest-card">
+        <a href="#" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="bali">
             <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200&q=80" alt="Bali rice terraces" loading="lazy">
             <div class="dest-card-body">
                 <div>
@@ -604,7 +613,7 @@
                 <span class="dest-card-price">from $84</span>
             </div>
         </a>
-        <a href="#" class="dest-card">
+        <a href="#" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="santorini">
             <img src="https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=800&q=80" alt="Santorini white buildings and blue sea" loading="lazy">
             <div class="dest-card-body">
                 <div>
@@ -614,7 +623,7 @@
                 <span class="dest-card-price">from $210</span>
             </div>
         </a>
-        <a href="#" class="dest-card">
+        <a href="#" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="lake-tahoe">
             <img src="https://images.unsplash.com/photo-1551524559-8af4e6624178?w=800&q=80" alt="Lake Tahoe pines and water" loading="lazy">
             <div class="dest-card-body">
                 <div>
@@ -624,7 +633,7 @@
                 <span class="dest-card-price">from $146</span>
             </div>
         </a>
-        <a href="#" class="dest-card">
+        <a href="#" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="paris">
             <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80" alt="Paris skyline with Eiffel Tower" loading="lazy">
             <div class="dest-card-body">
                 <div>
@@ -634,7 +643,7 @@
                 <span class="dest-card-price">from $172</span>
             </div>
         </a>
-        <a href="#" class="dest-card">
+        <a href="#" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="tokyo">
             <img src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&q=80" alt="Tokyo skyline at night" loading="lazy">
             <div class="dest-card-body">
                 <div>
@@ -773,6 +782,11 @@
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Damage cover, baked in.</strong> Up to $250K per stay, no separate purchase.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Listing concierge.</strong> Photography, copy, pricing — handled by our team, not yours.</span></li>
             </ul>
+
+            <a class="host-primary-cta" href="mailto:hosts@vaytoven.com?subject=I%27d%20like%20to%20list%20my%20property" data-track-audience="host" data-track-cta="host_email_open">
+                List your property
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
         </div>
 
         <div class="calc-card">
@@ -807,7 +821,7 @@
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>You stay in control — keep, gift, or rent whichever weeks you want each year.</span></li>
             </ul>
 
-            <button class="members-cta" type="button" data-open-members-modal>
+            <button class="members-cta" type="button" data-open-members-modal data-track-audience="member" data-track-cta="enquiry_open">
                 Get on the program
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
             </button>
@@ -989,19 +1003,19 @@
         <div>
             <h5>Travel</h5>
             <ul>
-                <li><a href="#destinations">Destinations</a></li>
-                <li><a href="#">All stays</a></li>
-                <li><a href="#app">Mobile app</a></li>
-                <li><a href="#">Trip support</a></li>
+                <li><a href="#destinations" data-track-audience="traveler" data-track-cta="footer_destinations">Destinations</a></li>
+                <li><a href="#" data-track-audience="traveler" data-track-cta="footer_all_stays">All stays</a></li>
+                <li><a href="#app" data-track-audience="traveler" data-track-cta="footer_mobile_app">Mobile app</a></li>
+                <li><a href="#" data-track-audience="traveler" data-track-cta="footer_trip_support">Trip support</a></li>
             </ul>
         </div>
         <div>
             <h5>Earn</h5>
             <ul>
-                <li><a href="#host">Become a host</a></li>
-                <li><a href="#members">Members program</a></li>
-                <li><a href="#">Host resources</a></li>
-                <li><a href="#">Earnings calculator</a></li>
+                <li><a href="#host" data-track-audience="host" data-track-cta="footer_become_host">Become a host</a></li>
+                <li><a href="#members" data-track-audience="member" data-track-cta="footer_members_program">Members program</a></li>
+                <li><a href="#" data-track-audience="host" data-track-cta="footer_host_resources">Host resources</a></li>
+                <li><a href="#" data-track-audience="host" data-track-cta="footer_earnings_calculator">Earnings calculator</a></li>
             </ul>
         </div>
         <div>
@@ -1097,7 +1111,7 @@
                     <span>I agree to be contacted by Vaytoven about the managed listing program. I can opt out at any time.</span>
                 </label>
 
-                <button type="submit" class="form-submit" id="members-submit">Request a call</button>
+                <button type="submit" class="form-submit" id="members-submit" data-track-audience="member" data-track-cta="enquiry_submit">Request a call</button>
             </form>
         </div>
 
@@ -1248,6 +1262,18 @@
                 formView.style.display = 'none';
                 successView.style.display = '';
                 showToast("Submitted — we'll be in touch within one business day.");
+
+                // Conversion event — distinct from the cta_click on the button
+                // because this only fires on a 200 response. Funnel reporting
+                // joins enquiry_submitted to upstream cta_click visitor IDs.
+                if (window.Vaytoven && typeof window.Vaytoven.track === 'function') {
+                    try {
+                        window.Vaytoven.track('enquiry_submitted', {
+                            audience: 'member',
+                            reference: (out && out.reference) || null,
+                        });
+                    } catch (e) { /* swallow */ }
+                }
             } catch (e) {
                 errorBox.textContent = e.message || 'Something went wrong. Please try again.';
                 errorBox.classList.add('is-visible');
@@ -1256,6 +1282,47 @@
                 submit.textContent = 'Request a call';
             }
         });
+    })();
+
+    // CTA tracking auto-bind (Phase 10).
+    //
+    // Any element carrying data-track-cta fires a `cta_click` tracking event
+    // when clicked. data-track-audience tags the funnel (traveler|host|member),
+    // and any data-track-meta-* attribute is forwarded as metadata so we can
+    // tell e.g. which destination card was chosen without authoring per-CTA
+    // wiring. Failures are silent — tracking is non-critical.
+    (function () {
+        function metaFromDataset(el) {
+            var out = {};
+            for (var key in el.dataset) {
+                if (key.indexOf('trackMeta') === 0 && key.length > 'trackMeta'.length) {
+                    var prop = key.slice('trackMeta'.length);
+                    prop = prop.charAt(0).toLowerCase() + prop.slice(1);
+                    out[prop] = el.dataset[key];
+                }
+            }
+            return out;
+        }
+
+        function bind() {
+            document.querySelectorAll('[data-track-cta]').forEach(function (el) {
+                if (el.__vytTrackBound) return;
+                el.__vytTrackBound = true;
+                el.addEventListener('click', function () {
+                    if (!window.Vaytoven || typeof window.Vaytoven.track !== 'function') return;
+                    var meta = metaFromDataset(el);
+                    meta.audience = el.dataset.trackAudience || 'unknown';
+                    meta.cta = el.dataset.trackCta;
+                    try { window.Vaytoven.track('cta_click', meta); } catch (e) { /* swallow */ }
+                });
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bind);
+        } else {
+            bind();
+        }
     })();
 </script>
 
