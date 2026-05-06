@@ -66,6 +66,9 @@ class StripeService
             'booking_id' => $booking->id,
             'processor' => PaymentProcessor::Stripe->value,
             'external_intent_id' => $intent->id,
+            // client_secret is always present on real Stripe responses; the
+            // null-coalesce keeps test fixtures that don't set it working.
+            'client_secret' => $intent->client_secret ?? null,
             'amount_cents' => $intent->amount,
             'currency' => strtoupper($intent->currency),
             'status' => $this->mapIntentStatus($intent->status),

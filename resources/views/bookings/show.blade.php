@@ -10,6 +10,20 @@
         </div>
     @endif
 
+    @if ($paymentNotice)
+        @php
+            $tones = [
+                'success' => 'background:#ecfdf5; border:1px solid #a7f3d0; color:#047857;',
+                'info'    => 'background:#eff6ff; border:1px solid #bfdbfe; color:#1d4ed8;',
+                'error'   => 'background:#fef2f2; border:1px solid #fecaca; color:#b91c1c;',
+            ];
+            $tone = $tones[$paymentNotice['tone']] ?? $tones['info'];
+        @endphp
+        <div style="{{ $tone }} padding:14px 18px; border-radius:12px; margin-bottom:24px; font-size:14px;">
+            {{ $paymentNotice['message'] }}
+        </div>
+    @endif
+
     <a href="{{ route('properties.index') }}" class="props-detail-back">← Back to all stays</a>
 
     <div class="props-eyebrow" style="margin-top:12px;">Confirmation</div>
@@ -87,20 +101,24 @@
                     <span style="font-family:'Fraunces',serif; font-size:20px;">${{ number_format($booking->total_cents/100, 2) }}</span>
                 </div>
 
-                @if ($stripeLive)
-                    <button type="button" class="props-book-cta" disabled title="Payment integration ships in the next slice" style="margin-top:18px; opacity:.7; cursor:not-allowed;">
-                        Pay now (live mode)
-                    </button>
+                @if ($stripeLive && $booking->status->value === 'pending_payment')
+                    <a href="{{ route('bookings.pay', $booking) }}" class="props-book-cta" style="margin-top:18px; display:block; text-align:center;">
+                        Pay ${{ number_format($booking->total_cents/100, 2) }}
+                    </a>
                     <p class="props-book-fineprint">
-                        Stripe is configured but the on-page payment UI ships in the next slice.
+                        Powered by Stripe. Card details are entered on the next page and never touch our servers.
                     </p>
-                @else
+                @elseif ($stripeLive && $booking->status->value === 'confirmed')
+                    <div style="margin-top:18px; padding:14px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:10px; font-size:13px; color:#047857;">
+                        <strong>Confirmed.</strong> Payment received. We've sent a confirmation email — check-in details follow as the dates approach.
+                    </div>
+                @elseif (! $stripeLive)
                     <div style="margin-top:18px; padding:14px; background:#fffbeb; border:1px solid #fde68a; border-radius:10px; font-size:13px; color:#92400e;">
                         <strong>Demo mode.</strong> Payment is not configured for this environment.
                         The booking is held with status <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">{{ $booking->status->value }}</code>
-                        — set <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">STRIPE_SECRET</code> + <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">STRIPE_WEBHOOK_SECRET</code> to enable live payment.
+                        — set <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">STRIPE_SECRET</code> + <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">STRIPE_KEY</code> to enable live payment.
                     </div>
-                @endunless
+                @endif
             </div>
         </aside>
     </div>

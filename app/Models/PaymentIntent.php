@@ -17,10 +17,18 @@ class PaymentIntent extends Model
         'booking_id',
         'processor',
         'external_intent_id',
+        'client_secret',
         'amount_cents',
         'currency',
         'status',
         'metadata',
+    ];
+
+    protected $hidden = [
+        // client_secret is page-scoped (Stripe Elements needs it to confirm a
+        // single PaymentIntent), but should never leak into JSON resources by
+        // default. Views read it explicitly via $intent->client_secret.
+        'client_secret',
     ];
 
     protected function casts(): array

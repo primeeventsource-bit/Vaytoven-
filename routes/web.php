@@ -32,6 +32,7 @@ Route::middleware(['auth', 'terms.current'])->group(function () {
     Route::get('/properties/{property}/book',  [BookingFlowController::class, 'review'])->name('bookings.review');
     Route::post('/properties/{property}/book', [BookingFlowController::class, 'store'])->name('bookings.store');
     Route::get('/bookings/{booking}',          [BookingFlowController::class, 'show'])->name('bookings.show');
+    Route::get('/bookings/{booking}/pay',      [BookingFlowController::class, 'pay'])->name('bookings.pay');
 });
 
 // ---------------------------------------------------------------------------
