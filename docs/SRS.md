@@ -31,11 +31,11 @@ Status legend: 🔲 not started · 🟡 in progress · 🟢 implemented + tested
 
 | ID | Requirement | Status |
 |---|---|---|
-| FR-3.1 | A traveler can request a booking for a property over a date range. The system rejects overlapping bookings via `SELECT ... FOR UPDATE` + unique constraint on `(property_id, check_in_date, check_out_date)`. | 🔲 |
-| FR-3.2 | Booking states: `pending_payment` → `confirmed` → `in_progress` → `completed` (or any state → `cancelled`). State transitions log to `booking_state_transitions`. | 🔲 |
-| FR-3.3 | Server generates a `confirmation_code` of format `VYT-` + 6 uppercase alphanumeric on transition to `confirmed`. Globally unique. | 🔲 |
-| FR-3.4 | Cancellation policies: `flexible`, `moderate`, `strict`, `non_refundable`. Refund math is pure-function in `RefundCalculator` and unit-tested for all boundaries. | 🔲 |
-| FR-3.5 | Money fields are integer cents only — DB `BIGINT`, PHP `int`. No floats anywhere in the stack. | 🔲 |
+| FR-3.1 | A traveler can request a booking for a property over a date range. The system rejects overlapping bookings via `SELECT ... FOR UPDATE` + unique constraint on `(property_id, check_in_date, check_out_date)`. | 🟡 (unique constraint 🟢; SELECT FOR UPDATE in BookingService — Phase 3) |
+| FR-3.2 | Booking states: `pending_payment` → `confirmed` → `in_progress` → `completed` (or any state → `cancelled`). State transitions log to `booking_state_transitions`. | 🟢 |
+| FR-3.3 | Server generates a `confirmation_code` of format `VYT-` + 6 uppercase alphanumeric on transition to `confirmed`. Globally unique. | 🟢 (generated in `creating` model hook; uniqueness retry on collision) |
+| FR-3.4 | Cancellation policies: `flexible`, `moderate`, `strict`, `non_refundable`. Refund math is pure-function in `RefundCalculator` and unit-tested for all boundaries. | 🟡 (enum 🟢; RefundCalculator in Phase 5) |
+| FR-3.5 | Money fields are integer cents only — DB `BIGINT`, PHP `int`. No floats anywhere in the stack. | 🟢 |
 
 ## 4. Payments
 
