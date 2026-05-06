@@ -5,6 +5,15 @@ return [
     'ses' => ['key' => env('AWS_ACCESS_KEY_ID'), 'secret' => env('AWS_SECRET_ACCESS_KEY'), 'region' => env('AWS_DEFAULT_REGION', 'us-east-1')],
     'stripe' => ['secret' => env('STRIPE_SECRET'), 'webhook_secret' => env('STRIPE_WEBHOOK_SECRET')],
 
+    // MaxMind GeoIP2 (Phase 9). City db is required for country/city/lat-lng;
+    // anonymous db (separate file) adds VPN/Tor/datacenter detection. Either
+    // mount the .mmdb files via the deploy filesystem and set the absolute
+    // path here, or leave both unset to fall back to NoOpGeoIpService.
+    'maxmind' => [
+        'mmdb_path'           => env('MAXMIND_MMDB_PATH'),
+        'anonymous_mmdb_path' => env('MAXMIND_ANONYMOUS_MMDB_PATH'),
+    ],
+
     'docusign' => [
         // Switch oauth_base + api_base to https://account.docusign.com /
         // https://www.docusign.net for production. Defaults are demo / sandbox.

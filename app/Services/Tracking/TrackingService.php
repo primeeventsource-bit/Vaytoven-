@@ -5,6 +5,7 @@ namespace App\Services\Tracking;
 use App\Enums\Surface;
 use App\Models\PpcVisitor;
 use App\Models\TrackingEvent;
+use App\Services\GeoIp\GeoIpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +25,10 @@ use Illuminate\Support\Facades\Auth;
  */
 class TrackingService
 {
+    public function __construct(private readonly GeoIpService $geoIp)
+    {
+    }
+
     public function record(
         string $eventType,
         ?int $actorUserId = null,
@@ -35,6 +40,16 @@ class TrackingService
     ): TrackingEvent {
         // Strip anything from metadata that we don't want stored.
         $metadata = $this->filterMetadata($metadata ?? []);
+
+        // GeoIP enrichment (FR-10.5). Stored inside metadata.geo so the event
+        // schema doesn't need new columns. Lookup failures are silent — the
+        // GeoIpService contract guarantees no exceptions bubble up.
+        if ($ipAddress) {
+            $geo = $this->geoIp->lookup($ipAddress);
+            if ($geo->isResolved() || $geo->is_vpn || $geo->is_tor || $geo->is_datacenter) {
+                $metadata['geo'] = $geo->toArray();
+            }
+        }
 
         return TrackingEvent::create([
             'event_type' => $eventType,
