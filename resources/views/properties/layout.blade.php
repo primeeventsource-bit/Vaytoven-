@@ -125,6 +125,61 @@
         }
         .props-book-cta:hover { transform:translateY(-1px); text-decoration:none; }
         .props-book-fineprint { font-size:12px; color:var(--muted); margin-top:14px; }
+
+        /* ── Filter rail (collapsible details element) ─────────────── */
+        .props-filter-rail {
+            background:#fff; border:1px solid var(--line); border-radius:14px;
+            padding: 0 18px; margin-bottom: 22px;
+        }
+        .props-filter-rail summary {
+            list-style: none; cursor: pointer;
+            padding: 14px 0; display:flex; justify-content:space-between; align-items:center;
+            font-family:'Geist',sans-serif; font-weight: 600; font-size: 14px; outline: 0;
+        }
+        .props-filter-rail summary::-webkit-details-marker { display: none; }
+        .props-filter-chevron { color: var(--muted); transition: transform .15s; font-size: 14px; }
+        .props-filter-rail[open] .props-filter-chevron { transform: rotate(180deg); }
+        .props-filter-form {
+            padding: 4px 0 18px; border-top: 1px solid var(--line);
+            display: grid; gap: 22px;
+        }
+        @media (min-width: 720px) { .props-filter-form { grid-template-columns: 240px 1fr auto; align-items: end; } }
+        .props-filter-section h4 {
+            font-size: 11px; letter-spacing:.08em; text-transform: uppercase;
+            color: var(--muted); font-weight: 600; margin: 0 0 10px;
+        }
+        .props-filter-price { display: flex; gap: 12px; }
+        .props-filter-price label { flex: 1; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+        .props-filter-price input {
+            padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px;
+            font-size: 14px; outline: none; background: var(--bg); font-family: 'Geist', sans-serif;
+            transition: border-color .12s, background .12s;
+        }
+        .props-filter-price input:focus { border-color: var(--magenta); background: #fff; }
+        .props-filter-amenities { display: flex; flex-wrap: wrap; gap: 8px; }
+        .props-amenity-chip {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px;
+            font-size: 13px; font-weight: 500; cursor: pointer; user-select: none;
+            background: var(--bg); transition: background .12s, border-color .12s, color .12s;
+        }
+        .props-amenity-chip:hover { border-color: var(--purple); }
+        .props-amenity-chip input { display: none; }
+        .props-amenity-chip.is-on {
+            background: #f5f3ff; border-color: var(--purple); color: var(--purple);
+        }
+        .props-filter-actions {
+            display: flex; align-items: center; gap: 14px; justify-self: end;
+        }
+        .props-filter-apply {
+            background: var(--gradient); color: #fff; border: 0;
+            padding: 10px 22px; border-radius: 999px;
+            font-family: 'Geist', sans-serif; font-weight: 600; font-size: 14px;
+            cursor: pointer; transition: transform .12s ease;
+        }
+        .props-filter-apply:hover { transform: translateY(-1px); }
+        .props-filter-clear { color: var(--muted); font-size: 13px; }
+
         /* ── Two-column results + map (Vrbo-style) ─────────────────── */
         .props-with-map { display: grid; gap: 28px; grid-template-columns: 1fr; }
         @media (min-width: 1080px) {

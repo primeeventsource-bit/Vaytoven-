@@ -21,7 +21,10 @@
     </div>
 
     {{-- Active filter chips ------------------------------------------------- --}}
-    @if ($destination || $q || $minCapacity || $maxPrice)
+    @php
+        $hasFilters = $destination || $q || $minCapacity || $minPrice || $maxPrice || count($selectedAmenities ?? []) > 0;
+    @endphp
+    @if ($hasFilters)
         <div class="props-active-filters">
             @if ($destination)
                 <span class="props-chip">Destination: {{ ucwords(str_replace('-', ' ', $destination)) }} <a href="{{ route('properties.index') }}">×</a></span>
@@ -32,11 +35,83 @@
             @if ($minCapacity)
                 <span class="props-chip">{{ $minCapacity }}+ guests <a href="{{ route('properties.index', request()->except(['min_capacity', 'page'])) }}">×</a></span>
             @endif
-            @if ($maxPrice)
-                <span class="props-chip">Up to ${{ $maxPrice }}/night <a href="{{ route('properties.index', request()->except(['max_price', 'page'])) }}">×</a></span>
+            @if ($minPrice || $maxPrice)
+                <span class="props-chip">
+                    @if ($minPrice && $maxPrice)
+                        ${{ $minPrice }}–${{ $maxPrice }}/night
+                    @elseif ($maxPrice)
+                        Up to ${{ $maxPrice }}/night
+                    @else
+                        From ${{ $minPrice }}/night
+                    @endif
+                    <a href="{{ route('properties.index', request()->except(['min_price', 'max_price', 'page'])) }}">×</a>
+                </span>
             @endif
+            @foreach ($selectedAmenities ?? [] as $slug)
+                @php
+                    $matched = $filterAmenities->firstWhere('slug', $slug);
+                    $remaining = collect($selectedAmenities)->reject(fn ($s) => $s === $slug)->values()->all();
+                @endphp
+                @if ($matched)
+                    <span class="props-chip">{{ $matched->label }}
+                        <a href="{{ route('properties.index', array_merge(request()->except(['amenities', 'page']), ['amenities' => $remaining])) }}">×</a>
+                    </span>
+                @endif
+            @endforeach
         </div>
     @endif
+
+    {{-- Filter rail (collapsible details on mobile, expanded inline on desktop) --}}
+    <details class="props-filter-rail" {{ $hasFilters ? 'open' : '' }}>
+        <summary>
+            <span>Filters</span>
+            <span class="props-filter-chevron">▾</span>
+        </summary>
+        <form method="GET" action="{{ route('properties.index') }}" class="props-filter-form">
+            {{-- Carry over destination + q + capacity + dates so toggling filters
+                 doesn't drop the rest of the search. --}}
+            @if ($q)           <input type="hidden" name="q" value="{{ $q }}"> @endif
+            @if ($destination) <input type="hidden" name="destination" value="{{ $destination }}"> @endif
+            @foreach (['check_in','check_out','adults','children','infants','min_capacity'] as $passthrough)
+                @if (request($passthrough))
+                    <input type="hidden" name="{{ $passthrough }}" value="{{ request($passthrough) }}">
+                @endif
+            @endforeach
+
+            <div class="props-filter-section">
+                <h4>Price per night</h4>
+                <div class="props-filter-price">
+                    <label>
+                        <span>Min $</span>
+                        <input type="number" name="min_price" min="0" step="10" value="{{ $minPrice ?: '' }}" placeholder="Any">
+                    </label>
+                    <label>
+                        <span>Max $</span>
+                        <input type="number" name="max_price" min="0" step="10" value="{{ $maxPrice ?: '' }}" placeholder="Any">
+                    </label>
+                </div>
+            </div>
+
+            <div class="props-filter-section">
+                <h4>Amenities</h4>
+                <div class="props-filter-amenities">
+                    @foreach ($filterAmenities as $a)
+                        <label class="props-amenity-chip {{ in_array($a->slug, $selectedAmenities) ? 'is-on' : '' }}">
+                            <input type="checkbox" name="amenities[]" value="{{ $a->slug }}" {{ in_array($a->slug, $selectedAmenities) ? 'checked' : '' }}>
+                            {{ $a->label }}
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="props-filter-actions">
+                <button type="submit" class="props-filter-apply">Apply filters</button>
+                @if ($hasFilters)
+                    <a href="{{ route('properties.index') }}" class="props-filter-clear">Clear all</a>
+                @endif
+            </div>
+        </form>
+    </details>
 
     {{-- Two-column layout: results list + sticky map ---------------------- --}}
     <div class="props-with-map">

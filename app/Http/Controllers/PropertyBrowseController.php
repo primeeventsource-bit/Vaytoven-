@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PropertyStatus;
+use App\Models\Amenity;
 use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -66,9 +67,38 @@ class PropertyBrowseController extends Controller
             $query->where('capacity', '>=', $minCapacity);
         }
 
+        if ($request->filled('min_price')) {
+            $query->where('base_nightly_cents', '>=', (int) $request->integer('min_price') * 100);
+        }
         if ($request->filled('max_price')) {
             // UI passes whole dollars; storage is integer cents.
             $query->where('base_nightly_cents', '<=', (int) $request->integer('max_price') * 100);
+        }
+
+        // Amenity multi-select. Vrbo-style: every checked amenity must be
+        // present on the listing (AND, not OR), so a 'pool + wifi' search
+        // only returns properties carrying both.
+        $amenitySlugs = collect((array) $request->query('amenities', []))
+            ->filter(fn ($s) => is_string($s) && $s !== '')
+            ->unique()
+            ->values();
+        if ($amenitySlugs->isNotEmpty()) {
+            $amenityIds = Amenity::query()
+                ->whereIn('slug', $amenitySlugs)
+                ->pluck('id');
+
+            // If the user asked for amenities but none of them resolve to a
+            // known row, force zero results — silently dropping the filter
+            // would leak listings the user never asked to see.
+            if ($amenityIds->isEmpty()) {
+                $query->whereRaw('1=0');
+            } else {
+                foreach ($amenityIds as $amenityId) {
+                    // whereHas per amenity gives AND-of-required semantics —
+                    // simplest correct path that survives any pivot row count.
+                    $query->whereHas('amenities', fn ($q) => $q->where('amenities.id', $amenityId));
+                }
+            }
         }
 
         $properties = $query
@@ -76,12 +106,26 @@ class PropertyBrowseController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        // Curated filter chips for the sidebar — small, recognisable set
+        // rather than the full 50+ amenity catalogue. Editorial choice.
+        $filterAmenities = Amenity::query()
+            ->whereIn('slug', [
+                'wifi', 'pool', 'hot-tub', 'pets-allowed', 'beachfront',
+                'kitchen', 'air-conditioning', 'free-parking', 'fireplace',
+                'fast-wifi',
+            ])
+            ->orderBy('label')
+            ->get(['id', 'slug', 'label']);
+
         return view('properties.index', [
-            'properties'  => $properties,
-            'q'           => $q ?? '',
-            'destination' => $destination ?? '',
-            'minCapacity' => $request->integer('min_capacity'),
-            'maxPrice'    => $request->integer('max_price'),
+            'properties'      => $properties,
+            'q'               => $q ?? '',
+            'destination'     => $destination ?? '',
+            'minCapacity'     => $request->integer('min_capacity'),
+            'minPrice'        => $request->integer('min_price'),
+            'maxPrice'        => $request->integer('max_price'),
+            'filterAmenities' => $filterAmenities,
+            'selectedAmenities' => $amenitySlugs->all(),
         ]);
     }
 
