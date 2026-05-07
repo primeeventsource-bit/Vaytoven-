@@ -19,7 +19,9 @@
 <p>Eligible weeks are listed and booked under Vaytoven's escrow account so guest payment, custodial holding, and payout flow to you (net of fees) all occur on Vaytoven infrastructure. This structure also keeps the booking compliant with your club's rental policy by interposing Vaytoven as the booking party.</p>
 
 <h2>Fees</h2>
-<p>The Managed Listing Program fee is a flat 12% of the booking total. Net payouts release to your bank account 24 hours after guest check-in, on the same schedule as standard hosts.</p>
+<p>The Managed Listing Program is priced as an upfront weekly program cost (currently in the range of $200&ndash;$800 per week plus applicable taxes, varying by property tier and season) plus a flat program subscription fee. Both figures are quoted in writing during the onboarding call before any commitment, and the quoted figures are what apply to your portfolio for the term of this Agreement &mdash; we will not raise them mid-term without your written consent.</p>
+
+<p>Once those costs are covered on each booking, the remainder is your net payout. There is no separate percentage cut on top. Net payouts release to your bank account 24 hours after guest check-in, on the same schedule as standard hosts.</p>
 
 <h2>Member control</h2>
 <p>You retain full control of which weeks are enrolled in the program. You may keep, gift, or rent weeks at your discretion, on a per-year basis. Withdrawal of a week from the program does not affect bookings already confirmed against it.</p>

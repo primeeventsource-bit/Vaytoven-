@@ -161,8 +161,8 @@ class HelpArticleSeeder extends Seeder
                 'audience' => HelpAudience::Member->value,
                 'category' => 'members',
                 'title'    => 'How the managed program works',
-                'summary'  => 'You list unused weeks, we book them under our escrow account. Net to you after a 12% managed fee.',
-                'body'     => "The Managed Listing Program is designed for owners of points-based vacation property — Marriott, Hilton, Disney, Wyndham, RCI, Interval — who don't use every week they're entitled to.\n\nA specialist contacts you within one business day of your enquiry. We confirm your program rules, audit which weeks are eligible to rent, and quote the all-in payout. We then list the weeks across our network and partner channels under Vaytoven's escrow account so the booking complies with your club's rental policy.\n\nThe managed fee is a flat 12% of the booking total. Everything else — the net payout — clears to your bank after each guest checkout, on the same 24-hour-after-check-in schedule as standard hosts.",
+                'summary'  => 'You list unused weeks, we book them under our escrow account. Net to you minus an upfront weekly program cost ($200–$800 + tax) plus a program subscription fee.',
+                'body'     => "The Managed Listing Program is designed for owners of points-based vacation property — Marriott, Hilton, Disney, Wyndham, RCI, Interval — who don't use every week they're entitled to.\n\nA specialist contacts you within one business day of your enquiry. We confirm your program rules, audit which weeks are eligible to rent, and quote the all-in payout. We then list the weeks across our network and partner channels under Vaytoven's escrow account so the booking complies with your club's rental policy.\n\nThe program is priced as an upfront weekly program cost in the range of \$200–\$800 per week (varies by property tier and season) plus applicable taxes, plus a flat program subscription fee. We quote the exact figures for your specific portfolio on the onboarding call before you commit to anything. Everything above those costs is your net payout, clearing to your bank after each guest checkout on the same 24-hour-after-check-in schedule as standard hosts.",
                 'search_keywords' => 'members, managed program, points, vacation club, marriott, hilton, disney',
             ],
             [
@@ -179,8 +179,8 @@ class HelpArticleSeeder extends Seeder
                 'audience' => HelpAudience::Member->value,
                 'category' => 'members',
                 'title'    => 'When members get paid',
-                'summary'  => 'Same schedule as hosts: 24 hours after guest check-in, net of the 12% managed fee, via direct deposit.',
-                'body'     => "Member payouts release 24 hours after the guest checks in, on the same schedule as standard host payouts. We deduct the 12% managed-program fee and direct-deposit the net to the bank account you provide during onboarding.\n\nFirst payouts require completed identity verification (KYC) on our payments processor — same Stripe Connect flow as hosts. After verification you can see scheduled payouts in your member dashboard.",
+                'summary'  => 'Same schedule as hosts: 24 hours after guest check-in. Net of the upfront weekly program cost + program subscription fee, both quoted up front.',
+                'body'     => "Member payouts release 24 hours after the guest checks in, on the same schedule as standard host payouts. We deduct the upfront weekly program cost (\$200–\$800 per week + applicable tax, varies by property tier and season) and the flat program subscription fee, then direct-deposit the net to the bank account you provide during onboarding.\n\nThe upfront cost and subscription fee are both quoted on your onboarding call before you commit. There is no separate percentage cut on top — once those costs are covered, the rest of each booking is yours.\n\nFirst payouts require completed identity verification (KYC) on our payments processor — same Stripe Connect flow as hosts. After verification you can see scheduled payouts in your member dashboard.",
                 'search_keywords' => 'when paid, payout, members payout, direct deposit, kyc',
             ],
         ];

@@ -817,7 +817,7 @@
 
             <ul class="members-list">
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>We list, market, and book your weeks across our network and partner channels.</span></li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>Net-to-member payouts after our 12% managed-program fee — quoted up front, no surprises.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>Net-to-member minus our upfront cost of $200&ndash;$800 per week plus tax program subscription fee &mdash; quoted up front, no surprises.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>Compliant with your club's rental policy — we work within your program's rules.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>You stay in control — keep, gift, or rent whichever weeks you want each year.</span></li>
             </ul>
@@ -856,7 +856,7 @@
             <div class="earnings-total">
                 <div>
                     <div style="font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600;">Net to member</div>
-                    <div style="font-size:13px;color:var(--muted);">After 12% managed-program fee</div>
+                    <div style="font-size:13px;color:var(--muted);">Net of upfront weekly cost + subscription fee</div>
                 </div>
                 <div class="earnings-total-num">$10,440</div>
             </div>
