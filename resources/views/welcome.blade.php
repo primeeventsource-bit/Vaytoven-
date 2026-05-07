@@ -523,6 +523,8 @@
         }
         .toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
     </style>
+    @include('partials.search-bar-styles')
+    <script src="/vyt-search.js" defer></script>
     <script src="/vyt-track.js" defer></script>
     <script src="/vyt-chat.js" defer></script>
 </head>
@@ -545,24 +547,7 @@
     <h1 class="display">Find your place <em class="grad-text">anywhere.</em></h1>
     <p>Curated vacation properties across the world's best places to stay. Booked simply, hosted with care.</p>
 
-    <form class="search" action="{{ route('properties.index') }}" method="GET">
-        <div class="search-field">
-            <label for="s-where">Where</label>
-            <input id="s-where" name="q" type="text" placeholder="Anywhere on earth">
-        </div>
-        <div class="search-field">
-            <label for="s-when">When</label>
-            <input id="s-when" type="text" placeholder="Any week" disabled title="Date filter coming with the booking flow">
-        </div>
-        <div class="search-field">
-            <label for="s-who">Who</label>
-            <input id="s-who" name="min_capacity" type="number" min="1" max="20" placeholder="Add guests">
-        </div>
-        <button type="submit" class="search-submit" data-track-audience="traveler" data-track-cta="search_submit">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
-            Search
-        </button>
-    </form>
+    @include('partials.search-bar', ['compact' => false])
 
     <div class="hero-stats">
         <div>

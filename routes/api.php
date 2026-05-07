@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\DestinationSuggestController;
 use App\Http\Controllers\Api\LoginHistoryController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\SupportChatController;
@@ -17,6 +18,11 @@ Route::post('auth/login',    [AuthController::class, 'login']);
 // Public property search + show — no auth required (browse-without-login).
 Route::get('properties',                [PropertyController::class, 'index']);
 Route::get('properties/{property}',     [PropertyController::class, 'show']);
+
+// Destination autocomplete for the Vrbo-style search bar. Returns city +
+// country + property suggestions with lat/lng for the map widget.
+Route::get('destinations/suggest', DestinationSuggestController::class)
+    ->middleware('throttle:120,1');
 
 // Public tracking ingest (anonymous or auth-optional) — rate limited.
 Route::post('tracking/events', [TrackingEventController::class, 'store'])

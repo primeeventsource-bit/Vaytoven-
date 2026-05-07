@@ -39,9 +39,11 @@ class AudienceCtaTest extends TestCase
     {
         $body = $this->get('/')->assertOk()->getContent();
 
-        // Traveler primary: search submit button.
+        // Traveler primary: search submit button. The Vrbo-style bar uses
+        // class="vyt-search-submit"; older inline bar used class="search-submit".
+        // Either matches as long as data-track-cta is wired.
         $this->assertMatchesRegularExpression(
-            '/class="search-submit"[^>]*data-track-cta="search_submit"/s',
+            '/class="(vyt-)?search-submit"[^>]*data-track-cta="search_submit"/s',
             $body,
             'Traveler primary CTA (search_submit) is missing or unbound.',
         );

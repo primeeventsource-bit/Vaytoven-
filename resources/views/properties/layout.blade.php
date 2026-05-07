@@ -126,6 +126,7 @@
         .props-book-cta:hover { transform:translateY(-1px); text-decoration:none; }
         .props-book-fineprint { font-size:12px; color:var(--muted); margin-top:14px; }
     </style>
+    @include('partials.search-bar-styles')
 </head>
 <body>
     @include('partials.top-nav', ['current' => $current ?? 'stay'])
@@ -134,6 +135,7 @@
         @yield('content')
     </main>
 
+    <script src="/vyt-search.js" defer></script>
     <script src="/vyt-track.js" defer></script>
 </body>
 </html>

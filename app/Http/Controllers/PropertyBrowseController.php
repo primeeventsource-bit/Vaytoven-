@@ -54,8 +54,16 @@ class PropertyBrowseController extends Controller
             $query->where('country', strtoupper($country));
         }
 
-        if ($request->filled('min_capacity')) {
-            $query->where('capacity', '>=', (int) $request->integer('min_capacity'));
+        // The Vrbo-style search bar submits adults + children + infants
+        // separately. Roll them up into a capacity floor (infants typically
+        // don't count toward a property's stated capacity).
+        $adults = (int) $request->integer('adults', 0);
+        $children = (int) $request->integer('children', 0);
+        $totalGuests = $adults + $children;
+        $minCapacity = max((int) $request->integer('min_capacity', 0), $totalGuests);
+
+        if ($minCapacity > 0) {
+            $query->where('capacity', '>=', $minCapacity);
         }
 
         if ($request->filled('max_price')) {

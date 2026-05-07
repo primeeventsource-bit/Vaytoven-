@@ -183,6 +183,8 @@ class PropertyBrowseTest extends TestCase
     {
         $body = $this->get('/')->assertOk()->getContent();
 
-        $this->assertMatchesRegularExpression('/<form class="search" action="[^"]*\/properties"/', $body);
+        // The Vrbo-style search bar (vyt-search) replaces the legacy
+        // inline form; both submit GET to /properties.
+        $this->assertMatchesRegularExpression('/<form class="vyt-search[^"]*"[^>]*method="GET"[^>]*action="[^"]*\/properties"/s', $body);
     }
 }

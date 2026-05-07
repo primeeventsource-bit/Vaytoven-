@@ -4,6 +4,22 @@
 
 @section('content')
 
+    {{-- Vrbo-style search bar at the top of the results, prefilled with the
+         current query so the user can iterate without losing what they already typed. --}}
+    <div style="margin-bottom: 28px;">
+        @include('partials.search-bar', [
+            'compact'  => true,
+            'defaults' => [
+                'q'        => $q,
+                'check_in' => request('check_in'),
+                'check_out'=> request('check_out'),
+                'adults'   => request('adults', 2),
+                'children' => request('children', 0),
+                'infants'  => request('infants', 0),
+            ],
+        ])
+    </div>
+
     <div class="props-eyebrow">Vacation properties</div>
     <h1 class="props-title">
         @if ($destination)
