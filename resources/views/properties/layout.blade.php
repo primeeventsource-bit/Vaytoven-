@@ -126,6 +126,62 @@
         .props-book-cta:hover { transform:translateY(-1px); text-decoration:none; }
         .props-book-fineprint { font-size:12px; color:var(--muted); margin-top:14px; }
 
+        /* ── Photo carousel (cards + detail hero) ──────────────────── */
+        .vyt-carousel {
+            position: relative; width: 100%; aspect-ratio: 4/3;
+            background: #f5f3ff; border-radius: inherit; overflow: hidden;
+        }
+        .vyt-carousel.is-hero {
+            aspect-ratio: 16/9; max-height: 480px; border-radius: 14px;
+            margin-bottom: 28px;
+        }
+        .vyt-carousel-track {
+            display: flex; width: 100%; height: 100%;
+            overflow-x: auto; scroll-snap-type: x mandatory;
+            scrollbar-width: none; -ms-overflow-style: none;
+            scroll-behavior: smooth;
+        }
+        .vyt-carousel-track::-webkit-scrollbar { display: none; }
+        .vyt-carousel-slide {
+            flex: 0 0 100%; height: 100%;
+            scroll-snap-align: start; scroll-snap-stop: always;
+            position: relative;
+        }
+        .vyt-carousel-slide img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+            user-select: none; -webkit-user-drag: none;
+        }
+        .vyt-carousel-arrow {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,.92); border: 0; cursor: pointer;
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--ink); font-size: 18px; line-height: 1;
+            box-shadow: 0 4px 12px rgba(0,0,0,.12);
+            transition: opacity .15s, transform .15s, background .15s;
+            opacity: 0; z-index: 2;
+            font-family: inherit;
+        }
+        .vyt-carousel:hover .vyt-carousel-arrow,
+        .vyt-carousel-arrow:focus { opacity: 1; }
+        .vyt-carousel-arrow:hover { background: #fff; transform: translateY(-50%) scale(1.06); }
+        .vyt-carousel-arrow.is-prev { left: 10px; }
+        .vyt-carousel-arrow.is-next { right: 10px; }
+        @media (hover: none) { .vyt-carousel-arrow { display: none; } }
+        .vyt-carousel-dots {
+            position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 6px; z-index: 2;
+        }
+        .vyt-carousel-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            border: 0; cursor: pointer; padding: 0;
+            background: rgba(255,255,255,.55);
+            transition: transform .15s, background .15s, width .15s;
+        }
+        .vyt-carousel-dot:hover { background: rgba(255,255,255,.85); }
+        .vyt-carousel-dot.is-active { background: #fff; width: 18px; border-radius: 999px; }
+        .props-card .vyt-carousel { border-radius: 0; }
+
         /* ── Filter rail (collapsible details element) ─────────────── */
         .props-filter-rail {
             background:#fff; border:1px solid var(--line); border-radius:14px;
@@ -252,6 +308,7 @@
             crossorigin="anonymous" defer></script>
     <script src="/vyt-search.js" defer></script>
     <script src="/vyt-properties-map.js" defer></script>
+    <script src="/vyt-carousel.js" defer></script>
     <script src="/vyt-track.js" defer></script>
 </body>
 </html>

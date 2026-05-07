@@ -13,11 +13,12 @@
         </div>
 
         @if ($property->photos->isNotEmpty())
-            <div class="props-detail-hero">
-                @foreach ($property->photos->take(3) as $photo)
-                    <img src="{{ $photo->url }}" alt="{{ $photo->caption ?? $property->title }}" loading="lazy">
-                @endforeach
-            </div>
+            @include('partials.photo-carousel', [
+                'photos'  => $property->photos,
+                'alt'     => $property->title,
+                'hero'    => true,
+                'loading' => 'eager',
+            ])
         @endif
 
         <div class="props-detail-grid">

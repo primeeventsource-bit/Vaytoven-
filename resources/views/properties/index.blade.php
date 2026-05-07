@@ -142,11 +142,10 @@
                            data-track-cta="property_card_open"
                            data-track-meta-id="{{ $property->id }}"
                            data-property-id="{{ $property->id }}">
-                            @if ($property->photos->first())
-                                <img class="props-card-img" src="{{ $property->photos->first()->url }}" alt="{{ $property->title }}" loading="lazy">
-                            @else
-                                <div class="props-card-img" aria-hidden="true"></div>
-                            @endif
+                            @include('partials.photo-carousel', [
+                                'photos' => $property->photos,
+                                'alt'    => $property->title,
+                            ])
                             <div class="props-card-body">
                                 <h3>{{ $property->title }}</h3>
                                 <div class="props-card-loc">{{ $property->city }}{{ $property->country ? ', '.$property->country : '' }}</div>
