@@ -55,7 +55,9 @@ test.describe('Properties', () => {
         await page.locator('a.props-card').first().click();
 
         await expect(page).toHaveURL(/\/properties\/\d+$/);
-        await expect(page.locator('.props-detail-hero img').first()).toBeVisible();
+        // Hero is now a real carousel (.vyt-carousel.is-hero) instead of a
+        // 3-img collage. The first slide is what's visible above-the-fold.
+        await expect(page.locator('.vyt-carousel.is-hero .vyt-carousel-slide img').first()).toBeVisible();
         await expect(page.locator('input#b-checkin')).toBeVisible();
         await expect(page.locator('input#b-checkout')).toBeVisible();
         await expect(page.getByRole('button', { name: /Continue to review/i })).toBeVisible();
