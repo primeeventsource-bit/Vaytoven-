@@ -57,24 +57,7 @@
     <script src="/vyt-track.js" defer></script>
 </head>
 <body>
-    <nav class="help-nav">
-        <a href="/" class="brand" aria-label="Vaytoven home">
-            <svg viewBox="0 0 64 64">
-                <defs>
-                    <linearGradient id="brand-grad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#FF3D8A"/>
-                        <stop offset="50%" stop-color="#D63384"/>
-                        <stop offset="100%" stop-color="#7B2CBF"/>
-                    </linearGradient>
-                </defs>
-                <path fill="url(#brand-grad)" d="M10 8h12l10 30 10-30h12L34 56h-8z"/>
-                <circle cx="48" cy="14" r="8" fill="url(#brand-grad)"/>
-                <circle cx="48" cy="14" r="3" fill="#fff"/>
-            </svg>
-            <span>Vaytoven Help</span>
-        </a>
-        <a href="/" class="home-link">Back to home</a>
-    </nav>
+    @include('partials.top-nav')
     <main class="help-shell">
         @yield('content')
     </main>

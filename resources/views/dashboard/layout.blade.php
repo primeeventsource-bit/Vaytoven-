@@ -145,39 +145,7 @@
     </style>
 </head>
 <body>
-    <nav class="vyt-nav">
-        <a href="/" class="brand" aria-label="Vaytoven home">
-            <svg viewBox="0 0 64 64">
-                <defs>
-                    <linearGradient id="brand-grad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#FF3D8A"/>
-                        <stop offset="50%" stop-color="#D63384"/>
-                        <stop offset="100%" stop-color="#7B2CBF"/>
-                    </linearGradient>
-                </defs>
-                <path fill="url(#brand-grad)" d="M10 8h12l10 30 10-30h12L34 56h-8z"/>
-                <circle cx="48" cy="14" r="8" fill="url(#brand-grad)"/>
-                <circle cx="48" cy="14" r="3" fill="#fff"/>
-            </svg>
-            <span>Vaytoven</span>
-        </a>
-        <div class="vyt-nav-links">
-            <a href="{{ route('dashboard') }}">Dashboard</a>
-            <a href="/help">Help</a>
-            <a href="/">Site</a>
-        </div>
-        <div class="vyt-nav-spacer"></div>
-        <div class="vyt-nav-user">
-            <span>{{ auth()->user()->name }}</span>
-            @if (auth()->user()->isAdmin())
-                <span class="role-chip">{{ str_replace('_', ' ', auth()->user()->role->value) }}</span>
-            @endif
-            <form method="POST" action="{{ route('logout') }}" class="vyt-logout-form">
-                @csrf
-                <button type="submit" class="vyt-logout-btn">Sign out</button>
-            </form>
-        </div>
-    </nav>
+    @include('partials.top-nav')
 
     <header class="vyt-pageheader">
         <div class="vyt-pageheader-inner">

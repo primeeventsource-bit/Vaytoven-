@@ -10,6 +10,7 @@ use App\Http\Controllers\HelpController;
 use App\Http\Controllers\HostOnboardingController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\MemberEnquiryController;
+use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyBrowseController;
 use App\Http\Controllers\Webhooks\DocuSignWebhookController;
@@ -20,6 +21,19 @@ Route::view('/', 'welcome');
 
 Route::post('/members/enquiry', [MemberEnquiryController::class, 'store'])
     ->name('members.enquiry');
+
+// ---------------------------------------------------------------------------
+// Three-audience marketing pages — public, anonymous-friendly. Each surfaces
+// a tab in the top nav (Stay → /properties, Become a Host → /become-a-host,
+// Members → /members). Stay reuses the existing properties index.
+// ---------------------------------------------------------------------------
+Route::view('/become-a-host', 'hosts.show')->name('hosts.show');
+Route::view('/members',        'members.show')->name('members.show');
+
+// Newsletter signup — distinct from /register (account creation). Captures
+// full_name + email + phone for marketing email.
+Route::get('/signup',  [NewsletterSubscriptionController::class, 'show'])->name('signup.show');
+Route::post('/signup', [NewsletterSubscriptionController::class, 'store'])->name('signup.store');
 
 // Property browse — public surface for visitors. Index supports ?q=, ?city=,
 // ?destination= (alias for city), ?min_capacity=, ?max_price=.

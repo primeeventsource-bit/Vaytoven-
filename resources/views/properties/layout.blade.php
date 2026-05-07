@@ -128,35 +128,7 @@
     </style>
 </head>
 <body>
-    <nav class="vyt-nav">
-        <a href="/" class="brand" aria-label="Vaytoven home">
-            <svg viewBox="0 0 64 64">
-                <defs>
-                    <linearGradient id="brand-grad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#FF3D8A"/>
-                        <stop offset="50%" stop-color="#D63384"/>
-                        <stop offset="100%" stop-color="#7B2CBF"/>
-                    </linearGradient>
-                </defs>
-                <path fill="url(#brand-grad)" d="M10 8h12l10 30 10-30h12L34 56h-8z"/>
-                <circle cx="48" cy="14" r="8" fill="url(#brand-grad)"/>
-                <circle cx="48" cy="14" r="3" fill="#fff"/>
-            </svg>
-            <span>Vaytoven</span>
-        </a>
-        <div class="vyt-nav-links">
-            <a href="{{ route('properties.index') }}">Stays</a>
-            <a href="/help">Help</a>
-            <a href="/#host">Hosts</a>
-            <a href="/#members">Members</a>
-        </div>
-        <div class="vyt-nav-spacer"></div>
-        @auth
-            <a href="{{ route('dashboard') }}" style="font-size:13px;">{{ auth()->user()->name }}</a>
-        @else
-            <a href="{{ route('login') }}" style="font-size:13px;">Sign in</a>
-        @endauth
-    </nav>
+    @include('partials.top-nav', ['current' => $current ?? 'stay'])
 
     <main class="props-shell">
         @yield('content')

@@ -539,23 +539,7 @@
     </defs>
 </svg>
 
-<nav class="nav">
-    <a href="/" class="brand-mark" aria-label="Vaytoven">
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-            <path fill="url(#brand-grad)" d="M10 8h12l10 30 10-30h12L34 56h-8z"/>
-            <circle cx="48" cy="14" r="8" fill="url(#brand-grad)"/>
-            <circle cx="48" cy="14" r="3" fill="#fff"/>
-        </svg>
-        <span class="brand-mark-text">Vaytoven</span>
-    </a>
-    <div class="nav-links">
-        <a href="{{ route('properties.index') }}" data-track-audience="traveler" data-track-cta="nav_stays">Stays</a>
-        <a href="#host" data-track-audience="host" data-track-cta="nav_become_host">Become a host</a>
-        <a href="#members" data-track-audience="member" data-track-cta="nav_members">Members</a>
-        <a href="/help" data-track-audience="traveler" data-track-cta="nav_help">Help</a>
-        <a href="#app" class="nav-cta" data-track-audience="traveler" data-track-cta="nav_get_app">Get the app</a>
-    </div>
-</nav>
+@include('partials.top-nav')
 
 <header class="hero">
     <h1 class="display">Find your place <em class="grad-text">anywhere.</em></h1>
