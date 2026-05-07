@@ -125,8 +125,65 @@
         }
         .props-book-cta:hover { transform:translateY(-1px); text-decoration:none; }
         .props-book-fineprint { font-size:12px; color:var(--muted); margin-top:14px; }
+        /* ── Two-column results + map (Vrbo-style) ─────────────────── */
+        .props-with-map { display: grid; gap: 28px; grid-template-columns: 1fr; }
+        @media (min-width: 1080px) {
+            .props-with-map { grid-template-columns: minmax(0, 1fr) 420px; align-items: start; }
+        }
+        .props-results-col { min-width: 0; }
+        .props-map-col { display: none; }
+        @media (min-width: 1080px) { .props-map-col { display: block; } }
+
+        .props-map-sticky {
+            position: sticky; top: 84px;
+            height: calc(100vh - 120px); max-height: 720px;
+            border-radius: 16px; overflow: hidden;
+            background: #f5f3ff; border: 1px solid var(--line);
+        }
+        .vyt-leaflet-map { width: 100%; height: 100%; }
+
+        /* Mobile map toggle */
+        .props-map-toggle {
+            display: none; position: fixed; bottom: 22px; left: 50%;
+            transform: translateX(-50%); z-index: 60;
+            background: var(--ink); color: #fff; border: 0;
+            padding: 12px 22px; border-radius: 999px;
+            font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+            box-shadow: 0 12px 32px -8px rgba(0,0,0,.4);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        @media (min-width: 1080px) { .props-map-toggle { display: none !important; } }
+        @media (max-width: 1079px) {
+            .props-map-col.is-mobile-open { display: block; position: fixed; inset: 0; z-index: 55; padding: 16px; background: rgba(0,0,0,.4); }
+            .props-map-col.is-mobile-open .props-map-sticky { position: relative; top: 0; height: calc(100vh - 90px); max-height: none; }
+        }
+
+        /* Custom Leaflet pin look */
+        .vyt-leaflet-map .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
+        .vyt-leaflet-map .leaflet-popup-content { margin: 0; width: 220px; font-family: 'Geist', sans-serif; }
+        .vyt-popup-img { width: 100%; height: 120px; object-fit: cover; display: block; background: #f5f3ff; }
+        .vyt-popup-body { padding: 10px 14px 14px; }
+        .vyt-popup-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 14px; margin: 0 0 4px; line-height: 1.25; color: var(--ink); }
+        .vyt-popup-loc { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+        .vyt-popup-price { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; }
+        .vyt-popup-price small { color: var(--muted); font-weight: 400; font-size: 12px; }
+        .vyt-price-pin {
+            background: #fff; border: 2px solid var(--ink);
+            color: var(--ink); padding: 4px 10px; border-radius: 999px;
+            font-weight: 600; font-size: 12px; font-family: 'Geist', sans-serif;
+            white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,.18);
+            transition: transform .12s ease, background .12s, color .12s, border-color .12s;
+        }
+        .vyt-price-pin.is-active {
+            background: var(--ink); color: #fff; transform: scale(1.08);
+        }
+        .props-card.is-map-hover { box-shadow: 0 12px 32px -12px rgba(123,44,191,.28); transform: translateY(-2px); }
     </style>
     @include('partials.search-bar-styles')
+    {{-- Leaflet CSS via CDN — pinned version for cache stability --}}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin="anonymous" />
 </head>
 <body>
     @include('partials.top-nav', ['current' => $current ?? 'stay'])
@@ -135,7 +192,11 @@
         @yield('content')
     </main>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin="anonymous" defer></script>
     <script src="/vyt-search.js" defer></script>
+    <script src="/vyt-properties-map.js" defer></script>
     <script src="/vyt-track.js" defer></script>
 </body>
 </html>
