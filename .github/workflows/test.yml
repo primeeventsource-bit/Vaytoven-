@@ -1,0 +1,113 @@
+name: Test
+
+# PHPUnit runs on every push and PR — fast, no external dependencies, all in-memory.
+# Playwright E2E runs only on pushes to environment branches because it hits the
+# deployed URL and needs the deploy to land first; running on PRs would race the
+# push-to-deploy pipeline and produce flaky results.
+
+on:
+  push:
+    branches: [main, development, sandbox, production]
+  pull_request:
+    branches: [main, development]
+  workflow_dispatch:
+
+concurrency:
+  # Cancel in-flight runs of the same workflow on the same ref so a fast follow-up
+  # push doesn't have to wait for a stale run.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phpunit:
+    name: PHPUnit (PHP 8.4)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo, pdo_sqlite, mbstring, intl, gd, zip, bcmath, redis
+          coverage: none
+          # 512M handles the dompdf rendering tests without bumping per-invocation.
+          ini-values: memory_limit=512M
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Run PHPUnit
+        run: ./vendor/bin/phpunit --colors=never
+
+  playwright:
+    name: Playwright E2E (deployed env)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Only run E2E on pushes to environment branches — these auto-deploy and
+    # the suite hits the live URL.  PRs run PHPUnit only.
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
+    env:
+      # Map each environment branch to its deployed Laravel Cloud URL.
+      # Override via repo variable E2E_BASE_URL_<BRANCH> if vanity domains change.
+      E2E_BASE_URL: >-
+        ${{
+          github.ref_name == 'production' && 'https://v-app-production-main-pkuean.laravel.cloud' ||
+          github.ref_name == 'sandbox' && 'https://v-app-sandbox-main-3m6clk.laravel.cloud' ||
+          'https://v-app-dev-main-oyo1n9.laravel.cloud'
+        }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers (chromium only)
+        run: npx playwright install chromium --with-deps
+
+      - name: Wait for deploy to land
+        # Push-to-deploy on Laravel Cloud runs concurrently with this workflow.
+        # Poll /health until the latest commit sha is up — gives up after 4 min.
+        run: |
+          set -e
+          deadline=$(( $(date +%s) + 240 ))
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            if curl -fsS "$E2E_BASE_URL/health" | grep -q '"ok":true'; then
+              echo "Health check passing on $E2E_BASE_URL"
+              exit 0
+            fi
+            echo "Waiting for deploy …"
+            sleep 10
+          done
+          echo "Deploy did not become healthy within 4 minutes" >&2
+          exit 1
+
+      - name: Run Playwright tests
+        run: npx playwright test --reporter=list
+
+      - name: Upload trace artefacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-${{ github.run_attempt }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
