@@ -10,9 +10,12 @@ test.describe('Help center', () => {
 
         await expect(page.getByRole('heading', { name: /How can we help/i })).toBeVisible();
 
-        // Audience filter chips
+        // Audience filter chips — scope to the .help-audiences container so
+        // we don't collide with the top-nav links of the same names.
         for (const label of ['All', 'Travelers', 'Hosts', 'Members']) {
-            await expect(page.getByRole('link', { name: new RegExp(`^${label}$`, 'i') })).toBeVisible();
+            await expect(
+                page.locator('.help-audiences').getByRole('link', { name: new RegExp(`^${label}$`, 'i') })
+            ).toBeVisible();
         }
 
         // At least one curated article from each audience scope.

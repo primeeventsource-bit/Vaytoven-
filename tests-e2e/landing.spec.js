@@ -12,13 +12,16 @@ test.describe('Landing page', () => {
         // Hero
         await expect(page.getByRole('heading', { name: /Find your place/i })).toBeVisible();
 
-        // Search form posts to /properties
-        await expect(page.locator('form.search')).toHaveAttribute(
+        // Vrbo-style search bar posts to /properties.
+        await expect(page.locator('form.vyt-search')).toHaveAttribute(
             'action',
             /\/properties$/,
         );
 
-        // Three audience headers
+        // Three audience sections by id (the section anchors). #host and
+        // #members each appear once on the page even though the new top
+        // nav also links there — the section ids only attach to the actual
+        // <section>s, the nav uses route URLs.
         await expect(page.locator('#destinations')).toBeVisible();
         await expect(page.locator('#host')).toBeVisible();
         await expect(page.locator('#members')).toBeVisible();
@@ -41,8 +44,9 @@ test.describe('Landing page', () => {
             expect(count, `audience=${audience} should have ≥1 CTA`).toBeGreaterThan(0);
         }
 
-        // Primary CTA per audience
-        await expect(page.locator('button.search-submit[data-track-cta="search_submit"]')).toBeVisible();
+        // Primary CTA per audience. Search button is now part of the
+        // Vrbo-style bar (.vyt-search-submit); host + members CTAs unchanged.
+        await expect(page.locator('button.vyt-search-submit[data-track-cta="search_submit"]')).toBeVisible();
         await expect(page.locator('a.host-primary-cta[data-track-cta="host_onboarding_open"]')).toBeVisible();
         await expect(page.locator('button.members-cta[data-track-cta="enquiry_open"]')).toBeVisible();
     });
