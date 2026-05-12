@@ -49,6 +49,11 @@ class User extends Authenticatable
         return $this->role?->isSuperAdmin() ?? false;
     }
 
+    public function isMemberSpecialist(): bool
+    {
+        return $this->role?->isMemberSpecialist() ?? false;
+    }
+
     public function hostProperties(): HasMany
     {
         return $this->hasMany(Property::class, 'host_id');

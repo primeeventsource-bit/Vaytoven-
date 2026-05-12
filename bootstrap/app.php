@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureAdmin::class,
+            'admin.or.specialist' => \App\Http\Middleware\EnsureAdminOrMemberSpecialist::class,
             'terms.current' => \App\Http\Middleware\EnsureCurrentTermsAccepted::class,
         ]);
 

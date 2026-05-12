@@ -7,6 +7,7 @@ enum UserRole: string
     case Traveler = 'traveler';
     case Host = 'host';
     case Member = 'member';
+    case MemberSpecialist = 'member_specialist';
     case Admin = 'admin';
     case SuperAdmin = 'super_admin';
 
@@ -21,5 +22,10 @@ enum UserRole: string
     public function isSuperAdmin(): bool
     {
         return $this === self::SuperAdmin;
+    }
+
+    public function isMemberSpecialist(): bool
+    {
+        return $this === self::MemberSpecialist;
     }
 }
