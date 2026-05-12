@@ -161,6 +161,16 @@
     </header>
 
     <main class="vyt-shell">
+        @if (session('success'))
+            <div style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;padding:12px 16px;border-radius:10px;margin-bottom:18px;font-size:14px;">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if (session('error'))
+            <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;padding:12px 16px;border-radius:10px;margin-bottom:18px;font-size:14px;">
+                {{ session('error') }}
+            </div>
+        @endif
         @yield('content')
     </main>
     @stack('scripts')

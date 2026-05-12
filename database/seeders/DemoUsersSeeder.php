@@ -41,6 +41,8 @@ class DemoUsersSeeder extends Seeder
         $this->seedManagedListingForMember($users['admin'], $enquiryId);
         $this->seedReturningGuestLoginHistory($users['guest']);
         $this->seedPropertyViews($users);
+        $this->seedHostBookings($users);
+        $this->seedMemberOffer($users);
 
         $this->command->info('DemoUsersSeeder complete. Password for all six accounts: ' . self::PASSWORD);
     }
@@ -424,5 +426,147 @@ class DemoUsersSeeder extends Seeder
             'suspicious_reasons' => null,
             'occurred_at'        => $occurredAt,
         ], $overrides);
+    }
+
+    /**
+     * A few bookings on Maya's listings so the host dashboard's "Recent
+     * bookings" table renders with real-looking data instead of an empty
+     * state. Idempotent: keyed on (property_id, traveler_id, check_in_date)
+     * via existence check, so re-runs don't duplicate.
+     *
+     * Uses Eloquent so the booted() creating hook generates the
+     * VYT-XXXXXX confirmation code and the created hook records the
+     * initial booking_state_transition row.
+     *
+     * @param array<string,\App\Models\User> $users
+     */
+    private function seedHostBookings(array $users): void
+    {
+        $hostListings = \App\Models\Property::where('host_id', $users['host']->id)->get()->keyBy('title');
+        if ($hostListings->isEmpty()) {
+            return;
+        }
+
+        $samples = [
+            [
+                'property' => 'Cliffside Villa Uluwatu',
+                'traveler' => $users['guest'],     // Daniel — returning guest
+                'check_in' => now()->addDays(28),
+                'nights'   => 5,
+                'guests'   => 2,
+                'status'   => 'confirmed',
+            ],
+            [
+                'property' => 'Modern Cabin Lake Tahoe',
+                'traveler' => $users['newclient'], // Sarah — new client
+                'check_in' => now()->addDays(10),
+                'nights'   => 3,
+                'guests'   => 4,
+                'status'   => 'pending_payment',
+            ],
+            [
+                'property' => 'Historic Pied-à-Terre Paris',
+                'traveler' => $users['guest'],
+                'check_in' => now()->subDays(20),
+                'nights'   => 4,
+                'guests'   => 2,
+                'status'   => 'completed',
+            ],
+        ];
+
+        $created = 0;
+        foreach ($samples as $s) {
+            $listing = $hostListings[$s['property']] ?? null;
+            if (! $listing) {
+                continue;
+            }
+
+            $exists = \App\Models\Booking::query()
+                ->where('property_id', $listing->id)
+                ->where('traveler_id', $s['traveler']->id)
+                ->whereDate('check_in_date', $s['check_in']->toDateString())
+                ->exists();
+            if ($exists) {
+                continue;
+            }
+
+            $checkOut      = $s['check_in']->copy()->addDays($s['nights']);
+            $subtotalCents = (int) $listing->base_nightly_cents * $s['nights'];
+            $cleaningCents = (int) $listing->cleaning_fee_cents;
+            $serviceCents  = (int) round($subtotalCents * 0.12);
+            $taxCents      = (int) round(($subtotalCents + $cleaningCents) * 0.085);
+            $totalCents    = $subtotalCents + $cleaningCents + $serviceCents + $taxCents;
+
+            \App\Models\Booking::create([
+                'property_id'         => $listing->id,
+                'traveler_id'         => $s['traveler']->id,
+                'check_in_date'       => $s['check_in']->toDateString(),
+                'check_out_date'      => $checkOut->toDateString(),
+                'guests'              => $s['guests'],
+                'nightly_rate_cents'  => $listing->base_nightly_cents,
+                'nights'              => $s['nights'],
+                'subtotal_cents'      => $subtotalCents,
+                'cleaning_fee_cents'  => $cleaningCents,
+                'service_fee_cents'   => $serviceCents,
+                'tax_cents'           => $taxCents,
+                'total_cents'         => $totalCents,
+                'cancellation_policy' => $listing->cancellation_policy?->value ?? 'moderate',
+                'status'              => $s['status'],
+            ]);
+            $created++;
+        }
+
+        if ($created > 0) {
+            $this->command->info("  ✓ host bookings  {$created} new on Maya's listings");
+        } else {
+            $this->command->info('  · host bookings  already present, skipping');
+        }
+    }
+
+    /**
+     * One pending offer to Margaret for her managed listing, so the member
+     * dashboard's Offers section has something live to demo with. Sent by
+     * admin (the specialist persona), expires in 14 days.
+     *
+     * @param array<string,\App\Models\User> $users
+     */
+    private function seedMemberOffer(array $users): void
+    {
+        $managedListing = \App\Models\Property::where('listing_source', 'managed')
+            ->orderBy('id')
+            ->first();
+        if (! $managedListing) {
+            return;
+        }
+
+        // ~mid of month, 6 months out — typical Marriott Vacation Club
+        // reservation-window timing.
+        $checkIn = now()->addMonths(6)->startOfMonth()->addDays(14);
+
+        $exists = \App\Models\MemberOffer::query()
+            ->where('member_user_id', $users['member']->id)
+            ->where('property_id', $managedListing->id)
+            ->whereDate('proposed_check_in', $checkIn->toDateString())
+            ->exists();
+        if ($exists) {
+            $this->command->info('  · member offer  already present, skipping');
+            return;
+        }
+
+        \App\Models\MemberOffer::create([
+            'member_user_id'         => $users['member']->id,
+            'property_id'            => $managedListing->id,
+            'sent_by_user_id'        => $users['admin']->id,
+            'proposed_check_in'      => $checkIn->toDateString(),
+            'proposed_check_out'     => $checkIn->copy()->addDays(7)->toDateString(),
+            'proposed_guests'        => 6,
+            'payout_to_member_cents' => 180000,  // $1,800
+            'status'                 => 'pending',
+            'instructions'           => "Marriott Vacation Club's reservation window opens 12 months from check-in for owners. We've confirmed the resort has open inventory for these dates. Once you accept, log into your Marriott Vacation Club account, reserve the unit using your points, and reply with the confirmation number. We'll send the final guest names ~7 days before check-in so you can add them to the guest pass list.",
+            'sent_at'                => now()->subDays(1),
+            'expires_at'             => now()->addDays(13),
+        ]);
+
+        $this->command->info('  ✓ member offer  1 pending offer to Margaret ($1,800 payout, 7 nights)');
     }
 }

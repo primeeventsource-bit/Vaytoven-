@@ -10,6 +10,7 @@ use App\Http\Controllers\HelpController;
 use App\Http\Controllers\HostOnboardingController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\MemberEnquiryController;
+use App\Http\Controllers\MemberOfferController;
 use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyBrowseController;
@@ -51,6 +52,12 @@ Route::middleware(['auth', 'terms.current'])->group(function () {
     Route::get('/bookings/{booking}/pay',      [BookingFlowController::class, 'pay'])->name('bookings.pay');
     Route::get('/bookings/{booking}/cancel',   [BookingFlowController::class, 'cancelForm'])->name('bookings.cancel.form');
     Route::post('/bookings/{booking}/cancel',  [BookingFlowController::class, 'cancel'])->name('bookings.cancel');
+
+    // Member offers — accept/decline from the member dashboard. Controller
+    // verifies the offer's member_user_id matches the current user and that
+    // status is still Pending.
+    Route::post('/account/offers/{offer}/accept',  [MemberOfferController::class, 'accept'])->name('member.offers.accept');
+    Route::post('/account/offers/{offer}/decline', [MemberOfferController::class, 'decline'])->name('member.offers.decline');
 
     // Stripe Connect host onboarding (FR-5.x). All routes auth + terms.current.
     Route::get('/host/onboarding',          [HostOnboardingController::class, 'index'])->name('host.onboarding.index');

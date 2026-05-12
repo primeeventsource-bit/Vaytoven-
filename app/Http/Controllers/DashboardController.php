@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\BookingStatus;
 use App\Enums\MemberEnquiryStatus;
+use App\Enums\MemberOfferStatus;
 use App\Enums\UserRole;
 use App\Models\Booking;
 use App\Models\Charge;
@@ -11,6 +12,7 @@ use App\Models\ChargebackDispute;
 use App\Models\HelpArticle;
 use App\Models\LoginSession;
 use App\Models\MemberEnquiry;
+use App\Models\MemberOffer;
 use App\Models\Property;
 use App\Models\PropertyView;
 use App\Models\Refund;
@@ -69,9 +71,21 @@ class DashboardController extends Controller
             ->orderBy('title')
             ->get();
 
+        // Recent bookings on this host's listings — the funnel signal hosts
+        // want to see first. Capped at 10 most recent across all listings.
+        // Eager-loads property:id,title + traveler:id,name to avoid N+1 in
+        // the dashboard table render.
+        $bookings = Booking::query()
+            ->whereIn('property_id', $listings->pluck('id'))
+            ->with(['property:id,title', 'traveler:id,name'])
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
+
         return [
             'me' => $user,
             'listings' => $listings,
+            'bookings' => $bookings,
         ] + $this->analyticsPayload($listings);
     }
 
@@ -94,10 +108,25 @@ class DashboardController extends Controller
             ->orderByDesc('created_at')
             ->first();
 
+        // Offers Vaytoven has extended to this member — pending first
+        // (most actionable), then a tail of recent responded/expired so
+        // the member sees their history without a separate page.
+        $offers = MemberOffer::query()
+            ->where('member_user_id', $user->id)
+            ->with('property:id,title,city,country')
+            ->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END")
+            ->orderByDesc('sent_at')
+            ->limit(10)
+            ->get();
+
+        $pendingOfferCount = $offers->where('status', MemberOfferStatus::Pending)->count();
+
         return [
             'me' => $user,
             'listings' => $listings,
             'myEnquiry' => $myEnquiry,
+            'offers' => $offers,
+            'pendingOfferCount' => $pendingOfferCount,
         ] + $this->analyticsPayload($listings);
     }
 
