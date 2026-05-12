@@ -187,9 +187,30 @@ class DashboardController extends Controller
             'uniqueCountries' => $uniqueCountries,
             'perListingStats' => $perListingStats,
             'pinPoints'       => $pinPoints,
-            'mapboxToken'     => config('services.mapbox.token'),
+            // Only expose a Mapbox PUBLIC token (pk.*) to the browser. Secret
+            // tokens (sk.*) have scopes like manage-uploads / create-tokens
+            // and must never leave the server — if env contains one, fall
+            // back to OSM and log so ops can rotate it. Tokens are otherwise
+            // designed for client-side use, restricted by URL referrer in the
+            // Mapbox dashboard.
+            'mapboxToken'     => $this->publicMapboxTokenOrNull(config('services.mapbox.token')),
             'mapboxStyle'     => config('services.mapbox.style'),
         ];
+    }
+
+    private function publicMapboxTokenOrNull(?string $token): ?string
+    {
+        if (! $token) {
+            return null;
+        }
+        if (str_starts_with($token, 'pk.')) {
+            return $token;
+        }
+        // sk.* (secret) or anything else — don't ship to the browser.
+        \Illuminate\Support\Facades\Log::warning(
+            'mapbox: MAPBOX_API does not begin with pk.* — refusing to expose. Falling back to OSM tiles. Rotate at https://account.mapbox.com/access-tokens/'
+        );
+        return null;
     }
 
     private function adminPayload(): array
