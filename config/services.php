@@ -21,6 +21,19 @@ return [
         'anonymous_mmdb_path' => env('MAXMIND_ANONYMOUS_MMDB_PATH'),
     ],
 
+    // Mapbox — used to render the dashboard map tiles (FR-12.x analytics).
+    // Token comes from env MAPBOX_API (set on every Cloud env, including
+    // sandbox + dev). If unset, listing-analytics.blade.php falls back to
+    // raw OpenStreetMap tiles so the map still renders.
+    //
+    // Style accepts Mapbox style URLs in the form "mapbox/<style>" — common
+    // values: light-v11 (default, matches the brand cream palette),
+    // streets-v12, dark-v11, satellite-streets-v12.
+    'mapbox' => [
+        'token' => env('MAPBOX_API'),
+        'style' => env('MAPBOX_STYLE', 'mapbox/light-v11'),
+    ],
+
     // Per-processor chargeback rebuttal portal URLs (Phase 12). Each processor
     // adapter falls back to a sane default if the env var is unset; override to
     // route ops to a sandbox/staging portal in non-production environments.

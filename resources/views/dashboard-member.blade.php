@@ -32,6 +32,8 @@
         'uniqueCountries' => $uniqueCountries,
         'perListingStats' => $perListingStats,
         'pinPoints'       => $pinPoints,
+        'mapboxToken'     => $mapboxToken,
+        'mapboxStyle'     => $mapboxStyle,
     ])
 
 @endsection

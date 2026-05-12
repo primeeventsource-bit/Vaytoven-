@@ -187,6 +187,8 @@ class DashboardController extends Controller
             'uniqueCountries' => $uniqueCountries,
             'perListingStats' => $perListingStats,
             'pinPoints'       => $pinPoints,
+            'mapboxToken'     => config('services.mapbox.token'),
+            'mapboxStyle'     => config('services.mapbox.style'),
         ];
     }
 

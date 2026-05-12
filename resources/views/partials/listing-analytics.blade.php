@@ -104,6 +104,10 @@
                 <div id="vyt-views-map"
                      style="height: 360px; width: 100%;"
                      data-pins="{{ json_encode($pinPoints) }}"
+                     @if (! empty($mapboxToken))
+                         data-mapbox-token="{{ $mapboxToken }}"
+                         data-mapbox-style="{{ $mapboxStyle ?? 'mapbox/light-v11' }}"
+                     @endif
                      aria-label="Map of visitor origins"></div>
             @endif
         </div>
@@ -120,10 +124,28 @@
                     if (!pins.length) return;
 
                     var map = L.map(mapEl, { scrollWheelZoom: false, zoomControl: true });
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 19,
-                        attribution: '&copy; OpenStreetMap'
-                    }).addTo(map);
+
+                    // Prefer Mapbox tiles when a token's wired (richer styling,
+                    // hi-DPI). Fall back to raw OpenStreetMap so the map still
+                    // renders if the token is missing or rate-limited.
+                    var mbToken = mapEl.dataset.mapboxToken;
+                    var mbStyle = mapEl.dataset.mapboxStyle || 'mapbox/light-v11';
+                    if (mbToken) {
+                        L.tileLayer(
+                            'https://api.mapbox.com/styles/v1/' + mbStyle + '/tiles/512/{z}/{x}/{y}@2x?access_token=' + mbToken,
+                            {
+                                tileSize: 512,
+                                zoomOffset: -1,
+                                maxZoom: 19,
+                                attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                            }
+                        ).addTo(map);
+                    } else {
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '&copy; OpenStreetMap'
+                        }).addTo(map);
+                    }
 
                     var maxCount = Math.max.apply(null, pins.map(function (p) { return p.count; }));
                     var bounds = [];

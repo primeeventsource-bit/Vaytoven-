@@ -12,6 +12,8 @@
         'uniqueCountries' => $uniqueCountries,
         'perListingStats' => $perListingStats,
         'pinPoints'       => $pinPoints,
+        'mapboxToken'     => $mapboxToken,
+        'mapboxStyle'     => $mapboxStyle,
     ])
 
     <section class="vyt-section">
