@@ -49,15 +49,31 @@ class CloudflareHeaderGeoIpService implements GeoIpService
         }
 
         $h = $request->headers;
+        $country = $h->get('cf-ipcountry') ?: null;
         $lat = $h->get('cf-iplatitude');
         $lng = $h->get('cf-iplongitude');
 
+        $latitude  = is_numeric($lat) ? (float) $lat : null;
+        $longitude = is_numeric($lng) ? (float) $lng : null;
+
+        // Free Cloudflare plans (and Laravel Cloud's, verified 2026-05-12)
+        // only send cf-ipcountry. Fall back to the country's geographic
+        // centroid so the dashboard map gets a pin from real traffic instead
+        // of staying empty. Coarse, but useful — "you have visitors from
+        // these countries" is the question the map actually answers.
+        if ($latitude === null && $longitude === null && $country) {
+            $centroid = CountryCentroids::for($country);
+            if ($centroid !== null) {
+                [$latitude, $longitude] = $centroid;
+            }
+        }
+
         return new GeoIpResult(
-            country:   $h->get('cf-ipcountry') ?: null,
+            country:   $country,
             region:    $h->get('cf-region') ?: null,
             city:      $h->get('cf-ipcity') ?: null,
-            latitude:  is_numeric($lat) ? (float) $lat : null,
-            longitude: is_numeric($lng) ? (float) $lng : null,
+            latitude:  $latitude,
+            longitude: $longitude,
         );
     }
 }
