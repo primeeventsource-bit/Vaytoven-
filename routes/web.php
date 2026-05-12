@@ -19,6 +19,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 
+// Temporary diagnostic — confirms which cf-* headers Cloudflare on Laravel
+// Cloud actually injects. Remove once we've decided on the geo strategy.
+Route::get('/__debug/cf-headers', function (\Illuminate\Http\Request $r) {
+    $cf = array_filter(
+        $r->headers->all(),
+        fn ($k) => str_starts_with(strtolower($k), 'cf-') || $k === 'true-client-ip',
+        ARRAY_FILTER_USE_KEY,
+    );
+    return response()->json(['ip' => $r->ip(), 'cf' => $cf], 200, [], JSON_PRETTY_PRINT);
+});
+
 Route::post('/members/enquiry', [MemberEnquiryController::class, 'store'])
     ->name('members.enquiry');
 
