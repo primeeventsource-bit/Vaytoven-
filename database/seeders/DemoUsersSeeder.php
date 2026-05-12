@@ -43,8 +43,9 @@ class DemoUsersSeeder extends Seeder
         $this->seedPropertyViews($users);
         $this->seedHostBookings($users);
         $this->seedMemberOffer($users);
+        $this->seedAdditionalDemoUsers($users['admin']);
 
-        $this->command->info('DemoUsersSeeder complete. Password for all six accounts: ' . self::PASSWORD);
+        $this->command->info('DemoUsersSeeder complete. Password for all named accounts: ' . self::PASSWORD);
     }
 
     /**
@@ -568,5 +569,69 @@ class DemoUsersSeeder extends Seeder
         ]);
 
         $this->command->info('  ✓ member offer  1 pending offer to Margaret ($1,800 payout, 7 nights)');
+    }
+
+    /**
+     * Synthetic demo accounts beyond the six named personas, so the admin
+     * Users page has something realistic to page through, search, and
+     * filter against. Mix of roles, varied last-login + created_at so the
+     * sort columns look alive, and one deactivated account to demo that
+     * filter + the role-pill colour for that state.
+     *
+     * Email pattern: user.NN@demo.vaytoven.local — distinct from the
+     * named demos so they're easy to identify (and bulk-delete) later.
+     * `created_by_user_id` points at admin so the Users show page renders
+     * the "Created by admin ID X" row for these.
+     *
+     * Idempotent via updateOrCreate keyed on email.
+     */
+    private function seedAdditionalDemoUsers(User $admin): void
+    {
+        $synthetic = [
+            // [local-part, name, role, days_since_created, days_since_last_login | null, deactivated?]
+            ['user.01', 'Priya Raman',       UserRole::Traveler,         42, 1,    false],
+            ['user.02', 'Marcus Okafor',     UserRole::Traveler,         91, 8,    false],
+            ['user.03', 'Sofia Vasquez',     UserRole::Traveler,        120, 3,    false],
+            ['user.04', 'Henrik Lindqvist',  UserRole::Traveler,         18, 5,    false],
+            ['user.05', 'Aiyana Begay',      UserRole::Member,          210, 14,   false],
+            ['user.06', 'Tomohiro Sato',     UserRole::Member,          365, 30,   false],
+            ['user.07', 'Beatrice DuPont',   UserRole::Host,            180, 2,    false],
+            ['user.08', 'Rashid Al-Mansoor', UserRole::Host,             62, 6,    false],
+            ['user.09', 'Elena Petrova',     UserRole::Admin,           300, 1,    false],
+            ['user.10', 'Kwame Boateng',     UserRole::MemberSpecialist, 95, 4,    false],
+            ['user.11', 'Robin Hayes',       UserRole::Traveler,         11, null, false],  // never logged in
+            ['user.12', 'Quincy Carter',     UserRole::Traveler,        540, 220,  true],   // deactivated
+        ];
+
+        $created = 0;
+        $skipped = 0;
+        foreach ($synthetic as [$local, $name, $role, $daysCreated, $daysLogin, $deactivated]) {
+            $email = $local . self::DOMAIN;
+            $createdAt = Carbon::now()->subDays($daysCreated);
+            $lastLogin = $daysLogin === null ? null : Carbon::now()->subDays($daysLogin);
+            $deactivatedAt = $deactivated ? Carbon::now()->subDays(max(1, (int) round($daysLogin / 2))) : null;
+
+            $existed = User::where('email', $email)->exists();
+
+            User::updateOrCreate(
+                ['email' => $email],
+                [
+                    'name'                   => $name,
+                    'password'               => self::PASSWORD,  // hashed by cast
+                    'role'                   => $role,
+                    'email_verified_at'      => $createdAt,
+                    'created_at'             => $createdAt,
+                    'updated_at'             => $createdAt,
+                    'last_login_at'          => $lastLogin,
+                    'created_by_user_id'     => $admin->id,
+                    'deactivated_at'         => $deactivatedAt,
+                    'deactivated_by_user_id' => $deactivated ? $admin->id : null,
+                ]
+            );
+
+            $existed ? $skipped++ : $created++;
+        }
+
+        $this->command->info("  ✓ synthetic users  {$created} new, {$skipped} already present (12 total demos beyond the six named personas)");
     }
 }
