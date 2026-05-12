@@ -111,6 +111,17 @@ Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+        // Admin user management (list / create / show / edit / deactivate / reactivate).
+        // Every state-changing action writes to admin_audit_logs via AdminAuditLogService.
+        Route::get('users',                       [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+        Route::get('users/create',                [\App\Http\Controllers\Admin\UserController::class, 'create'])->name('users.create');
+        Route::post('users',                      [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
+        Route::get('users/{user}',                [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+        Route::get('users/{user}/edit',           [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
+        Route::patch('users/{user}',              [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+        Route::post('users/{user}/deactivate',    [\App\Http\Controllers\Admin\UserController::class, 'deactivate'])->name('users.deactivate');
+        Route::post('users/{user}/reactivate',    [\App\Http\Controllers\Admin\UserController::class, 'reactivate'])->name('users.reactivate');
+
         Route::get('contracts',                  [AdminContractController::class, 'index'])->name('contracts.index');
         Route::get('contracts/create',           [AdminContractController::class, 'create'])->name('contracts.create');
         Route::post('contracts',                 [AdminContractController::class, 'store'])->name('contracts.store');

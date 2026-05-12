@@ -21,9 +21,9 @@
                 <div class="vyt-tile-label">Open disputes</div>
                 <span class="vyt-tile-value t-red">{{ $disputesOpen }}</span>
             </div>
-            <a class="vyt-tile" href="/help">
-                <div class="vyt-tile-label">Help articles</div>
-                <span class="vyt-tile-value t-purple">{{ $helpArticleCount }}</span>
+            <a class="vyt-tile" href="{{ route('admin.users.index') }}">
+                <div class="vyt-tile-label">Manage users</div>
+                <span class="vyt-tile-value t-purple">{{ $usersByRole?->sum() ?? 0 }}</span>
             </a>
         </div>
     </section>

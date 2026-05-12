@@ -37,6 +37,13 @@ class TrackAuthEvents
             request: $this->request,
             sessionId: session()->getId(),
         ));
+
+        // Cache "last seen" on the user row so the admin user-mgmt table
+        // can sort + display without joining login_sessions. login_sessions
+        // remains the audit source of truth; this is a fast-query view.
+        if ($event->user instanceof User) {
+            $this->safe(fn () => $event->user->forceFill(['last_login_at' => now()])->saveQuietly());
+        }
     }
 
     public function handleLogout(Logout $event): void

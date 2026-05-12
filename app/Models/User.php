@@ -19,6 +19,10 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'deactivated_at',
+        'deactivated_by_user_id',
+        'created_by_user_id',
+        'last_login_at',
     ];
 
     protected $hidden = [
@@ -36,7 +40,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'deactivated_at' => 'datetime',
+            'last_login_at' => 'datetime',
         ];
+    }
+
+    /** Active = `deactivated_at` is null. Deactivated users still exist as rows. */
+    public function isActive(): bool
+    {
+        return $this->deactivated_at === null;
+    }
+
+    /** Returns true if the user has any role at or above admin. */
+    public function isStaff(): bool
+    {
+        return $this->isAdmin() || $this->isMemberSpecialist();
     }
 
     public function isAdmin(): bool
