@@ -21,3 +21,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Claude Code local config (worktrees, scheduled tasks, etc.)
+/.claude

@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Enums\PropertyStatus;
 use App\Models\Amenity;
 use App\Models\Property;
+use App\Models\PropertyView;
+use App\Services\GeoIp\GeoIpService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Throwable;
 
 /**
  * Public web surface for browsing and viewing properties.
@@ -129,7 +133,7 @@ class PropertyBrowseController extends Controller
         ]);
     }
 
-    public function show(Property $property): View
+    public function show(Property $property, Request $request, GeoIpService $geoIp): View
     {
         if ($property->status !== PropertyStatus::Active) {
             abort(404);
@@ -137,8 +141,62 @@ class PropertyBrowseController extends Controller
 
         $property->load(['amenities', 'photos' => fn ($q) => $q->orderBy('sort_order'), 'host:id,name']);
 
-        return view('properties.show', [
+        $this->recordView($property, $request, $geoIp);
+
+        $response = view('properties.show', [
             'property' => $property,
         ]);
+
+        // Ensure the visitor_id cookie persists across visits.
+        if (! $request->cookie('vyt_visitor')) {
+            cookie()->queue(cookie()->forever('vyt_visitor', $request->attributes->get('vyt_visitor_id') ?? (string) Str::uuid()));
+        }
+
+        return $response;
+    }
+
+    /**
+     * Write a property_views row for the current request, deduped within a
+     * 30-minute window per (property_id, visitor_id) so a refresh doesn't
+     * inflate the count. Wrapped in try/catch — analytics must never break
+     * page rendering (FR-10.5, same rule as login tracking).
+     */
+    private function recordView(Property $property, Request $request, GeoIpService $geoIp): void
+    {
+        try {
+            $visitorId = $request->cookie('vyt_visitor');
+            if (! $visitorId) {
+                $visitorId = (string) Str::uuid();
+                $request->attributes->set('vyt_visitor_id', $visitorId);
+            }
+
+            $recent = PropertyView::query()
+                ->where('property_id', $property->id)
+                ->where('visitor_id', $visitorId)
+                ->where('occurred_at', '>=', now()->subMinutes(30))
+                ->exists();
+            if ($recent) {
+                return;
+            }
+
+            $geo = $geoIp->lookup($request->ip());
+
+            PropertyView::create([
+                'property_id'    => $property->id,
+                'viewer_user_id' => $request->user()?->id,
+                'visitor_id'     => $visitorId,
+                'ip_address'     => $request->ip(),
+                'country'        => $geo->country,
+                'region'         => $geo->region,
+                'city'           => $geo->city,
+                'latitude'       => $geo->latitude,
+                'longitude'      => $geo->longitude,
+                'user_agent'     => substr((string) $request->userAgent(), 0, 512),
+                'occurred_at'    => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
+            // Never rethrow — tracking failures must not break the page.
+        }
     }
 }

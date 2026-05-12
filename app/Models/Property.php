@@ -70,4 +70,18 @@ class Property extends Model
     {
         return $this->hasMany(PropertyPhoto::class)->orderBy('sort_order');
     }
+
+    public function views(): HasMany
+    {
+        return $this->hasMany(PropertyView::class);
+    }
+
+    /**
+     * The members-enquiry this listing was converted from (managed-listing path).
+     * Null for normal host-listed properties (listing_source = 'host').
+     */
+    public function convertedFromEnquiry(): BelongsTo
+    {
+        return $this->belongsTo(MemberEnquiry::class, 'converted_from_enquiry_id');
+    }
 }

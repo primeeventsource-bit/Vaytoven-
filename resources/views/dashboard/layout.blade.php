@@ -143,6 +143,7 @@
         .vyt-kv .v.danger { color:#b91c1c; }
         .vyt-kv .h { font-family:'SFMono-Regular',Consolas,monospace; font-size: 11.5px; color: var(--muted); }
     </style>
+    @stack('head')
 </head>
 <body>
     @include('partials.top-nav')
@@ -162,5 +163,6 @@
     <main class="vyt-shell">
         @yield('content')
     </main>
+    @stack('scripts')
 </body>
 </html>
