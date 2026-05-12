@@ -175,47 +175,64 @@
                     try { byListing = JSON.parse(mapEl.dataset.pinsByListing || '{}'); } catch (e) {}
                     if (!allPins.length) return;
 
-                    // Americas-only bounds (US + Canada + Mexico + Central + South America).
-                    // maxBoundsViscosity:1 keeps the user inside the box — pan past the
-                    // edge and the map snaps back. minZoom:2 prevents zooming out so far
-                    // that the bound becomes pointless.
-                    var AMERICAS_BOUNDS = L.latLngBounds([[-58, -170], [75, -25]]);
-
+                    // World map (no bounds restriction — reverted from Americas-only
+                    // per user request). Sensible initial view so the first
+                    // renderPins() call can fitBounds without "Set map center and
+                    // zoom first."
                     var map = L.map(mapEl, {
                         scrollWheelZoom: false,
                         zoomControl: true,
-                        center: [15, -90],   // Central-America-ish — covers N + S nicely
-                        zoom: 3,
-                        minZoom: 2,
-                        maxBounds: AMERICAS_BOUNDS,
-                        maxBoundsViscosity: 1.0,
-                        worldCopyJump: false,
+                        center: [20, 0],
+                        zoom: 2,
+                        minZoom: 1,
                     });
 
-                    // Defensive: if the container wasn't fully laid out yet when L.map
-                    // ran (font-loading reflow, etc.), Leaflet's internal _size cache
-                    // can be wrong → tile fetches get the wrong viewport and the map
-                    // ends up gray with markers but no tiles. invalidateSize() forces
-                    // a recompute. Cheap if it wasn't needed; necessary if it was.
+                    // Defensive: container reflow can leave Leaflet's _size cache
+                    // stale at boot → tile fetches use the wrong viewport and the
+                    // map paints gray. invalidateSize() forces a recompute.
                     setTimeout(function () { map.invalidateSize(); }, 0);
                     setTimeout(function () { map.invalidateSize(); }, 250);
 
-                    // Prefer Mapbox tiles when a public token is wired; fall back to OSM.
+                    // OSM tile layer factory — always available as the fallback.
+                    function osmLayer() {
+                        return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        });
+                    }
+
+                    // Prefer Mapbox tiles when a public token is wired. If Mapbox
+                    // rejects the request (401 — common when the token's URL
+                    // referrer restrictions don't include the deployed origin) we
+                    // swap to OSM on the first tileerror so the map still renders.
                     var mbToken = mapEl.dataset.mapboxToken;
                     var mbStyle = mapEl.dataset.mapboxStyle || 'mapbox/light-v11';
+                    var tileLayer;
                     if (mbToken) {
-                        L.tileLayer(
+                        tileLayer = L.tileLayer(
                             'https://api.mapbox.com/styles/v1/' + mbStyle + '/tiles/512/{z}/{x}/{y}@2x?access_token=' + mbToken,
                             {
                                 tileSize: 512, zoomOffset: -1, maxZoom: 19,
                                 attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                             }
-                        ).addTo(map);
+                        );
+                        var swapped = false;
+                        tileLayer.on('tileerror', function (e) {
+                            // First failure → swap to OSM. Likely a 401 from a
+                            // public token whose URL referrer restrictions don't
+                            // include this origin. Swap once; subsequent errors
+                            // are ignored to avoid a loop.
+                            if (swapped) return;
+                            swapped = true;
+                            try { map.removeLayer(tileLayer); } catch (err) {}
+                            osmLayer().addTo(map);
+                            if (window.console) {
+                                console.warn('Mapbox tiles failed (probably token URL-referrer restrictions). Falling back to OpenStreetMap.');
+                            }
+                        });
+                        tileLayer.addTo(map);
                     } else {
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            maxZoom: 19,
-                            attribution: '&copy; OpenStreetMap'
-                        }).addTo(map);
+                        osmLayer().addTo(map);
                     }
 
                     // Single layer group we clear + repopulate when the active
@@ -259,31 +276,22 @@
                             bounds.push([p.lat, p.lng]);
                         });
 
-                        // For a single pin, set a comfortable zoom; otherwise fit to
-                        // bounds — clamped to the Americas viewport so a pin outside
-                        // doesn't pull the map off-region. Initial paint uses
-                        // setView/fitBounds (no animation); subsequent filter changes
-                        // use the animated flyTo equivalents.
+                        // For a single pin, set a comfortable zoom; otherwise fit
+                        // to the natural bounds. Initial paint uses setView/fitBounds
+                        // (no animation; works even before the map has a view set);
+                        // subsequent filter changes use the animated flyTo equivalents.
                         var animate = opts.animate !== false;
                         if (bounds.length === 1) {
-                            var pt = bounds[0];
                             if (animate) {
-                                map.flyTo(pt, 5, { duration: 0.7 });
+                                map.flyTo(bounds[0], 5, { duration: 0.7 });
                             } else {
-                                map.setView(pt, 5);
+                                map.setView(bounds[0], 5);
                             }
                         } else {
-                            // Constrain the fit to Americas-only so we don't end up
-                            // zoomed out to the whole world when a single pin happens
-                            // to fall outside the region.
-                            var fitBounds = L.latLngBounds(bounds);
-                            if (! AMERICAS_BOUNDS.contains(fitBounds)) {
-                                fitBounds = AMERICAS_BOUNDS;
-                            }
                             if (animate) {
-                                map.flyToBounds(fitBounds, { padding: [30, 30], maxZoom: 7, duration: 0.7 });
+                                map.flyToBounds(bounds, { padding: [30, 30], maxZoom: 7, duration: 0.7 });
                             } else {
-                                map.fitBounds(fitBounds, { padding: [30, 30], maxZoom: 7 });
+                                map.fitBounds(bounds, { padding: [30, 30], maxZoom: 7 });
                             }
                         }
                     }
