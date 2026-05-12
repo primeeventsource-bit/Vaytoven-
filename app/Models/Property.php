@@ -53,6 +53,9 @@ class Property extends Model
             'minimum_nights' => 'integer',
             'status' => PropertyStatus::class,
             'cancellation_policy' => CancellationPolicy::class,
+            // Vacation Club Exchange Detection snapshot — written by
+            // ExchangeDetectionObserver when listing_source = 'managed'.
+            'exchange_detection' => 'array',
         ];
     }
 

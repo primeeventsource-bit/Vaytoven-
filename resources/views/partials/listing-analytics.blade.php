@@ -175,7 +175,15 @@
                     try { byListing = JSON.parse(mapEl.dataset.pinsByListing || '{}'); } catch (e) {}
                     if (!allPins.length) return;
 
-                    var map = L.map(mapEl, { scrollWheelZoom: false, zoomControl: true });
+                    // Initialise with a sensible world view so the FIRST
+                    // renderPins() call can use flyToBounds without Leaflet
+                    // throwing "Set map center and zoom first."
+                    var map = L.map(mapEl, {
+                        scrollWheelZoom: false,
+                        zoomControl: true,
+                        center: [20, 0],
+                        zoom: 2,
+                    });
 
                     // Prefer Mapbox tiles when a public token is wired; fall back to OSM.
                     var mbToken = mapEl.dataset.mapboxToken;
@@ -237,11 +245,22 @@
                         });
 
                         // For a single pin, set a comfortable zoom; otherwise fit to bounds.
+                        // Initial paint uses setView/fitBounds (no animation; works
+                        // even before the map has a view set). Subsequent filter
+                        // changes use the animated flyTo equivalents.
                         var animate = opts.animate !== false;
                         if (bounds.length === 1) {
-                            map.flyTo(bounds[0], 5, { duration: animate ? 0.7 : 0 });
+                            if (animate) {
+                                map.flyTo(bounds[0], 5, { duration: 0.7 });
+                            } else {
+                                map.setView(bounds[0], 5);
+                            }
                         } else {
-                            map.flyToBounds(bounds, { padding: [30, 30], maxZoom: 7, duration: animate ? 0.7 : 0 });
+                            if (animate) {
+                                map.flyToBounds(bounds, { padding: [30, 30], maxZoom: 7, duration: 0.7 });
+                            } else {
+                                map.fitBounds(bounds, { padding: [30, 30], maxZoom: 7 });
+                            }
                         }
                     }
 

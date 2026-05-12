@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             AmenitiesSeeder::class,
             HelpArticleSeeder::class,
             LegalDocumentSeeder::class,
+            ExchangeNetworksSeeder::class,
             PropertySeeder::class,
         ]);
     }

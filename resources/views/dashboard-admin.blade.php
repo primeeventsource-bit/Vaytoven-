@@ -101,16 +101,33 @@
                             <th>Reference</th>
                             <th>Name</th>
                             <th>Club</th>
+                            <th>Banking / Exchange Group</th>
                             <th>Status</th>
                             <th>Submitted</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($enquiriesRecent as $enquiry)
+                            @php($det = $enquiry->exchange_detection)
                             <tr>
                                 <td><span class="vyt-mono">{{ $enquiry->reference }}</span></td>
                                 <td>{{ $enquiry->fullName() }}</td>
                                 <td class="vyt-faint">{{ $enquiry->club }}</td>
+                                <td>
+                                    @if ($det && ! empty($det['matches']))
+                                        @php($top = $det['matches'][0])
+                                        <span class="vyt-pill" title="{{ $top['confidence'] }}% confidence">{{ $top['exchange_name'] }}</span>
+                                        @if ($det['status'] === 'needs_review')
+                                            <span class="vyt-pill" style="background:#fffbeb;color:#92400e;margin-left:4px;" title="Multiple matches — needs human confirmation">needs review</span>
+                                        @elseif ($det['status'] === 'confirmed')
+                                            <span class="vyt-pill" style="background:#ecfdf5;color:#047857;margin-left:4px;">confirmed</span>
+                                        @endif
+                                    @elseif ($det && $det['status'] === 'no_match')
+                                        <span class="vyt-faint">no match</span>
+                                    @else
+                                        <span class="vyt-faint">—</span>
+                                    @endif
+                                </td>
                                 <td><span class="vyt-pill">{{ $enquiry->status->value }}</span></td>
                                 <td class="vyt-faint">{{ $enquiry->created_at?->diffForHumans() }}</td>
                             </tr>

@@ -31,8 +31,12 @@ class MemberEnquiry extends Model
     ];
 
     protected $casts = [
-        'consented_at' => 'datetime',
-        'status'       => MemberEnquiryStatus::class,
+        'consented_at'       => 'datetime',
+        'status'             => MemberEnquiryStatus::class,
+        // Vacation Club Exchange Detection snapshot — written by
+        // ExchangeDetectionObserver on create. See the migration for the
+        // canonical shape.
+        'exchange_detection' => 'array',
     ];
 
     protected static function booted(): void

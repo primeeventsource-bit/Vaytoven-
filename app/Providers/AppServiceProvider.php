@@ -122,5 +122,11 @@ $this->app->singleton(GeoIpService::class, function ($app) {
         // event auto-discovery (any class in app/Listeners/ with a subscribe()
         // method gets registered). Don't call Event::subscribe() here — that
         // causes the listener to fire twice for each auth event.
+
+        // Vacation Club Exchange Detection — fires on every new member
+        // enquiry, and on managed-listing property creates. Observer is
+        // wrapped in try/catch so detection failures never block creates.
+        \App\Models\MemberEnquiry::observe(\App\Observers\ExchangeDetectionObserver::class);
+        \App\Models\Property::observe(\App\Observers\ExchangeDetectionObserver::class);
     }
 }
