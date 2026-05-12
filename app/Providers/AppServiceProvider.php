@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Services\DocuSign\DocuSignClient;
 use App\Services\DocuSign\WebhookVerifier;
 use App\Services\GeoIp\CachedGeoIpService;
+use App\Services\GeoIp\CloudflareHeaderGeoIpService;
 use App\Services\GeoIp\GeoIpService;
 use App\Services\GeoIp\MaxMindGeoIpService;
 use App\Services\GeoIp\NoOpGeoIpService;
@@ -87,18 +88,31 @@ class AppServiceProvider extends ServiceProvider
             return new HttpSlackNotifier($app->make(HttpFactory::class), $url);
         });
 
-        $this->app->singleton(GeoIpService::class, function ($app) {
+$this->app->singleton(GeoIpService::class, function ($app) {
             $cityPath = config('services.maxmind.mmdb_path');
             $anonPath = config('services.maxmind.anonymous_mmdb_path');
 
-            $upstream = ($cityPath && is_readable($cityPath))
-                ? new MaxMindGeoIpService($cityPath, $anonPath)
-                : new NoOpGeoIpService();
+            // Precedence: MaxMind (richest data, when configured) →
+            //             Cloudflare headers (free, when behind CF) →
+            //             NoOp (tests, or when explicitly disabled).
+            //
+            // MaxMind is cached (lookups against a binary DB are expensive
+            // and IP→geo is stable per IP). Cloudflare is NOT cached: its
+            // result derives from per-request headers, and the cache key
+            // (the IP) doesn't capture that — caching could pin an empty
+            // result from a CLI/queue context for an hour.
+            if ($cityPath && is_readable($cityPath)) {
+                return new CachedGeoIpService(
+                    new MaxMindGeoIpService($cityPath, $anonPath),
+                    $app->make(CacheRepository::class),
+                );
+            }
 
-            return new CachedGeoIpService(
-                $upstream,
-                $app->make(CacheRepository::class),
-            );
+            if (env('GEOIP_DISABLE_CLOUDFLARE', false)) {
+                return new NoOpGeoIpService();
+            }
+
+            return new CloudflareHeaderGeoIpService();
         });
     }
 
