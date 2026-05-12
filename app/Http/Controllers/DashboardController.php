@@ -116,6 +116,7 @@ class DashboardController extends Controller
                 'uniqueCountries' => 0,
                 'perListingStats' => [],
                 'pinPoints'       => [],
+                'pinsByListing'   => [],
             ];
         }
 
@@ -162,24 +163,43 @@ class DashboardController extends Controller
 
         // Pin aggregation for the map. Group by (lat, lng) rounded so visits
         // from the same metro stack into one pin rather than scattering.
-        $pinPoints = PropertyView::query()
-            ->whereIn('property_id', $ids)
-            ->where('occurred_at', '>=', $cutoff30)
+        $aggregate = fn ($q) => $q
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->selectRaw('round(latitude, 1) as lat, round(longitude, 1) as lng, city, country, count(*) as c')
             ->groupBy('lat', 'lng', 'city', 'country')
-            ->orderByDesc('c')
+            ->orderByDesc('c');
+
+        $shape = fn ($r) => [
+            'lat'     => (float) $r->lat,
+            'lng'     => (float) $r->lng,
+            'city'    => $r->city,
+            'country' => $r->country,
+            'count'   => (int) $r->c,
+        ];
+
+        // Global pins (default map view across all listings).
+        $pinPoints = $aggregate(PropertyView::query()
+                ->whereIn('property_id', $ids)
+                ->where('occurred_at', '>=', $cutoff30))
             ->limit(200)
             ->get()
-            ->map(fn ($r) => [
-                'lat'     => (float) $r->lat,
-                'lng'     => (float) $r->lng,
-                'city'    => $r->city,
-                'country' => $r->country,
-                'count'   => (int) $r->c,
-            ])
+            ->map($shape)
             ->all();
+
+        // Per-listing pins so clicking a listing row in the table can zoom
+        // the map to just that listing's visitor cities (FR-12.x analytics
+        // drill-down). Keyed by property_id for cheap JS lookup.
+        $pinsByListing = [];
+        foreach ($listings as $listing) {
+            $pinsByListing[(string) $listing->id] = $aggregate(PropertyView::query()
+                    ->where('property_id', $listing->id)
+                    ->where('occurred_at', '>=', $cutoff30))
+                ->limit(100)
+                ->get()
+                ->map($shape)
+                ->all();
+        }
 
         return [
             'totalViews30d'   => $totalViews30d,
@@ -187,6 +207,7 @@ class DashboardController extends Controller
             'uniqueCountries' => $uniqueCountries,
             'perListingStats' => $perListingStats,
             'pinPoints'       => $pinPoints,
+            'pinsByListing'   => $pinsByListing,
             // Only expose a Mapbox PUBLIC token (pk.*) to the browser. Secret
             // tokens (sk.*) have scopes like manage-uploads / create-tokens
             // and must never leave the server — if env contains one, fall

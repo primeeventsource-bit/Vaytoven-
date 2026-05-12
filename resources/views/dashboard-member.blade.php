@@ -32,6 +32,7 @@
         'uniqueCountries' => $uniqueCountries,
         'perListingStats' => $perListingStats,
         'pinPoints'       => $pinPoints,
+        'pinsByListing'   => $pinsByListing,
         'mapboxToken'     => $mapboxToken,
         'mapboxStyle'     => $mapboxStyle,
     ])
