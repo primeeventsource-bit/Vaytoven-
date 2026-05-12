@@ -175,15 +175,30 @@
                     try { byListing = JSON.parse(mapEl.dataset.pinsByListing || '{}'); } catch (e) {}
                     if (!allPins.length) return;
 
-                    // Initialise with a sensible world view so the FIRST
-                    // renderPins() call can use flyToBounds without Leaflet
-                    // throwing "Set map center and zoom first."
+                    // Americas-only bounds (US + Canada + Mexico + Central + South America).
+                    // maxBoundsViscosity:1 keeps the user inside the box — pan past the
+                    // edge and the map snaps back. minZoom:2 prevents zooming out so far
+                    // that the bound becomes pointless.
+                    var AMERICAS_BOUNDS = L.latLngBounds([[-58, -170], [75, -25]]);
+
                     var map = L.map(mapEl, {
                         scrollWheelZoom: false,
                         zoomControl: true,
-                        center: [20, 0],
-                        zoom: 2,
+                        center: [15, -90],   // Central-America-ish — covers N + S nicely
+                        zoom: 3,
+                        minZoom: 2,
+                        maxBounds: AMERICAS_BOUNDS,
+                        maxBoundsViscosity: 1.0,
+                        worldCopyJump: false,
                     });
+
+                    // Defensive: if the container wasn't fully laid out yet when L.map
+                    // ran (font-loading reflow, etc.), Leaflet's internal _size cache
+                    // can be wrong → tile fetches get the wrong viewport and the map
+                    // ends up gray with markers but no tiles. invalidateSize() forces
+                    // a recompute. Cheap if it wasn't needed; necessary if it was.
+                    setTimeout(function () { map.invalidateSize(); }, 0);
+                    setTimeout(function () { map.invalidateSize(); }, 250);
 
                     // Prefer Mapbox tiles when a public token is wired; fall back to OSM.
                     var mbToken = mapEl.dataset.mapboxToken;
@@ -244,22 +259,31 @@
                             bounds.push([p.lat, p.lng]);
                         });
 
-                        // For a single pin, set a comfortable zoom; otherwise fit to bounds.
-                        // Initial paint uses setView/fitBounds (no animation; works
-                        // even before the map has a view set). Subsequent filter
-                        // changes use the animated flyTo equivalents.
+                        // For a single pin, set a comfortable zoom; otherwise fit to
+                        // bounds — clamped to the Americas viewport so a pin outside
+                        // doesn't pull the map off-region. Initial paint uses
+                        // setView/fitBounds (no animation); subsequent filter changes
+                        // use the animated flyTo equivalents.
                         var animate = opts.animate !== false;
                         if (bounds.length === 1) {
+                            var pt = bounds[0];
                             if (animate) {
-                                map.flyTo(bounds[0], 5, { duration: 0.7 });
+                                map.flyTo(pt, 5, { duration: 0.7 });
                             } else {
-                                map.setView(bounds[0], 5);
+                                map.setView(pt, 5);
                             }
                         } else {
+                            // Constrain the fit to Americas-only so we don't end up
+                            // zoomed out to the whole world when a single pin happens
+                            // to fall outside the region.
+                            var fitBounds = L.latLngBounds(bounds);
+                            if (! AMERICAS_BOUNDS.contains(fitBounds)) {
+                                fitBounds = AMERICAS_BOUNDS;
+                            }
                             if (animate) {
-                                map.flyToBounds(bounds, { padding: [30, 30], maxZoom: 7, duration: 0.7 });
+                                map.flyToBounds(fitBounds, { padding: [30, 30], maxZoom: 7, duration: 0.7 });
                             } else {
-                                map.fitBounds(bounds, { padding: [30, 30], maxZoom: 7 });
+                                map.fitBounds(fitBounds, { padding: [30, 30], maxZoom: 7 });
                             }
                         }
                     }

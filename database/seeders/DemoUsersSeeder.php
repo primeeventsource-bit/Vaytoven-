@@ -346,15 +346,20 @@ class DemoUsersSeeder extends Seeder
             return;
         }
 
-        // City → [country, lat, lng, weight]. Weights sum loosely to 180.
+        // Americas-only city set so seeded pins fit the map's restricted
+        // bounds (US, Canada, Mexico, Central + South America). Weights
+        // sum loosely to 180 with realistic N→S distribution.
         $cities = [
-            ['city' => 'Newark',        'region' => 'NJ', 'country' => 'US', 'lat' => 40.7357, 'lng' => -74.1724, 'count' => 40],
-            ['city' => 'San Francisco', 'region' => 'CA', 'country' => 'US', 'lat' => 37.7749, 'lng' => -122.4194, 'count' => 35],
-            ['city' => 'London',        'region' => 'England', 'country' => 'GB', 'lat' => 51.5074, 'lng' => -0.1278, 'count' => 30],
-            ['city' => 'Tokyo',         'region' => 'Tokyo', 'country' => 'JP', 'lat' => 35.6762, 'lng' => 139.6503, 'count' => 25],
-            ['city' => 'Sydney',        'region' => 'NSW', 'country' => 'AU', 'lat' => -33.8688, 'lng' => 151.2093, 'count' => 20],
-            ['city' => 'São Paulo',     'region' => 'SP', 'country' => 'BR', 'lat' => -23.5505, 'lng' => -46.6333, 'count' => 18],
-            ['city' => 'Toronto',       'region' => 'ON', 'country' => 'CA', 'lat' => 43.6532, 'lng' => -79.3832, 'count' => 12],
+            ['city' => 'Newark',        'region' => 'NJ', 'country' => 'US', 'lat' => 40.7357,  'lng' => -74.1724,  'count' => 32],
+            ['city' => 'San Francisco', 'region' => 'CA', 'country' => 'US', 'lat' => 37.7749,  'lng' => -122.4194, 'count' => 28],
+            ['city' => 'Chicago',       'region' => 'IL', 'country' => 'US', 'lat' => 41.8781,  'lng' => -87.6298,  'count' => 22],
+            ['city' => 'Miami',         'region' => 'FL', 'country' => 'US', 'lat' => 25.7617,  'lng' => -80.1918,  'count' => 18],
+            ['city' => 'Toronto',       'region' => 'ON', 'country' => 'CA', 'lat' => 43.6532,  'lng' => -79.3832,  'count' => 20],
+            ['city' => 'Vancouver',     'region' => 'BC', 'country' => 'CA', 'lat' => 49.2827,  'lng' => -123.1207, 'count' => 12],
+            ['city' => 'Mexico City',   'region' => 'CDMX', 'country' => 'MX', 'lat' => 19.4326, 'lng' => -99.1332, 'count' => 18],
+            ['city' => 'São Paulo',     'region' => 'SP', 'country' => 'BR', 'lat' => -23.5505, 'lng' => -46.6333,  'count' => 14],
+            ['city' => 'Buenos Aires',  'region' => 'BA', 'country' => 'AR', 'lat' => -34.6037, 'lng' => -58.3816,  'count' => 10],
+            ['city' => 'Lima',          'region' => 'Lima', 'country' => 'PE', 'lat' => -12.0464, 'lng' => -77.0428, 'count' => 8],
         ];
 
         $rows = [];
