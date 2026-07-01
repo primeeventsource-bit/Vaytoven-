@@ -722,17 +722,6 @@
                 </li>
             </ol>
         </div>
-
-        <div class="trust-panel">
-            <svg class="trust-shield" viewBox="0 0 96 110" fill="none">
-                <path d="M48 4 L88 20 L88 56 C88 80 70 100 48 106 C26 100 8 80 8 56 L8 20 Z" stroke="rgba(255,255,255,.4)" stroke-width="2" fill="rgba(255,61,138,.08)"/>
-                <path d="M30 56 L42 68 L66 44" stroke="#FF3D8A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <div>
-                <h3>Backed by a $1M trip protection guarantee.</h3>
-                <p>If a stay doesn't match what was booked, we relocate you within 24 hours and refund the difference. Always.</p>
-            </div>
-        </div>
     </div>
 </section>
 

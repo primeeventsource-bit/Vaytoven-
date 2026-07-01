@@ -3,7 +3,15 @@
 return [
     'postmark' => ['token' => env('POSTMARK_TOKEN')],
     'ses' => ['key' => env('AWS_ACCESS_KEY_ID'), 'secret' => env('AWS_SECRET_ACCESS_KEY'), 'region' => env('AWS_DEFAULT_REGION', 'us-east-1')],
-    'stripe' => ['secret' => env('STRIPE_SECRET'), 'webhook_secret' => env('STRIPE_WEBHOOK_SECRET')],
+    'stripe' => [
+        // Publishable key — handed to Stripe.js / Elements in the browser.
+        // Without it, stripeConfigured() stays false and the booking flow
+        // never leaves demo mode no matter what the secret key is set to.
+        'key'               => env('STRIPE_KEY'),
+        'secret'            => env('STRIPE_SECRET'),
+        'webhook_secret'    => env('STRIPE_WEBHOOK_SECRET'),
+        'connect_client_id' => env('STRIPE_CONNECT_CLIENT_ID'),
+    ],
 
     // Anthropic Claude — AI Support Chat (Phase 7). When ANTHROPIC_API_KEY is
     // unset the controller returns 503 with a generic graceful fallback message.
