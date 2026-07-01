@@ -67,7 +67,9 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamps();
 
-            $table->unique(['developer_id', 'exchange_network_id']);
+            // Explicit short name: the auto-generated one exceeds MySQL's
+            // 64-char identifier limit (SQLite quietly allows it).
+            $table->unique(['developer_id', 'exchange_network_id'], 'dev_exchange_mappings_unique');
         });
 
         // Per-row detection snapshot. Stored as JSON so the result remains
