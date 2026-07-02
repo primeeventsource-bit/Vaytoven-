@@ -3,14 +3,18 @@
 return [
     'postmark' => ['token' => env('POSTMARK_TOKEN')],
     'ses' => ['key' => env('AWS_ACCESS_KEY_ID'), 'secret' => env('AWS_SECRET_ACCESS_KEY'), 'region' => env('AWS_DEFAULT_REGION', 'us-east-1')],
-    'stripe' => [
-        // Publishable key — handed to Stripe.js / Elements in the browser.
-        // Without it, stripeConfigured() stays false and the booking flow
-        // never leaves demo mode no matter what the secret key is set to.
-        'key'               => env('STRIPE_KEY'),
-        'secret'            => env('STRIPE_SECRET'),
-        'webhook_secret'    => env('STRIPE_WEBHOOK_SECRET'),
-        'connect_client_id' => env('STRIPE_CONNECT_CLIENT_ID'),
+    // NMI payment gateway (replaced Stripe, 2026-07). Collect.js tokenizes
+    // the card in the browser with the PUBLIC tokenization_key; the private
+    // security_key authenticates server-side Payment API calls (sale, refund,
+    // Customer Vault). Both must be set or the booking flow stays in demo
+    // mode. webhook_signing_key comes from the merchant portal when the
+    // webhook endpoint is registered.
+    'nmi' => [
+        'security_key'        => env('NMI_SECURITY_KEY'),
+        'tokenization_key'    => env('NMI_TOKENIZATION_KEY'),
+        'webhook_signing_key' => env('NMI_WEBHOOK_SIGNING_KEY'),
+        'endpoint'            => env('NMI_ENDPOINT', 'https://secure.nmi.com/api/transact.php'),
+        'collect_js_url'      => env('NMI_COLLECT_JS_URL', 'https://secure.nmi.com/token/Collect.js'),
     ],
 
     // Anthropic Claude — AI Support Chat (Phase 7). When ANTHROPIC_API_KEY is

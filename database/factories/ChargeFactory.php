@@ -16,8 +16,8 @@ class ChargeFactory extends Factory
         return [
             'payment_intent_id' => PaymentIntent::factory(),
             'booking_id' => Booking::factory(),
-            'processor' => 'stripe',
-            'external_charge_id' => 'ch_'.fake()->unique()->bothify('?????????????'),
+            'processor' => 'nmi',
+            'external_charge_id' => fake()->unique()->numerify('##########'),
             'amount_cents' => fake()->numberBetween(5000, 100000),
             'currency' => 'USD',
             'captured' => true,

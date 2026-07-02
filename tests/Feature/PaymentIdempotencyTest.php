@@ -58,16 +58,16 @@ class PaymentIdempotencyTest extends TestCase
         $booking = Booking::factory()->create();
         PaymentIntent::factory()->create([
             'booking_id' => $booking->id,
-            'processor' => 'stripe',
-            'external_intent_id' => 'pi_duplicate_test',
+            'processor' => 'nmi',
+            'external_intent_id' => 'booking:VYT-DUP-TEST',
         ]);
 
         $this->expectException(QueryException::class);
 
         PaymentIntent::factory()->create([
             'booking_id' => $booking->id,
-            'processor' => 'stripe',
-            'external_intent_id' => 'pi_duplicate_test',
+            'processor' => 'nmi',
+            'external_intent_id' => 'booking:VYT-DUP-TEST',
         ]);
     }
 
@@ -78,11 +78,11 @@ class PaymentIdempotencyTest extends TestCase
      * succeeds the event is processed once; if it fails (unique violation)
      * the handler short-circuits as a no-op.
      */
-    public function test_stripe_event_id_is_unique_for_idempotency(): void
+    public function test_nmi_event_id_is_unique_for_idempotency(): void
     {
-        DB::table('stripe_events')->insert([
+        DB::table('nmi_events')->insert([
             'event_id' => 'evt_idempotency_test',
-            'event_type' => 'payment_intent.succeeded',
+            'event_type' => 'transaction.sale.success',
             'payload' => json_encode(['amount' => 5000]),
             'processed_at' => now(),
             'created_at' => now(),
@@ -91,9 +91,9 @@ class PaymentIdempotencyTest extends TestCase
 
         $this->expectException(QueryException::class);
 
-        DB::table('stripe_events')->insert([
+        DB::table('nmi_events')->insert([
             'event_id' => 'evt_idempotency_test',  // same event_id — replay
-            'event_type' => 'payment_intent.succeeded',
+            'event_type' => 'transaction.sale.success',
             'payload' => json_encode(['amount' => 5000]),
             'processed_at' => now(),
             'created_at' => now(),
@@ -121,7 +121,7 @@ class PaymentIdempotencyTest extends TestCase
         $payout = HostPayoutAccount::factory()->create();
 
         $this->assertNotNull($payout->host);
-        $this->assertSame('stripe', $payout->processor->value);
+        $this->assertSame('nmi', $payout->processor->value);
         $this->assertTrue($payout->payouts_enabled);
     }
 }

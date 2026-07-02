@@ -25,7 +25,7 @@
 <p>To run the Service, complete bookings, process payments and refunds, prevent fraud, defend chargebacks, communicate with you, and improve product quality. Login and consumption records also support our Service Usage Confirmation evidence (see Chargeback Policy).</p>
 
 <h2 id="sharing">3. Who we share it with</h2>
-<p>Payment processors (Stripe, etc.), email and SMS providers, fraud prevention vendors, and service providers acting on our behalf under written contracts. We do not sell your personal information.</p>
+<p>Payment processors (NMI, etc.), email and SMS providers, fraud prevention vendors, and service providers acting on our behalf under written contracts. We do not sell your personal information.</p>
 <p>We may share information with law enforcement when required by law, and with the issuing bank when responding to a chargeback you have initiated.</p>
 
 <h2 id="retention">4. How long we keep it</h2>

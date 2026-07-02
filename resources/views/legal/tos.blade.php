@@ -33,12 +33,12 @@
 <p>Refund mechanics for each policy are documented in the Vaytoven Help Center. Vaytoven service fees are non-refundable in all cases.</p>
 
 <h2 id="hosting">4. Hosting on Vaytoven</h2>
-<p>Hosts must complete Stripe Connect identity verification (KYC) before charges and payouts are enabled. Hosts grant Vaytoven a non-exclusive licence to display and promote their listings.</p>
+<p>Hosts must complete Vaytoven payout enrollment, including identity verification (KYC), before payouts are enabled. Hosts grant Vaytoven a non-exclusive licence to display and promote their listings.</p>
 <p>Hosts are responsible for compliance with all local short-term-rental laws, including registration, taxation, and any required permits.</p>
 
 <h2 id="payments">5. Payments, fees, refunds</h2>
 <p>Travelers pay a 3% Vaytoven service fee at checkout. Hosts pay a 3% host fee on each booking. Members in the Managed Listing Program pay an upfront weekly program cost (currently in the range of $200&ndash;$800 per week plus applicable taxes, varying by property tier and season) plus a flat program subscription fee, both quoted in writing on the onboarding call before any commitment. All fees are shown clearly before you confirm.</p>
-<p>We use third-party payment processors (Stripe and certain alternates) to process card payments. By transacting on the Service you agree to the processor's terms.</p>
+<p>We use third-party payment processors (NMI and certain alternates) to process card payments. By transacting on the Service you agree to the processor's terms.</p>
 
 <h2 id="chargebacks">6. Chargebacks and disputes</h2>
 <p>Initiating a chargeback without first attempting resolution through Vaytoven Support is a breach of these terms. We reserve the right to compile a record of your access, consumption, and acceptance of these terms (a "Service Usage Confirmation") and to submit it to the issuing bank as evidence in any dispute. See the Chargeback Policy for details.</p>

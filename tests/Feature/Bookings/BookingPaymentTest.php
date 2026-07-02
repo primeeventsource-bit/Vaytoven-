@@ -6,55 +6,40 @@ use App\Enums\BookingStatus;
 use App\Enums\PropertyStatus;
 use App\Enums\UserRole;
 use App\Models\Booking;
+use App\Models\Charge;
 use App\Models\PaymentIntent;
 use App\Models\Property;
 use App\Models\TermsAcceptance;
 use App\Models\User;
 use App\Services\Legal\LegalDocumentRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery;
-use Stripe\Service\PaymentIntentService;
-use Stripe\StripeClient;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class BookingPaymentTest extends TestCase
 {
     use RefreshDatabase;
 
-    private $intents;
+    private const GATEWAY = 'https://secure.nmi.com/api/transact.php';
 
     protected function setUp(): void
     {
         parent::setUp();
         app(LegalDocumentRegistry::class)->materialiseAll();
 
-        // Default: Stripe credentials are present so stripeConfigured() returns true.
-        // Individual demo-mode tests blank these out.
+        // Default: NMI credentials are present so paymentsConfigured() returns
+        // true. Individual demo-mode tests blank these out.
         config([
-            'services.stripe.secret' => 'sk_test_mocked',
-            'services.stripe.key'    => 'pk_test_mocked',
+            'services.nmi.security_key'     => 'nmi_sec_mocked',
+            'services.nmi.tokenization_key' => 'nmi_tok_mocked',
         ]);
-
-        $this->intents = Mockery::mock(PaymentIntentService::class);
-        $stripeClient = Mockery::mock(StripeClient::class)->makePartial();
-        $stripeClient->paymentIntents = $this->intents;
-        $this->app->instance(StripeClient::class, $stripeClient);
     }
 
-    protected function tearDown(): void
+    public function test_store_creates_local_intent_when_nmi_is_live(): void
     {
-        Mockery::close();
-        parent::tearDown();
-    }
-
-    public function test_store_creates_payment_intent_when_stripe_is_live(): void
-    {
+        Http::fake();
         $traveler = $this->makeTraveler();
         $property = $this->makeProperty();
-
-        $this->intents->shouldReceive('create')
-            ->once()
-            ->andReturn($this->stubStripeIntent('pi_live_001', 'pi_live_001_secret_xyz'));
 
         $this->actingAs($traveler)
             ->post(route('bookings.store', $property), [
@@ -68,18 +53,17 @@ class BookingPaymentTest extends TestCase
         $intent = PaymentIntent::sole();
 
         $this->assertSame($booking->id, $intent->booking_id);
-        $this->assertSame('pi_live_001', $intent->external_intent_id);
-        $this->assertSame('pi_live_001_secret_xyz', $intent->client_secret);
+        $this->assertSame("booking:{$booking->confirmation_code}", $intent->external_intent_id);
         $this->assertSame($intent->id, $booking->fresh()->payment_intent_id);
+
+        // Intent creation is local — the gateway is only hit at charge time.
+        Http::assertNothingSent();
     }
 
-    public function test_store_redirects_to_pay_route_when_stripe_is_live(): void
+    public function test_store_redirects_to_pay_route_when_nmi_is_live(): void
     {
         $traveler = $this->makeTraveler();
         $property = $this->makeProperty();
-
-        $this->intents->shouldReceive('create')
-            ->andReturn($this->stubStripeIntent('pi_redirect_test', 'cs_redirect_xyz'));
 
         $resp = $this->actingAs($traveler)
             ->post(route('bookings.store', $property), [
@@ -92,11 +76,9 @@ class BookingPaymentTest extends TestCase
         $resp->assertRedirect(route('bookings.pay', $booking));
     }
 
-    public function test_store_skips_stripe_when_demo_mode(): void
+    public function test_store_skips_intent_when_demo_mode(): void
     {
-        config(['services.stripe.secret' => '', 'services.stripe.key' => '']);
-
-        $this->intents->shouldNotReceive('create');
+        config(['services.nmi.security_key' => '', 'services.nmi.tokenization_key' => '']);
 
         $traveler = $this->makeTraveler();
         $property = $this->makeProperty();
@@ -113,40 +95,18 @@ class BookingPaymentTest extends TestCase
         $this->assertSame(0, PaymentIntent::count());
     }
 
-    public function test_store_falls_back_to_show_when_stripe_throws(): void
+    public function test_pay_page_renders_collect_js_with_tokenization_key(): void
     {
         $traveler = $this->makeTraveler();
-        $property = $this->makeProperty();
-
-        $this->intents->shouldReceive('create')
-            ->andThrow(new \RuntimeException('stripe API down'));
-
-        $this->actingAs($traveler)
-            ->post(route('bookings.store', $property), [
-                'check_in'  => now()->addDays(7)->toDateString(),
-                'check_out' => now()->addDays(9)->toDateString(),
-                'guests'    => 2,
-            ])->assertRedirect();
-
-        // The booking row still exists — we don't lose the reservation when
-        // Stripe is briefly unavailable. The user lands on /bookings/{id}.
-        $booking = Booking::sole();
-        $this->assertSame(BookingStatus::PendingPayment, $booking->status);
-        $this->assertNull($booking->payment_intent_id);
-    }
-
-    public function test_pay_page_renders_stripe_elements_with_client_secret(): void
-    {
-        $traveler = $this->makeTraveler();
-        $booking = $this->makeBooking($traveler, 'pi_pay_render', 'cs_pay_render');
+        $booking = $this->makeBooking($traveler);
 
         $resp = $this->actingAs($traveler)->get(route('bookings.pay', $booking));
 
         $resp->assertOk();
         $resp->assertSee('Confirm and pay');
-        $resp->assertSee('cs_pay_render', false);
-        $resp->assertSee('pk_test_mocked', false);
-        $resp->assertSee('js.stripe.com/v3', false);
+        $resp->assertSee('data-tokenization-key="nmi_tok_mocked"', false);
+        $resp->assertSee('secure.nmi.com/token/Collect.js', false);
+        $resp->assertSee(route('bookings.pay.process', $booking), false);
     }
 
     public function test_pay_page_404s_for_other_users_booking(): void
@@ -154,7 +114,7 @@ class BookingPaymentTest extends TestCase
         $owner = $this->makeTraveler();
         $other = $this->makeTraveler();
 
-        $booking = $this->makeBooking($owner, 'pi_other', 'cs_other');
+        $booking = $this->makeBooking($owner);
 
         $this->actingAs($other)
             ->get(route('bookings.pay', $booking))
@@ -163,7 +123,7 @@ class BookingPaymentTest extends TestCase
 
     public function test_pay_page_redirects_to_show_when_demo_mode(): void
     {
-        config(['services.stripe.secret' => '', 'services.stripe.key' => '']);
+        config(['services.nmi.security_key' => '', 'services.nmi.tokenization_key' => '']);
 
         $traveler = $this->makeTraveler();
         $booking = Booking::factory()->create(['traveler_id' => $traveler->id]);
@@ -176,41 +136,117 @@ class BookingPaymentTest extends TestCase
     public function test_pay_page_redirects_to_show_when_already_confirmed(): void
     {
         $traveler = $this->makeTraveler();
-        $booking = $this->makeBooking($traveler, 'pi_done', 'cs_done', BookingStatus::Confirmed);
+        $booking = $this->makeBooking($traveler, BookingStatus::Confirmed);
 
         $this->actingAs($traveler)
             ->get(route('bookings.pay', $booking))
             ->assertRedirect(route('bookings.show', $booking));
     }
 
-    public function test_show_page_renders_stripe_redirect_status_notice(): void
+    public function test_process_payment_charges_token_and_confirms_booking(): void
     {
+        Http::fake([
+            self::GATEWAY => Http::response('response=1&responsetext=SUCCESS&authcode=123456&transactionid=1234509876&response_code=100', 200),
+        ]);
+
         $traveler = $this->makeTraveler();
-        $booking = $this->makeBooking($traveler, 'pi_redir', 'cs_redir', BookingStatus::Confirmed);
+        $booking = $this->makeBooking($traveler);
 
         $resp = $this->actingAs($traveler)
-            ->get(route('bookings.show', $booking) . '?redirect_status=succeeded');
+            ->post(route('bookings.pay.process', $booking), [
+                'payment_token' => 'tok_collectjs_ok',
+            ]);
+
+        $resp->assertRedirect(route('bookings.show', ['booking' => $booking, 'payment' => 'succeeded']));
+
+        $booking->refresh();
+        $this->assertSame(BookingStatus::Confirmed, $booking->status);
+        $this->assertSame(1, Charge::where('external_charge_id', '1234509876')->count());
+    }
+
+    public function test_process_payment_decline_redirects_back_with_error(): void
+    {
+        Http::fake([
+            self::GATEWAY => Http::response('response=2&responsetext=DECLINE&transactionid=0&response_code=200', 200),
+        ]);
+
+        $traveler = $this->makeTraveler();
+        $booking = $this->makeBooking($traveler);
+
+        $resp = $this->actingAs($traveler)
+            ->post(route('bookings.pay.process', $booking), [
+                'payment_token' => 'tok_declined',
+            ]);
+
+        $resp->assertRedirect(route('bookings.pay', $booking));
+        $resp->assertSessionHas('payment_error');
+
+        $this->assertSame(BookingStatus::PendingPayment, $booking->fresh()->status);
+        $this->assertSame(0, Charge::count());
+    }
+
+    public function test_process_payment_gateway_outage_redirects_back_with_error(): void
+    {
+        Http::fake([
+            self::GATEWAY => Http::response('upstream timeout', 504),
+        ]);
+
+        $traveler = $this->makeTraveler();
+        $booking = $this->makeBooking($traveler);
+
+        $resp = $this->actingAs($traveler)
+            ->post(route('bookings.pay.process', $booking), [
+                'payment_token' => 'tok_outage',
+            ]);
+
+        $resp->assertRedirect(route('bookings.pay', $booking));
+        $resp->assertSessionHas('payment_error');
+        $this->assertSame(BookingStatus::PendingPayment, $booking->fresh()->status);
+    }
+
+    public function test_process_payment_requires_token(): void
+    {
+        Http::fake();
+        $traveler = $this->makeTraveler();
+        $booking = $this->makeBooking($traveler);
+
+        $this->actingAs($traveler)
+            ->post(route('bookings.pay.process', $booking), [])
+            ->assertSessionHasErrors('payment_token');
+
+        Http::assertNothingSent();
+    }
+
+    public function test_process_payment_404s_for_other_users_booking(): void
+    {
+        Http::fake();
+        $owner = $this->makeTraveler();
+        $other = $this->makeTraveler();
+        $booking = $this->makeBooking($owner);
+
+        $this->actingAs($other)
+            ->post(route('bookings.pay.process', $booking), ['payment_token' => 'tok_x'])
+            ->assertNotFound();
+
+        Http::assertNothingSent();
+    }
+
+    public function test_show_page_renders_payment_succeeded_notice(): void
+    {
+        $traveler = $this->makeTraveler();
+        $booking = $this->makeBooking($traveler, BookingStatus::Confirmed);
+
+        $resp = $this->actingAs($traveler)
+            ->get(route('bookings.show', $booking) . '?payment=succeeded');
 
         $resp->assertOk();
         $resp->assertSee('Payment received');
     }
 
-    public function test_show_page_renders_failure_notice_on_decline(): void
-    {
-        $traveler = $this->makeTraveler();
-        $booking = $this->makeBooking($traveler, 'pi_fail', 'cs_fail');
-
-        $resp = $this->actingAs($traveler)
-            ->get(route('bookings.show', $booking) . '?redirect_status=requires_payment_method');
-
-        $resp->assertOk();
-        $resp->assertSee('declined');
-    }
-
     public function test_show_page_renders_pay_cta_in_live_pending_state(): void
     {
         $traveler = $this->makeTraveler();
-        $booking = $this->makeBooking($traveler, 'pi_pending', 'cs_pending');
+        $booking = $this->makeBooking($traveler);
 
         $resp = $this->actingAs($traveler)->get(route('bookings.show', $booking));
 
@@ -247,7 +283,7 @@ class BookingPaymentTest extends TestCase
         ]);
     }
 
-    private function makeBooking(User $traveler, string $intentId, string $clientSecret, BookingStatus $status = BookingStatus::PendingPayment): Booking
+    private function makeBooking(User $traveler, BookingStatus $status = BookingStatus::PendingPayment): Booking
     {
         $booking = Booking::factory()->create([
             'traveler_id' => $traveler->id,
@@ -255,26 +291,13 @@ class BookingPaymentTest extends TestCase
         ]);
         $intent = PaymentIntent::create([
             'booking_id'         => $booking->id,
-            'processor'          => 'stripe',
-            'external_intent_id' => $intentId,
-            'client_secret'      => $clientSecret,
+            'processor'          => 'nmi',
+            'external_intent_id' => "booking:{$booking->confirmation_code}",
             'amount_cents'       => $booking->total_cents,
             'currency'           => 'USD',
             'status'             => 'requires_payment_method',
         ]);
         $booking->update(['payment_intent_id' => $intent->id]);
         return $booking->fresh();
-    }
-
-    private function stubStripeIntent(string $id, string $clientSecret): object
-    {
-        return (object) [
-            'id'             => $id,
-            'client_secret'  => $clientSecret,
-            'amount'         => 38140,
-            'currency'       => 'usd',
-            'status'         => 'requires_payment_method',
-            'metadata'       => new class { public function toArray(): array { return []; } },
-        ];
     }
 }

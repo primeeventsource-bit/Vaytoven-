@@ -21,7 +21,7 @@ use Carbon\CarbonImmutable;
  *   - contracts: signed agreements (DocuSign)
  *
  * The bundle is returned as a structured DTO. Per-processor adapters
- * (StripeDisputeAdapter, AuthorizeNetDisputeAdapter, etc.) format it for
+ * (NmiDisputeAdapter, AuthorizeNetDisputeAdapter, etc.) format it for
  * each processor's submission portal/API.
  */
 class EvidenceBundleService

@@ -10,8 +10,9 @@ use App\Models\Charge;
 use App\Models\PaymentIntent;
 use App\Models\Property;
 use App\Services\Bookings\BookingService;
+use App\Services\Payments\Nmi\NmiPaymentDeclinedException;
+use App\Services\Payments\Nmi\NmiService;
 use App\Services\Payments\RefundCalculator;
-use App\Services\Payments\Stripe\StripeService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,21 +27,26 @@ use Throwable;
  *
  * Flow:
  *   GET  /properties/{property}/book   →  Review page with price breakdown
- *   POST /properties/{property}/book   →  BookingService.create + (live) Stripe PI + redirect
- *   GET  /bookings/{booking}            →  Booking detail (own only); reads Stripe redirect_status
- *   GET  /bookings/{booking}/pay        →  Stripe Elements page (live mode only)
+ *   POST /properties/{property}/book   →  BookingService.create + local intent + redirect
+ *   GET  /bookings/{booking}            →  Booking detail (own only); reads ?payment= status
+ *   GET  /bookings/{booking}/pay        →  NMI Collect.js card form (live mode only)
+ *   POST /bookings/{booking}/pay        →  charge the Collect.js payment_token (type=sale)
  *
- * Stripe is auto-detected: if STRIPE_SECRET is unset or the dummy fallback,
- * we don't even try to create a PaymentIntent. The booking sits at
- * pending_payment with a 'demo mode' banner on the show page. The moment a
- * real key is configured, new bookings get a PaymentIntent + the show page
- * renders a Pay button that links to /bookings/{booking}/pay.
+ * Unlike the old Stripe Elements flow, NMI settles synchronously: Collect.js
+ * tokenizes the card in the browser, POSTs the payment_token here, and the
+ * sale verdict comes back in the same request — no webhook round-trip needed
+ * to confirm the booking.
+ *
+ * NMI is auto-detected: if NMI_SECURITY_KEY / NMI_TOKENIZATION_KEY are unset,
+ * the booking sits at pending_payment with a 'demo mode' banner on the show
+ * page. The moment real keys are configured, new bookings get an intent + the
+ * show page renders a Pay button that links to /bookings/{booking}/pay.
  */
 class BookingFlowController extends Controller
 {
     public function __construct(
         private readonly BookingService $bookings,
-        private readonly StripeService $stripe,
+        private readonly NmiService $payments,
     ) {
     }
 
@@ -134,21 +140,21 @@ class BookingFlowController extends Controller
                 ->with('booking_error', $e->getMessage());
         }
 
-        // Live mode: kick off a Stripe PaymentIntent right away so the show
-        // page can immediately offer a Pay button. Demo mode skips this and
-        // the booking sits at pending_payment with the demo banner.
-        if ($this->stripeConfigured()) {
+        // Live mode: create the local payment-intent row right away so the
+        // show page can immediately offer a Pay button. This is DB-only (NMI
+        // isn't contacted until the traveler submits a card), so it can only
+        // fail on a genuine DB error. Demo mode skips this and the booking
+        // sits at pending_payment with the demo banner.
+        if ($this->paymentsConfigured()) {
             try {
-                $intent = $this->stripe->createPaymentIntent($booking);
+                $intent = $this->payments->createPaymentIntent($booking);
                 // PaymentIntent association on the Booking lets the pay page
                 // resolve the right intent without an extra query.
                 $booking->update(['payment_intent_id' => $intent->id]);
 
                 return redirect()->route('bookings.pay', $booking);
             } catch (Throwable $e) {
-                // Stripe API failure — log and fall through to the demo show
-                // page so the booking row isn't lost.
-                Log::error('booking flow: stripe payment intent creation failed', [
+                Log::error('booking flow: payment intent creation failed', [
                     'booking_id' => $booking->id,
                     'error'      => $e->getMessage(),
                 ]);
@@ -168,22 +174,20 @@ class BookingFlowController extends Controller
 
         $booking->load('property.photos');
 
-        // Stripe redirects back here with `redirect_status` after the user
-        // confirms payment client-side. The webhook is the authoritative
-        // state-update path; this is just for friendly UX immediately after
-        // redirect, before the webhook arrives (typically <500ms).
-        $redirectStatus = $request->query('redirect_status');
-        $paymentNotice = $this->paymentNoticeFor($redirectStatus);
+        // processPayment() redirects back here with ?payment= after the
+        // synchronous NMI sale attempt. Unlike the old Stripe redirect_status,
+        // this reflects the settled outcome — no webhook race to worry about.
+        $paymentNotice = $this->paymentNoticeFor($request->query('payment'));
 
         return view('bookings.show', [
             'booking'       => $booking,
-            'stripeLive'    => $this->stripeConfigured(),
+            'paymentsLive'  => $this->paymentsConfigured(),
             'paymentNotice' => $paymentNotice,
         ]);
     }
 
     /**
-     * Stripe Elements payment page. Live mode only — demo bookings are
+     * NMI Collect.js payment page. Live mode only — demo bookings are
      * redirected back to /bookings/{booking} where the demo banner explains
      * what's missing.
      */
@@ -193,7 +197,7 @@ class BookingFlowController extends Controller
             abort(404);
         }
 
-        if (! $this->stripeConfigured()) {
+        if (! $this->paymentsConfigured()) {
             return redirect()->route('bookings.show', $booking);
         }
 
@@ -202,23 +206,82 @@ class BookingFlowController extends Controller
             return redirect()->route('bookings.show', $booking);
         }
 
+        // Ensure the local intent row exists (e.g., created pre-NMI or the
+        // create-time call failed and we fell back).
         $intent = $booking->payment_intent_id
             ? PaymentIntent::find($booking->payment_intent_id)
             : null;
 
-        // No intent yet (e.g., the create-time call failed and we fell back).
-        // Try once more here so the user can still pay.
         if (! $intent) {
-            $intent = $this->stripe->createPaymentIntent($booking);
+            $intent = $this->payments->createPaymentIntent($booking);
             $booking->update(['payment_intent_id' => $intent->id]);
         }
 
         return view('bookings.pay', [
             'booking'         => $booking->load('property:id,title,city,country'),
-            'clientSecret'    => $intent->client_secret,
-            'publishableKey'  => (string) (config('services.stripe.key') ?? ''),
-            'returnUrl'       => route('bookings.show', $booking),
+            'tokenizationKey' => (string) (config('services.nmi.tokenization_key') ?? ''),
+            'collectJsUrl'    => (string) (config('services.nmi.collect_js_url') ?? 'https://secure.nmi.com/token/Collect.js'),
+            'processUrl'      => route('bookings.pay.process', $booking),
         ]);
+    }
+
+    /**
+     * POST /bookings/{booking}/pay — charge the Collect.js payment_token.
+     *
+     * Synchronous: NMI's sale verdict comes back in this request. Approved →
+     * booking confirmed before the redirect; declined → back to the pay page
+     * with a friendly error and the intent reset for retry.
+     */
+    public function processPayment(Request $request, Booking $booking): RedirectResponse
+    {
+        if ($booking->traveler_id !== $request->user()->id) {
+            abort(404);
+        }
+
+        if (! $this->paymentsConfigured()) {
+            return redirect()->route('bookings.show', $booking);
+        }
+
+        if ($booking->status !== BookingStatus::PendingPayment) {
+            return redirect()->route('bookings.show', $booking);
+        }
+
+        $request->validate([
+            'payment_token' => ['required', 'string', 'max:512'],
+        ]);
+
+        $intent = $booking->payment_intent_id
+            ? PaymentIntent::find($booking->payment_intent_id)
+            : null;
+
+        if (! $intent) {
+            $intent = $this->payments->createPaymentIntent($booking);
+            $booking->update(['payment_intent_id' => $intent->id]);
+        }
+
+        try {
+            $this->payments->chargeIntent($intent, (string) $request->string('payment_token'));
+        } catch (NmiPaymentDeclinedException $e) {
+            Log::info('booking flow: nmi sale declined', [
+                'booking_id' => $booking->id,
+                'responsetext' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('bookings.pay', $booking)
+                ->with('payment_error', $e->friendlyMessage());
+        } catch (Throwable $e) {
+            Log::error('booking flow: nmi sale failed', [
+                'booking_id' => $booking->id,
+                'error'      => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('bookings.pay', $booking)
+                ->with('payment_error', 'We could not reach the payment gateway. Nothing was charged — please try again.');
+        }
+
+        return redirect()->route('bookings.show', ['booking' => $booking, 'payment' => 'succeeded']);
     }
 
     /**
@@ -246,7 +309,7 @@ class BookingFlowController extends Controller
 
     /**
      * POST /bookings/{booking}/cancel — transition to cancelled, optionally
-     * issue Stripe refund when live + a successful charge exists.
+     * issue an NMI refund when live + a successful charge exists.
      */
     public function cancel(Request $request, Booking $booking): RedirectResponse
     {
@@ -271,10 +334,10 @@ class BookingFlowController extends Controller
         );
 
         $refundIssued = false;
-        if ($this->stripeConfigured() && $breakdown->total_cents > 0) {
+        if ($this->paymentsConfigured() && $breakdown->total_cents > 0) {
             // Find the most recent successful charge against this booking and
-            // issue a Stripe refund. Idempotency key in StripeService prevents
-            // double-refunding on accidental double-submit.
+            // issue an NMI refund. NmiService dedupes on (charge, amount) so
+            // an accidental double-submit doesn't refund twice.
             $charge = Charge::query()
                 ->where('booking_id', $booking->id)
                 ->whereNotNull('external_charge_id')
@@ -283,10 +346,10 @@ class BookingFlowController extends Controller
 
             if ($charge) {
                 try {
-                    $this->stripe->refundCharge($charge, $breakdown, actorUserId: $request->user()->id, reason: $reason);
+                    $this->payments->refundCharge($charge, $breakdown, actorUserId: $request->user()->id, reason: $reason);
                     $refundIssued = true;
                 } catch (Throwable $e) {
-                    Log::error('booking flow: stripe refund failed', [
+                    Log::error('booking flow: nmi refund failed', [
                         'booking_id' => $booking->id,
                         'error'      => $e->getMessage(),
                     ]);
@@ -325,25 +388,23 @@ class BookingFlowController extends Controller
         ];
     }
 
-    private function stripeConfigured(): bool
+    private function paymentsConfigured(): bool
     {
-        $secret = (string) (config('services.stripe.secret') ?? '');
-        $key    = (string) (config('services.stripe.key') ?? '');
-        // Both halves required: secret for server-side intent creation,
-        // publishable key for client-side Stripe.js.
-        return $secret !== '' && $key !== '' && ! str_starts_with($secret, 'sk_test_dummy');
+        $securityKey     = (string) (config('services.nmi.security_key') ?? '');
+        $tokenizationKey = (string) (config('services.nmi.tokenization_key') ?? '');
+        // Both halves required: security_key for server-side Payment API
+        // calls, tokenization_key for client-side Collect.js.
+        return $securityKey !== '' && $tokenizationKey !== '' && ! str_starts_with($securityKey, 'demo_dummy');
     }
 
     /**
-     * Map Stripe's redirect_status query param to a friendly notice.
+     * Map the ?payment= query param (set by processPayment) to a notice.
      */
-    private function paymentNoticeFor(?string $redirectStatus): ?array
+    private function paymentNoticeFor(?string $status): ?array
     {
-        return match ($redirectStatus) {
-            'succeeded'      => ['tone' => 'success', 'message' => 'Payment received — your booking is confirmed.'],
-            'processing'     => ['tone' => 'info',    'message' => 'Payment is processing. We\'ll email you when it clears.'],
-            'requires_payment_method' => ['tone' => 'error', 'message' => 'That payment method was declined. Try again with a different card.'],
-            default          => null,
+        return match ($status) {
+            'succeeded' => ['tone' => 'success', 'message' => 'Payment received — your booking is confirmed.'],
+            default     => null,
         };
     }
 }

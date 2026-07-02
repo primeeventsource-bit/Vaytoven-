@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
- * Black-box test of the PortalPdfDisputeAdapter contract for every non-Stripe
+ * Black-box test of the PortalPdfDisputeAdapter contract for every portal-PDF
  * processor: each one must render a PDF, save it to a per-processor path, and
  * return a DisputeSubmissionResult with mode='manual_pdf' carrying both the
  * artifact path and the operator-facing portal URL in the note.
@@ -19,7 +19,7 @@ class PortalPdfDisputeAdapterTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const NON_STRIPE_PROCESSORS = [
+    private const PORTAL_PROCESSORS = [
         'authorizenet', 'nmi', 'nuvei', 'mes', 'paymentcloud',
         'ems', 'nexio', 'netevia', 'kurv',
     ];
@@ -41,12 +41,12 @@ class PortalPdfDisputeAdapterTest extends TestCase
         Storage::fake();
     }
 
-    public function test_each_non_stripe_adapter_writes_pdf_and_returns_manual_pdf_result(): void
+    public function test_each_portal_adapter_writes_pdf_and_returns_manual_pdf_result(): void
     {
         $registry = $this->app->make(DisputeAdapterRegistry::class);
         $bundle = $this->makeBundle('VYT-ABC123');
 
-        foreach (self::NON_STRIPE_PROCESSORS as $processor) {
+        foreach (self::PORTAL_PROCESSORS as $processor) {
             $adapter = $registry->for($processor);
             $result = $adapter->submit('dp_'.$processor.'_001', $bundle);
 
@@ -81,13 +81,13 @@ class PortalPdfDisputeAdapterTest extends TestCase
         $registry = $this->app->make(DisputeAdapterRegistry::class);
         $paths = [];
 
-        foreach (self::NON_STRIPE_PROCESSORS as $processor) {
+        foreach (self::PORTAL_PROCESSORS as $processor) {
             $adapter = $registry->for($processor);
             $result = $adapter->submit('dp_shared_id', $this->makeBundle('VYT-X'));
             $paths[$processor] = $result->artifact_path;
         }
 
-        $this->assertCount(count(self::NON_STRIPE_PROCESSORS), array_unique($paths));
+        $this->assertCount(count(self::PORTAL_PROCESSORS), array_unique($paths));
     }
 
     private function makeBundle(string $code): EvidenceBundle

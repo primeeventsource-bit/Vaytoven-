@@ -174,7 +174,7 @@
                 <div class="host-benefit">
                     <div class="host-benefit-icon">⏱</div>
                     <h3>Payouts in 24 hours.</h3>
-                    <p>Funds release the day after guest check-in via Stripe Connect. No 30-day holding pattern. No "pending" line items.</p>
+                    <p>Funds release the day after guest check-in by direct bank deposit. No 30-day holding pattern. No "pending" line items.</p>
                 </div>
                 <div class="host-benefit">
                     <div class="host-benefit-icon">🛡</div>
@@ -215,8 +215,8 @@
                 <div class="host-step">
                     <div class="host-step-number"></div>
                     <div>
-                        <h3>Verify identity (Stripe-hosted KYC)</h3>
-                        <p>Stripe Connect Express runs the KYC flow on their secure pages — legal name, DOB, business type, bank account, photo ID. Vaytoven never sees your bank credentials or ID document. Most accounts clear in minutes.</p>
+                        <h3>Verify identity (one-time payout enrollment)</h3>
+                        <p>Enroll once and our payments team verifies your identity and payout banking details through a secure channel — legal name, DOB, business type, bank account, photo ID. Guest card data is tokenized by our PCI-DSS Level 1 gateway (NMI) and never touches Vaytoven servers. Most hosts clear within a business day.</p>
                     </div>
                 </div>
                 <div class="host-step">

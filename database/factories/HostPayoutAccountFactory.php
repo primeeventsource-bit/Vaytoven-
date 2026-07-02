@@ -15,8 +15,8 @@ class HostPayoutAccountFactory extends Factory
     {
         return [
             'host_id' => User::factory()->state(['role' => UserRole::Host]),
-            'processor' => 'stripe',
-            'external_account_id' => 'acct_'.fake()->unique()->bothify('????????????'),
+            'processor' => 'nmi',
+            'external_account_id' => 'host:'.fake()->unique()->numberBetween(1000, 999999),
             'status' => 'verified',
             'payouts_enabled' => true,
             'charges_enabled' => true,

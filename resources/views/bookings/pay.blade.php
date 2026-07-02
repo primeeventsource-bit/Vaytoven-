@@ -25,19 +25,41 @@
             <div class="props-card" style="padding:24px;">
                 <h2 style="font-family:'Fraunces',serif; font-size:18px; font-weight:600; margin:0 0 16px;">Card details</h2>
 
-                <div id="payment-element" style="margin-bottom:18px;">
-                    <p class="props-card-loc" style="font-size:13px;">Loading secure payment form…</p>
-                </div>
+                @if (session('payment_error'))
+                    <div role="alert" style="margin-bottom:14px; padding:12px 14px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:10px; font-size:13px;">
+                        {{ session('payment_error') }}
+                    </div>
+                @endif
 
-                <div id="payment-error" role="alert" style="display:none; margin-bottom:14px; padding:12px 14px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:10px; font-size:13px;"></div>
+                <form id="payment-form" method="POST" action="{{ $processUrl }}">
+                    @csrf
+                    <input type="hidden" name="payment_token" id="payment-token" value="">
 
-                <button id="submit-payment" type="button" class="props-book-cta" style="width:100%;">
-                    <span id="submit-label">Pay ${{ number_format($booking->total_cents/100, 2) }}</span>
-                    <span id="submit-spinner" style="display:none;">Processing…</span>
-                </button>
+                    <div style="margin-bottom:14px;">
+                        <label class="props-card-loc" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; margin-bottom:6px;">Card number</label>
+                        <div id="ccnumber" style="height:44px; border:1px solid #e5e7eb; border-radius:10px; padding:0 12px; background:#fff;"></div>
+                    </div>
+                    <div style="display:flex; gap:12px; margin-bottom:18px;">
+                        <div style="flex:1;">
+                            <label class="props-card-loc" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; margin-bottom:6px;">Expiration</label>
+                            <div id="ccexp" style="height:44px; border:1px solid #e5e7eb; border-radius:10px; padding:0 12px; background:#fff;"></div>
+                        </div>
+                        <div style="flex:1;">
+                            <label class="props-card-loc" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; margin-bottom:6px;">CVV</label>
+                            <div id="cvv" style="height:44px; border:1px solid #e5e7eb; border-radius:10px; padding:0 12px; background:#fff;"></div>
+                        </div>
+                    </div>
+
+                    <div id="payment-error" role="alert" style="display:none; margin-bottom:14px; padding:12px 14px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:10px; font-size:13px;"></div>
+
+                    <button id="submit-payment" type="button" class="props-book-cta" style="width:100%;" disabled>
+                        <span id="submit-label">Pay ${{ number_format($booking->total_cents/100, 2) }}</span>
+                        <span id="submit-spinner" style="display:none;">Processing…</span>
+                    </button>
+                </form>
 
                 <p class="props-book-fineprint" style="text-align:center; margin-top:14px;">
-                    Secured by Stripe. We never see or store your card number — Stripe holds it on a PCI-DSS Level 1 compliant vault.
+                    Secured by NMI. We never see or store your card number — it's tokenized in your browser and held on a PCI-DSS Level 1 compliant gateway.
                 </p>
             </div>
         </div>
@@ -74,17 +96,14 @@
         </aside>
     </div>
 
-    <script src="https://js.stripe.com/v3/"></script>
+    {{-- NMI Collect.js — hosted iframe fields; the card never touches our
+         servers. Tokenization produces a one-time payment_token that the
+         form POSTs to /bookings/{booking}/pay for the server-side sale. --}}
+    <script src="{{ $collectJsUrl }}" data-tokenization-key="{{ $tokenizationKey }}"></script>
     <script>
         (function () {
-            var stripe = Stripe(@json($publishableKey));
-            var clientSecret = @json($clientSecret);
-            var returnUrl = @json($returnUrl);
-
-            var elements = stripe.elements({ clientSecret: clientSecret, appearance: { theme: 'stripe' } });
-            var paymentElement = elements.create('payment');
-            paymentElement.mount('#payment-element');
-
+            var form = document.getElementById('payment-form');
+            var tokenInput = document.getElementById('payment-token');
             var submitBtn = document.getElementById('submit-payment');
             var submitLabel = document.getElementById('submit-label');
             var submitSpinner = document.getElementById('submit-spinner');
@@ -100,20 +119,36 @@
                 submitSpinner.style.display = isSubmitting ? '' : 'none';
             }
 
+            CollectJS.configure({
+                variant: 'inline',
+                styleSniffer: true,
+                fields: {
+                    ccnumber: { selector: '#ccnumber', placeholder: '4111 1111 1111 1111' },
+                    ccexp:    { selector: '#ccexp',    placeholder: 'MM / YY' },
+                    cvv:      { selector: '#cvv',      placeholder: '123' }
+                },
+                fieldsAvailableCallback: function () {
+                    submitBtn.disabled = false;
+                },
+                validationCallback: function (field, status, message) {
+                    if (!status) { showError(message || 'Check your card details.'); }
+                    else { errorBox.style.display = 'none'; }
+                },
+                timeoutDuration: 15000,
+                timeoutCallback: function () {
+                    showError('The secure card form timed out. Refresh the page and try again.');
+                    setSubmitting(false);
+                },
+                callback: function (response) {
+                    tokenInput.value = response.token;
+                    form.submit();
+                }
+            });
+
             submitBtn.addEventListener('click', function () {
                 errorBox.style.display = 'none';
                 setSubmitting(true);
-
-                stripe.confirmPayment({
-                    elements: elements,
-                    confirmParams: { return_url: returnUrl },
-                }).then(function (result) {
-                    if (result.error) {
-                        showError(result.error.message || 'Payment failed. Please try again.');
-                        setSubmitting(false);
-                    }
-                    // On success, Stripe handles the redirect to return_url itself.
-                });
+                CollectJS.startPaymentRequest();
             });
         })();
     </script>

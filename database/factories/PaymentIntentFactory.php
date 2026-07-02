@@ -14,8 +14,8 @@ class PaymentIntentFactory extends Factory
     {
         return [
             'booking_id' => Booking::factory(),
-            'processor' => 'stripe',
-            'external_intent_id' => 'pi_'.fake()->unique()->bothify('?????????????'),
+            'processor' => 'nmi',
+            'external_intent_id' => 'booking:VYT-'.fake()->unique()->bothify('########'),
             'amount_cents' => fake()->numberBetween(5000, 100000),
             'currency' => 'USD',
             'status' => 'processing',

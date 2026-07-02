@@ -167,7 +167,7 @@
                 <li><strong>No separate percentage cut.</strong> Once those costs are covered on each booking, the rest is yours.</li>
                 <li><strong>You stay in control.</strong> Keep, gift, or rent whichever weeks you want each year. Withdrawal of a week from the program doesn't affect bookings already confirmed against it.</li>
                 <li><strong>Real human onboarding.</strong> A specialist contacts you within one business day of your enquiry. No bots until your portfolio is live.</li>
-                <li><strong>Same payout schedule as standard hosts.</strong> Funds release 24 hours after guest check-in via Stripe Connect direct deposit.</li>
+                <li><strong>Same payout schedule as standard hosts.</strong> Funds release 24 hours after guest check-in by direct bank deposit (ACH).</li>
             </ul>
         </section>
 
@@ -234,7 +234,7 @@
                 </details>
                 <details>
                     <summary>How do I get paid?</summary>
-                    <p>Direct deposit via Stripe Connect, 24 hours after each guest checks in. Same schedule as standard hosts. First payouts require completed identity verification (KYC) on Stripe, which is a one-time hosted-onboarding flow that takes most members 5–7 minutes.</p>
+                    <p>Direct bank deposit (ACH), 24 hours after each guest checks in. Same schedule as standard hosts. First payouts require one-time payout enrollment — our payments team verifies your identity and banking details, usually within a business day.</p>
                 </details>
                 <details>
                     <summary>What if my club isn't on the list?</summary>

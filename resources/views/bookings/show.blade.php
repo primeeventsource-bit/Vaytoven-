@@ -31,7 +31,7 @@
 
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:24px;">
         <span class="props-chip" style="font-size:12px; padding:5px 14px;">{{ str_replace('_', ' ', $booking->status->value) }}</span>
-        @unless ($stripeLive)
+        @unless ($paymentsLive)
             <span style="font-size:12px; color:#92400e; background:#fffbeb; border:1px solid #fde68a; padding:5px 12px; border-radius:999px;">Demo mode — payment not configured</span>
         @endunless
     </div>
@@ -101,22 +101,22 @@
                     <span style="font-family:'Fraunces',serif; font-size:20px;">${{ number_format($booking->total_cents/100, 2) }}</span>
                 </div>
 
-                @if ($stripeLive && $booking->status->value === 'pending_payment')
+                @if ($paymentsLive && $booking->status->value === 'pending_payment')
                     <a href="{{ route('bookings.pay', $booking) }}" class="props-book-cta" style="margin-top:18px; display:block; text-align:center;">
                         Pay ${{ number_format($booking->total_cents/100, 2) }}
                     </a>
                     <p class="props-book-fineprint">
-                        Powered by Stripe. Card details are entered on the next page and never touch our servers.
+                        Powered by NMI. Card details are entered on the next page and never touch our servers.
                     </p>
-                @elseif ($stripeLive && $booking->status->value === 'confirmed')
+                @elseif ($paymentsLive && $booking->status->value === 'confirmed')
                     <div style="margin-top:18px; padding:14px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:10px; font-size:13px; color:#047857;">
                         <strong>Confirmed.</strong> Payment received. We've sent a confirmation email — check-in details follow as the dates approach.
                     </div>
-                @elseif (! $stripeLive)
+                @elseif (! $paymentsLive)
                     <div style="margin-top:18px; padding:14px; background:#fffbeb; border:1px solid #fde68a; border-radius:10px; font-size:13px; color:#92400e;">
                         <strong>Demo mode.</strong> Payment is not configured for this environment.
                         The booking is held with status <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">{{ $booking->status->value }}</code>
-                        — set <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">STRIPE_SECRET</code> + <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">STRIPE_KEY</code> to enable live payment.
+                        — set <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">NMI_SECURITY_KEY</code> + <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">NMI_TOKENIZATION_KEY</code> to enable live payment.
                     </div>
                 @endif
 

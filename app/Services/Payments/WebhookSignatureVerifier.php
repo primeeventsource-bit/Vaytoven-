@@ -1,7 +1,11 @@
 <?php
 
-namespace App\Services\Payments\Stripe;
+namespace App\Services\Payments;
 
+/**
+ * Processor-neutral webhook signature contract. The active gateway's
+ * implementation is bound in AppServiceProvider (currently NMI).
+ */
 interface WebhookSignatureVerifier
 {
     /**

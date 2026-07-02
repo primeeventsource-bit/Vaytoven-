@@ -107,33 +107,34 @@ class EvidenceBundleTest extends TestCase
         $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T/', $arr['generated_at']);
     }
 
-    public function test_registry_resolves_stripe_adapter(): void
+    public function test_registry_resolves_nmi_adapter(): void
     {
         $reg = $this->app->make(DisputeAdapterRegistry::class);
-        $adapter = $reg->for(PaymentProcessor::Stripe);
+        $adapter = $reg->for(PaymentProcessor::Nmi);
 
         $this->assertInstanceOf(
-            \App\Services\Payments\Stripe\StripeDisputeAdapter::class,
+            \App\Services\Payments\Nmi\NmiDisputeAdapter::class,
             $adapter
         );
     }
 
-    public function test_registry_has_all_ten_processors(): void
+    public function test_registry_has_all_nine_processors(): void
     {
         $reg = $this->app->make(DisputeAdapterRegistry::class);
         $map = $reg->all();
 
         $expected = [
-            'stripe', 'authorizenet', 'nmi', 'nuvei', 'mes',
+            'authorizenet', 'nmi', 'nuvei', 'mes',
             'paymentcloud', 'ems', 'nexio', 'netevia', 'kurv',
         ];
         foreach ($expected as $p) {
             $this->assertArrayHasKey($p, $map, "Missing adapter for {$p}");
             $this->assertTrue(class_exists($map[$p]), "Class missing: {$map[$p]}");
         }
+        $this->assertArrayNotHasKey('stripe', $map, 'Stripe was retired with the NMI migration (2026-07)');
     }
 
-    public function test_non_stripe_adapters_produce_manual_pdf_artifacts(): void
+    public function test_portal_adapters_produce_manual_pdf_artifacts(): void
     {
         \Illuminate\Support\Facades\Storage::fake();
 

@@ -14,41 +14,24 @@ use App\Models\TermsAcceptance;
 use App\Models\User;
 use App\Services\Legal\LegalDocumentRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery;
-use Stripe\Service\PaymentIntentService;
-use Stripe\Service\RefundService;
-use Stripe\StripeClient;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class BookingCancelTest extends TestCase
 {
     use RefreshDatabase;
 
-    private $stripeRefunds;
-    private $stripeIntents;
+    private const GATEWAY = 'https://secure.nmi.com/api/transact.php';
 
     protected function setUp(): void
     {
         parent::setUp();
         app(LegalDocumentRegistry::class)->materialiseAll();
 
-        // Wire a mocked Stripe client. Live-mode tests opt in by setting
-        // services.stripe.* + keying the refund mock.
-        $this->stripeIntents = Mockery::mock(PaymentIntentService::class);
-        $this->stripeRefunds = Mockery::mock(RefundService::class);
-        $client = Mockery::mock(StripeClient::class)->makePartial();
-        $client->paymentIntents = $this->stripeIntents;
-        $client->refunds = $this->stripeRefunds;
-        $this->app->instance(StripeClient::class, $client);
-
-        // Default: demo mode (no Stripe keys).
-        config(['services.stripe.secret' => '', 'services.stripe.key' => '']);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        // Default: demo mode (no NMI keys). Live-mode tests opt in by setting
+        // services.nmi.* + faking the gateway response.
+        config(['services.nmi.security_key' => '', 'services.nmi.tokenization_key' => '']);
     }
 
     public function test_cancel_form_404s_for_other_users(): void
@@ -119,9 +102,9 @@ class BookingCancelTest extends TestCase
         $this->assertNotNull($booking->cancelled_at);
     }
 
-    public function test_cancel_demo_mode_does_not_call_stripe(): void
+    public function test_cancel_demo_mode_does_not_call_gateway(): void
     {
-        $this->stripeRefunds->shouldNotReceive('create');
+        Http::fake();
 
         $traveler = $this->makeTraveler();
         $booking = Booking::factory()->create([
@@ -137,11 +120,16 @@ class BookingCancelTest extends TestCase
             ->assertRedirect();
 
         $this->assertSame(0, Refund::count());
+        Http::assertNothingSent();
     }
 
-    public function test_cancel_live_mode_issues_stripe_refund_when_charge_exists(): void
+    public function test_cancel_live_mode_issues_nmi_refund_when_charge_exists(): void
     {
-        config(['services.stripe.secret' => 'sk_test_mock', 'services.stripe.key' => 'pk_test_mock']);
+        config(['services.nmi.security_key' => 'nmi_sec_mock', 'services.nmi.tokenization_key' => 'nmi_tok_mock']);
+
+        Http::fake([
+            self::GATEWAY => Http::response('response=1&responsetext=SUCCESS&transactionid=9090909090', 200),
+        ]);
 
         $traveler = $this->makeTraveler();
         $booking = Booking::factory()->create([
@@ -159,8 +147,8 @@ class BookingCancelTest extends TestCase
 
         $intent = PaymentIntent::create([
             'booking_id'         => $booking->id,
-            'processor'          => PaymentProcessor::Stripe->value,
-            'external_intent_id' => 'pi_live_refund_test',
+            'processor'          => PaymentProcessor::Nmi->value,
+            'external_intent_id' => "booking:{$booking->confirmation_code}",
             'amount_cents'       => $booking->total_cents,
             'currency'           => 'USD',
             'status'             => 'succeeded',
@@ -168,26 +156,28 @@ class BookingCancelTest extends TestCase
         $charge = Charge::create([
             'booking_id'         => $booking->id,
             'payment_intent_id'  => $intent->id,
-            'processor'          => PaymentProcessor::Stripe->value,
-            'external_charge_id' => 'ch_live_refund_test',
+            'processor'          => PaymentProcessor::Nmi->value,
+            'external_charge_id' => '2020202020',
             'amount_cents'       => $booking->total_cents,
             'currency'           => 'USD',
         ]);
-
-        $this->stripeRefunds->shouldReceive('create')
-            ->once()
-            ->andReturn((object) [
-                'id'     => 're_live_test_001',
-                'amount' => 38688, // flexible/full minus non-refundable service fee
-            ]);
 
         $this->actingAs($traveler)
             ->post(route('bookings.cancel', $booking))
             ->assertRedirect();
 
+        Http::assertSent(function (Request $request) {
+            $data = $request->data();
+            return $data['type'] === 'refund'
+                && $data['transactionid'] === '2020202020'
+                // flexible/full refund minus the non-refundable service fee:
+                // 30000 + 5000 + 3088 = 38088 cents
+                && $data['amount'] === '380.88';
+        });
+
         $this->assertSame(1, Refund::count());
         $refund = Refund::sole();
-        $this->assertSame('re_live_test_001', $refund->external_refund_id);
+        $this->assertSame('9090909090', $refund->external_refund_id);
         $this->assertSame($charge->id, $refund->charge_id);
     }
 

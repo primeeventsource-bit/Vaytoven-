@@ -15,7 +15,7 @@ use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyBrowseController;
 use App\Http\Controllers\Webhooks\DocuSignWebhookController;
-use App\Http\Controllers\Webhooks\StripeWebhookController;
+use App\Http\Controllers\Webhooks\NmiWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -50,6 +50,7 @@ Route::middleware(['auth', 'terms.current'])->group(function () {
     Route::post('/properties/{property}/book', [BookingFlowController::class, 'store'])->name('bookings.store');
     Route::get('/bookings/{booking}',          [BookingFlowController::class, 'show'])->name('bookings.show');
     Route::get('/bookings/{booking}/pay',      [BookingFlowController::class, 'pay'])->name('bookings.pay');
+    Route::post('/bookings/{booking}/pay',     [BookingFlowController::class, 'processPayment'])->name('bookings.pay.process');
     Route::get('/bookings/{booking}/cancel',   [BookingFlowController::class, 'cancelForm'])->name('bookings.cancel.form');
     Route::post('/bookings/{booking}/cancel',  [BookingFlowController::class, 'cancel'])->name('bookings.cancel');
 
@@ -59,11 +60,10 @@ Route::middleware(['auth', 'terms.current'])->group(function () {
     Route::post('/account/offers/{offer}/accept',  [MemberOfferController::class, 'accept'])->name('member.offers.accept');
     Route::post('/account/offers/{offer}/decline', [MemberOfferController::class, 'decline'])->name('member.offers.decline');
 
-    // Stripe Connect host onboarding (FR-5.x). All routes auth + terms.current.
+    // Host payout enrollment (FR-5.x) — platform-managed since the NMI
+    // migration; ops verifies and flips status from the admin console.
     Route::get('/host/onboarding',          [HostOnboardingController::class, 'index'])->name('host.onboarding.index');
     Route::post('/host/onboarding',         [HostOnboardingController::class, 'start'])->name('host.onboarding.start');
-    Route::get('/host/onboarding/refresh',  [HostOnboardingController::class, 'refresh'])->name('host.onboarding.refresh');
-    Route::get('/host/onboarding/return',   [HostOnboardingController::class, 'return'])->name('host.onboarding.return');
 });
 
 // ---------------------------------------------------------------------------
@@ -158,9 +158,9 @@ Route::middleware('auth')->group(function () {
 Route::post('/webhooks/docusign', DocuSignWebhookController::class)
     ->name('webhooks.docusign');
 
-// Inbound Stripe webhooks. CSRF-excluded via bootstrap/app.php;
-// authenticated via Stripe-Signature header (StripeWebhookSignatureVerifier).
-Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])
-    ->name('webhooks.stripe');
+// Inbound NMI webhooks. CSRF-excluded via bootstrap/app.php;
+// authenticated via Webhook-Signature header (NmiWebhookSignatureVerifier).
+Route::post('/webhooks/nmi', [NmiWebhookController::class, 'handle'])
+    ->name('webhooks.nmi');
 
 require __DIR__.'/auth.php';

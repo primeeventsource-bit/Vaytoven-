@@ -7,14 +7,14 @@ use App\Enums\PaymentProcessor;
 /**
  * Resolves the right DisputeAdapter for a given processor (FR-10.12).
  *
- * Lazily instantiated via the container so the heavy Stripe SDK isn't
- * loaded for processors that don't need it.
+ * Lazily instantiated via the container. All current processors use the
+ * portal-PDF flow; NMI is the live gateway ('stripe' was removed with the
+ * NMI migration, 2026-07).
  */
 class DisputeAdapterRegistry
 {
     /** @var array<string, class-string<DisputeAdapter>> */
     private const MAP = [
-        'stripe'        => \App\Services\Payments\Stripe\StripeDisputeAdapter::class,
         'authorizenet'  => \App\Services\Payments\AuthorizeNet\AuthorizeNetDisputeAdapter::class,
         'nmi'           => \App\Services\Payments\Nmi\NmiDisputeAdapter::class,
         'nuvei'         => \App\Services\Payments\Nuvei\NuveiDisputeAdapter::class,

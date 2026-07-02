@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Webhooks;
 
 use App\Http\Controllers\Controller;
-use App\Services\Payments\Stripe\WebhookHandler;
-use App\Services\Payments\Stripe\WebhookSignatureVerifier;
+use App\Services\Payments\Nmi\WebhookHandler;
+use App\Services\Payments\WebhookSignatureVerifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class StripeWebhookController extends Controller
+class NmiWebhookController extends Controller
 {
     public function __construct(
         private readonly WebhookSignatureVerifier $verifier,
@@ -20,49 +20,44 @@ class StripeWebhookController extends Controller
     }
 
     /**
-     * POST /webhooks/stripe (CSRF-excluded in bootstrap/app.php).
+     * POST /webhooks/nmi (CSRF-excluded in bootstrap/app.php).
      *
      * The contract for FR-4.3 idempotency:
-     *   1. Verify HMAC signature → 400 on failure.
-     *   2. Insert event_id into stripe_events. The UNIQUE index on event_id
-     *      makes this our atomic "claim" — if the insert succeeds, this is
-     *      the first time we've seen this event, so we process it. If it
-     *      fails (QueryException on unique violation), the event was already
-     *      processed; respond 200 (no-op).
+     *   1. Verify HMAC signature (Webhook-Signature header) → 400 on failure.
+     *   2. Insert event_id into nmi_events. The UNIQUE index on event_id is
+     *      our atomic "claim" — insert succeeds means first sighting, so we
+     *      process; already-exists means replay, respond 200 (no-op).
      *   3. Dispatch to WebhookHandler and return 200.
      *
-     * Stripe retries on any non-2xx response, so we MUST return 200 even on
-     * "we've seen this before" — otherwise Stripe retries indefinitely.
+     * NMI retries on non-2xx, so we return 200 even for replays and even if
+     * the handler throws — the event is recorded; operator triages from logs.
      */
     public function handle(Request $request): JsonResponse
     {
         $payload = $request->getContent();
-        $signature = $request->header('Stripe-Signature') ?? '';
+        $signature = $request->header('Webhook-Signature') ?? '';
 
         try {
             $event = $this->verifier->verify($payload, $signature);
         } catch (Throwable $e) {
-            Log::warning('stripe webhook: signature verification failed: '.$e->getMessage());
+            Log::warning('nmi webhook: signature verification failed: '.$e->getMessage());
             return response()->json(['error' => 'invalid_signature'], 400);
         }
 
-        $eventId = $event['id'] ?? null;
-        $eventType = $event['type'] ?? '';
+        $eventId = $event['event_id'] ?? null;
+        $eventType = $event['event_type'] ?? '';
 
         if (empty($eventId)) {
             return response()->json(['error' => 'missing_event_id'], 400);
         }
 
-        // Idempotent claim. firstOrCreate is a single SQL UPSERT-ish flow that
-        // returns the existing row if event_id is taken — so we know whether
-        // this is a fresh event or a replay.
-        $existed = DB::table('stripe_events')->where('event_id', $eventId)->exists();
+        $existed = DB::table('nmi_events')->where('event_id', $eventId)->exists();
 
         if ($existed) {
             return response()->json(['status' => 'already_processed'], 200);
         }
 
-        DB::table('stripe_events')->insert([
+        DB::table('nmi_events')->insert([
             'event_id' => $eventId,
             'event_type' => $eventType,
             'payload' => json_encode($event),
@@ -74,12 +69,10 @@ class StripeWebhookController extends Controller
         try {
             $this->handler->dispatch($event);
         } catch (Throwable $e) {
-            Log::error("stripe webhook handler threw on {$eventType}: ".$e->getMessage(), [
+            Log::error("nmi webhook handler threw on {$eventType}: ".$e->getMessage(), [
                 'event_id' => $eventId,
                 'exception' => $e,
             ]);
-            // Returning 200 anyway — the event is recorded, and a re-fire would
-            // hit the idempotency guard. Operator triages from logs.
             return response()->json(['status' => 'recorded_handler_failed'], 200);
         }
 

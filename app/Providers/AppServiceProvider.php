@@ -14,16 +14,16 @@ use App\Services\Help\HelpArticleSearch;
 use App\Services\Notifications\HttpSlackNotifier;
 use App\Services\Notifications\NoOpSlackNotifier;
 use App\Services\Notifications\SlackNotifier;
-use App\Services\Payments\Stripe\StripeService;
-use App\Services\Payments\Stripe\StripeWebhookSignatureVerifier;
-use App\Services\Payments\Stripe\WebhookSignatureVerifier;
+use App\Services\Payments\Nmi\NmiClient;
+use App\Services\Payments\Nmi\NmiService;
+use App\Services\Payments\Nmi\NmiWebhookSignatureVerifier;
+use App\Services\Payments\WebhookSignatureVerifier;
 use App\Services\SupportChat\AnthropicClaudeClient;
 use App\Services\SupportChat\ClaudeClient;
 use App\Services\SupportChat\SupportChatService;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Support\ServiceProvider;
-use Stripe\StripeClient;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -42,17 +42,26 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->singleton(StripeClient::class, function () {
-            return new StripeClient(config('services.stripe.secret') ?: 'sk_test_dummy');
+        // NMI payment gateway. The 'demo_dummy' fallback mirrors the old
+        // Stripe demo-mode pattern: with no NMI_SECURITY_KEY configured the
+        // client is instantiated (so bindings resolve) but the controllers'
+        // paymentsConfigured() check keeps the app in demo mode and no real
+        // API call is ever made.
+        $this->app->singleton(NmiClient::class, function ($app) {
+            return new NmiClient(
+                $app->make(HttpFactory::class),
+                (string) (config('services.nmi.security_key') ?: 'demo_dummy'),
+                (string) (config('services.nmi.endpoint') ?: 'https://secure.nmi.com/api/transact.php'),
+            );
         });
 
-        $this->app->singleton(StripeService::class, function ($app) {
-            return new StripeService($app->make(StripeClient::class));
+        $this->app->singleton(NmiService::class, function ($app) {
+            return new NmiService($app->make(NmiClient::class));
         });
 
         $this->app->singleton(WebhookSignatureVerifier::class, function () {
-            return new StripeWebhookSignatureVerifier(
-                config('services.stripe.webhook_secret') ?: 'whsec_test_dummy'
+            return new NmiWebhookSignatureVerifier(
+                (string) (config('services.nmi.webhook_signing_key') ?: 'whsec_demo_dummy')
             );
         });
 

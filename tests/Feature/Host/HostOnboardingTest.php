@@ -9,38 +9,22 @@ use App\Models\TermsAcceptance;
 use App\Models\User;
 use App\Services\Legal\LegalDocumentRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery;
-use Stripe\Service\AccountLinkService;
-use Stripe\Service\AccountService;
-use Stripe\StripeClient;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
+/**
+ * Host payout enrollment — platform-managed since the NMI migration
+ * (2026-07). No gateway-hosted KYC: enrollment creates the local record
+ * and ops verifies out-of-band via the admin console.
+ */
 class HostOnboardingTest extends TestCase
 {
     use RefreshDatabase;
-
-    private $accounts;
-    private $accountLinks;
 
     protected function setUp(): void
     {
         parent::setUp();
         app(LegalDocumentRegistry::class)->materialiseAll();
-
-        $this->accounts = Mockery::mock(AccountService::class);
-        $this->accountLinks = Mockery::mock(AccountLinkService::class);
-        $client = Mockery::mock(StripeClient::class)->makePartial();
-        $client->accounts = $this->accounts;
-        $client->accountLinks = $this->accountLinks;
-        $this->app->instance(StripeClient::class, $client);
-
-        config(['services.stripe.secret' => 'sk_test_mock', 'services.stripe.key' => 'pk_test_mock']);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
     }
 
     public function test_unauthenticated_index_redirects_to_login(): void
@@ -48,27 +32,14 @@ class HostOnboardingTest extends TestCase
         $this->get(route('host.onboarding.index'))->assertRedirect(route('login'));
     }
 
-    public function test_index_renders_call_to_start_when_no_account_yet(): void
+    public function test_index_renders_call_to_enroll_when_no_account_yet(): void
     {
         $host = $this->makeHost();
 
         $resp = $this->actingAs($host)->get(route('host.onboarding.index'));
 
         $resp->assertOk();
-        $resp->assertSee('Start verification');
-        $resp->assertDontSee('Demo mode'); // live config set in setUp
-    }
-
-    public function test_index_shows_demo_banner_when_stripe_not_configured(): void
-    {
-        config(['services.stripe.secret' => '', 'services.stripe.key' => '']);
-
-        $host = $this->makeHost();
-
-        $this->actingAs($host)
-            ->get(route('host.onboarding.index'))
-            ->assertOk()
-            ->assertSee('Demo mode');
+        $resp->assertSee('Enroll for payouts');
     }
 
     public function test_index_shows_pending_status_for_existing_pending_account(): void
@@ -76,18 +47,18 @@ class HostOnboardingTest extends TestCase
         $host = $this->makeHost();
         HostPayoutAccount::create([
             'host_id'             => $host->id,
-            'processor'           => PaymentProcessor::Stripe->value,
-            'external_account_id' => 'acct_pending_test',
+            'processor'           => PaymentProcessor::Nmi->value,
+            'external_account_id' => "host:{$host->id}",
             'status'              => 'pending_kyc',
             'payouts_enabled'     => false,
-            'charges_enabled'     => false,
+            'charges_enabled'     => true,
         ]);
 
         $this->actingAs($host)
             ->get(route('host.onboarding.index'))
             ->assertOk()
             ->assertSee('Pending verification')
-            ->assertSee('Resume onboarding');
+            ->assertSee('Enrollment received');
     }
 
     public function test_index_shows_verified_state_when_account_ready(): void
@@ -95,8 +66,8 @@ class HostOnboardingTest extends TestCase
         $host = $this->makeHost();
         HostPayoutAccount::create([
             'host_id'             => $host->id,
-            'processor'           => PaymentProcessor::Stripe->value,
-            'external_account_id' => 'acct_verified_test',
+            'processor'           => PaymentProcessor::Nmi->value,
+            'external_account_id' => "host:{$host->id}",
             'status'              => 'verified',
             'payouts_enabled'     => true,
             'charges_enabled'     => true,
@@ -109,114 +80,78 @@ class HostOnboardingTest extends TestCase
             ->assertSee('all set');
     }
 
-    public function test_start_creates_stripe_account_then_account_link_and_redirects(): void
+    public function test_index_still_renders_legacy_stripe_account_rows(): void
     {
+        // Hosts who enrolled pre-migration keep their status view.
         $host = $this->makeHost();
-
-        $this->accounts->shouldReceive('create')
-            ->once()
-            ->andReturn((object) ['id' => 'acct_new_001', 'toArray' => fn () => []]);
-
-        $this->accountLinks->shouldReceive('create')
-            ->once()
-            ->withArgs(function (array $params) {
-                $this->assertSame('acct_new_001', $params['account']);
-                $this->assertSame('account_onboarding', $params['type']);
-                return true;
-            })
-            ->andReturn((object) ['url' => 'https://connect.stripe.com/setup/test_link']);
-
-        $this->actingAs($host)
-            ->post(route('host.onboarding.start'))
-            ->assertRedirect('https://connect.stripe.com/setup/test_link');
-
-        // HostPayoutAccount row was persisted by createConnectAccount.
-        $this->assertSame(1, HostPayoutAccount::count());
-        $this->assertSame('acct_new_001', HostPayoutAccount::sole()->external_account_id);
-    }
-
-    public function test_start_reuses_existing_stripe_account_for_returning_host(): void
-    {
-        $host = $this->makeHost();
-
-        // Pre-existing row → no new accounts.create, only a fresh AccountLink.
-        $existing = HostPayoutAccount::create([
+        HostPayoutAccount::create([
             'host_id'             => $host->id,
             'processor'           => PaymentProcessor::Stripe->value,
-            'external_account_id' => 'acct_returning_001',
-            'status'              => 'pending_kyc',
-            'payouts_enabled'     => false,
-            'charges_enabled'     => false,
+            'external_account_id' => 'acct_legacy_001',
+            'status'              => 'verified',
+            'payouts_enabled'     => true,
+            'charges_enabled'     => true,
         ]);
 
-        $this->accounts->shouldNotReceive('create');
-        $this->accountLinks->shouldReceive('create')
-            ->once()
-            ->withArgs(function (array $params) use ($existing) {
-                return $params['account'] === $existing->external_account_id;
-            })
-            ->andReturn((object) ['url' => 'https://connect.stripe.com/setup/returning']);
+        $this->actingAs($host)
+            ->get(route('host.onboarding.index'))
+            ->assertOk()
+            ->assertSee('Verified');
+    }
+
+    public function test_start_creates_pending_payout_account_without_gateway_call(): void
+    {
+        Http::fake(); // any HTTP call would be recorded
+
+        $host = $this->makeHost();
 
         $this->actingAs($host)
             ->post(route('host.onboarding.start'))
-            ->assertRedirect('https://connect.stripe.com/setup/returning');
+            ->assertRedirect(route('host.onboarding.index'))
+            ->assertSessionHas('host_success');
+
+        $account = HostPayoutAccount::sole();
+        $this->assertSame($host->id, $account->host_id);
+        $this->assertSame(PaymentProcessor::Nmi, $account->processor);
+        $this->assertSame("host:{$host->id}", $account->external_account_id);
+        $this->assertSame('pending_kyc', $account->status);
+        $this->assertFalse($account->payouts_enabled);
+        $this->assertTrue($account->charges_enabled);
+
+        // Enrollment is local — no gateway involved.
+        Http::assertNothingSent();
+    }
+
+    public function test_start_is_idempotent_for_returning_host(): void
+    {
+        $host = $this->makeHost();
+
+        $this->actingAs($host)->post(route('host.onboarding.start'));
+        $this->actingAs($host)
+            ->post(route('host.onboarding.start'))
+            ->assertRedirect(route('host.onboarding.index'))
+            ->assertSessionHas('host_success');
 
         $this->assertSame(1, HostPayoutAccount::count());
     }
 
-    public function test_start_in_demo_mode_redirects_back_with_error(): void
-    {
-        config(['services.stripe.secret' => '', 'services.stripe.key' => '']);
-        $this->accounts->shouldNotReceive('create');
-
-        $host = $this->makeHost();
-
-        $this->actingAs($host)
-            ->post(route('host.onboarding.start'))
-            ->assertRedirect(route('host.onboarding.index'))
-            ->assertSessionHas('host_error');
-    }
-
-    public function test_start_falls_back_gracefully_when_stripe_throws(): void
-    {
-        $this->accounts->shouldReceive('create')
-            ->andThrow(new \RuntimeException('stripe API down'));
-
-        $host = $this->makeHost();
-
-        $this->actingAs($host)
-            ->post(route('host.onboarding.start'))
-            ->assertRedirect(route('host.onboarding.index'))
-            ->assertSessionHas('host_error');
-    }
-
-    public function test_refresh_issues_new_account_link_for_existing_account(): void
+    public function test_start_does_not_duplicate_when_legacy_account_exists(): void
     {
         $host = $this->makeHost();
         HostPayoutAccount::create([
             'host_id'             => $host->id,
             'processor'           => PaymentProcessor::Stripe->value,
-            'external_account_id' => 'acct_refresh_001',
-            'status'              => 'pending_kyc',
+            'external_account_id' => 'acct_legacy_002',
+            'status'              => 'verified',
+            'payouts_enabled'     => true,
+            'charges_enabled'     => true,
         ]);
 
-        $this->accountLinks->shouldReceive('create')
-            ->once()
-            ->andReturn((object) ['url' => 'https://connect.stripe.com/setup/refreshed']);
-
         $this->actingAs($host)
-            ->get(route('host.onboarding.refresh'))
-            ->assertRedirect('https://connect.stripe.com/setup/refreshed');
-    }
+            ->post(route('host.onboarding.start'))
+            ->assertRedirect(route('host.onboarding.index'));
 
-    public function test_return_redirects_to_index_with_success_flash(): void
-    {
-        $host = $this->makeHost();
-
-        $this->actingAs($host)
-            ->get(route('host.onboarding.return'))
-            ->assertRedirect(route('host.onboarding.index'))
-            ->assertSessionHas('host_success');
+        $this->assertSame(1, HostPayoutAccount::count());
     }
 
     private function makeHost(): User

@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Base adapter for processors without a structured submission API.
  *
- * The reality: of the 10 acquirers Vaytoven supports, only Stripe exposes
- * a clean disputes API. The rest accept rebuttals through their merchant
- * portal as an uploaded PDF (and sometimes a transcribed cover note).
+ * The reality: none of the acquirers Vaytoven supports exposes a clean
+ * disputes API — they all accept rebuttals through their merchant portal
+ * as an uploaded PDF (and sometimes a transcribed cover note).
  *
  * What this base does for those processors:
  *   1. Renders the Service Usage Confirmation Certificate as a PDF using
@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Storage;
  * This is deliberately not an "API call" mock. Wiring real REST submissions
  * for each processor requires sandbox credentials per acquirer; the interface
  * stays open for those upgrades but ships value today by giving every
- * non-Stripe processor a working, reproducible artifact pipeline.
+ * processor a working, reproducible artifact pipeline.
  */
 abstract class PortalPdfDisputeAdapter implements DisputeAdapter
 {

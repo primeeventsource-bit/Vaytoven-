@@ -40,7 +40,7 @@ class DashboardTest extends TestCase
         $resp->assertSee('New enquiries');
         $resp->assertSee('Open tickets');
         $resp->assertSee('Open disputes');
-        $resp->assertSee('Help articles');
+        $resp->assertSee('Manage users');
         $resp->assertSee('Legal versions in force');
     }
 

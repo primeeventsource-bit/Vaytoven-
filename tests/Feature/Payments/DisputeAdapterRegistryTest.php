@@ -6,30 +6,20 @@ use App\Enums\PaymentProcessor;
 use App\Services\Payments\DisputeAdapter;
 use App\Services\Payments\DisputeAdapterRegistry;
 use App\Services\Payments\PortalPdfDisputeAdapter;
-use App\Services\Payments\Stripe\StripeDisputeAdapter;
 use Tests\TestCase;
 
 class DisputeAdapterRegistryTest extends TestCase
 {
-    private const NON_STRIPE_PROCESSORS = [
+    private const PROCESSORS = [
         'authorizenet', 'nmi', 'nuvei', 'mes', 'paymentcloud',
         'ems', 'nexio', 'netevia', 'kurv',
     ];
 
-    public function test_registry_resolves_stripe_to_api_adapter(): void
-    {
-        $registry = $this->app->make(DisputeAdapterRegistry::class);
-        $adapter = $registry->for('stripe');
-
-        $this->assertInstanceOf(StripeDisputeAdapter::class, $adapter);
-        $this->assertNotInstanceOf(PortalPdfDisputeAdapter::class, $adapter);
-    }
-
-    public function test_registry_resolves_every_non_stripe_processor_to_portal_pdf_adapter(): void
+    public function test_registry_resolves_every_processor_to_portal_pdf_adapter(): void
     {
         $registry = $this->app->make(DisputeAdapterRegistry::class);
 
-        foreach (self::NON_STRIPE_PROCESSORS as $processor) {
+        foreach (self::PROCESSORS as $processor) {
             $adapter = $registry->for($processor);
             $this->assertInstanceOf(
                 PortalPdfDisputeAdapter::class,
@@ -44,7 +34,9 @@ class DisputeAdapterRegistryTest extends TestCase
     {
         $registry = $this->app->make(DisputeAdapterRegistry::class);
 
-        $cases = PaymentProcessor::cases();
+        // Stripe stays in the enum for historical row casting but was removed
+        // from the registry with the NMI migration (2026-07) — skip it here.
+        $cases = array_filter(PaymentProcessor::cases(), fn ($c) => $c !== PaymentProcessor::Stripe);
         $this->assertNotEmpty($cases, 'PaymentProcessor enum must list cases for this test to be meaningful.');
 
         foreach ($cases as $case) {
@@ -61,14 +53,22 @@ class DisputeAdapterRegistryTest extends TestCase
         $registry->for('does-not-exist');
     }
 
-    public function test_registry_lists_all_ten_processors(): void
+    public function test_registry_throws_for_retired_stripe_processor(): void
+    {
+        $registry = $this->app->make(DisputeAdapterRegistry::class);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $registry->for('stripe');
+    }
+
+    public function test_registry_lists_all_nine_processors(): void
     {
         $registry = $this->app->make(DisputeAdapterRegistry::class);
         $all = $registry->all();
 
-        $this->assertCount(10, $all);
-        $this->assertArrayHasKey('stripe', $all);
-        foreach (self::NON_STRIPE_PROCESSORS as $p) {
+        $this->assertCount(9, $all);
+        $this->assertArrayNotHasKey('stripe', $all);
+        foreach (self::PROCESSORS as $p) {
             $this->assertArrayHasKey($p, $all);
         }
     }
