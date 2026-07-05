@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class SupportChatController extends Controller
 {
-    public function __construct(private readonly SupportChatService $chat)
-    {
-    }
+    public function __construct(private readonly SupportChatService $chat) {}
 
     /**
      * POST /api/v1/support/chat
@@ -29,6 +27,16 @@ class SupportChatController extends Controller
      */
     public function chat(Request $request): JsonResponse
     {
+        // Admin kill switch (Settings console): both the ai_chat.enabled
+        // setting and the ai_chat feature flag must be on. Server-side
+        // rejection — hiding the widget alone is not a gate.
+        if (! setting('ai_chat.enabled', true) || ! feature('ai_chat')) {
+            return response()->json([
+                'reply' => 'Live chat is currently unavailable. Please email support@vaytoven.com and we will get back to you.',
+                'error' => 'support_chat_disabled',
+            ], 503);
+        }
+
         $request->validate([
             'session_id' => ['nullable', 'integer', 'exists:support_chat_sessions,id'],
             'message' => ['required', 'string', 'max:4000'],
@@ -48,6 +56,7 @@ class SupportChatController extends Controller
             $reply = $this->chat->turn($session, $request->string('message')->toString());
         } catch (SupportChatUnavailable $e) {
             Log::warning('Support chat unavailable: '.$e->getMessage());
+
             return response()->json([
                 'session_id' => $session->id,
                 'reply' => "I'm temporarily unable to respond. Please try again in a few minutes, or email support@vaytoven.com for urgent issues.",

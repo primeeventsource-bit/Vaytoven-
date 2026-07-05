@@ -8,8 +8,10 @@ use App\Exceptions\BookingConflictException;
 use App\Models\Booking;
 use App\Models\Charge;
 use App\Models\PaymentIntent;
+use App\Models\PaymentProcessorConfig;
 use App\Models\Property;
 use App\Services\Bookings\BookingService;
+use App\Services\Bookings\QuoteCalculator;
 use App\Services\Payments\Nmi\NmiPaymentDeclinedException;
 use App\Services\Payments\Nmi\NmiService;
 use App\Services\Payments\RefundCalculator;
@@ -47,8 +49,7 @@ class BookingFlowController extends Controller
     public function __construct(
         private readonly BookingService $bookings,
         private readonly NmiService $payments,
-    ) {
-    }
+    ) {}
 
     /**
      * GET /account/bookings — paginated list of the signed-in user's bookings,
@@ -74,9 +75,9 @@ class BookingFlowController extends Controller
         }
 
         $validator = Validator::make($request->query(), [
-            'check_in'  => ['required', 'date', 'after_or_equal:today'],
+            'check_in' => ['required', 'date', 'after_or_equal:today'],
             'check_out' => ['required', 'date', 'after:check_in'],
-            'guests'    => ['nullable', 'integer', 'min:1', 'max:50'],
+            'guests' => ['nullable', 'integer', 'min:1', 'max:50'],
         ]);
 
         if ($validator->fails()) {
@@ -92,20 +93,30 @@ class BookingFlowController extends Controller
 
         $nights = $checkIn->diffInDays($checkOut);
 
-        if ($nights < $property->minimum_nights) {
+        // Effective minimum = the stricter of the property's own rule and
+        // the site-wide floor from the Settings console.
+        $minNights = max((int) $property->minimum_nights, (int) setting('booking.min_nights', 1));
+        if ($nights < $minNights) {
             return redirect()
                 ->route('properties.show', $property)
-                ->with('booking_error', "This property requires a minimum stay of {$property->minimum_nights} night(s).");
+                ->with('booking_error', "This property requires a minimum stay of {$minNights} night(s).");
+        }
+
+        $maxNights = (int) setting('booking.max_nights', 30);
+        if ($nights > $maxNights) {
+            return redirect()
+                ->route('properties.show', $property)
+                ->with('booking_error', "Stays are limited to {$maxNights} nights.");
         }
 
         $breakdown = $this->priceBreakdown($property, $nights);
 
         return view('bookings.review', [
-            'property'  => $property->load('photos'),
-            'checkIn'   => $checkIn,
-            'checkOut'  => $checkOut,
-            'guests'    => $guests,
-            'nights'    => $nights,
+            'property' => $property->load('photos'),
+            'checkIn' => $checkIn,
+            'checkOut' => $checkOut,
+            'guests' => $guests,
+            'nights' => $nights,
             'breakdown' => $breakdown,
         ]);
     }
@@ -117,23 +128,23 @@ class BookingFlowController extends Controller
         }
 
         $request->validate([
-            'check_in'  => ['required', 'date', 'after_or_equal:today'],
+            'check_in' => ['required', 'date', 'after_or_equal:today'],
             'check_out' => ['required', 'date', 'after:check_in'],
-            'guests'    => ['required', 'integer', 'min:1', 'max:50'],
+            'guests' => ['required', 'integer', 'min:1', 'max:50'],
         ]);
 
         try {
             $booking = $this->bookings->create(
-                traveler:  $request->user(),
-                property:  $property,
-                checkIn:   (string) $request->string('check_in'),
-                checkOut:  (string) $request->string('check_out'),
-                guests:    (int) $request->integer('guests'),
+                traveler: $request->user(),
+                property: $property,
+                checkIn: (string) $request->string('check_in'),
+                checkOut: (string) $request->string('check_out'),
+                guests: (int) $request->integer('guests'),
             );
         } catch (BookingConflictException) {
             return redirect()
                 ->route('properties.show', $property)
-                ->with('booking_error', "Those dates were just booked by someone else. Please pick different dates.");
+                ->with('booking_error', 'Those dates were just booked by someone else. Please pick different dates.');
         } catch (\InvalidArgumentException $e) {
             return redirect()
                 ->route('properties.show', $property)
@@ -156,7 +167,7 @@ class BookingFlowController extends Controller
             } catch (Throwable $e) {
                 Log::error('booking flow: payment intent creation failed', [
                     'booking_id' => $booking->id,
-                    'error'      => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
@@ -180,8 +191,8 @@ class BookingFlowController extends Controller
         $paymentNotice = $this->paymentNoticeFor($request->query('payment'));
 
         return view('bookings.show', [
-            'booking'       => $booking,
-            'paymentsLive'  => $this->paymentsConfigured(),
+            'booking' => $booking,
+            'paymentsLive' => $this->paymentsConfigured(),
             'paymentNotice' => $paymentNotice,
         ]);
     }
@@ -218,10 +229,10 @@ class BookingFlowController extends Controller
         }
 
         return view('bookings.pay', [
-            'booking'         => $booking->load('property:id,title,city,country'),
+            'booking' => $booking->load('property:id,title,city,country'),
             'tokenizationKey' => (string) (config('services.nmi.tokenization_key') ?? ''),
-            'collectJsUrl'    => (string) (config('services.nmi.collect_js_url') ?? 'https://secure.nmi.com/token/Collect.js'),
-            'processUrl'      => route('bookings.pay.process', $booking),
+            'collectJsUrl' => (string) (config('services.nmi.collect_js_url') ?? 'https://secure.nmi.com/token/Collect.js'),
+            'processUrl' => route('bookings.pay.process', $booking),
         ]);
     }
 
@@ -273,7 +284,7 @@ class BookingFlowController extends Controller
         } catch (Throwable $e) {
             Log::error('booking flow: nmi sale failed', [
                 'booking_id' => $booking->id,
-                'error'      => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
             return redirect()
@@ -302,7 +313,7 @@ class BookingFlowController extends Controller
         $breakdown = RefundCalculator::compute($booking);
 
         return view('bookings.cancel', [
-            'booking'   => $booking->load('property:id,title,city,country'),
+            'booking' => $booking->load('property:id,title,city,country'),
             'breakdown' => $breakdown,
         ]);
     }
@@ -351,7 +362,7 @@ class BookingFlowController extends Controller
                 } catch (Throwable $e) {
                     Log::error('booking flow: nmi refund failed', [
                         'booking_id' => $booking->id,
-                        'error'      => $e->getMessage(),
+                        'error' => $e->getMessage(),
                     ]);
                 }
             }
@@ -360,7 +371,7 @@ class BookingFlowController extends Controller
         $message = $breakdown->total_cents > 0
             ? sprintf(
                 'Booking cancelled. %s%s',
-                $refundIssued ? "Refund of $".number_format($breakdown->total_cents/100, 2).' is on its way.' : "You're owed a $".number_format($breakdown->total_cents/100, 2).' refund per the cancellation policy.',
+                $refundIssued ? 'Refund of $'.number_format($breakdown->total_cents / 100, 2).' is on its way.' : "You're owed a $".number_format($breakdown->total_cents / 100, 2).' refund per the cancellation policy.',
                 $refundIssued ? '' : ' We will process it within 1 business day.',
             )
             : 'Booking cancelled. Per the cancellation policy, no refund is due.';
@@ -374,24 +385,32 @@ class BookingFlowController extends Controller
     {
         $rate = $property->base_nightly_cents;
         $cleaning = $property->cleaning_fee_cents;
-        $subtotal = $rate * $nights;
-        $serviceFee = (int) round($subtotal * 0.12);
-        $tax = (int) round(($subtotal + $cleaning + $serviceFee) * 0.08);
+        // Admin-tunable fee % and tax rate — same math as BookingService,
+        // so the review page always matches the persisted booking.
+        $quote = QuoteCalculator::breakdown($rate, $nights, $cleaning);
 
         return [
-            'rate_cents'        => $rate,
-            'subtotal_cents'    => $subtotal,
-            'cleaning_cents'    => $cleaning,
-            'service_fee_cents' => $serviceFee,
-            'tax_cents'         => $tax,
-            'total_cents'       => $subtotal + $cleaning + $serviceFee + $tax,
+            'rate_cents' => $rate,
+            'subtotal_cents' => $quote['subtotal_cents'],
+            'cleaning_cents' => $cleaning,
+            'service_fee_cents' => $quote['service_fee_cents'],
+            'tax_cents' => $quote['tax_cents'],
+            'total_cents' => $quote['total_cents'],
         ];
     }
 
     private function paymentsConfigured(): bool
     {
-        $securityKey     = (string) (config('services.nmi.security_key') ?? '');
+        // Ops can pull NMI out of rotation from the Settings console (row
+        // toggle or processor.nmi feature flag); the flow then falls back to
+        // demo mode rather than charging through a disabled processor.
+        if (! PaymentProcessorConfig::isEnabled('nmi') || ! feature('processor.nmi')) {
+            return false;
+        }
+
+        $securityKey = (string) (config('services.nmi.security_key') ?? '');
         $tokenizationKey = (string) (config('services.nmi.tokenization_key') ?? '');
+
         // Both halves required: security_key for server-side Payment API
         // calls, tokenization_key for client-side Collect.js.
         return $securityKey !== '' && $tokenizationKey !== '' && ! str_starts_with($securityKey, 'demo_dummy');
@@ -404,7 +423,7 @@ class BookingFlowController extends Controller
     {
         return match ($status) {
             'succeeded' => ['tone' => 'success', 'message' => 'Payment received — your booking is confirmed.'],
-            default     => null,
+            default => null,
         };
     }
 }

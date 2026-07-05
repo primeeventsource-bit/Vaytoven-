@@ -16,6 +16,9 @@ class AuthController extends Controller
 {
     public function register(RegisterRequest $request): JsonResponse
     {
+        // Admin kill switch (Settings console, users.registration_open).
+        abort_unless((bool) setting('users.registration_open', true), 403, 'Registration is temporarily closed.');
+
         $user = User::create([
             'name' => $request->string('name'),
             'email' => $request->string('email'),

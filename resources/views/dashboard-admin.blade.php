@@ -25,6 +25,10 @@
                 <div class="vyt-tile-label">Manage users</div>
                 <span class="vyt-tile-value t-purple">{{ $usersByRole?->sum() ?? 0 }}</span>
             </a>
+            <a class="vyt-tile" href="{{ route('admin.settings.index') }}">
+                <div class="vyt-tile-label">Settings &amp; configuration</div>
+                <span class="vyt-tile-value t-gradient">⚙</span>
+            </a>
         </div>
     </section>
 

@@ -18,15 +18,16 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    public function __construct(private readonly LegalDocumentRegistry $legal)
-    {
-    }
+    public function __construct(private readonly LegalDocumentRegistry $legal) {}
 
     /**
      * Display the registration view.
      */
     public function create(): View
     {
+        // Admin kill switch (Settings console, users.registration_open).
+        abort_unless((bool) setting('users.registration_open', true), 403, 'Registration is temporarily closed.');
+
         return view('auth.register', [
             'legalDocs' => $this->legal->registrationRequired(),
         ]);
@@ -39,6 +40,8 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        abort_unless((bool) setting('users.registration_open', true), 403, 'Registration is temporarily closed.');
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
@@ -62,11 +65,11 @@ class RegisteredUserController extends Controller
             // gets a different hash and EnsureCurrentTermsAccepted handles it.
             foreach ($this->legal->registrationRequired() as $version) {
                 TermsAcceptance::create([
-                    'user_id'          => $user->id,
+                    'user_id' => $user->id,
                     'terms_version_id' => $version->id,
-                    'accepted_at'      => now(),
-                    'ip_address'       => $request->ip(),
-                    'user_agent'       => mb_substr((string) $request->userAgent(), 0, 512),
+                    'accepted_at' => now(),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => mb_substr((string) $request->userAgent(), 0, 512),
                 ]);
             }
 

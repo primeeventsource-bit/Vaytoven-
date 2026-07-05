@@ -48,6 +48,8 @@ class BookingService
             throw new \InvalidArgumentException('check_out_date must be after check_in_date');
         }
 
+        $this->assertWithinBookingRules($checkInDate, $checkOutDate);
+
         return DB::transaction(function () use ($traveler, $property, $checkInDate, $checkOutDate, $guests) {
             // Re-fetch the property with a row lock so two concurrent requests
             // serialise here. SQLite no-ops the lock; tests still pass because
@@ -74,16 +76,15 @@ class BookingService
                 ->exists();
 
             if ($overlapping) {
-                throw new BookingConflictException();
+                throw new BookingConflictException;
             }
 
             $nights = $checkInDate->diffInDays($checkOutDate);
             $rate = $lockedProperty->base_nightly_cents;
             $cleaning = $lockedProperty->cleaning_fee_cents;
-            $subtotal = $rate * $nights;
-            $serviceFee = (int) round($subtotal * 0.12);
-            $tax = (int) round(($subtotal + $cleaning + $serviceFee) * 0.08);
-            $total = $subtotal + $cleaning + $serviceFee + $tax;
+            // Admin-tunable fee % and tax rate (Settings console) — one
+            // source of truth shared with the review-page breakdown.
+            $quote = QuoteCalculator::breakdown($rate, $nights, $cleaning);
 
             return Booking::create([
                 'property_id' => $lockedProperty->id,
@@ -93,14 +94,47 @@ class BookingService
                 'guests' => $guests,
                 'nightly_rate_cents' => $rate,
                 'nights' => $nights,
-                'subtotal_cents' => $subtotal,
+                'subtotal_cents' => $quote['subtotal_cents'],
                 'cleaning_fee_cents' => $cleaning,
-                'service_fee_cents' => $serviceFee,
-                'tax_cents' => $tax,
-                'total_cents' => $total,
-                'cancellation_policy' => $lockedProperty->cancellation_policy?->value ?? 'moderate',
+                'service_fee_cents' => $quote['service_fee_cents'],
+                'tax_cents' => $quote['tax_cents'],
+                'total_cents' => $quote['total_cents'],
+                'cancellation_policy' => $lockedProperty->cancellation_policy?->value
+                    ?? setting('booking.default_cancellation_policy', 'moderate'),
                 'status' => BookingStatus::PendingPayment->value,
             ]);
         });
+    }
+
+    /**
+     * Site-wide booking rules from the admin Settings console (FR-3.x).
+     * Per-property minimum_nights is enforced upstream in the controllers;
+     * these are the global guardrails.
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function assertWithinBookingRules(CarbonImmutable $checkIn, CarbonImmutable $checkOut): void
+    {
+        $nights = $checkIn->diffInDays($checkOut);
+        $today = CarbonImmutable::now()->startOfDay();
+
+        $minNights = max(1, (int) setting('booking.min_nights', 1));
+        if ($nights < $minNights) {
+            throw new \InvalidArgumentException("Bookings require a minimum stay of {$minNights} night(s).");
+        }
+
+        $maxNights = (int) setting('booking.max_nights', 30);
+        if ($nights > $maxNights) {
+            throw new \InvalidArgumentException("Bookings are limited to {$maxNights} nights.");
+        }
+
+        $windowDays = (int) setting('booking.advance_window_days', 365);
+        if ($checkIn->greaterThan($today->addDays($windowDays))) {
+            throw new \InvalidArgumentException("Bookings can be made up to {$windowDays} days in advance.");
+        }
+
+        if ($checkIn->equalTo($today) && ! setting('booking.allow_same_day', true)) {
+            throw new \InvalidArgumentException('Same-day bookings are not available.');
+        }
     }
 }

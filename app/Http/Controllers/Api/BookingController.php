@@ -15,9 +15,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class BookingController extends Controller
 {
-    public function __construct(private readonly BookingService $bookings)
-    {
-    }
+    public function __construct(private readonly BookingService $bookings) {}
 
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -33,13 +31,19 @@ class BookingController extends Controller
     {
         $property = Property::findOrFail($request->integer('property_id'));
 
-        $booking = $this->bookings->create(
-            traveler: $request->user(),
-            property: $property,
-            checkIn: $request->string('check_in_date')->toString(),
-            checkOut: $request->string('check_out_date')->toString(),
-            guests: $request->integer('guests'),
-        );
+        try {
+            $booking = $this->bookings->create(
+                traveler: $request->user(),
+                property: $property,
+                checkIn: $request->string('check_in_date')->toString(),
+                checkOut: $request->string('check_out_date')->toString(),
+                guests: $request->integer('guests'),
+            );
+        } catch (\InvalidArgumentException $e) {
+            // Site-wide booking rules (min/max nights, advance window, …)
+            // from the admin Settings console.
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
 
         return (new BookingResource($booking))
             ->response()

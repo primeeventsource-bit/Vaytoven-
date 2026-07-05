@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\SettingsApiController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\DestinationSuggestController;
 use App\Http\Controllers\Api\LoginHistoryController;
 use App\Http\Controllers\Api\PropertyController;
+use App\Http\Controllers\Api\PublicSettingsController;
 use App\Http\Controllers\Api\SupportChatController;
 use App\Http\Controllers\Api\TrackingEventController;
 use Illuminate\Support\Facades\Route;
@@ -13,11 +15,11 @@ use Illuminate\Support\Facades\Route;
 // Anything inside ->middleware('auth:sanctum') requires a Sanctum bearer token.
 
 Route::post('auth/register', [AuthController::class, 'register']);
-Route::post('auth/login',    [AuthController::class, 'login']);
+Route::post('auth/login', [AuthController::class, 'login']);
 
 // Public property search + show — no auth required (browse-without-login).
-Route::get('properties',                [PropertyController::class, 'index']);
-Route::get('properties/{property}',     [PropertyController::class, 'show']);
+Route::get('properties', [PropertyController::class, 'index']);
+Route::get('properties/{property}', [PropertyController::class, 'show']);
 
 // Destination autocomplete for the Vrbo-style search bar. Returns city +
 // country + property suggestions with lat/lng for the map widget.
@@ -33,16 +35,31 @@ Route::post('tracking/events', [TrackingEventController::class, 'store'])
 Route::post('support/chat', [SupportChatController::class, 'chat'])
     ->middleware('throttle:30,1');
 
+// Public frontend bootstrap: is_public settings + resolved feature flags.
+// Sensitive values never appear here (structurally excluded, not filtered).
+Route::get('settings/public', PublicSettingsController::class)
+    ->middleware('throttle:120,1');
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
-    Route::get('auth/me',      [AuthController::class, 'me']);
+    Route::get('auth/me', [AuthController::class, 'me']);
 
-    Route::get('bookings',               [BookingController::class, 'index']);
-    Route::post('bookings',              [BookingController::class, 'store']);
-    Route::get('bookings/{booking}',     [BookingController::class, 'show']);
+    Route::get('bookings', [BookingController::class, 'index']);
+    Route::post('bookings', [BookingController::class, 'store']);
+    Route::get('bookings/{booking}', [BookingController::class, 'show']);
     Route::post('bookings/{booking}/cancel', [BookingController::class, 'cancel']);
 
     // FR-10.7: user-side login history + activity map
     Route::get('me/login-history', [LoginHistoryController::class, 'mine']);
-    Route::get('me/activity-map',  [LoginHistoryController::class, 'activityMap']);
+    Route::get('me/activity-map', [LoginHistoryController::class, 'activityMap']);
+});
+
+// Admin settings API — Sanctum token + admin role. Sensitive groups
+// additionally require super admin (enforced in the controller).
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+    Route::get('settings', [SettingsApiController::class, 'index']);
+    Route::get('settings/{group}', [SettingsApiController::class, 'showGroup']);
+    Route::put('settings/{group}', [SettingsApiController::class, 'updateGroup']);
+    Route::get('feature-flags', [SettingsApiController::class, 'flags']);
+    Route::put('feature-flags/{key}', [SettingsApiController::class, 'updateFlag']);
 });

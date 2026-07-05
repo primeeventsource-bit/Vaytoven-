@@ -4,7 +4,10 @@ namespace App\Services\Payments;
 
 use App\Enums\CancellationPolicy;
 use App\Models\Booking;
+use App\Models\CancellationPolicyConfig;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Pure-function refund math for traveler-initiated cancellations (FR-3.4).
@@ -36,13 +39,18 @@ final class RefundCalculator
         $checkIn = CarbonImmutable::parse($booking->check_in_date)->startOfDay();
         $hoursUntilCheckIn = $cancelledAt->diffInHours($checkIn, absolute: false);
 
-        [$subtotalPct, $tier] = match ($booking->cancellation_policy) {
-            CancellationPolicy::Flexible      => self::flexibleTier($hoursUntilCheckIn),
-            CancellationPolicy::Moderate      => self::moderateTier($hoursUntilCheckIn),
-            CancellationPolicy::Strict        => self::strictTier($hoursUntilCheckIn),
-            CancellationPolicy::NonRefundable => [0, 'none'],
-            null                              => [0, 'none'],
-        };
+        // Tiers come from the admin-editable cancellation_policies table
+        // (Settings console). The seeded rows reproduce the legacy hardcoded
+        // tiers exactly; if the table is missing or the policy has no row,
+        // the legacy tiers below still apply, so refunds never break.
+        [$subtotalPct, $tier] = self::configuredTier($booking->cancellation_policy, $hoursUntilCheckIn)
+            ?? match ($booking->cancellation_policy) {
+                CancellationPolicy::Flexible => self::flexibleTier($hoursUntilCheckIn),
+                CancellationPolicy::Moderate => self::moderateTier($hoursUntilCheckIn),
+                CancellationPolicy::Strict => self::strictTier($hoursUntilCheckIn),
+                CancellationPolicy::NonRefundable => [0, 'none'],
+                null => [0, 'none'],
+            };
 
         // Round to nearest cent. Banker's rounding is overkill at our scale.
         $subtotal = (int) round($booking->subtotal_cents * $subtotalPct);
@@ -63,12 +71,64 @@ final class RefundCalculator
         );
     }
 
+    /**
+     * Resolve the refund percentage from the policy's admin-configured
+     * refund_tiers ([{days_before, refund_pct}, …]). First tier whose
+     * days_before threshold the cancellation beats wins; no match = 0%.
+     * Returns null when no usable row exists (fall back to legacy tiers).
+     *
+     * @return array{0: float, 1: string}|null
+     */
+    private static function configuredTier(?CancellationPolicy $policy, int $hoursUntilCheckIn): ?array
+    {
+        if ($policy === null) {
+            return null;
+        }
+
+        try {
+            $tiersByCode = Cache::remember('cancellation_policies:tiers', 3600, fn () => CancellationPolicyConfig::query()
+                ->where('active', true)
+                ->pluck('refund_tiers', 'code')
+                ->all());
+        } catch (QueryException) {
+            return null;
+        }
+
+        $tiers = $tiersByCode[$policy->value] ?? null;
+        if (! is_array($tiers)) {
+            return null;
+        }
+
+        // Most-generous (furthest-out) threshold first.
+        usort($tiers, fn ($a, $b) => ($b['days_before'] ?? 0) <=> ($a['days_before'] ?? 0));
+
+        foreach ($tiers as $tier) {
+            $daysBefore = (int) ($tier['days_before'] ?? 0);
+            $refundPct = max(0, min(100, (int) ($tier['refund_pct'] ?? 0)));
+
+            if ($hoursUntilCheckIn >= $daysBefore * 24) {
+                return [
+                    $refundPct / 100,
+                    $refundPct >= 100 ? 'full' : ($refundPct > 0 ? 'partial' : 'none'),
+                ];
+            }
+        }
+
+        return [0, 'none'];
+    }
+
+    /** Bust after admin edits to cancellation_policies. */
+    public static function bustCache(): void
+    {
+        Cache::forget('cancellation_policies:tiers');
+    }
+
     /** @return array{0: float, 1: string} */
     private static function flexibleTier(int $hoursUntilCheckIn): array
     {
         return match (true) {
             $hoursUntilCheckIn >= 24 => [1.0, 'full'],
-            default                  => [0.0, 'none'],
+            default => [0.0, 'none'],
         };
     }
 
@@ -77,8 +137,8 @@ final class RefundCalculator
     {
         return match (true) {
             $hoursUntilCheckIn >= 24 * 5 => [1.0, 'full'],     // >= 5 days
-            $hoursUntilCheckIn >= 24     => [0.5, 'partial'],  // 24h..5d
-            default                      => [0.0, 'none'],
+            $hoursUntilCheckIn >= 24 => [0.5, 'partial'],  // 24h..5d
+            default => [0.0, 'none'],
         };
     }
 
@@ -87,7 +147,7 @@ final class RefundCalculator
     {
         return match (true) {
             $hoursUntilCheckIn >= 24 * 7 => [0.5, 'partial'],
-            default                      => [0.0, 'none'],
+            default => [0.0, 'none'],
         };
     }
 }

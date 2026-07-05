@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Middleware\CheckMaintenanceMode;
+use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsureAdminOrMemberSpecialist;
+use App\Http\Middleware\EnsureCurrentTermsAccepted;
+use App\Http\Middleware\SetVaytovenSurface;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -23,15 +28,21 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'admin' => \App\Http\Middleware\EnsureAdmin::class,
-            'admin.or.specialist' => \App\Http\Middleware\EnsureAdminOrMemberSpecialist::class,
-            'terms.current' => \App\Http\Middleware\EnsureCurrentTermsAccepted::class,
+            'admin' => EnsureAdmin::class,
+            'admin.or.specialist' => EnsureAdminOrMemberSpecialist::class,
+            'terms.current' => EnsureCurrentTermsAccepted::class,
         ]);
 
         // Captures X-Vaytoven-Surface on every API request so login_sessions and
         // tracking_events record the correct surface (FR-10.7).
         $middleware->api(prepend: [
-            \App\Http\Middleware\SetVaytovenSurface::class,
+            SetVaytovenSurface::class,
+        ]);
+
+        // Operator-toggled maintenance mode (setting general.maintenance_mode).
+        // Appended so it runs after session/auth resolve — admins pass through.
+        $middleware->web(append: [
+            CheckMaintenanceMode::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
