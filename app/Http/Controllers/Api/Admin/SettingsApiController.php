@@ -13,10 +13,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * JSON admin surface under /api/v1/admin (Sanctum + admin middleware; the
- * sensitive groups additionally require super admin). Mirrors the web
- * console: reads are schema-merged and redacted, writes are validated
- * against the allow-list, transactional, audited, and cache-busting.
+ * JSON admin surface under /api/v1/admin (Sanctum + admin middleware —
+ * any admin can read and write every group). Mirrors the web console:
+ * reads are schema-merged and redacted, writes are validated against the
+ * allow-list, transactional, audited, and cache-busting.
  */
 class SettingsApiController extends Controller
 {
@@ -30,9 +30,6 @@ class SettingsApiController extends Controller
     {
         $groups = [];
         foreach (SettingsSchema::GROUPS as $group => $label) {
-            if ($this->cannotViewGroup($request, $group)) {
-                continue;
-            }
             $groups[$group] = array_values($this->settings->groupForDisplay($group));
         }
 
@@ -43,7 +40,6 @@ class SettingsApiController extends Controller
     public function showGroup(Request $request, string $group): JsonResponse
     {
         abort_unless(array_key_exists($group, SettingsSchema::GROUPS), 404);
-        $this->authorizeGroup($request, $group);
 
         return response()->json([
             'group' => $group,
@@ -55,7 +51,6 @@ class SettingsApiController extends Controller
     public function updateGroup(Request $request, string $group): JsonResponse
     {
         abort_unless(array_key_exists($group, SettingsSchema::GROUPS), 404);
-        $this->authorizeGroup($request, $group);
 
         $input = (array) $request->input('settings', []);
         $specs = SettingsSchema::group($group);
@@ -112,18 +107,5 @@ class SettingsApiController extends Controller
         $flag = $this->flags->update($key, $data, $request->user(), $request->ip());
 
         return response()->json(['flag' => $flag->fresh()]);
-    }
-
-    private function authorizeGroup(Request $request, string $group): void
-    {
-        if ($this->cannotViewGroup($request, $group)) {
-            abort(403, 'This settings group requires a super admin.');
-        }
-    }
-
-    private function cannotViewGroup(Request $request, string $group): bool
-    {
-        return in_array($group, SettingsSchema::SENSITIVE_GROUPS, true)
-            && ! $request->user()->isSuperAdmin();
     }
 }

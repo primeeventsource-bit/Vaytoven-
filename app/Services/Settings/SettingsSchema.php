@@ -33,12 +33,6 @@ final class SettingsSchema
         'legal' => 'Legal',
     ];
 
-    /**
-     * Groups only a super admin may edit (processor credentials, security
-     * thresholds, service secrets, legal pointers).
-     */
-    public const SENSITIVE_GROUPS = ['payments', 'security', 'integrations', 'legal'];
-
     /** Feature flag keys seeded/managed by this subsystem. */
     public const FEATURE_FLAGS = [
         'instant_book' => 'Allow hosts to enable instant booking (no host approval step).',

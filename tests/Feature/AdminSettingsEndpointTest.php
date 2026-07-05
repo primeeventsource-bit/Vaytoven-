@@ -36,10 +36,17 @@ class AdminSettingsEndpointTest extends TestCase
         $this->actingAs($this->admin)->get('/admin/settings/general')->assertOk();
     }
 
-    public function test_sensitive_groups_require_super_admin(): void
+    public function test_every_group_is_editable_by_any_admin(): void
     {
-        $this->actingAs($this->admin)->get('/admin/settings/payments')->assertForbidden();
-        $this->actingAs($this->admin)->put('/admin/settings/payments', ['settings' => []])->assertForbidden();
+        // Regular admins (not just super admins) manage all groups,
+        // including the ones holding credentials.
+        $this->actingAs($this->admin)->get('/admin/settings/payments')->assertOk();
+        $this->actingAs($this->admin)->get('/admin/settings/security')->assertOk();
+        $this->actingAs($this->admin)
+            ->put('/admin/settings/integrations', ['settings' => ['integrations.smtp_host' => 'mail.example.com']])
+            ->assertRedirect();
+        $this->assertSame('mail.example.com', setting('integrations.smtp_host'));
+
         $this->actingAs($this->superAdmin)->get('/admin/settings/payments')->assertOk();
     }
 
@@ -111,13 +118,13 @@ class AdminSettingsEndpointTest extends TestCase
             ->assertJsonPath('error', 'support_chat_disabled');
     }
 
-    public function test_processor_update_requires_super_admin_and_redacts_credentials(): void
+    public function test_processor_update_by_admin_redacts_credentials(): void
     {
         (new SettingsSeeder)->run();
 
-        $this->actingAs($this->admin)->get('/admin/settings/processors')->assertForbidden();
+        $this->actingAs($this->admin)->get('/admin/settings/processors')->assertOk();
 
-        $this->actingAs($this->superAdmin)
+        $this->actingAs($this->admin)
             ->put('/admin/settings/processors/nmi', [
                 'enabled' => '1',
                 'mode' => 'live',
@@ -140,7 +147,7 @@ class AdminSettingsEndpointTest extends TestCase
         (new SettingsSeeder)->run();
         config(['services.nmi.security_key' => 'real_key', 'services.nmi.tokenization_key' => 'tok_key']);
 
-        $this->actingAs($this->superAdmin)
+        $this->actingAs($this->admin)
             ->put('/admin/settings/processors/nmi', ['enabled' => '0', 'mode' => 'live', 'priority' => 10])
             ->assertRedirect();
 

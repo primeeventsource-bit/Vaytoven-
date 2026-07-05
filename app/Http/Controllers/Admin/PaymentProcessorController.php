@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
 /**
- * Payment processor manager (super-admin only — enforced in routes AND
- * here). Credentials are write-only: they are encrypted at rest, redacted
+ * Payment processor manager (any admin, via the `admin` middleware).
+ * Credentials are write-only: they are encrypted at rest, redacted
  * everywhere they are displayed, and an empty submitted field means "keep
  * the current value" so a save can never accidentally blank a key.
  */
@@ -27,8 +27,6 @@ class PaymentProcessorController extends Controller
 
     public function index(Request $request): View
     {
-        $this->authorizeSuperAdmin($request);
-
         return view('admin.settings.processors', [
             'processors' => PaymentProcessorConfig::query()->with('updatedBy:id,name')->orderBy('priority')->get(),
             'credentialFields' => self::CREDENTIAL_FIELDS,
@@ -37,8 +35,6 @@ class PaymentProcessorController extends Controller
 
     public function update(Request $request, string $code): RedirectResponse
     {
-        $this->authorizeSuperAdmin($request);
-
         $processor = PaymentProcessorConfig::query()->where('code', $code)->firstOrFail();
 
         $data = $request->validate([
@@ -118,8 +114,6 @@ class PaymentProcessorController extends Controller
      */
     public function test(Request $request, string $code): RedirectResponse
     {
-        $this->authorizeSuperAdmin($request);
-
         $processor = PaymentProcessorConfig::query()->where('code', $code)->firstOrFail();
 
         [$ok, $message] = $this->runConnectivityCheck($processor);
@@ -170,10 +164,5 @@ class PaymentProcessorController extends Controller
         } catch (\Throwable) {
             return [false, 'Connection test failed — NMI endpoint unreachable.'];
         }
-    }
-
-    private function authorizeSuperAdmin(Request $request): void
-    {
-        abort_unless($request->user()->isSuperAdmin(), 403, 'Payment processor management requires a super admin.');
     }
 }

@@ -15,8 +15,9 @@ use Illuminate\View\View;
 /**
  * Admin panes for the Layer-1 settings groups. Panes render entirely from
  * SettingsSchema metadata, so adding a key server-side surfaces it in the
- * UI automatically. Sensitive groups (payments/security/integrations/legal)
- * are super-admin only — enforced here, not just hidden in the nav.
+ * UI automatically. Any admin (admin or super_admin role, via the `admin`
+ * middleware) can edit every group; secret values are still encrypted at
+ * rest and redacted in every response and audit payload.
  */
 class SettingsController extends Controller
 {
@@ -30,7 +31,6 @@ class SettingsController extends Controller
     public function showGroup(Request $request, string $group): View
     {
         abort_unless(array_key_exists($group, SettingsSchema::GROUPS), 404);
-        $this->authorizeGroup($request, $group);
 
         return view('admin.settings.group', [
             'group' => $group,
@@ -43,7 +43,6 @@ class SettingsController extends Controller
     public function updateGroup(Request $request, string $group): RedirectResponse
     {
         abort_unless(array_key_exists($group, SettingsSchema::GROUPS), 404);
-        $this->authorizeGroup($request, $group);
 
         $input = (array) $request->input('settings', []);
         $specs = SettingsSchema::group($group);
@@ -87,13 +86,6 @@ class SettingsController extends Controller
 
         return redirect()->route('admin.settings.group', $group)
             ->with('success', count($updates).' setting(s) saved.');
-    }
-
-    private function authorizeGroup(Request $request, string $group): void
-    {
-        if (in_array($group, SettingsSchema::SENSITIVE_GROUPS, true)) {
-            abort_unless($request->user()->isSuperAdmin(), 403, 'This settings group requires a super admin.');
-        }
     }
 
     /** "Last changed by {actor} · {time}" line for the pane footer. */
