@@ -16,12 +16,12 @@ class LegalDocumentRegistryTest extends TestCase
         $registry = app(LegalDocumentRegistry::class);
         $rows = $registry->materialiseAll();
 
-        $this->assertCount(4, $rows);
-        $this->assertSame(4, TermsVersion::count());
+        $this->assertCount(3, $rows);
+        $this->assertSame(3, TermsVersion::count());
 
         $kinds = TermsVersion::pluck('kind')->all();
         $this->assertEqualsCanonicalizing(
-            ['tos', 'privacy', 'chargeback', 'member_agreement'],
+            ['tos', 'privacy', 'member_agreement'],
             $kinds,
         );
     }
@@ -37,7 +37,7 @@ class LegalDocumentRegistryTest extends TestCase
         $second = TermsVersion::pluck('content_hash')->sort()->values()->all();
 
         $this->assertSame($first, $second, 'Re-running with unchanged content must not create new rows.');
-        $this->assertSame(4, TermsVersion::count());
+        $this->assertSame(3, TermsVersion::count());
     }
 
     public function test_registration_required_returns_tos_and_privacy_only(): void
@@ -60,7 +60,6 @@ class LegalDocumentRegistryTest extends TestCase
 
         $this->assertArrayHasKey('tos', $current);
         $this->assertArrayHasKey('privacy', $current);
-        $this->assertArrayHasKey('chargeback', $current);
         $this->assertArrayHasKey('member_agreement', $current);
     }
 

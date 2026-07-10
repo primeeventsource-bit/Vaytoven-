@@ -41,7 +41,7 @@
 <p>We use third-party payment processors (NMI and certain alternates) to process card payments. By transacting on the Service you agree to the processor's terms.</p>
 
 <h2 id="chargebacks">6. Chargebacks and disputes</h2>
-<p>Initiating a chargeback without first attempting resolution through Vaytoven Support is a breach of these terms. We reserve the right to compile a record of your access, consumption, and acceptance of these terms (a "Service Usage Confirmation") and to submit it to the issuing bank as evidence in any dispute. See the Chargeback Policy for details.</p>
+<p>Initiating a chargeback without first attempting resolution through Vaytoven Support is a breach of these terms. We reserve the right to compile a record of your access, consumption, and acceptance of these terms (a "Service Usage Confirmation") and to submit it to the issuing bank as evidence in any dispute.</p>
 
 <h2 id="prohibited">7. Prohibited conduct</h2>
 <p>You agree not to: (a) use the Service for unlawful purposes; (b) misrepresent your identity or property; (c) attempt to circumvent Vaytoven's fee structure by transacting off-platform after meeting through the Service; (d) interfere with the operation of the Service; or (e) violate any third-party rights.</p>

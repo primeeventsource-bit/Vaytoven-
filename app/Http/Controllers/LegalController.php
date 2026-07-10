@@ -27,11 +27,6 @@ class LegalController extends Controller
         return view('legal.privacy');
     }
 
-    public function chargeback(): View
-    {
-        return view('legal.chargeback');
-    }
-
     public function memberAgreement(): View
     {
         return view('legal.member-agreement');

@@ -12,7 +12,7 @@ class LegalPagesTest extends TestCase
 
     public function test_each_legal_page_renders_with_draft_banner(): void
     {
-        foreach (['/legal/tos', '/legal/privacy', '/legal/chargeback', '/legal/member-agreement'] as $url) {
+        foreach (['/legal/tos', '/legal/privacy', '/legal/member-agreement'] as $url) {
             $resp = $this->get($url);
             $resp->assertOk();
             // Every page must carry the DRAFT marker until counsel sign-off
@@ -22,7 +22,7 @@ class LegalPagesTest extends TestCase
         }
     }
 
-    public function test_versions_endpoint_lists_all_four_kinds(): void
+    public function test_versions_endpoint_lists_all_three_kinds(): void
     {
         app(LegalDocumentRegistry::class)->materialiseAll();
 
@@ -32,7 +32,7 @@ class LegalPagesTest extends TestCase
         $kinds = collect($resp->json('versions'))->pluck('kind')->all();
 
         $this->assertEqualsCanonicalizing(
-            ['tos', 'privacy', 'chargeback', 'member_agreement'],
+            ['tos', 'privacy', 'member_agreement'],
             $kinds,
         );
 
@@ -59,7 +59,6 @@ class LegalPagesTest extends TestCase
 
         $this->assertStringContainsString('/legal/privacy', $body);
         $this->assertStringContainsString('/legal/tos', $body);
-        $this->assertStringContainsString('/legal/chargeback', $body);
         $this->assertStringContainsString('/legal/member-agreement', $body);
     }
 }
