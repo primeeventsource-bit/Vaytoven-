@@ -22,11 +22,6 @@
         .legal-nav .brand svg { width: 28px; height: 28px; }
         .legal-nav .home-link { margin-left: auto; font-size: 13px; }
         .legal-shell { max-width: 760px; margin: 0 auto; padding: 32px 24px 80px; }
-        .draft-banner {
-            background:#fff7ed; border:1px solid #fdba74; color:#9a3412;
-            padding: 12px 16px; border-radius: 10px; font-size: 13px;
-            margin-bottom: 28px;
-        }
         .legal-eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
         .legal-title { font-family: 'Fraunces', serif; font-size: clamp(30px, 4vw, 44px); font-weight: 600; letter-spacing: -.02em; margin: 10px 0 8px; }
         .legal-meta { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
@@ -43,10 +38,6 @@
 <body>
     @include('partials.top-nav')
     <main class="legal-shell">
-        <div class="draft-banner">
-            <strong>DRAFT — v1 placeholder.</strong> This document is a working draft and has not been reviewed by counsel. The legally binding version will replace this text before public launch; the URL and document hash will not change so prior acceptances remain auditable.
-        </div>
-
         <div class="legal-eyebrow">@yield('eyebrow', 'Legal')</div>
         <h1 class="legal-title">@yield('title')</h1>
         <p class="legal-meta">Effective @yield('effective_date'). Version @yield('version_label').</p>

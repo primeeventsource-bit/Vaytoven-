@@ -10,15 +10,10 @@ class LegalPagesTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_each_legal_page_renders_with_draft_banner(): void
+    public function test_each_legal_page_renders(): void
     {
         foreach (['/legal/tos', '/legal/privacy', '/legal/member-agreement'] as $url) {
-            $resp = $this->get($url);
-            $resp->assertOk();
-            // Every page must carry the DRAFT marker until counsel sign-off
-            // — surfacing the warning to readers (and to ourselves) is the
-            // whole point of having these placeholders public early.
-            $resp->assertSee('DRAFT', false);
+            $this->get($url)->assertOk();
         }
     }
 

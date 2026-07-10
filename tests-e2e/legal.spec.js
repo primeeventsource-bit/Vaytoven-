@@ -12,11 +12,9 @@ test.describe('Legal docs', () => {
     ];
 
     for (const doc of docs) {
-        test(`${doc.path} renders with DRAFT banner`, async ({ page }) => {
+        test(`${doc.path} renders`, async ({ page }) => {
             await page.goto(doc.path);
             await expect(page.getByRole('heading', { name: doc.titleRe })).toBeVisible();
-            // Until counsel review the DRAFT banner must remain.
-            await expect(page.getByText(/DRAFT/, { exact: false }).first()).toBeVisible();
         });
     }
 
