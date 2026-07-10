@@ -31,7 +31,6 @@ class LegalDocumentRegistry
 {
     public const KIND_TOS = 'tos';
     public const KIND_PRIVACY = 'privacy';
-    public const KIND_CHARGEBACK = 'chargeback';
     public const KIND_MEMBER_AGREEMENT = 'member_agreement';
 
     /**
@@ -57,12 +56,6 @@ class LegalDocumentRegistry
             'kind'          => self::KIND_PRIVACY,
             'view'          => 'legal.privacy',
             'route'         => 'legal.privacy',
-            'version_label' => 'v1',
-        ],
-        [
-            'kind'          => self::KIND_CHARGEBACK,
-            'view'          => 'legal.chargeback',
-            'route'         => 'legal.chargeback',
             'version_label' => 'v1',
         ],
         [

@@ -22,7 +22,7 @@
 <p>We do not store full card numbers. Card data is tokenised by our payment processor.</p>
 
 <h2 id="why">2. Why we collect it</h2>
-<p>To run the Service, complete bookings, process payments and refunds, prevent fraud, defend chargebacks, communicate with you, and improve product quality. Login and consumption records also support our Service Usage Confirmation evidence (see Chargeback Policy).</p>
+<p>To run the Service, complete bookings, process payments and refunds, prevent fraud, defend chargebacks, communicate with you, and improve product quality. Login and consumption records also support our Service Usage Confirmation evidence.</p>
 
 <h2 id="sharing">3. Who we share it with</h2>
 <p>Payment processors (NMI, etc.), email and SMS providers, fraud prevention vendors, and service providers acting on our behalf under written contracts. We do not sell your personal information.</p>

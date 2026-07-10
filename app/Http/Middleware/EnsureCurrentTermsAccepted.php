@@ -35,7 +35,6 @@ class EnsureCurrentTermsAccepted
         'legal.review-and-accept.submit',
         'legal.tos',
         'legal.privacy',
-        'legal.chargeback',
         'legal.member-agreement',
         'legal.versions',
         'logout',

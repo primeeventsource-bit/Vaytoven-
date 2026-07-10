@@ -8,7 +8,6 @@ test.describe('Legal docs', () => {
     const docs = [
         { path: '/legal/tos',              titleRe: /Terms of Service/i },
         { path: '/legal/privacy',          titleRe: /Privacy Policy/i },
-        { path: '/legal/chargeback',       titleRe: /Chargeback Policy/i },
         { path: '/legal/member-agreement', titleRe: /Member Agreement/i },
     ];
 
@@ -21,16 +20,16 @@ test.describe('Legal docs', () => {
         });
     }
 
-    test('GET /legal/versions returns 4 entries with SHA-256 hashes', async ({ request }) => {
+    test('GET /legal/versions returns 3 entries with SHA-256 hashes', async ({ request }) => {
         const resp = await request.get('/legal/versions');
         expect(resp.status()).toBe(200);
 
         const body = await resp.json();
         expect(Array.isArray(body.versions)).toBe(true);
-        expect(body.versions.length).toBe(4);
+        expect(body.versions.length).toBe(3);
 
         const kinds = body.versions.map((v) => v.kind).sort();
-        expect(kinds).toEqual(['chargeback', 'member_agreement', 'privacy', 'tos']);
+        expect(kinds).toEqual(['member_agreement', 'privacy', 'tos']);
 
         for (const v of body.versions) {
             expect(v.content_hash).toMatch(/^[0-9a-f]{64}$/);

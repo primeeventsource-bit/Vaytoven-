@@ -406,6 +406,7 @@
         .footer-grid ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; font-size: 14px; }
         .footer-brand .brand-mark-text { color: #fff; }
         .footer-brand p { font-size: 14px; max-width: 32ch; margin-top: 16px; color: rgba(255,255,255,.6); }
+        .footer-brand address { font-style: normal; font-size: 14px; margin-top: 16px; color: rgba(255,255,255,.6); }
         .footer-bottom { padding-top: 24px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: rgba(255,255,255,.5); }
         @media (max-width: 800px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; } }
@@ -958,6 +959,7 @@
                 <span class="brand-mark-text">Vaytoven</span>
             </div>
             <p>Curated vacation properties. Built for travelers, hosts, and vacation club members who want the trip to feel right.</p>
+            <address>500 S Australian Ave, Ste 600<br>West Palm Beach, FL 33401</address>
         </div>
         <div>
             <h5>Travel</h5>
@@ -993,7 +995,6 @@
         <div>
             <a href="{{ route('legal.privacy') }}" style="margin-right:18px;" data-track-audience="traveler" data-track-cta="footer_privacy">Privacy</a>
             <a href="{{ route('legal.tos') }}" style="margin-right:18px;" data-track-audience="traveler" data-track-cta="footer_tos">Terms</a>
-            <a href="{{ route('legal.chargeback') }}" style="margin-right:18px;" data-track-audience="traveler" data-track-cta="footer_chargeback">Chargeback Policy</a>
             <a href="{{ route('legal.member-agreement') }}" data-track-audience="member" data-track-cta="footer_member_agreement">Member Agreement</a>
         </div>
     </div>

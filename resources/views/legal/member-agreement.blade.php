@@ -7,7 +7,7 @@
 
 @section('content')
 <h2>Scope</h2>
-<p>This Member Agreement governs participation in Vaytoven's Managed Listing Program for owners of points-based vacation property (the "Member Program"). It is an addendum to, not a replacement of, the Terms of Service and Chargeback Policy.</p>
+<p>This Member Agreement governs participation in Vaytoven's Managed Listing Program for owners of points-based vacation property (the "Member Program"). It is an addendum to, not a replacement of, the Terms of Service.</p>
 
 <h2>Eligibility</h2>
 <p>You must be the legal owner of, or hold an authorised use right in, the points or weeks you wish to enroll. You must be in good standing with your underlying vacation club (Marriott, Hilton, Disney, Wyndham, RCI, Interval, or other supported program). You attest that enrolling these points or weeks in a managed rental is permitted by your club's rules.</p>
