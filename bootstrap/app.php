@@ -4,6 +4,7 @@ use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureAdminOrMemberSpecialist;
 use App\Http\Middleware\EnsureCurrentTermsAccepted;
+use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\SetVaytovenSurface;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => EnsureAdmin::class,
             'admin.or.specialist' => EnsureAdminOrMemberSpecialist::class,
+            'permission' => EnsurePermission::class,
             'terms.current' => EnsureCurrentTermsAccepted::class,
         ]);
 

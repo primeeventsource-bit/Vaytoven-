@@ -5,9 +5,11 @@ namespace App\Models;
 use App\Enums\UserRole;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -33,6 +35,9 @@ class User extends Authenticatable
     protected $attributes = [
         'role' => UserRole::Traveler->value,
     ];
+
+    /** Memoized result of effectiveRoles() — not an Eloquent attribute. */
+    private ?Collection $resolvedRoles = null;
 
     protected function casts(): array
     {
@@ -70,6 +75,103 @@ class User extends Authenticatable
     public function isMemberSpecialist(): bool
     {
         return $this->role?->isMemberSpecialist() ?? false;
+    }
+
+    /** Roles attached explicitly through `role_user` (in addition to `role`). */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class)
+            ->withPivot(['assigned_by_user_id', 'assigned_at']);
+    }
+
+    /**
+     * Every role that grants this user permissions: the system role matching
+     * the primary `role` enum column, plus any explicitly attached roles.
+     *
+     * Memoized per instance — permission checks run several times per request.
+     *
+     * @return \Illuminate\Support\Collection<int, Role>
+     */
+    public function effectiveRoles(): Collection
+    {
+        if ($this->resolvedRoles !== null) {
+            return $this->resolvedRoles;
+        }
+
+        $attached = $this->relationLoaded('roles') ? $this->roles : $this->roles()->get();
+
+        // The primary role column resolves to the system role of the same key.
+        $primary = $this->role
+            ? Role::query()->where('key', $this->role->value)->first()
+            : null;
+
+        // Build a new collection rather than push()ing — $attached may be the
+        // loaded `roles` relation, which must not gain a phantom member.
+        $all = $primary && ! $attached->contains('id', $primary->id)
+            ? $attached->concat([$primary])
+            : collect($attached);
+
+        return $this->resolvedRoles = $all;
+    }
+
+    /** @return list<string> Deduplicated permission keys across all effective roles. */
+    public function permissionKeys(): array
+    {
+        return array_values(array_unique(
+            $this->effectiveRoles()->flatMap->permissionKeys()->all()
+        ));
+    }
+
+    /**
+     * Does this user hold a given granular permission?
+     *
+     * Super admins short-circuit to true. While RBAC is unseeded the check
+     * falls back to the legacy binary gate so admins keep working — see
+     * Role::configured().
+     */
+    public function hasPermission(string $permissionKey): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        if (! Role::configured()) {
+            return $this->isAdmin();
+        }
+
+        foreach ($this->effectiveRoles() as $role) {
+            if ($role->grants($permissionKey)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function hasRole(string $roleKey): bool
+    {
+        return $this->effectiveRoles()->contains('key', $roleKey);
+    }
+
+    /**
+     * Highest privilege level this user holds. A user may never create,
+     * edit, or assign a role at or above their own level — that's what stops
+     * an Admin from minting themselves a Super Admin equivalent.
+     */
+    public function roleLevel(): int
+    {
+        if ($this->isSuperAdmin()) {
+            return PHP_INT_MAX;
+        }
+
+        return (int) ($this->effectiveRoles()->max('level') ?? 0);
+    }
+
+    /** Drop the memoized role set after a role assignment changes. */
+    public function forgetEffectiveRoles(): void
+    {
+        $this->resolvedRoles = null;
+        $this->unsetRelation('roles');
     }
 
     public function hostProperties(): HasMany

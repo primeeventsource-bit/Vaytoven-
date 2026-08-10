@@ -54,12 +54,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('me/activity-map', [LoginHistoryController::class, 'activityMap']);
 });
 
-// Admin settings API — Sanctum token + admin role. Sensitive groups
-// additionally require super admin (enforced in the controller).
-Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
-    Route::get('settings', [SettingsApiController::class, 'index']);
-    Route::get('settings/{group}', [SettingsApiController::class, 'showGroup']);
-    Route::put('settings/{group}', [SettingsApiController::class, 'updateGroup']);
-    Route::get('feature-flags', [SettingsApiController::class, 'flags']);
-    Route::put('feature-flags/{key}', [SettingsApiController::class, 'updateFlag']);
+// Admin settings API — Sanctum token + the same granular RBAC permissions the
+// web console uses, so a token inherits exactly its owner's role, no more.
+// Sensitive VALUES stay redacted in responses regardless of permission
+// (SettingsRepository::redact).
+Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+    Route::get('settings', [SettingsApiController::class, 'index'])->middleware('permission:settings.view');
+    Route::get('settings/{group}', [SettingsApiController::class, 'showGroup'])->middleware('permission:settings.view');
+    Route::put('settings/{group}', [SettingsApiController::class, 'updateGroup'])->middleware('permission:settings.edit');
+    Route::get('feature-flags', [SettingsApiController::class, 'flags'])->middleware('permission:settings.view');
+    Route::put('feature-flags/{key}', [SettingsApiController::class, 'updateFlag'])->middleware('permission:settings.edit');
 });

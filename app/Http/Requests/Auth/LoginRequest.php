@@ -50,6 +50,23 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // A deactivated account must not hold a session. The admin console has
+        // always told operators that deactivating "prevents the user from
+        // logging in"; until now nothing enforced it. Checked after the
+        // credential attempt so a wrong password still reports as a wrong
+        // password rather than disclosing that the account exists.
+        if (! Auth::user()->isActive()) {
+            Auth::guard('web')->logout();
+            $this->session()->invalidate();
+            $this->session()->regenerateToken();
+
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.deactivated'),
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Services\DocuSign\DocuSignClient;
 use App\Services\DocuSign\WebhookVerifier;
 use App\Services\GeoIp\CachedGeoIpService;
@@ -21,8 +22,10 @@ use App\Services\Payments\WebhookSignatureVerifier;
 use App\Services\SupportChat\AnthropicClaudeClient;
 use App\Services\SupportChat\ClaudeClient;
 use App\Services\SupportChat\SupportChatService;
+use App\Support\PermissionCatalog;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Http\Client\Factory as HttpFactory;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -137,5 +140,22 @@ $this->app->singleton(GeoIpService::class, function ($app) {
         // wrapped in try/catch so detection failures never block creates.
         \App\Models\MemberEnquiry::observe(\App\Observers\ExchangeDetectionObserver::class);
         \App\Models\Property::observe(\App\Observers\ExchangeDetectionObserver::class);
+
+        $this->registerPermissionGates();
+    }
+
+    /**
+     * Expose every catalog permission as a Gate ability so Blade can write
+     * `@can('properties.edit')` and controllers `$this->authorize(...)`
+     * against the same keys the `permission:` middleware uses. One
+     * Gate::before handles the super-admin bypass for all of them.
+     */
+    private function registerPermissionGates(): void
+    {
+        Gate::before(fn (User $user) => $user->isSuperAdmin() ? true : null);
+
+        foreach (PermissionCatalog::keys() as $key) {
+            Gate::define($key, fn (User $user) => $user->hasPermission($key));
+        }
     }
 }

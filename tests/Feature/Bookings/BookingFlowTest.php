@@ -157,7 +157,7 @@ class BookingFlowTest extends TestCase
             ->assertNotFound();
     }
 
-    public function test_show_renders_for_owner_and_displays_demo_mode_banner(): void
+    public function test_show_renders_for_owner_and_flags_that_payment_is_unavailable(): void
     {
         $traveler = $this->makeTraveler();
         $booking = Booking::factory()->create([
@@ -169,7 +169,12 @@ class BookingFlowTest extends TestCase
 
         $resp->assertOk();
         $resp->assertSee($booking->confirmation_code);
-        $resp->assertSee('Demo mode');
+        $resp->assertSee('Payment pending');
+
+        // Customer surfaces must never say "Demo", nor disclose which gateway
+        // credential is missing.
+        $resp->assertDontSee('Demo');
+        $resp->assertDontSee('NMI_SECURITY_KEY');
     }
 
     public function test_property_show_form_posts_to_booking_review_route(): void

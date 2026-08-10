@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\FeatureFlagController;
 use App\Http\Controllers\Admin\PaymentProcessorController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserCertificateController as AdminUserCertificateController;
 use App\Http\Controllers\Admin\UserController;
@@ -110,61 +111,83 @@ Route::get('/dashboard', [DashboardController::class, 'show'])
 // DocuSign integration
 // ---------------------------------------------------------------------------
 //
-// Admin contract management — gated on the `admin` middleware (EnsureAdmin),
-// which checks the user's role enum is `admin` or `super_admin`.
-Route::middleware(['auth', 'admin'])
+// ---------------------------------------------------------------------------
+// Admin portal. Gated per action on granular RBAC permissions
+// (App\Support\PermissionCatalog) rather than on a single binary admin flag,
+// so a custom role can be given exactly one module.
+//
+// EVERY route in this group MUST carry a `permission:` middleware — the outer
+// group only proves authentication. A route added without one is reachable by
+// any signed-in user. RbacPermissionCoverageTest fails the build if that
+// happens.
+//
+// While RBAC is unseeded on an environment, `permission:` falls back to the
+// legacy "is this user an admin" check, so this group behaves exactly as it
+// did before until RbacSeeder runs. See App\Models\Role::configured().
+// ---------------------------------------------------------------------------
+Route::middleware(['auth'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
         // Admin user management (list / create / show / edit / deactivate / reactivate).
         // Every state-changing action writes to admin_audit_logs via AdminAuditLogService.
-        Route::get('users', [UserController::class, 'index'])->name('users.index');
-        Route::get('users/create', [UserController::class, 'create'])->name('users.create');
-        Route::post('users', [UserController::class, 'store'])->name('users.store');
-        Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
-        Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-        Route::patch('users/{user}', [UserController::class, 'update'])->name('users.update');
-        Route::post('users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
-        Route::post('users/{user}/reactivate', [UserController::class, 'reactivate'])->name('users.reactivate');
+        Route::get('users', [UserController::class, 'index'])->middleware('permission:users.view')->name('users.index');
+        Route::get('users/create', [UserController::class, 'create'])->middleware('permission:users.create')->name('users.create');
+        Route::post('users', [UserController::class, 'store'])->middleware('permission:users.create')->name('users.store');
+        Route::get('users/{user}', [UserController::class, 'show'])->middleware('permission:users.view')->name('users.show');
+        Route::get('users/{user}/edit', [UserController::class, 'edit'])->middleware('permission:users.edit')->name('users.edit');
+        Route::patch('users/{user}', [UserController::class, 'update'])->middleware('permission:users.edit')->name('users.update');
+        Route::post('users/{user}/deactivate', [UserController::class, 'deactivate'])->middleware('permission:users.deactivate')->name('users.deactivate');
+        Route::post('users/{user}/reactivate', [UserController::class, 'reactivate'])->middleware('permission:users.deactivate')->name('users.reactivate');
 
-        Route::get('contracts', [AdminContractController::class, 'index'])->name('contracts.index');
-        Route::get('contracts/create', [AdminContractController::class, 'create'])->name('contracts.create');
-        Route::post('contracts', [AdminContractController::class, 'store'])->name('contracts.store');
-        Route::get('contracts/{contract}', [AdminContractController::class, 'show'])->name('contracts.show');
-        Route::get('contracts/{contract}/signed.pdf', [AdminContractController::class, 'downloadSigned'])->name('contracts.download.signed');
-        Route::get('contracts/{contract}/certificate.pdf', [AdminContractController::class, 'downloadCertificate'])->name('contracts.download.certificate');
-        Route::post('contracts/{contract}/void', [AdminContractController::class, 'void'])->name('contracts.void');
+        // Roles & Permissions. Creating roles is deliberately narrower than
+        // creating users — see PermissionCatalog and RbacSeeder.
+        Route::get('roles', [RoleController::class, 'index'])->middleware('permission:roles.view')->name('roles.index');
+        Route::get('roles/create', [RoleController::class, 'create'])->middleware('permission:roles.create')->name('roles.create');
+        Route::post('roles', [RoleController::class, 'store'])->middleware('permission:roles.create')->name('roles.store');
+        Route::get('roles/{role}/edit', [RoleController::class, 'edit'])->middleware('permission:roles.edit')->name('roles.edit');
+        Route::put('roles/{role}', [RoleController::class, 'update'])->middleware('permission:roles.edit')->name('roles.update');
+        Route::delete('roles/{role}', [RoleController::class, 'destroy'])->middleware('permission:roles.delete')->name('roles.destroy');
+
+        Route::get('contracts', [AdminContractController::class, 'index'])->middleware('permission:contracts.view')->name('contracts.index');
+        Route::get('contracts/create', [AdminContractController::class, 'create'])->middleware('permission:contracts.send')->name('contracts.create');
+        Route::post('contracts', [AdminContractController::class, 'store'])->middleware('permission:contracts.send')->name('contracts.store');
+        Route::get('contracts/{contract}', [AdminContractController::class, 'show'])->middleware('permission:contracts.view')->name('contracts.show');
+        Route::get('contracts/{contract}/signed.pdf', [AdminContractController::class, 'downloadSigned'])->middleware('permission:contracts.view')->name('contracts.download.signed');
+        Route::get('contracts/{contract}/certificate.pdf', [AdminContractController::class, 'downloadCertificate'])->middleware('permission:contracts.view')->name('contracts.download.certificate');
+        Route::post('contracts/{contract}/void', [AdminContractController::class, 'void'])->middleware('permission:contracts.void')->name('contracts.void');
 
         // FR-10.13: per-user login history + Service Usage Confirmation Certificate.
         // Used by admins responding to chargebacks.
-        Route::get('users/{user}/login-history', [AdminUserCertificateController::class, 'loginHistory'])->name('users.login-history');
-        Route::get('users/{user}/certificate.pdf', [AdminUserCertificateController::class, 'certificate'])->name('users.certificate');
+        Route::get('users/{user}/login-history', [AdminUserCertificateController::class, 'loginHistory'])->middleware('permission:users.view')->name('users.login-history');
+        Route::get('users/{user}/certificate.pdf', [AdminUserCertificateController::class, 'certificate'])->middleware('permission:users.view')->name('users.certificate');
 
         // -------------------------------------------------------------------
         // Settings & Configuration console. Panes render from SettingsSchema;
         // every write is validated against the allow-list, audited, and busts
-        // the settings cache. Sensitive groups + payment processors enforce
-        // super-admin inside their controllers. Literal routes MUST precede
+        // the settings cache. Payment processors sit behind billing.processors
+        // rather than settings.edit — gateway credentials are a sharper
+        // capability than the rest of the console. Literal routes MUST precede
         // the settings/{group} wildcard.
         // -------------------------------------------------------------------
-        Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::get('settings', [SettingsController::class, 'index'])->middleware('permission:settings.view')->name('settings.index');
 
-        Route::get('settings/flags', [FeatureFlagController::class, 'index'])->name('settings.flags');
-        Route::put('settings/flags/{key}', [FeatureFlagController::class, 'update'])->name('settings.flags.update');
+        Route::get('settings/flags', [FeatureFlagController::class, 'index'])->middleware('permission:settings.view')->name('settings.flags');
+        Route::put('settings/flags/{key}', [FeatureFlagController::class, 'update'])->middleware('permission:settings.edit')->name('settings.flags.update');
 
-        Route::get('settings/processors', [PaymentProcessorController::class, 'index'])->name('settings.processors');
-        Route::put('settings/processors/{code}', [PaymentProcessorController::class, 'update'])->name('settings.processors.update');
-        Route::post('settings/processors/{code}/test', [PaymentProcessorController::class, 'test'])->name('settings.processors.test');
+        Route::get('settings/processors', [PaymentProcessorController::class, 'index'])->middleware('permission:billing.processors')->name('settings.processors');
+        Route::put('settings/processors/{code}', [PaymentProcessorController::class, 'update'])->middleware('permission:billing.processors')->name('settings.processors.update');
+        Route::post('settings/processors/{code}/test', [PaymentProcessorController::class, 'test'])->middleware('permission:billing.processors')->name('settings.processors.test');
 
-        Route::get('settings/templates', [EmailTemplateController::class, 'index'])->name('settings.templates');
-        Route::post('settings/templates', [EmailTemplateController::class, 'store'])->name('settings.templates.store');
+        Route::get('settings/templates', [EmailTemplateController::class, 'index'])->middleware('permission:settings.view')->name('settings.templates');
+        Route::post('settings/templates', [EmailTemplateController::class, 'store'])->middleware('permission:settings.edit')->name('settings.templates.store');
 
-        Route::get('settings/collections/{collection}', [ConfigCollectionController::class, 'index'])->name('settings.collections.index');
-        Route::post('settings/collections/{collection}', [ConfigCollectionController::class, 'store'])->name('settings.collections.store');
-        Route::put('settings/collections/{collection}/{id}', [ConfigCollectionController::class, 'update'])->name('settings.collections.update');
+        Route::get('settings/collections/{collection}', [ConfigCollectionController::class, 'index'])->middleware('permission:settings.view')->name('settings.collections.index');
+        Route::post('settings/collections/{collection}', [ConfigCollectionController::class, 'store'])->middleware('permission:settings.edit')->name('settings.collections.store');
+        Route::put('settings/collections/{collection}/{id}', [ConfigCollectionController::class, 'update'])->middleware('permission:settings.edit')->name('settings.collections.update');
 
-        Route::get('settings/{group}', [SettingsController::class, 'showGroup'])->name('settings.group');
-        Route::put('settings/{group}', [SettingsController::class, 'updateGroup'])->name('settings.group.update');
+        Route::get('settings/{group}', [SettingsController::class, 'showGroup'])->middleware('permission:settings.view')->name('settings.group');
+        Route::put('settings/{group}', [SettingsController::class, 'updateGroup'])->middleware('permission:settings.edit')->name('settings.group.update');
     });
 
 // Client-facing contract dashboard. Mounted at /account/contracts.

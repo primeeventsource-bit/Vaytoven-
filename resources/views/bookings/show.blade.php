@@ -32,7 +32,7 @@
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:24px;">
         <span class="props-chip" style="font-size:12px; padding:5px 14px;">{{ str_replace('_', ' ', $booking->status->value) }}</span>
         @unless ($paymentsLive)
-            <span style="font-size:12px; color:#92400e; background:#fffbeb; border:1px solid #fde68a; padding:5px 12px; border-radius:999px;">Demo mode — payment not configured</span>
+            <span style="font-size:12px; color:#92400e; background:#fffbeb; border:1px solid #fde68a; padding:5px 12px; border-radius:999px;">Payment pending</span>
         @endunless
     </div>
 
@@ -113,10 +113,14 @@
                         <strong>Confirmed.</strong> Payment received. We've sent a confirmation email — check-in details follow as the dates approach.
                     </div>
                 @elseif (! $paymentsLive)
+                    {{-- Card payment is temporarily unavailable. Deliberately says
+                         nothing about gateway configuration: this is a customer
+                         surface, and which credentials are missing is not their
+                         concern (nor safe to advertise). Operators diagnose this
+                         from the payment processor console instead. --}}
                     <div style="margin-top:18px; padding:14px; background:#fffbeb; border:1px solid #fde68a; border-radius:10px; font-size:13px; color:#92400e;">
-                        <strong>Demo mode.</strong> Payment is not configured for this environment.
-                        The booking is held with status <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">{{ $booking->status->value }}</code>
-                        — set <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">NMI_SECURITY_KEY</code> + <code style="font-family:'SFMono-Regular',Consolas,monospace; background:#fff;padding:1px 6px;border-radius:4px;">NMI_TOKENIZATION_KEY</code> to enable live payment.
+                        <strong>Payment pending.</strong> We aren't able to take card payment for this booking right now.
+                        Your reservation is held and nothing has been charged — our team will follow up shortly to complete it.
                     </div>
                 @endif
 
