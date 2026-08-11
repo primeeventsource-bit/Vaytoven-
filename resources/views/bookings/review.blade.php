@@ -77,10 +77,15 @@
                             <span>${{ number_format($breakdown['cleaning_cents']/100, 2) }}</span>
                         </li>
                     @endif
-                    <li style="display:flex; justify-content:space-between; padding:8px 0;">
-                        <span class="props-card-loc">Service fee</span>
-                        <span>${{ number_format($breakdown['service_fee_cents']/100, 2) }}</span>
-                    </li>
+                    {{-- Under Single-Fee the host carries the whole fee, so
+                         there is no guest service fee to show and the line is
+                         omitted entirely rather than displayed as $0.00. --}}
+                    @if ($breakdown['service_fee_cents'] > 0)
+                        <li style="display:flex; justify-content:space-between; padding:8px 0;">
+                            <span class="props-card-loc">Vaytoven Guest Service Fee</span>
+                            <span>${{ number_format($breakdown['service_fee_cents']/100, 2) }}</span>
+                        </li>
+                    @endif
                     <li style="display:flex; justify-content:space-between; padding:8px 0;">
                         <span class="props-card-loc">Taxes</span>
                         <span>${{ number_format($breakdown['tax_cents']/100, 2) }}</span>
@@ -103,7 +108,13 @@
                 </form>
 
                 <p class="props-book-fineprint">
-                    You'll be asked to pay after the booking is confirmed. Service fee is non-refundable; see the cancellation policy for details.
+                    @if ($breakdown['service_fee_cents'] > 0)
+                        This is the complete amount before you authorize payment. The Vaytoven Guest
+                        Service Fee is non-refundable; see the cancellation policy for details.
+                    @else
+                        This is the complete amount before you authorize payment. There is no
+                        separate Vaytoven Guest Service Fee on this listing.
+                    @endif
                 </p>
             </div>
         </aside>

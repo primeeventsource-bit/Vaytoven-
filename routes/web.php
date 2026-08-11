@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\InboxController;
 use App\Http\Controllers\Admin\OfferController as AdminOfferController;
 use App\Http\Controllers\Admin\PaymentProcessorController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\ServiceFeeController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserCertificateController as AdminUserCertificateController;
 use App\Http\Controllers\Admin\UserController;
@@ -203,6 +204,17 @@ Route::middleware(['auth'])
         // Cross-platform inquiry/offer register. Read-only: responding is the
         // listing owner's action and lives on the owner dashboard.
         Route::get('offers', [AdminOfferController::class, 'index'])->middleware('permission:offers.view')->name('offers.index');
+
+        // Hosting → Service Fees. Every percentage a booking charges comes
+        // from a row here; nothing is hard-coded in the application.
+        Route::get('hosting/service-fees', [ServiceFeeController::class, 'index'])
+            ->middleware('permission:billing.service_fees')->name('hosting.service-fees');
+        Route::post('hosting/service-fees', [ServiceFeeController::class, 'store'])
+            ->middleware('permission:billing.service_fees')->name('hosting.service-fees.store');
+        Route::put('hosting/service-fees/{config}', [ServiceFeeController::class, 'update'])
+            ->middleware('permission:billing.service_fees')->name('hosting.service-fees.update');
+        Route::delete('hosting/service-fees/{config}', [ServiceFeeController::class, 'destroy'])
+            ->middleware('permission:billing.service_fees')->name('hosting.service-fees.destroy');
 
         // Everything the public forms produce. Without this the /contact and
         // /trip-support forms would be write-only.

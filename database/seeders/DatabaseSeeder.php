@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RbacSeeder::class,
             SettingsSeeder::class,
+            ServiceFeeSeeder::class,
             AmenitiesSeeder::class,
             HelpArticleSeeder::class,
             LegalDocumentSeeder::class,

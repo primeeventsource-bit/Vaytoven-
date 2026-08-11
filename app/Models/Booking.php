@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\BookingStatus;
 use App\Enums\CancellationPolicy;
+use App\Enums\FeeStructure;
+use App\Services\Fees\ResolvedServiceFee;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,6 +30,13 @@ class Booking extends Model
         'service_fee_cents',
         'tax_cents',
         'total_cents',
+        // Immutable service-fee snapshot — see the migration.
+        'fee_structure',
+        'host_fee_bps',
+        'host_fee_cents',
+        'guest_fee_bps',
+        'host_net_cents',
+        'service_fee_config_id',
         'cancellation_policy',
         'status',
         'cancelled_at',
@@ -48,10 +57,40 @@ class Booking extends Model
             'service_fee_cents' => 'integer',
             'tax_cents' => 'integer',
             'total_cents' => 'integer',
+            'fee_structure' => FeeStructure::class,
+            'host_fee_bps' => 'integer',
+            'host_fee_cents' => 'integer',
+            'guest_fee_bps' => 'integer',
+            'host_net_cents' => 'integer',
             'status' => BookingStatus::class,
             'cancellation_policy' => CancellationPolicy::class,
             'cancelled_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Bookings taken before the fee structure shipped carry no snapshot. They
+     * are shown as "not recorded" rather than back-filled with today's rates,
+     * which would be inventing history.
+     */
+    public function hasFeeSnapshot(): bool
+    {
+        return $this->fee_structure !== null && $this->host_fee_bps !== null;
+    }
+
+    /** e.g. "15.5%" — formatted from the snapshotted basis points. */
+    public function hostFeeRateLabel(): string
+    {
+        return $this->host_fee_bps === null
+            ? '—'
+            : ResolvedServiceFee::formatBps($this->host_fee_bps);
+    }
+
+    public function guestFeeRateLabel(): string
+    {
+        return $this->guest_fee_bps === null
+            ? '—'
+            : ResolvedServiceFee::formatBps($this->guest_fee_bps);
     }
 
     protected static function booted(): void

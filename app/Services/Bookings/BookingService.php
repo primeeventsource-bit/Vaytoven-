@@ -84,7 +84,7 @@ class BookingService
             $cleaning = $lockedProperty->cleaning_fee_cents;
             // Admin-tunable fee % and tax rate (Settings console) — one
             // source of truth shared with the review-page breakdown.
-            $quote = QuoteCalculator::breakdown($rate, $nights, $cleaning);
+            $quote = QuoteCalculator::breakdown($rate, $nights, $cleaning, $lockedProperty);
 
             return Booking::create([
                 'property_id' => $lockedProperty->id,
@@ -99,6 +99,17 @@ class BookingService
                 'service_fee_cents' => $quote['service_fee_cents'],
                 'tax_cents' => $quote['tax_cents'],
                 'total_cents' => $quote['total_cents'],
+
+                // Immutable snapshot of the fee configuration applied. The
+                // RATES are stored, not just the resulting cents, so a later
+                // rate change can never make this transaction unreconstructable.
+                'fee_structure' => $quote['fee_structure'],
+                'host_fee_bps' => $quote['host_fee_bps'],
+                'host_fee_cents' => $quote['host_fee_cents'],
+                'guest_fee_bps' => $quote['guest_fee_bps'],
+                'host_net_cents' => $quote['host_net_cents'],
+                'service_fee_config_id' => $quote['service_fee_config_id'],
+
                 'cancellation_policy' => $lockedProperty->cancellation_policy?->value
                     ?? setting('booking.default_cancellation_policy', 'moderate'),
                 'status' => BookingStatus::PendingPayment->value,

@@ -86,10 +86,12 @@
                             <span>${{ number_format($booking->cleaning_fee_cents/100, 2) }}</span>
                         </li>
                     @endif
-                    <li style="display:flex; justify-content:space-between; padding:8px 0;">
-                        <span class="props-card-loc">Service fee</span>
-                        <span>${{ number_format($booking->service_fee_cents/100, 2) }}</span>
-                    </li>
+                    @if ($booking->service_fee_cents > 0)
+                        <li style="display:flex; justify-content:space-between; padding:8px 0;">
+                            <span class="props-card-loc">Vaytoven Guest Service Fee</span>
+                            <span>${{ number_format($booking->service_fee_cents/100, 2) }}</span>
+                        </li>
+                    @endif
                     <li style="display:flex; justify-content:space-between; padding:8px 0;">
                         <span class="props-card-loc">Taxes</span>
                         <span>${{ number_format($booking->tax_cents/100, 2) }}</span>

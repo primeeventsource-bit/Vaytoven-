@@ -3,7 +3,9 @@
 namespace App\Services\Bookings;
 
 use App\Models\FeeSchedule;
+use App\Models\Property;
 use App\Models\TaxRule;
+use App\Services\Fees\ServiceFeeResolver;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Cache;
 
@@ -30,19 +32,49 @@ final class QuoteCalculator
     public const DEFAULT_TAX_BPS = 800;
 
     /**
-     * @return array{subtotal_cents:int, service_fee_cents:int, tax_cents:int, total_cents:int}
+     * @param  Property|null  $property  Resolves the host/guest fee structure.
+     *                                   Null keeps the pre-structure behaviour,
+     *                                   which is what the unit tests of the old
+     *                                   math rely on.
+     * @return array{
+     *     subtotal_cents:int, service_fee_cents:int, tax_cents:int, total_cents:int,
+     *     fee_structure:string, host_fee_bps:int, guest_fee_bps:int,
+     *     host_fee_cents:int, host_net_cents:int, service_fee_config_id:int|null
+     * }
      */
-    public static function breakdown(int $rateCents, int $nights, int $cleaningCents): array
+    public static function breakdown(int $rateCents, int $nights, int $cleaningCents, ?Property $property = null): array
     {
         $subtotal = $rateCents * $nights;
-        $serviceFee = (int) round($subtotal * self::guestServicePct() / 100);
+
+        $fee = app(ServiceFeeResolver::class)->resolve($property);
+
+        // Guest service fee is charged on the nightly subtotal only — cleaning
+        // is a host cost passed through, not something Vaytoven marks up. Under
+        // Single-Fee the guest rate is 0, so this is 0 and their total equals
+        // the stay price, which is the whole point of that structure.
+        $serviceFee = $fee->guestFeeCents($subtotal);
+
         $tax = (int) round(($subtotal + $cleaningCents + $serviceFee) * self::taxBps() / 10000);
+
+        // The host's gross is what the guest pays for the stay itself: nights
+        // plus cleaning. Their fee comes out of that, never out of tax (which
+        // is not Vaytoven's money) nor out of the guest service fee.
+        $hostGross = $subtotal + $cleaningCents;
 
         return [
             'subtotal_cents' => $subtotal,
             'service_fee_cents' => $serviceFee,
             'tax_cents' => $tax,
             'total_cents' => $subtotal + $cleaningCents + $serviceFee + $tax,
+
+            // Snapshot fields — persisted onto the booking so a later rate
+            // change can never rewrite what this transaction actually was.
+            'fee_structure' => $fee->structure->value,
+            'host_fee_bps' => $fee->hostBps,
+            'guest_fee_bps' => $fee->guestBps,
+            'host_fee_cents' => $fee->hostFeeCents($hostGross),
+            'host_net_cents' => $fee->hostNetCents($hostGross),
+            'service_fee_config_id' => $fee->configId,
         ];
     }
 

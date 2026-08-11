@@ -387,7 +387,10 @@ class BookingFlowController extends Controller
         $cleaning = $property->cleaning_fee_cents;
         // Admin-tunable fee % and tax rate — same math as BookingService,
         // so the review page always matches the persisted booking.
-        $quote = QuoteCalculator::breakdown($rate, $nights, $cleaning);
+        // Passing the property resolves this listing's fee structure, so the
+        // review page shows the guest exactly what they will be charged —
+        // including no service fee line at all under Single-Fee.
+        $quote = QuoteCalculator::breakdown($rate, $nights, $cleaning, $property);
 
         return [
             'rate_cents' => $rate,
@@ -396,6 +399,8 @@ class BookingFlowController extends Controller
             'service_fee_cents' => $quote['service_fee_cents'],
             'tax_cents' => $quote['tax_cents'],
             'total_cents' => $quote['total_cents'],
+            'fee_structure' => $quote['fee_structure'],
+            'guest_fee_bps' => $quote['guest_fee_bps'],
         ];
     }
 

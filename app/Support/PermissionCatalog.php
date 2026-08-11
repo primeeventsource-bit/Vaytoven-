@@ -98,6 +98,7 @@ final class PermissionCatalog
         'billing.view' => ['billing', 'View Billing', 'See subscriptions, charges, and refunds.'],
         'billing.manage' => ['billing', 'Manage Billing', 'Issue refunds and change subscription state.'],
         'billing.processors' => ['billing', 'Manage Payment Processors', 'Edit gateway credentials and routing. Highly privileged.'],
+        'billing.service_fees' => ['billing', 'Manage Service Fees', 'Set the host and guest Vaytoven Service Fee rates and structures. Changes affect every new booking.'],
 
         // --- Reports ---------------------------------------------------
         'reports.view' => ['reports', 'View Reports', 'See operational and financial reporting.'],
