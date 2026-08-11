@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ConfigCollectionController;
 use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\FeatureFlagController;
+use App\Http\Controllers\Admin\OfferController as AdminOfferController;
 use App\Http\Controllers\Admin\PaymentProcessorController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\LegalController;
 use App\Http\Controllers\MemberEnquiryController;
 use App\Http\Controllers\MemberOfferController;
 use App\Http\Controllers\NewsletterSubscriptionController;
+use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyBrowseController;
 use App\Http\Controllers\Webhooks\DocuSignWebhookController;
@@ -66,6 +68,15 @@ Route::middleware(['auth', 'terms.current'])->group(function () {
     // status is still Pending.
     Route::post('/account/offers/{offer}/accept', [MemberOfferController::class, 'accept'])->name('member.offers.accept');
     Route::post('/account/offers/{offer}/decline', [MemberOfferController::class, 'decline'])->name('member.offers.decline');
+
+    // Buyer inquiries and offers on listings. A buyer submits against a
+    // listing; the listing OWNER reviews them on /account/listing-offers and
+    // responds there. Owner scoping is by properties.host_id — see
+    // MemberOffer::scopeForListingsOwnedBy.
+    Route::post('/properties/{property}/offers', [OfferController::class, 'store'])->name('offers.store');
+    Route::get('/account/listing-offers', [OfferController::class, 'index'])->name('offers.index');
+    Route::post('/account/listing-offers/{offer}/accept', [OfferController::class, 'accept'])->name('offers.accept');
+    Route::post('/account/listing-offers/{offer}/decline', [OfferController::class, 'decline'])->name('offers.decline');
 
     // Host payout enrollment (FR-5.x) — platform-managed since the NMI
     // migration; ops verifies and flips status from the admin console.
@@ -148,6 +159,10 @@ Route::middleware(['auth'])
         Route::get('roles/{role}/edit', [RoleController::class, 'edit'])->middleware('permission:roles.edit')->name('roles.edit');
         Route::put('roles/{role}', [RoleController::class, 'update'])->middleware('permission:roles.edit')->name('roles.update');
         Route::delete('roles/{role}', [RoleController::class, 'destroy'])->middleware('permission:roles.delete')->name('roles.destroy');
+
+        // Cross-platform inquiry/offer register. Read-only: responding is the
+        // listing owner's action and lives on the owner dashboard.
+        Route::get('offers', [AdminOfferController::class, 'index'])->middleware('permission:offers.view')->name('offers.index');
 
         Route::get('contracts', [AdminContractController::class, 'index'])->middleware('permission:contracts.view')->name('contracts.index');
         Route::get('contracts/create', [AdminContractController::class, 'create'])->middleware('permission:contracts.send')->name('contracts.create');

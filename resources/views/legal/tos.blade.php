@@ -21,7 +21,11 @@
 </div>
 
 <h2 id="acceptance">1. Acceptance of these terms</h2>
-<p>These Terms of Service govern your use of Vaytoven (the "Service") provided by Vaytoven, Inc. ("Vaytoven", "we", "us"). By creating an account, listing a property, booking a stay, or otherwise using the Service, you agree to be bound by these terms.</p>
+{{-- The legal entity is written literally, never templated from a setting:
+     LegalDocumentRegistry hashes this document's RENDERED output, so pulling
+     the name from the database would let an unrelated settings edit silently
+     mint a new terms version and force every user to re-accept. --}}
+<p>These Terms of Service govern your use of Vaytoven (the "Service") provided by Vaytoven Technologies LLC ("Vaytoven", "we", "us"). By creating an account, listing a property, booking a stay, or otherwise using the Service, you agree to be bound by these terms.</p>
 <p>If you do not agree, do not use the Service.</p>
 
 <h2 id="account">2. Your account</h2>

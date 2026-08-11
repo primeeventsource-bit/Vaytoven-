@@ -991,7 +991,7 @@
         </div>
     </div>
     <div class="footer-bottom">
-        <div>© {{ date('Y') }} Vaytoven V1 LLC. All rights reserved.</div>
+        <div>© {{ date('Y') }} Vaytoven Technologies LLC. All Rights Reserved.</div>
         <div>
             <a href="{{ route('legal.privacy') }}" style="margin-right:18px;" data-track-audience="traveler" data-track-cta="footer_privacy">Privacy</a>
             <a href="{{ route('legal.tos') }}" style="margin-right:18px;" data-track-audience="traveler" data-track-cta="footer_tos">Terms</a>

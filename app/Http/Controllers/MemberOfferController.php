@@ -50,6 +50,13 @@ class MemberOfferController extends Controller
     private function authoriseMemberOnPending(Request $request, MemberOffer $offer): void
     {
         $user = $request->user();
+
+        // Buyer submissions also carry the listing owner's id in
+        // member_user_id, so without this they would be actionable here —
+        // bypassing the 24-hour expiry check that OfferController applies.
+        // Inbound offers are answered on /account/listing-offers only.
+        abort_if($offer->isFromBuyer(), 404);
+
         abort_unless($user && $offer->member_user_id === $user->id, 403);
         abort_unless($offer->status->isActionable(), 422, 'This offer is no longer pending.');
     }

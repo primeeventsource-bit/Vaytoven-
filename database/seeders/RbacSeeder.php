@@ -56,6 +56,7 @@ class RbacSeeder extends Seeder
             'permissions' => [
                 'properties.view', 'properties.create', 'properties.edit',
                 'properties.publish', 'properties.delete', 'properties.availability',
+                'offers.view', 'offers.respond',
                 'resorts.view', 'resorts.create', 'resorts.edit',
                 'media.view', 'media.upload', 'media.edit', 'media.delete',
                 'reports.view',
@@ -69,7 +70,7 @@ class RbacSeeder extends Seeder
             'permissions' => [
                 'members.view', 'members.create', 'members.edit', 'members.assign_plan',
                 'users.view',
-                'properties.view', 'resorts.view', 'media.view',
+                'properties.view', 'offers.view', 'resorts.view', 'media.view',
                 'contracts.view', 'contracts.send',
                 'reports.view',
             ],
@@ -81,7 +82,7 @@ class RbacSeeder extends Seeder
             'is_super' => false,
             'permissions' => [
                 'members.view', 'members.create', 'members.edit', 'members.assign_plan',
-                'properties.view', 'resorts.view', 'media.view',
+                'properties.view', 'offers.view', 'resorts.view', 'media.view',
                 'contracts.view', 'contracts.send',
                 'billing.view',
                 'reports.view',
@@ -95,7 +96,7 @@ class RbacSeeder extends Seeder
             'permissions' => [
                 'users.view', 'users.edit', 'users.reset_password', 'users.deactivate',
                 'members.view', 'members.edit',
-                'properties.view', 'resorts.view', 'media.view',
+                'properties.view', 'offers.view', 'resorts.view', 'media.view',
                 'contracts.view',
                 'billing.view',
                 'reports.view',

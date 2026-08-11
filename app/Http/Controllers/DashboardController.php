@@ -111,7 +111,14 @@ class DashboardController extends Controller
         // Offers Vaytoven has extended to this member — pending first
         // (most actionable), then a tail of recent responded/expired so
         // the member sees their history without a separate page.
+        // toMembers() is load-bearing: buyer submissions also carry this
+        // member's id in member_user_id (they're the listing owner who must
+        // respond), and without the direction filter they would surface in
+        // this outbound-offer panel — whose accept button posts to
+        // MemberOfferController, which does not apply the 24-hour expiry
+        // check. Inbound submissions belong on /account/listing-offers.
         $offers = MemberOffer::query()
+            ->toMembers()
             ->where('member_user_id', $user->id)
             ->with('property:id,title,city,country')
             ->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END")
@@ -146,6 +153,11 @@ class DashboardController extends Controller
                 'perListingStats' => [],
                 'pinPoints'       => [],
                 'pinsByListing'   => [],
+                // The map partial reads these unconditionally, so the empty
+                // branch has to supply them too — omitting them 500s the
+                // dashboard for any host or member with no listings yet.
+                'mapboxToken'     => $this->publicMapboxTokenOrNull(config('services.mapbox.token')),
+                'mapboxStyle'     => config('services.mapbox.style'),
             ];
         }
 

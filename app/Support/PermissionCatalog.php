@@ -32,6 +32,7 @@ final class PermissionCatalog
         'roles' => 'Roles & Permissions',
         'members' => 'Members',
         'properties' => 'Properties',
+        'offers' => 'Inquiries & Offers',
         'resorts' => 'Vacation Club Resorts',
         'media' => 'Media Library',
         'billing' => 'Subscriptions & Billing',
@@ -74,6 +75,10 @@ final class PermissionCatalog
         'properties.publish' => ['properties', 'Publish / Unpublish Properties', 'Control whether a listing is publicly visible.'],
         'properties.delete' => ['properties', 'Delete Properties', 'Remove a listing.'],
         'properties.availability' => ['properties', 'Manage Availability', 'Edit availability calendars and blackout dates.'],
+
+        // --- Inquiries & offers ----------------------------------------
+        'offers.view' => ['offers', 'View All Inquiries & Offers', 'See every buyer inquiry and offer across the platform, including buyer, owner, amount, IP, and expiry.'],
+        'offers.respond' => ['offers', 'Respond to Offers', 'Accept or decline an offer on behalf of a listing owner.'],
 
         // --- Vacation Club resorts -------------------------------------
         'resorts.view' => ['resorts', 'View Resorts', 'See Vacation Club resorts.'],

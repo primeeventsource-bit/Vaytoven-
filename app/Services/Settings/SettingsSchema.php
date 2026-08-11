@@ -110,7 +110,7 @@ final class SettingsSchema
             'general.favicon_url' => ['general', 'string', '', 'Favicon URL', ['nullable', 'string', 'max:512'], null, true],
             'general.support_email' => ['general', 'string', 'support@vaytoven.com', 'Support email', ['nullable', 'email', 'max:255'], null, true],
             'general.support_phone' => ['general', 'string', '', 'Support phone', ['nullable', 'string', 'max:32'], null, true],
-            'general.company_legal_name' => ['general', 'string', 'Vaytoven Rentals LLC', 'Company legal name', ['string', 'max:160']],
+            'general.company_legal_name' => ['general', 'string', 'Vaytoven Technologies LLC', 'Company legal name', ['string', 'max:160']],
             'general.timezone' => ['general', 'string', 'America/New_York', 'Timezone', ['timezone:all']],
             'general.default_locale' => ['general', 'enum', 'en', 'Default locale', ['in:en'], null, false, false, ['en']],
             'general.default_currency' => ['general', 'enum', 'USD', 'Default currency', ['in:USD,EUR,GBP,CAD,MXN'], null, false, false, ['USD', 'EUR', 'GBP', 'CAD', 'MXN']],

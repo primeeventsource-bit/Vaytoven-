@@ -129,6 +129,63 @@
                         Min stay: {{ $property->minimum_nights }} {{ Str::plural('night', $property->minimum_nights) }} · Max guests: {{ $property->capacity }}
                     </p>
                 </div>
+
+                {{-- Make an offer / ask a question. Signed-in buyers only: every
+                     submission is attributed to an account, and the owner
+                     dashboard shows who submitted it. Owners don't see this on
+                     their own listing. --}}
+                @auth
+                    @if ($property->host_id !== auth()->id())
+                        <div class="props-card" style="margin-top:18px; padding:18px;">
+                            <h3 style="margin:0 0 4px; font-size:16px;">Make an offer</h3>
+                            <p style="margin:0 0 14px; font-size:12.5px; color:var(--muted); line-height:1.5;">
+                                The owner has 24 hours to respond before your offer expires.
+                            </p>
+
+                            @if (session('success'))
+                                <div style="margin-bottom:12px; padding:11px 13px; background:#ecfdf5; border:1px solid #a7f3d0; color:#047857; border-radius:9px; font-size:12.5px;">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
+                            @if (session('error'))
+                                <div style="margin-bottom:12px; padding:11px 13px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:9px; font-size:12.5px;">
+                                    {{ session('error') }}
+                                </div>
+                            @endif
+
+                            <form method="POST" action="{{ route('offers.store', $property) }}" style="display:grid; gap:10px;">
+                                @csrf
+                                <div>
+                                    <label for="o-kind" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:4px;">Type</label>
+                                    <select id="o-kind" name="kind" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; background:var(--bg); outline:none;">
+                                        <option value="offer">Offer with an amount</option>
+                                        <option value="inquiry">Question, no amount</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="o-amount" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:4px;">Your offer (USD)</label>
+                                    <input id="o-amount" type="number" name="amount_dollars" min="1" step="1"
+                                           value="{{ old('amount_dollars') }}"
+                                           style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; background:var(--bg); outline:none;">
+                                    @error('amount_dollars')
+                                        <span style="display:block; margin-top:4px; font-size:12px; color:#b91c1c;">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="o-message" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:4px;">Message</label>
+                                    <textarea id="o-message" name="message" rows="3" maxlength="2000"
+                                              placeholder="Dates you have in mind, questions about the property…"
+                                              style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; background:var(--bg); outline:none; font-family:inherit; resize:vertical;">{{ old('message') }}</textarea>
+                                </div>
+                                <button type="submit" class="props-book-cta"
+                                        data-track-audience="traveler" data-track-cta="property_offer_submit"
+                                        data-track-meta-id="{{ $property->id }}">
+                                    Submit
+                                </button>
+                            </form>
+                        </div>
+                    @endif
+                @endauth
             </aside>
         </div>
     </article>
