@@ -7,7 +7,9 @@ name: Test
 
 on:
   push:
-    branches: [main, development, sandbox, production]
+    # PHPUnit runs on all of these; E2E is gated further down to the branches
+    # that actually have a reachable environment.
+    branches: [main, development, production]
   pull_request:
     branches: [main, development]
   workflow_dispatch:
@@ -53,17 +55,30 @@ jobs:
     name: Playwright E2E (deployed env)
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Only run E2E on pushes to environment branches — these auto-deploy and
-    # the suite hits the live URL.  PRs run PHPUnit only.
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    # E2E only runs against branches that have a reachable deployed environment.
+    #
+    # `development` is excluded deliberately: its Laravel Cloud environment has
+    # no database attached, so /health returns 503 and the suite could never
+    # pass there. It previously fell through to main's URL, which meant a push
+    # to development "passed" E2E by testing code that was not deployed to the
+    # environment under test. A skipped job is honest; a green one that proves
+    # nothing is not. Attach a database to the development environment and it
+    # can be added back here.
+    if: >-
+      (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'production'))
+      || github.event_name == 'workflow_dispatch'
 
     env:
-      # Map each environment branch to its deployed Laravel Cloud URL.
-      # Override via repo variable E2E_BASE_URL_<BRANCH> if vanity domains change.
+      # Branch -> deployed Laravel Cloud URL.
+      #
+      # All three environments live under the single `v-app-dev` application.
+      # The former `v-app-production` and `v-app-sandbox` applications were
+      # deleted; their hostnames now return Cloudflare 530, which is what made
+      # every production-branch run burn four minutes in the health-check loop
+      # before failing.
       E2E_BASE_URL: >-
         ${{
-          github.ref_name == 'production' && 'https://v-app-production-main-pkuean.laravel.cloud' ||
-          github.ref_name == 'sandbox' && 'https://v-app-sandbox-main-3m6clk.laravel.cloud' ||
+          github.ref_name == 'production' && 'https://v-app-dev-production-iddl1a.laravel.cloud' ||
           'https://v-app-dev-main-oyo1n9.laravel.cloud'
         }}
 
