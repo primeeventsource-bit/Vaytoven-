@@ -10,8 +10,9 @@
 /playwright/.cache
 
 .env
-.env.backup
-.env.production
+.env.*
+# Keep the checked-in template — .env.* above would otherwise swallow it.
+!.env.example
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
