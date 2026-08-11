@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\FeeStructure;
 use App\Enums\UserRole;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,6 +25,9 @@ class User extends Authenticatable
         'phone',
         'password',
         'role',
+        // Host-level Split-Fee / Single-Fee override. Without this in
+        // $fillable a create()/update() would silently discard it.
+        'fee_structure',
         'deactivated_at',
         'deactivated_by_user_id',
         'created_by_user_id',
@@ -48,6 +52,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            // Cast so the attribute is a FeeStructure here as it is on Booking
+            // and ServiceFeeConfig, rather than a bare string on this model
+            // only. Nullable: most users have no override.
+            'fee_structure' => FeeStructure::class,
             'deactivated_at' => 'datetime',
             'last_login_at' => 'datetime',
         ];

@@ -43,16 +43,9 @@ class CareersController extends Controller
         // silently lose every attachment on the next deploy — the file would
         // upload fine, the record would save fine, and the document would be
         // gone. Prefer object storage whenever a bucket is configured.
-        $disk = config('filesystems.disks.s3.bucket') ? 's3' : config('filesystems.default');
-
-        if ($disk === 'local') {
-            Log::warning('careers: résumé stored on the ephemeral local disk; set FILESYSTEM_DISK to durable storage.', [
-                'opening_id' => $opening->id,
-            ]);
-        }
-
-        // Never the `public` disk — these are candidates' personal documents.
-        $path = $request->file('resume')?->store('applications/'.$opening->id, $disk);
+        $path = $request->hasFile('resume')
+            ? $request->file('resume')->store('applications/'.$opening->id, $this->resumeDisk())
+            : null;
 
         $application = JobApplication::create([
             'job_opening_id' => $opening->id,
@@ -69,5 +62,40 @@ class CareersController extends Controller
             ->route('careers.show', $opening)
             ->with('application_reference', $application->reference)
             ->with('application_success', 'Application received. We read every one and will be in touch.');
+    }
+
+    /**
+     * Where a résumé is written. Three things must hold, and none of them can
+     * be left to a comment:
+     *
+     *   1. NEVER the `public` disk. That disk is symlinked to public/storage
+     *      with public visibility, so a candidate's CV would be downloadable
+     *      by anyone who guessed the path.
+     *   2. Prefer object storage, and only when it is genuinely configured —
+     *      testing a disk name that has no driver throws on every submission.
+     *   3. `local` is the last resort and is ephemeral on Laravel Cloud, so it
+     *      is logged loudly rather than failing silently at the next deploy.
+     */
+    private function resumeDisk(): string
+    {
+        $configured = config('filesystems.default');
+
+        foreach (['s3', 'private'] as $preferred) {
+            if (config("filesystems.disks.{$preferred}.driver")) {
+                return $preferred;
+            }
+        }
+
+        if ($configured === 'public') {
+            Log::error('careers: FILESYSTEM_DISK is "public"; refusing to write résumés to a world-readable disk.');
+
+            return 'local';
+        }
+
+        if ($configured === 'local') {
+            Log::warning('careers: résumé stored on the ephemeral local disk. Attachments will be lost on the next deploy — configure S3.');
+        }
+
+        return $configured;
     }
 }

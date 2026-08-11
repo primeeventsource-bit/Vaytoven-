@@ -14,8 +14,14 @@ use Illuminate\Support\Facades\Route;
 // All routes here are mounted under /api/v1 by bootstrap/app.php.
 // Anything inside ->middleware('auth:sanctum') requires a Sanctum bearer token.
 
-Route::post('auth/register', [AuthController::class, 'register']);
-Route::post('auth/login', [AuthController::class, 'login']);
+// Throttled deliberately and tightly. The web login is capped at 5 attempts
+// per email+IP (Auth\LoginRequest::ensureIsNotRateLimited), but this endpoint
+// hits the SAME credential store and had no limit at all — an unmetered
+// password-guessing oracle that mints a non-expiring Sanctum token on success.
+// The API middleware group applies no throttle of its own: Laravel only joins
+// one when withRouting(apiLimiter:) is configured, and it is not.
+Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
+Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 
 // Public property search + show — no auth required (browse-without-login).
 Route::get('properties', [PropertyController::class, 'index']);

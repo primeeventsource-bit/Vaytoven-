@@ -42,6 +42,19 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request->string('email'))->firstOrFail();
+
+        // A deactivated account must not be able to mint an API token. The web
+        // login enforces this (Auth\LoginRequest); without the same check here
+        // the API is a way straight past a deactivation — and Sanctum tokens
+        // do not expire, so the access would outlive the decision indefinitely.
+        if (! $user->isActive()) {
+            Auth::guard('web')->logout();
+
+            return response()->json([
+                'message' => 'This account has been deactivated.',
+            ], 403);
+        }
+
         $token = $user->createToken($request->input('device_name', 'api'))->plainTextToken;
 
         return response()->json([

@@ -221,17 +221,39 @@ class SupportChatTest extends TestCase
         $this->assertSame(1, SupportChatSession::count());
     }
 
-    public function test_chat_endpoint_continues_existing_session_when_session_id_given(): void
+    /**
+     * This test previously passed a session id belonging to nobody in
+     * particular and asserted the turn succeeded — which encoded the session
+     * takeover as expected behaviour. Continuation is still supported; it now
+     * has to be YOUR session. See SecurityHardeningTest for the negative cases.
+     */
+    public function test_a_signed_in_user_can_continue_their_own_session(): void
     {
-        $session = SupportChatSession::factory()->create();
-        $this->fake->enqueue($this->textResponse("Continuing"));
+        $user = User::factory()->create();
+        $session = SupportChatSession::factory()->create(['user_id' => $user->id]);
+        $this->fake->enqueue($this->textResponse('Continuing'));
 
-        $this->postJson('/api/v1/support/chat', [
+        $this->actingAs($user)->postJson('/api/v1/support/chat', [
             'session_id' => $session->id,
             'message' => 'follow-up',
         ])->assertOk()->assertJsonPath('session_id', $session->id);
 
         $this->assertSame(1, SupportChatSession::count());
+    }
+
+    public function test_an_anonymous_visitor_can_continue_their_own_session(): void
+    {
+        $session = SupportChatSession::factory()->create([
+            'user_id' => null,
+            'visitor_id' => 'visitor-xyz-789',
+        ]);
+        $this->fake->enqueue($this->textResponse('Continuing'));
+
+        $this->postJson('/api/v1/support/chat', [
+            'session_id' => $session->id,
+            'visitor_id' => 'visitor-xyz-789',
+            'message' => 'follow-up',
+        ])->assertOk()->assertJsonPath('session_id', $session->id);
     }
 
     public function test_prompt_injection_attempt_does_not_leak_other_users_data(): void

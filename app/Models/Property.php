@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CancellationPolicy;
+use App\Enums\FeeStructure;
 use App\Enums\PropertyStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,9 @@ class Property extends Model
     protected $fillable = [
         'host_id',
         'listing_source',
+        // Per-property Split-Fee / Single-Fee override. Without this in
+        // $fillable a create()/update() would silently discard it.
+        'fee_structure',
         'title',
         'description',
         'latitude',
@@ -53,6 +57,7 @@ class Property extends Model
             'minimum_nights' => 'integer',
             'status' => PropertyStatus::class,
             'cancellation_policy' => CancellationPolicy::class,
+            'fee_structure' => FeeStructure::class,
             // Vacation Club Exchange Detection snapshot — written by
             // ExchangeDetectionObserver when listing_source = 'managed'.
             'exchange_detection' => 'array',

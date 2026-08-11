@@ -97,9 +97,16 @@ class ServiceFeeResolver
             return null;
         }
 
+        // Both columns are cast to FeeStructure on their models now, so these
+        // arrive as enums rather than strings. tryFrom() is kept for the case
+        // where an unhydrated/raw value reaches here.
         $raw = $property->fee_structure ?: $property->host?->fee_structure;
 
-        return $raw ? FeeStructure::tryFrom((string) $raw) : null;
+        return match (true) {
+            $raw instanceof FeeStructure => $raw,
+            is_string($raw) && $raw !== '' => FeeStructure::tryFrom($raw),
+            default => null,
+        };
     }
 
     /**

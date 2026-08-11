@@ -49,7 +49,7 @@ class SupportChatController extends Controller
         }
 
         $session = $request->integer('session_id')
-            ? SupportChatSession::findOrFail($request->integer('session_id'))
+            ? $this->resumeSession($request)
             : $this->chat->startSession($request->user(), $surface, $request->input('visitor_id'));
 
         try {
@@ -68,5 +68,47 @@ class SupportChatController extends Controller
             'session_id' => $session->id,
             'reply' => $reply,
         ]);
+    }
+
+    /**
+     * Resume an existing chat session — but only the caller's own.
+     *
+     * This endpoint is public, and `session_id` is a sequential integer, so
+     * without an ownership check anyone could enumerate ids and resume a
+     * stranger's conversation. That is not merely a privacy leak of the
+     * transcript: SupportChatService rebuilds the tool registry as the SESSION
+     * OWNER, so the caller would inherit that user's identity and be able to
+     * ask the assistant for their bookings and recent charges. The registry's
+     * "every tool scopes to the session user" invariant only protects against
+     * prompt injection — it assumes the session belongs to the caller.
+     *
+     * Ownership is established two ways, matching how sessions are created:
+     *   - signed in  -> the session's user_id must be the caller
+     *   - anonymous  -> the session's visitor_id must match the caller's
+     *
+     * A mismatch is a 404, not a 403: confirming that an id exists but belongs
+     * to someone else is itself an enumeration oracle.
+     */
+    private function resumeSession(Request $request): SupportChatSession
+    {
+        $session = SupportChatSession::findOrFail($request->integer('session_id'));
+        $user = $request->user();
+
+        if ($session->user_id !== null) {
+            abort_unless($user && $session->user_id === $user->id, 404);
+
+            return $session;
+        }
+
+        // Anonymous session: the visitor id is the only thing tying it to a
+        // browser, so it must be supplied and must match exactly.
+        $visitorId = (string) $request->input('visitor_id');
+
+        abort_if(
+            $visitorId === '' || $session->visitor_id === null || ! hash_equals((string) $session->visitor_id, $visitorId),
+            404,
+        );
+
+        return $session;
     }
 }
