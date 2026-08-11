@@ -15,8 +15,11 @@ use Illuminate\Support\Facades\View;
  *   - version_label → human-readable label baked into the rendered HTML
  *
  * The registry's job is to:
- *   1. Resolve the *canonical text* of each document (we hash the rendered
- *      content, not the source Blade — what we hash is what users see).
+ *   1. Resolve the *canonical text* of each document — the rendered <main>
+ *      region, not the source Blade and not the whole page. What users read
+ *      is what gets hashed; the surrounding chrome (CSRF token, absolute
+ *      URLs) is excluded because it varies by environment and session
+ *      without the agreement changing. See canonicalText().
  *   2. Idempotently materialise terms_versions rows via TermsVersion::forContent
  *      so the deploy seeder is safe to re-run on every push.
  *   3. Tell callers which versions are "current" for each kind, used by the
@@ -126,9 +129,43 @@ class LegalDocumentRegistry
 
         return TermsVersion::forContent(
             kind:         $doc['kind'],
-            content:      $rendered,
+            content:      $this->canonicalText($rendered),
             url:          $url,
             versionLabel: $doc['version_label'],
         );
+    }
+
+    /**
+     * The part of the rendered page that IS the agreement — the <main> region
+     * holding the title, effective date, version label, and body.
+     *
+     * Hashing the whole page looks more honest but is not: the surrounding
+     * chrome carries a per-session CSRF token and absolute route() URLs built
+     * from APP_URL. That made the hash environment-coupled — the same document
+     * hashed differently on each environment — and it meant that pointing the
+     * app at a real domain would silently mint a new version and force every
+     * existing user to re-accept terms that had not changed a word.
+     *
+     * The nav bar is not part of the contract. The document is.
+     */
+    private function canonicalText(string $renderedPage): string
+    {
+        $matched = preg_match(
+            '#<main class="legal-shell">(.*?)</main>#s',
+            $renderedPage,
+            $matches,
+        );
+
+        // Fail loudly rather than falling back to the full page: a silent
+        // fallback would reintroduce the environment coupling exactly when
+        // someone changes the layout, which is when nobody is looking for it.
+        if ($matched !== 1) {
+            throw new \RuntimeException(
+                'Legal document layout no longer exposes <main class="legal-shell">; '
+                .'cannot compute a stable content hash. Update '.self::class.'::canonicalText().'
+            );
+        }
+
+        return trim($matches[1]);
     }
 }
