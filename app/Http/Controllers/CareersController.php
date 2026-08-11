@@ -6,7 +6,7 @@ use App\Http\Requests\StoreJobApplicationRequest;
 use App\Models\JobApplication;
 use App\Models\JobOpening;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 /**
@@ -38,10 +38,21 @@ class CareersController extends Controller
     {
         abort_unless($opening->isOpen(), 404);
 
-        // Résumés go to the configured disk (S3 in the cloud environments);
-        // the database stores the path only. Kept private — these are
-        // candidates' personal documents, not public assets.
-        $path = $request->file('resume')?->store('applications/'.$opening->id, 'local');
+        // Résumés must land on DURABLE storage. The container filesystem on
+        // Laravel Cloud is ephemeral, so writing to the `local` disk would
+        // silently lose every attachment on the next deploy — the file would
+        // upload fine, the record would save fine, and the document would be
+        // gone. Prefer object storage whenever a bucket is configured.
+        $disk = config('filesystems.disks.s3.bucket') ? 's3' : config('filesystems.default');
+
+        if ($disk === 'local') {
+            Log::warning('careers: résumé stored on the ephemeral local disk; set FILESYSTEM_DISK to durable storage.', [
+                'opening_id' => $opening->id,
+            ]);
+        }
+
+        // Never the `public` disk — these are candidates' personal documents.
+        $path = $request->file('resume')?->store('applications/'.$opening->id, $disk);
 
         $application = JobApplication::create([
             'job_opening_id' => $opening->id,
