@@ -859,14 +859,17 @@
             <h2 class="display" style="margin: 14px 0 16px; font-size: clamp(34px, 4.5vw, 52px);">Your trips. Your messages. <em class="grad-text">In your pocket.</em></h2>
             <p style="color: var(--muted); margin: 0; max-width: 44ch;">iOS and Android. Search, save, message your host, and get directions to the door — all in one place.</p>
 
+            {{-- App Store / Google Play buttons are deliberately absent until
+                 the apps are actually listed. A store badge that goes nowhere
+                 reads as a broken download, not as "coming soon" — the mobile
+                 page explains what the mobile experience does today and takes
+                 an email for launch. Swap this for real badges when the
+                 listings exist; do not restore placeholder ones. --}}
             <div class="store-buttons">
-                <a href="#" class="store-btn">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-                    <span><small>Download on the</small><strong>App Store</strong></span>
-                </a>
-                <a href="#" class="store-btn">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M3.6 1.6c-.4.4-.6.9-.6 1.6v17.6c0 .7.2 1.3.6 1.6L13 12 3.6 1.6zm10.5 11.6L17 16.4 5.6 23l8.5-9.8zM20 10.8c.7.4 1 .9 1 1.4s-.3 1-1 1.4L17 15.2l-3.5-3.2L17 8.8l3 2zM5.6 1L17 7.6l-2.9 3.2L5.6 1z"/></svg>
-                    <span><small>Get it on</small><strong>Google Play</strong></span>
+                <a href="{{ route('mobile-app') }}" class="store-btn"
+                   data-track-audience="traveler" data-track-cta="landing_mobile_app">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                    <span><small>See what's in</small><strong>Vaytoven Mobile</strong></span>
                 </a>
             </div>
         </div>
@@ -950,58 +953,7 @@
     </div>
 </section>
 
-<footer class="footer">
-    <div class="footer-grid">
-        <div class="footer-brand">
-            <div class="brand-mark">
-                <svg viewBox="0 0 64 64" width="32" height="32" aria-hidden="true">
-                    <path fill="url(#brand-grad)" d="M10 8h12l10 30 10-30h12L34 56h-8z"/>
-                    <circle cx="48" cy="14" r="8" fill="url(#brand-grad)"/>
-                    <circle cx="48" cy="14" r="3" fill="#fff"/>
-                </svg>
-                <span class="brand-mark-text">Vaytoven</span>
-            </div>
-            <p>Curated vacation properties. Built for travelers, hosts, and vacation club members who want the trip to feel right.</p>
-            <address>500 S Australian Ave, Ste 600<br>West Palm Beach, FL 33401</address>
-        </div>
-        <div>
-            <h5>Travel</h5>
-            <ul>
-                <li><a href="#destinations" data-track-audience="traveler" data-track-cta="footer_destinations">Destinations</a></li>
-                <li><a href="{{ route('properties.index') }}" data-track-audience="traveler" data-track-cta="footer_all_stays">All stays</a></li>
-                <li><a href="#app" data-track-audience="traveler" data-track-cta="footer_mobile_app">Mobile app</a></li>
-                <li><a href="/help" data-track-audience="traveler" data-track-cta="footer_help">Help center</a></li>
-                <li><a href="#" data-track-audience="traveler" data-track-cta="footer_trip_support">Trip support</a></li>
-            </ul>
-        </div>
-        <div>
-            <h5>Earn</h5>
-            <ul>
-                <li><a href="#host" data-track-audience="host" data-track-cta="footer_become_host">Become a host</a></li>
-                <li><a href="#members" data-track-audience="member" data-track-cta="footer_members_program">Members program</a></li>
-                <li><a href="#" data-track-audience="host" data-track-cta="footer_host_resources">Host resources</a></li>
-                <li><a href="#" data-track-audience="host" data-track-cta="footer_earnings_calculator">Earnings calculator</a></li>
-            </ul>
-        </div>
-        <div>
-            <h5>Company</h5>
-            <ul>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Careers</a></li>
-                <li><a href="#">Press</a></li>
-                <li><a href="#">Contact</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        <div>© {{ date('Y') }} Vaytoven Technologies LLC. All Rights Reserved.</div>
-        <div>
-            <a href="{{ route('legal.privacy') }}" style="margin-right:18px;" data-track-audience="traveler" data-track-cta="footer_privacy">Privacy</a>
-            <a href="{{ route('legal.tos') }}" style="margin-right:18px;" data-track-audience="traveler" data-track-cta="footer_tos">Terms</a>
-            <a href="{{ route('legal.member-agreement') }}" data-track-audience="member" data-track-cta="footer_member_agreement">Member Agreement</a>
-        </div>
-    </div>
-</footer>
+@include('partials.site-footer')
 
 <!-- Members modal -->
 <div class="modal-overlay" id="members-modal" role="dialog" aria-modal="true" aria-labelledby="members-modal-title">

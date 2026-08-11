@@ -38,6 +38,8 @@ final class PermissionCatalog
         'billing' => 'Subscriptions & Billing',
         'reports' => 'Reports',
         'contracts' => 'Contracts',
+        'inbox' => 'Contact & Support Requests',
+        'content' => 'Site Content',
         'settings' => 'Settings',
         'audit' => 'Activity Log',
     ];
@@ -105,6 +107,16 @@ final class PermissionCatalog
         'contracts.view' => ['contracts', 'View Contracts', 'See contracts and download signed copies.'],
         'contracts.send' => ['contracts', 'Send Contracts', 'Issue a new contract for signature.'],
         'contracts.void' => ['contracts', 'Void Contracts', 'Cancel an outstanding contract.'],
+
+        // --- Inbox: what the public forms produce ----------------------
+        'inbox.view' => ['inbox', 'View Contact & Support Requests', 'Read messages from /contact, Trip Support tickets, and job applications.'],
+        'inbox.manage' => ['inbox', 'Work Requests', 'Mark requests handled, assign them, and record outcomes.'],
+
+        // --- Site content: what the public pages render ----------------
+        'content.view' => ['content', 'View Site Content', 'See careers, press releases, and help articles in the console.'],
+        'content.edit' => ['content', 'Edit Site Content', 'Write and update careers, press releases, and help articles.'],
+        'content.publish' => ['content', 'Publish Site Content', 'Make content publicly visible, or take it down.'],
+        'content.delete' => ['content', 'Delete Site Content', 'Remove a content record entirely.'],
 
         // --- Settings --------------------------------------------------
         'settings.view' => ['settings', 'View Settings', 'See the settings console.'],

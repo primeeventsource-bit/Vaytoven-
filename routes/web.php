@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ConfigCollectionController;
 use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\FeatureFlagController;
+use App\Http\Controllers\Admin\InboxController;
 use App\Http\Controllers\Admin\OfferController as AdminOfferController;
 use App\Http\Controllers\Admin\PaymentProcessorController;
 use App\Http\Controllers\Admin\RoleController;
@@ -11,6 +12,8 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserCertificateController as AdminUserCertificateController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\BookingFlowController;
+use App\Http\Controllers\CareersController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Client\ContractController as ClientContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HealthController;
@@ -21,8 +24,11 @@ use App\Http\Controllers\MemberEnquiryController;
 use App\Http\Controllers\MemberOfferController;
 use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\PressController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyBrowseController;
+use App\Http\Controllers\SitePageController;
+use App\Http\Controllers\TripSupportController;
 use App\Http\Controllers\Webhooks\DocuSignWebhookController;
 use App\Http\Controllers\Webhooks\NmiWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +45,40 @@ Route::post('/members/enquiry', [MemberEnquiryController::class, 'store'])
 // ---------------------------------------------------------------------------
 Route::view('/become-a-host', 'hosts.show')->name('hosts.show');
 Route::view('/members', 'members.show')->name('members.show');
+
+// ---------------------------------------------------------------------------
+// Company + resource pages. These replaced the footer's `href="#"` links, and
+// each one is backed by real data rather than being a static page occupying a
+// URL: /destinations aggregates published listings, /host-resources renders
+// help articles, /careers and /press render operator-published records and
+// show an honest empty state when there are none, and /contact and
+// /trip-support persist submissions with a reference the customer can quote.
+//
+// Every footer link points at one of these by NAME (partials/site-footer), so
+// renaming a route breaks the build instead of producing a dead link.
+// ---------------------------------------------------------------------------
+Route::get('/destinations', [SitePageController::class, 'destinations'])->name('destinations.index');
+Route::get('/mobile-app', [SitePageController::class, 'mobileApp'])->name('mobile-app');
+Route::get('/about', [SitePageController::class, 'about'])->name('about');
+Route::get('/host-resources', [SitePageController::class, 'hostResources'])->name('host-resources.index');
+Route::get('/earnings-calculator', [SitePageController::class, 'earningsCalculator'])->name('earnings-calculator');
+
+Route::get('/contact', [ContactController::class, 'show'])->name('contact.show');
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:10,1')->name('contact.store');
+
+Route::get('/trip-support', [TripSupportController::class, 'show'])->name('trip-support.show');
+Route::post('/trip-support', [TripSupportController::class, 'store'])
+    ->middleware('throttle:10,1')->name('trip-support.store');
+
+// Literal /careers routes must precede the {opening} wildcard.
+Route::get('/careers', [CareersController::class, 'index'])->name('careers.index');
+Route::get('/careers/{opening}', [CareersController::class, 'show'])->name('careers.show');
+Route::post('/careers/{opening}/apply', [CareersController::class, 'apply'])
+    ->middleware('throttle:6,1')->name('careers.apply');
+
+Route::get('/press', [PressController::class, 'index'])->name('press.index');
+Route::get('/press/{release}', [PressController::class, 'show'])->name('press.show');
 
 // Newsletter signup — distinct from /register (account creation). Captures
 // full_name + email + phone for marketing email.
@@ -163,6 +203,12 @@ Route::middleware(['auth'])
         // Cross-platform inquiry/offer register. Read-only: responding is the
         // listing owner's action and lives on the owner dashboard.
         Route::get('offers', [AdminOfferController::class, 'index'])->middleware('permission:offers.view')->name('offers.index');
+
+        // Everything the public forms produce. Without this the /contact and
+        // /trip-support forms would be write-only.
+        Route::get('inbox', [InboxController::class, 'index'])->middleware('permission:inbox.view')->name('inbox.index');
+        Route::post('inbox/contact/{message}/handled', [InboxController::class, 'markHandled'])
+            ->middleware('permission:inbox.manage')->name('inbox.handled');
 
         Route::get('contracts', [AdminContractController::class, 'index'])->middleware('permission:contracts.view')->name('contracts.index');
         Route::get('contracts/create', [AdminContractController::class, 'create'])->middleware('permission:contracts.send')->name('contracts.create');

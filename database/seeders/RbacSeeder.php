@@ -96,6 +96,7 @@ class RbacSeeder extends Seeder
             'permissions' => [
                 'users.view', 'users.edit', 'users.reset_password', 'users.deactivate',
                 'members.view', 'members.edit',
+                'inbox.view', 'inbox.manage',
                 'properties.view', 'offers.view', 'resorts.view', 'media.view',
                 'contracts.view',
                 'billing.view',
