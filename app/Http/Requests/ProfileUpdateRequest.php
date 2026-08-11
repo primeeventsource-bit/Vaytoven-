@@ -18,6 +18,10 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            // Optional here, unlike registration: existing accounts predate the
+            // column and must not be forced to supply one to edit their email.
+            // Same permissive shape as registration.
+            'phone' => ['nullable', 'string', 'max:32', 'regex:/^[0-9+().\-\s]{7,32}$/'],
             'email' => [
                 'required',
                 'string',

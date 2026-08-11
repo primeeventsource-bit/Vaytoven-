@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-    <title>{{ setting('general.site_name', 'Vaytoven Rentals') }} — be right back</title>
+    <title>{{ setting('general.site_name', 'Vaytoven') }} — be right back</title>
     <style>
         :root { --gradient: linear-gradient(135deg, #ec4899, #d946ef, #a855f7); }
         * { box-sizing: border-box; margin: 0; }

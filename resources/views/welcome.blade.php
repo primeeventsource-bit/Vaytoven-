@@ -4,8 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Vaytoven Rentals — Find your place anywhere.</title>
-    <meta name="description" content="Curated vacation rentals for travelers, hosts, and vacation club members.">
+    {{-- Driven by the Settings console (general.*, seo.*) so marketing can
+         change the tab title and description without a deploy. Hardcoding it
+         is how "Vaytoven Rentals" survived the rename in every browser tab. --}}
+    <title>{{ setting('general.site_name', 'Vaytoven') }} — {{ setting('general.tagline', 'Find your place anywhere.') }}</title>
+    <meta name="description" content="{{ setting('seo.meta_description_default', 'Curated vacation homes for travelers, hosts, and vacation club members.') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">

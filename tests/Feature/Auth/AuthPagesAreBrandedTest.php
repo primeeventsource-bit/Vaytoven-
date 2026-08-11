@@ -87,6 +87,41 @@ class AuthPagesAreBrandedTest extends TestCase
         );
     }
 
+    /**
+     * The profile page is signed-in-only, so an anonymous crawl reports it as
+     * a 302 and never sees that it was rendering the Laravel application logo
+     * to every logged-in customer. It is checked here explicitly for that
+     * reason.
+     */
+    public function test_profile_page_carries_no_laravel_branding(): void
+    {
+        $user = User::factory()->create();
+
+        $html = $this->actingAs($user)->get('/profile')->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('application-logo', $html);
+        $this->assertStringNotContainsString('x-app-layout', $html);
+        $this->assertStringContainsString('Vaytoven', $html);
+    }
+
+    public function test_no_page_title_falls_back_to_the_word_laravel(): void
+    {
+        $user = User::factory()->create();
+
+        foreach (['/', '/properties', '/help', '/login', '/register'] as $path) {
+            $this->assertStringNotContainsString(
+                '<title>Laravel',
+                $this->get($path)->getContent(),
+                "{$path} renders the default Laravel title",
+            );
+        }
+
+        $this->assertStringNotContainsString(
+            '<title>Laravel',
+            $this->actingAs($user)->get('/profile')->getContent(),
+        );
+    }
+
     public function test_register_page_shows_the_required_fields_and_cta(): void
     {
         $html = $this->get('/register')->assertOk()->getContent();
