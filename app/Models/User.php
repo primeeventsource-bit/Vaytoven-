@@ -18,7 +18,10 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
         'email',
+        'phone',
         'password',
         'role',
         'deactivated_at',
@@ -54,6 +57,24 @@ class User extends Authenticatable
     public function isActive(): bool
     {
         return $this->deactivated_at === null;
+    }
+
+    /**
+     * Compose the display `name` from its parts.
+     *
+     * `name` stays the authoritative display value everywhere (certificates,
+     * admin tables, PDFs), so the registration form collects the parts and
+     * calls this rather than every read site learning to concatenate.
+     */
+    public static function composeName(string $firstName, ?string $lastName = null): string
+    {
+        return trim($firstName.' '.trim((string) $lastName));
+    }
+
+    /** Preferred greeting: first name if we have one, otherwise the full name. */
+    public function firstNameOrName(): string
+    {
+        return $this->first_name ?: $this->name;
     }
 
     /** Returns true if the user has any role at or above admin. */

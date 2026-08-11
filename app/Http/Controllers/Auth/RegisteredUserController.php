@@ -43,8 +43,13 @@ class RegisteredUserController extends Controller
         abort_unless((bool) setting('users.registration_open', true), 403, 'Registration is temporarily closed.');
 
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:120'],
+            'last_name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            // Permissive on purpose: people type spaces, brackets, dots, and
+            // country codes, and rejecting a valid number is a worse failure
+            // than storing an untidy one. Stored as entered.
+            'phone' => ['required', 'string', 'max:32', 'regex:/^[0-9+().\-\s]{7,32}$/'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             // Required ToS + Privacy acceptance per FR-13. The form posts a
             // single boolean covering all required documents listed on the
@@ -54,8 +59,13 @@ class RegisteredUserController extends Controller
 
         $user = DB::transaction(function () use ($request) {
             $user = User::create([
-                'name' => $request->name,
+                // `name` remains the authoritative display value read across
+                // the app; the parts are stored alongside it, not instead.
+                'name' => User::composeName($request->first_name, $request->last_name),
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
                 'email' => $request->email,
+                'phone' => $request->phone,
                 'password' => Hash::make($request->password),
             ]);
 

@@ -43,7 +43,15 @@
             box-shadow:0 30px 80px -30px rgba(123,44,191,0.20);
             padding:36px 36px 32px;
         }
+        /* Registration carries six fields; a wider card keeps the name row
+           side-by-side instead of stacking on a laptop. */
+        .vyt-auth-card.is-wide { max-width:560px; }
         @media (max-width:520px) { .vyt-auth-card { padding:26px 22px 24px; } }
+
+        /* Paired fields (First / Last). Collapses to one column on phones,
+           which is why the grid lives here rather than in the page. */
+        .vyt-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+        @media (max-width:520px) { .vyt-grid-2 { grid-template-columns:1fr; } }
 
         /* Brand row at the top of the card. */
         .vyt-auth-brand {
@@ -95,6 +103,21 @@
             font-size:15px; cursor:pointer; transition:transform .12s;
         }
         .vyt-auth-cta:hover { transform:translateY(-1px); }
+        .vyt-auth-cta.is-caps { letter-spacing:.08em; text-transform:uppercase; font-size:13.5px; }
+        .vyt-auth-cta:focus-visible { outline:2px solid var(--purple); outline-offset:3px; }
+
+        /* Consent / helper text under a field group. */
+        .vyt-consent {
+            display:flex; align-items:flex-start; gap:9px;
+            font-size:13px; color:var(--muted); line-height:1.5;
+            margin:4px 0 20px;
+        }
+        .vyt-consent input[type=checkbox] {
+            margin-top:3px; width:16px; height:16px; accent-color:#D63384; flex-shrink:0;
+        }
+        .vyt-consent a { color:var(--magenta); font-weight:500; }
+
+        .vyt-hint { font-size:12px; color:var(--muted); margin-top:6px; }
 
         .vyt-auth-foot {
             margin-top:22px; padding-top:18px; border-top:1px solid var(--line);
@@ -123,7 +146,7 @@
     <div class="vyt-bg-blob br"></div>
 
     <main class="vyt-auth-shell">
-        <div class="vyt-auth-card">
+        <div class="vyt-auth-card @yield('card_class')">
             <div class="vyt-auth-brand">
                 <svg viewBox="0 0 64 64">
                     <defs>

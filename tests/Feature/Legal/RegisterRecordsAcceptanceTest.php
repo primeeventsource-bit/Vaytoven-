@@ -44,8 +44,10 @@ class RegisterRecordsAcceptanceTest extends TestCase
         app(LegalDocumentRegistry::class)->materialiseAll();
 
         $this->post('/register', [
-            'name' => 'Aware User',
+            'first_name' => 'Aware',
+            'last_name' => 'User',
             'email' => 'aware@example.com',
+            'phone' => '+1 555 010 2030',
             'password' => 'password',
             'password_confirmation' => 'password',
             'accept_terms' => '1',
@@ -73,8 +75,10 @@ class RegisterRecordsAcceptanceTest extends TestCase
             'REMOTE_ADDR' => '203.0.113.42',
             'HTTP_USER_AGENT' => 'Mozilla/5.0 PhaseThirteenTest',
         ])->post('/register', [
-            'name' => 'Logged User',
+            'first_name' => 'Logged',
+            'last_name' => 'User',
             'email' => 'logged@example.com',
+            'phone' => '+1 555 010 2030',
             'password' => 'password',
             'password_confirmation' => 'password',
             'accept_terms' => '1',
