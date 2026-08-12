@@ -106,6 +106,18 @@
                 </div>
 
                 <div class="site-card" style="margin-top:16px;">
+                    <h3>Prefer email or phone?</h3>
+                    <p style="margin:0 0 10px;">
+                        The form routes to the right team and gives you a reference number, but you
+                        can write to us directly:
+                    </p>
+                    <p style="margin:0;">
+                        <a href="mailto:contact@vaytoven.com">contact@vaytoven.com</a><br>
+                        <a href="tel:+18777829868">(877) 782-9868</a>
+                    </p>
+                </div>
+
+                <div class="site-card" style="margin-top:16px;">
                     <h3>Registered office</h3>
                     <p style="margin:0;">
                         Vaytoven Technologies LLC<br>

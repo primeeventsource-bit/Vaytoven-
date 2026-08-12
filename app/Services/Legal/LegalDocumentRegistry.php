@@ -57,13 +57,22 @@ class LegalDocumentRegistry
             // counsel-supplied Terms and Conditions. A genuine change of the
             // agreement, so existing users are required to re-accept — which
             // is the correct outcome, not a side effect to suppress.
-            'version_label' => 'v2',
+            //
+            // v3 (2026-08-12): section 18 now names contact@vaytoven.com and
+            // the registered office. A notice provision that does not say where
+            // notices go is not a provision, so this belongs inside the hashed
+            // agreement text and the re-acceptance it triggers is intended.
+            'version_label' => 'v3',
         ],
         [
             'kind'          => self::KIND_PRIVACY,
             'view'          => 'legal.privacy',
             'route'         => 'legal.privacy',
-            'version_label' => 'v1',
+            // v2 (2026-08-12): the data-subject request address was
+            // privacy@vaytoven.com, a mailbox that does not exist — a GDPR/CCPA
+            // request sent there was silently lost. Now contact@vaytoven.com,
+            // with the registered office added.
+            'version_label' => 'v2',
         ],
         [
             'kind'          => self::KIND_MEMBER_AGREEMENT,

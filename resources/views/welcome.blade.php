@@ -410,6 +410,10 @@
         .footer-brand .brand-mark-text { color: #fff; }
         .footer-brand p { font-size: 14px; max-width: 32ch; margin-top: 16px; color: rgba(255,255,255,.6); }
         .footer-brand address { font-style: normal; font-size: 14px; margin-top: 16px; color: rgba(255,255,255,.6); }
+        /* The global rule is `a { color: inherit; text-decoration: none }`, which
+           would leave the email and phone looking like plain address text. */
+        .footer-brand address a { text-decoration: underline; text-underline-offset: 3px; }
+        .footer-brand address a:hover { color: #fff; }
         .footer-bottom { padding-top: 24px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: rgba(255,255,255,.5); }
         @media (max-width: 800px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; } }

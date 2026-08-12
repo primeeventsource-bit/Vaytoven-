@@ -19,7 +19,7 @@ class PressController extends Controller
     {
         return view('site.press', [
             'releases' => PressRelease::query()->live()->orderByDesc('published_at')->paginate(10),
-            'mediaEmail' => setting('general.support_email', 'press@vaytoven.com'),
+            'mediaEmail' => setting('general.support_email', 'contact@vaytoven.com'),
         ]);
     }
 
@@ -33,7 +33,7 @@ class PressController extends Controller
         return view('site.press-show', [
             'release' => $release,
             'mediaEmail' => $release->media_contact_email
-                ?: setting('general.support_email', 'press@vaytoven.com'),
+                ?: setting('general.support_email', 'contact@vaytoven.com'),
         ]);
     }
 }

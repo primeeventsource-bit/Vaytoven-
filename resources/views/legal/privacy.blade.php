@@ -3,7 +3,7 @@
 @section('eyebrow', 'Legal · Privacy Policy')
 @section('title', 'Privacy Policy')
 @section('effective_date', '2026-05-06')
-@section('version_label', 'v1')
+@section('version_label', 'v2')
 
 @section('content')
 <div class="legal-toc">
@@ -32,11 +32,17 @@
 <p>We keep account and transaction records for at least seven years to satisfy financial recordkeeping and chargeback rebuttal windows. We keep tracking events for two years. You can request deletion of optional fields at any time.</p>
 
 <h2 id="rights">5. Your rights</h2>
-<p>Depending on your jurisdiction (including under the GDPR and CCPA), you may have rights to access, correct, port, or request deletion of your personal information. Email <a href="mailto:privacy@vaytoven.com">privacy@vaytoven.com</a> with the subject line "Data Request" and we will respond within 30 days.</p>
+<p>Depending on your jurisdiction (including under the GDPR and CCPA), you may have rights to access, correct, port, or request deletion of your personal information. Email <a href="mailto:contact@vaytoven.com">contact@vaytoven.com</a> with the subject line "Data Request" and we will respond within 30 days.</p>
 
 <h2 id="cookies">6. Cookies and tracking</h2>
 <p>We use a first-party visitor cookie (<code>vyt_vid</code>) and a UTM cookie (<code>vyt_utm</code>) to attribute marketing performance and stitch sessions together for fraud prevention. These cookies do not contain personal information directly. We do not run third-party advertising trackers on the marketing site.</p>
 
 <h2 id="contact">7. Contact</h2>
-<p>Privacy questions: <a href="mailto:privacy@vaytoven.com">privacy@vaytoven.com</a>.</p>
+<p>Privacy questions: <a href="mailto:contact@vaytoven.com">contact@vaytoven.com</a>.</p>
+<p>
+    Vaytoven Technologies LLC<br>
+    500 S Australian Avenue, Suite 600<br>
+    West Palm Beach, FL 33401<br>
+    <a href="tel:+18777829868">(877) 782-9868</a>
+</p>
 @endsection

@@ -33,7 +33,11 @@
                 <span class="brand-mark-text">Vaytoven</span>
             </div>
             <p>Curated vacation properties. Built for travelers, hosts, and vacation club members who want the trip to feel right.</p>
-            <address>500 S Australian Ave, Ste 600<br>West Palm Beach, FL 33401</address>
+            <address>
+                500 S Australian Ave, Ste 600<br>West Palm Beach, FL 33401<br>
+                <a href="mailto:contact@vaytoven.com" data-track-cta="footer_email">contact@vaytoven.com</a><br>
+                <a href="tel:+18777829868" data-track-cta="footer_phone">(877) 782-9868</a>
+            </address>
         </div>
         <div>
             <h5>Travel</h5>

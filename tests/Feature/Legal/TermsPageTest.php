@@ -62,14 +62,29 @@ class TermsPageTest extends TestCase
         );
     }
 
+    /**
+     * The label is asserted against the registry rather than a literal.
+     *
+     * A hardcoded 'v2' here only ever fails when someone legitimately revises a
+     * document, which trains you to bump the literal and move on. What actually
+     * needs guarding is that the registry, the row it materialises, and the
+     * label rendered on the page all agree — a mismatch there means users see a
+     * version string that is not the one their acceptance is recorded against.
+     */
     public function test_the_terms_are_registered_as_the_current_version(): void
     {
-        app(LegalDocumentRegistry::class)->materialiseAll();
+        $registry = app(LegalDocumentRegistry::class);
+        $registry->materialiseAll();
 
-        $current = app(LegalDocumentRegistry::class)->currentVersions();
+        $declared = collect($registry->documents())
+            ->firstWhere('kind', LegalDocumentRegistry::KIND_TOS)['version_label'];
+
+        $current = $registry->currentVersions();
 
         $this->assertArrayHasKey(LegalDocumentRegistry::KIND_TOS, $current);
-        $this->assertSame('v2', $current[LegalDocumentRegistry::KIND_TOS]->version_label);
+        $this->assertSame($declared, $current[LegalDocumentRegistry::KIND_TOS]->version_label);
+
+        $this->get('/legal/tos')->assertOk()->assertSee($declared);
     }
 
     /**

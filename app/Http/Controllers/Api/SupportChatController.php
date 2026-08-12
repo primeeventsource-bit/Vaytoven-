@@ -32,7 +32,12 @@ class SupportChatController extends Controller
         // rejection — hiding the widget alone is not a gate.
         if (! setting('ai_chat.enabled', true) || ! feature('ai_chat')) {
             return response()->json([
-                'reply' => 'Live chat is currently unavailable. Please email support@vaytoven.com and we will get back to you.',
+                // Read from settings rather than a literal: the fallback message
+                // is the ONLY thing a visitor gets when chat is down, so a stale
+                // hardcoded address here is a dead end at exactly the wrong moment.
+                'reply' => 'Live chat is currently unavailable. Please email '
+                    .setting('general.support_email', 'contact@vaytoven.com')
+                    .' and we will get back to you.',
                 'error' => 'support_chat_disabled',
             ], 503);
         }
@@ -59,7 +64,8 @@ class SupportChatController extends Controller
 
             return response()->json([
                 'session_id' => $session->id,
-                'reply' => "I'm temporarily unable to respond. Please try again in a few minutes, or email support@vaytoven.com for urgent issues.",
+                'reply' => "I'm temporarily unable to respond. Please try again in a few minutes, or email "
+                    .setting('general.support_email', 'contact@vaytoven.com').' for urgent issues.',
                 'error' => 'support_chat_unavailable',
             ], 503);
         }

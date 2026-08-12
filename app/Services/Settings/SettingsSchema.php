@@ -108,8 +108,12 @@ final class SettingsSchema
             'general.tagline' => ['general', 'string', 'Find your place anywhere.', 'Tagline', ['nullable', 'string', 'max:160'], null, true],
             'general.logo_url' => ['general', 'string', '', 'Logo URL', ['nullable', 'string', 'max:512'], null, true],
             'general.favicon_url' => ['general', 'string', '', 'Favicon URL', ['nullable', 'string', 'max:512'], null, true],
-            'general.support_email' => ['general', 'string', 'support@vaytoven.com', 'Support email', ['nullable', 'email', 'max:255'], null, true],
-            'general.support_phone' => ['general', 'string', '', 'Support phone', ['nullable', 'string', 'max:32'], null, true],
+            // contact@vaytoven.com is the company's real, monitored inbox. The
+            // previous defaults (support@, press@, privacy@, specialist@) were
+            // invented per-surface addresses that nothing delivers to, so every
+            // one of them was a dead end printed on a public page.
+            'general.support_email' => ['general', 'string', 'contact@vaytoven.com', 'Support email', ['nullable', 'email', 'max:255'], null, true],
+            'general.support_phone' => ['general', 'string', '(877) 782-9868', 'Support phone', ['nullable', 'string', 'max:32'], null, true],
             'general.company_legal_name' => ['general', 'string', 'Vaytoven Technologies LLC', 'Company legal name', ['string', 'max:160']],
             'general.timezone' => ['general', 'string', 'America/New_York', 'Timezone', ['timezone:all']],
             'general.default_locale' => ['general', 'enum', 'en', 'Default locale', ['in:en'], null, false, false, ['en']],

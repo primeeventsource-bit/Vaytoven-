@@ -3,7 +3,7 @@
 @section('eyebrow', 'Legal · Terms and Conditions')
 @section('title', 'Terms and Conditions')
 @section('effective_date', '2026-08-12')
-@section('version_label', 'v2')
+@section('version_label', 'v3')
 
 @section('content')
 <div class="legal-toc">
@@ -177,8 +177,11 @@
 <h2 id="contact">18. Contact information</h2>
 <p>Questions, notices, accessibility feedback, privacy requests, customer-service inquiries, and legal correspondence concerning Vaytoven may be directed to:</p>
 <p>
-    Vaytoven<br>
+    Vaytoven Technologies LLC<br>
+    500 S Australian Avenue, Suite 600<br>
+    West Palm Beach, FL 33401<br>
     Website: <a href="https://vaytoven.com">Vaytoven.com</a><br>
+    Email: <a href="mailto:contact@vaytoven.com">contact@vaytoven.com</a><br>
     Phone: <a href="tel:+18777829868">(877) 782-9868</a>
 </p>
 
@@ -188,7 +191,7 @@
 <p><strong>How information may be used:</strong> To operate accounts, provide Platform services, display listings, process applicable transactions, route inquiries, provide advertising and marketing services, improve Platform performance, provide customer support, prevent fraud, and comply with legal obligations.</p>
 <p><strong>How information may be shared:</strong> Information may be shared with service providers, payment processors, advertising platforms, analytics providers, hosting services, email systems, contractors, professional advisers, and legal authorities when necessary to provide services or comply with applicable law.</p>
 <p><strong>Security and retention:</strong> Vaytoven uses reasonable administrative, technical, and organizational safeguards designed to protect information and retains data as reasonably necessary for Platform operations, customer service, recordkeeping, dispute resolution, fraud prevention, and legal compliance.</p>
-<p><strong>User rights:</strong> Subject to applicable law, users may request access to, correction of, or deletion of certain personal information by contacting Vaytoven.</p>
+<p><strong>User rights:</strong> Subject to applicable law, users may request access to, correction of, or deletion of certain personal information by emailing <a href="mailto:contact@vaytoven.com">contact@vaytoven.com</a>.</p>
 
 <h2 id="fees-policy">20. Fees &amp; Payments Policy</h2>
 <p>Vaytoven fees may include one-time or recurring subscription charges, hosting fees, advertising fees, placement fees, campaign fees, software-access fees, service fees, and other charges disclosed through the Platform or applicable agreement.</p>
@@ -234,7 +237,7 @@
 
 <h2 id="accessibility">28. Accessibility Statement</h2>
 <p>Vaytoven aims to provide an accessible digital experience and improve usability across a broad range of users, devices, and technologies.</p>
-<p>Users experiencing accessibility barriers may contact Vaytoven at <a href="tel:+18777829868">(877) 782-9868</a> so the issue can be reviewed.</p>
+<p>Users experiencing accessibility barriers may contact Vaytoven at <a href="mailto:contact@vaytoven.com">contact@vaytoven.com</a> or <a href="tel:+18777829868">(877) 782-9868</a> so the issue can be reviewed.</p>
 
 <h2 id="security">29. Security Policy</h2>
 <p>Vaytoven uses reasonable security measures designed to protect Platform systems and user information, including access controls, protected hosting environments, monitoring, and encrypted transmission where available.</p>
@@ -270,6 +273,7 @@
 
 <p>
     <a href="https://vaytoven.com">Vaytoven.com</a><br>
+    Email: <a href="mailto:contact@vaytoven.com">contact@vaytoven.com</a><br>
     Phone: <a href="tel:+18777829868">(877) 782-9868</a>
 </p>
 @endsection

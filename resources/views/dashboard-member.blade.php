@@ -166,7 +166,7 @@
                 </ol>
                 <p style="margin:18px 0 0;color:var(--muted);font-size:13.5px;">
                     Questions about reservation windows, points conversion, or guest passes?
-                    <a href="mailto:specialist@vaytoven.com?subject=Help with my offer">Contact your member specialist</a>
+                    <a href="mailto:contact@vaytoven.com?subject=Help with my offer">Contact your member specialist</a>
                     or check the <a href="{{ route('help.index') }}">help center</a>.
                 </p>
             </div>
