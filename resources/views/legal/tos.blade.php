@@ -50,6 +50,11 @@
 
 <h2 id="disclosures">Important relationship disclosures</h2>
 <p>Vaytoven operates as a digitally enabled software, advertising, showcase, and marketplace platform for vacation and short-term stay opportunities.</p>
+
+<p><strong>Vaytoven is a SaaS digital advertising and marketing platform. We do not act as a booking platform. We do not collect funds for rentals, act as a travel agency, or process payments between travelers and property owners. We only collect fees for advertising services and subscription access to our platform.</strong></p>
+
+<p>Any reservation, rental agreement, payment, deposit, refund, or cancellation relating to a stay is arranged and settled <strong>directly between the guest and the host or property owner</strong>. Vaytoven is not a party to that arrangement, does not hold or transmit those funds, and does not act as an escrow agent, payment intermediary, or merchant of record for a stay.</p>
+
 <p>Unless expressly stated in a separate written agreement signed by Vaytoven, the Company is not acting as a real estate broker, travel agency, escrow provider, or property management company.</p>
 <p>Hosts and property owners remain responsible for the accuracy of their listings, property information, pricing, availability, negotiations, booking obligations, taxes, permits, property rules, and legal compliance.</p>
 <p>Users are responsible for reviewing and verifying property details, availability, pricing, payment instructions, cancellation terms, and booking conditions before completing a transaction.</p>
@@ -71,6 +76,7 @@
 </ul>
 <p>Unless Vaytoven expressly states otherwise in a separate written agreement, Vaytoven is not a real estate broker, travel agency, escrow provider, or property manager.</p>
 <p>Vaytoven does not own, control, inspect, or independently verify every property displayed on the Platform.</p>
+<p>The Platform's role in a stay ends at introduction and communication. Vaytoven does not take reservations on a host's behalf, does not collect rental payments, deposits or taxes from guests, and does not remit funds to hosts.</p>
 
 <h2 id="accounts">3. Account registration and responsibilities</h2>
 <p>Users may be required to create an account to access certain Vaytoven features.</p>

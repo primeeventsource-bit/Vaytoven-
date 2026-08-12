@@ -10,9 +10,11 @@
 @section('content')
 
     <section class="vyt-section">
-        <p style="margin:0 0 20px; color:var(--muted); font-size:14px; max-width:66ch;">
+        <p style="margin:0 0 20px; color:var(--muted); font-size:14px; max-width:70ch;">
             Every inquiry and offer submitted against listings you own. Offers expire automatically
             24 hours after they were submitted; expired offers stay here as a permanent record.
+            Accepting an offer records your decision and notifies the visitor — the reservation,
+            payment and any deposit are arranged directly between you and them.
         </p>
 
         <div class="vyt-card" style="padding:0;">
@@ -25,6 +27,8 @@
                             <tr>
                                 <th>Buyer</th>
                                 <th>Listing</th>
+                                <th>Requested dates</th>
+                                <th>Guests</th>
                                 <th>Offer Amount</th>
                                 <th>Date</th>
                                 <th>Time</th>
@@ -52,6 +56,15 @@
                                             <span class="sub">{{ $offer->property->city }}, {{ $offer->property->country }}</span>
                                         @endif
                                     </td>
+                                    <td class="num">
+                                        @if ($offer->proposed_check_in && $offer->proposed_check_out)
+                                            {{ $offer->proposed_check_in->format('M j') }} – {{ $offer->proposed_check_out->format('M j, Y') }}
+                                            <span class="sub">{{ $offer->nights() }} {{ Str::plural('night', $offer->nights()) }}</span>
+                                        @else
+                                            <span style="color:var(--muted);">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="num">{{ $offer->proposed_guests ?? '—' }}</td>
                                     <td class="num">
                                         @if ($offer->offer_amount_cents !== null)
                                             ${{ number_format($offer->offer_amount_cents / 100, 2) }}

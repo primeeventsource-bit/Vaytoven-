@@ -15,17 +15,22 @@ use App\Services\Fees\ServiceFeeResolver;
 use Database\Seeders\RbacSeeder;
 use Database\Seeders\ServiceFeeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\EnablesStayCheckout;
 use Tests\TestCase;
 
 class ServiceFeeStructureTest extends TestCase
 {
-    use RefreshDatabase;
+    use EnablesStayCheckout, RefreshDatabase;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->seed(ServiceFeeSeeder::class);
         ServiceFeeResolver::bustCache();
+
+        // Two tests here assert what the guest sees at the stay checkout,
+        // which is gated off by default.
+        $this->enableStayCheckout();
     }
 
     private function property(array $attributes = []): Property

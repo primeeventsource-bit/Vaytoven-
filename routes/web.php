@@ -95,14 +95,26 @@ Route::get('/properties/{property}', [PropertyBrowseController::class, 'show'])-
 // /login with intended URL, then back to the review page after sign-in.
 // terms.current keeps the legal-acceptance gate on the booking funnel too.
 Route::middleware(['auth', 'terms.current'])->group(function () {
+    // Reading existing bookings stays available — records already taken must
+    // remain visible to the people they belong to.
     Route::get('/account/bookings', [BookingFlowController::class, 'index'])->name('bookings.index');
-    Route::get('/properties/{property}/book', [BookingFlowController::class, 'review'])->name('bookings.review');
-    Route::post('/properties/{property}/book', [BookingFlowController::class, 'store'])->name('bookings.store');
     Route::get('/bookings/{booking}', [BookingFlowController::class, 'show'])->name('bookings.show');
-    Route::get('/bookings/{booking}/pay', [BookingFlowController::class, 'pay'])->name('bookings.pay');
-    Route::post('/bookings/{booking}/pay', [BookingFlowController::class, 'processPayment'])->name('bookings.pay.process');
     Route::get('/bookings/{booking}/cancel', [BookingFlowController::class, 'cancelForm'])->name('bookings.cancel.form');
     Route::post('/bookings/{booking}/cancel', [BookingFlowController::class, 'cancel'])->name('bookings.cancel');
+
+    // CREATING a booking and CHARGING for a stay are gated off. Vaytoven does
+    // not act as a booking platform, collect rental funds, or process payments
+    // between travelers and property owners — its merchant account is for
+    // Vaytoven's own advertising, listing, membership and platform fees. These
+    // routes 404 unless an operator explicitly enables
+    // `booking.stay_checkout_enabled`, which defaults to false. Visitors use
+    // Submit Offer instead; see OfferController.
+    Route::middleware('stay.checkout')->group(function () {
+        Route::get('/properties/{property}/book', [BookingFlowController::class, 'review'])->name('bookings.review');
+        Route::post('/properties/{property}/book', [BookingFlowController::class, 'store'])->name('bookings.store');
+        Route::get('/bookings/{booking}/pay', [BookingFlowController::class, 'pay'])->name('bookings.pay');
+        Route::post('/bookings/{booking}/pay', [BookingFlowController::class, 'processPayment'])->name('bookings.pay.process');
+    });
 
     // Member offers — accept/decline from the member dashboard. Controller
     // verifies the offer's member_user_id matches the current user and that

@@ -35,6 +35,9 @@ class OfferService
         ?int $amountCents,
         ?string $message,
         ?string $ipAddress,
+        ?string $checkIn = null,
+        ?string $checkOut = null,
+        ?int $guests = null,
     ): MemberOffer {
         $submittedAt = now();
 
@@ -47,6 +50,12 @@ class OfferService
             // owner dashboard doesn't depend on the property surviving.
             'member_user_id' => $property->host_id,
             'offer_amount_cents' => $kind === OfferKind::Offer ? $amountCents : null,
+            // Requested dates and party size. Reuses the columns the outbound
+            // flow already had rather than adding near-duplicates. Nothing is
+            // reserved or held by writing them — an offer is a request.
+            'proposed_check_in' => $checkIn,
+            'proposed_check_out' => $checkOut,
+            'proposed_guests' => $guests,
             'buyer_message' => $message,
             'submitted_ip' => $ipAddress,
             'status' => MemberOfferStatus::Active,
@@ -63,6 +72,9 @@ class OfferService
                 'property_id' => $property->id,
                 'listing_owner_id' => $property->host_id,
                 'amount_cents' => $offer->offer_amount_cents,
+                'requested_check_in' => $checkIn,
+                'requested_check_out' => $checkOut,
+                'guests' => $guests,
                 'submitted_at' => $submittedAt->toIso8601String(),
                 'expires_at' => $offer->expires_at?->toIso8601String(),
                 'ip' => $ipAddress,

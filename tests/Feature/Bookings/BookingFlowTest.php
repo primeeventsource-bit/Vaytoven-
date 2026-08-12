@@ -11,11 +11,12 @@ use App\Models\TermsAcceptance;
 use App\Models\User;
 use App\Services\Legal\LegalDocumentRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\EnablesStayCheckout;
 use Tests\TestCase;
 
 class BookingFlowTest extends TestCase
 {
-    use RefreshDatabase;
+    use EnablesStayCheckout, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -23,6 +24,11 @@ class BookingFlowTest extends TestCase
         // Materialise legal versions and pre-accept on test users so the
         // terms.current middleware doesn't intercept booking flow tests.
         app(LegalDocumentRegistry::class)->materialiseAll();
+
+        // The stay checkout is off by default — Vaytoven advertises listings
+        // and does not charge visitors for rentals. This suite covers the
+        // gated funnel, so it opts in explicitly.
+        $this->enableStayCheckout();
     }
 
     public function test_unauthenticated_review_request_redirects_to_login(): void
@@ -177,14 +183,21 @@ class BookingFlowTest extends TestCase
         $resp->assertDontSee('NMI_SECURITY_KEY');
     }
 
-    public function test_property_show_form_posts_to_booking_review_route(): void
+    /**
+     * The listing page no longer funnels into checkout even when the gated
+     * booking routes are enabled. Visitors submit an offer; a stay is arranged
+     * directly with the listing member. See SubmitOfferFlowTest.
+     */
+    public function test_the_listing_page_never_links_into_the_stay_checkout(): void
     {
         $property = Property::factory()->create(['status' => PropertyStatus::Active->value]);
+        $buyer = $this->makeTraveler();
 
-        $body = $this->get(route('properties.show', $property))->assertOk()->getContent();
+        $body = $this->actingAs($buyer)
+            ->get(route('properties.show', $property))->assertOk()->getContent();
 
-        $this->assertStringContainsString('action="'.route('bookings.review', $property), $body);
-        $this->assertStringContainsString('Continue to review', $body);
+        $this->assertStringNotContainsString(route('bookings.review', $property), $body);
+        $this->assertStringContainsString('action="'.route('offers.store', $property), $body);
     }
 
     private function makeTraveler(): User

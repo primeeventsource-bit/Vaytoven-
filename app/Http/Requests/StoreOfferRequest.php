@@ -26,11 +26,17 @@ class StoreOfferRequest extends FormRequest
     {
         return [
             'kind' => ['required', Rule::enum(OfferKind::class)],
-            // Required for an offer, forbidden for an inquiry.
+            // Required for an offer, optional for an inquiry.
             'amount_dollars' => [
                 Rule::requiredIf(fn () => $this->input('kind') === OfferKind::Offer->value),
                 'nullable', 'numeric', 'min:1', 'max:99999999',
             ],
+            // The dates and party size the visitor is asking about. These are a
+            // REQUEST, not a reservation — nothing is held and no availability
+            // is blocked by submitting them.
+            'check_in' => ['nullable', 'date', 'after_or_equal:today'],
+            'check_out' => ['nullable', 'date', 'after:check_in'],
+            'guests' => ['nullable', 'integer', 'min:1', 'max:50'],
             'message' => ['nullable', 'string', 'max:2000'],
         ];
     }
@@ -40,6 +46,8 @@ class StoreOfferRequest extends FormRequest
         return [
             'amount_dollars.required' => 'Enter the amount you would like to offer.',
             'amount_dollars.min' => 'Enter an offer of at least $1.',
+            'check_out.after' => 'The check-out date must be after the check-in date.',
+            'check_in.after_or_equal' => 'Choose a check-in date from today onwards.',
         ];
     }
 

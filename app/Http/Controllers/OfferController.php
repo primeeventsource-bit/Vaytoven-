@@ -38,13 +38,20 @@ class OfferController extends Controller
             amountCents: $request->amountCents(),
             message: $request->string('message')->toString() ?: null,
             ipAddress: $request->ip(),
+            checkIn: $request->validated('check_in'),
+            checkOut: $request->validated('check_out'),
+            guests: $request->validated('guests') ? (int) $request->validated('guests') : null,
         );
 
-        return back()->with('success', sprintf(
-            'Your %s has been sent to the listing owner. It expires %s.',
-            strtolower($offer->kind->label()),
-            $offer->expires_at?->format('D j M \a\t g:ia') ?? 'in 24 hours',
-        ));
+        // Deliberately explicit that nothing has been reserved and nothing has
+        // been charged. Vaytoven advertises the listing; the stay itself is
+        // arranged directly between the visitor and the listing member.
+        return back()
+            ->with('offer_reference', $offer->reference ?? null)
+            ->with('offer_expires_at', $offer->expires_at?->format('D j M Y \a\t g:ia'))
+            ->with('success', 'Your offer has been submitted to the listing member for review. '
+                .'This is not a confirmed reservation. You will be notified if the listing member '
+                .'accepts or responds to your request.');
     }
 
     /**

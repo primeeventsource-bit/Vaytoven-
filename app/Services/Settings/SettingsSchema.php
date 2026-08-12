@@ -124,6 +124,7 @@ final class SettingsSchema
             'general.social_youtube' => ['general', 'string', '', 'YouTube URL', ['nullable', 'string', 'max:255'], null, true],
 
             // ---------------------------------------------------------- booking
+            'booking.stay_checkout_enabled' => ['booking', 'bool', false, 'Enable stay checkout (charges guests for rentals)', ['boolean'], 'OFF by default. Vaytoven advertises listings and does not collect rental funds or process payments between travelers and owners — visitors use Submit Offer. Only enable under a written arrangement that makes Vaytoven a party to the rental transaction.'],
             'booking.min_nights' => ['booking', 'int', 1, 'Minimum nights (site-wide floor)', ['integer', 'min:1', 'max:30'], 'Hosts can require more per property, never less.'],
             'booking.max_nights' => ['booking', 'int', 30, 'Maximum nights', ['integer', 'min:1', 'max:365'], 'v1 caps long-term stays at 30 nights.'],
             'booking.advance_window_days' => ['booking', 'int', 365, 'Advance booking window (days)', ['integer', 'min:1', 'max:1095'], 'How far in the future check-in may be.'],

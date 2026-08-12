@@ -5,6 +5,7 @@ use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureAdminOrMemberSpecialist;
 use App\Http\Middleware\EnsureCurrentTermsAccepted;
 use App\Http\Middleware\EnsurePermission;
+use App\Http\Middleware\EnsureStayCheckoutEnabled;
 use App\Http\Middleware\SetVaytovenSurface;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureAdmin::class,
             'admin.or.specialist' => EnsureAdminOrMemberSpecialist::class,
             'permission' => EnsurePermission::class,
+            'stay.checkout' => EnsureStayCheckoutEnabled::class,
             'terms.current' => EnsureCurrentTermsAccepted::class,
         ]);
 

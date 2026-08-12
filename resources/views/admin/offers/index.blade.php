@@ -76,6 +76,8 @@
                                 <th>Buyer</th>
                                 <th>Listing owner</th>
                                 <th>Property</th>
+                                <th>Requested dates</th>
+                                <th>Guests</th>
                                 <th>Offer Amount</th>
                                 <th>Date</th>
                                 <th>Time</th>
@@ -106,6 +108,14 @@
                                             <span class="sub">{{ $offer->property->city }}, {{ $offer->property->country }}</span>
                                         @endif
                                     </td>
+                                    <td class="num">
+                                        @if ($offer->proposed_check_in && $offer->proposed_check_out)
+                                            {{ $offer->proposed_check_in->format('M j') }} – {{ $offer->proposed_check_out->format('M j, Y') }}
+                                        @else
+                                            <span style="color:var(--muted);">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="num">{{ $offer->proposed_guests ?? '—' }}</td>
                                     <td class="num">
                                         @if ($offer->offer_amount_cents !== null)
                                             ${{ number_format($offer->offer_amount_cents / 100, 2) }}

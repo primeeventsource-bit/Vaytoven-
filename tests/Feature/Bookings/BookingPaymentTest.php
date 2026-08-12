@@ -14,11 +14,12 @@ use App\Models\User;
 use App\Services\Legal\LegalDocumentRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Tests\Concerns\EnablesStayCheckout;
 use Tests\TestCase;
 
 class BookingPaymentTest extends TestCase
 {
-    use RefreshDatabase;
+    use EnablesStayCheckout, RefreshDatabase;
 
     private const GATEWAY = 'https://secure.nmi.com/api/transact.php';
 
@@ -26,6 +27,10 @@ class BookingPaymentTest extends TestCase
     {
         parent::setUp();
         app(LegalDocumentRegistry::class)->materialiseAll();
+
+        // This suite exercises the gated stay checkout, which is off by
+        // default because Vaytoven does not charge visitors for rentals.
+        $this->enableStayCheckout();
 
         // Default: NMI credentials are present so paymentsConfigured() returns
         // true. Individual demo-mode tests blank these out.
