@@ -231,10 +231,14 @@
                         listing and subscription services — that is the only thing our merchant
                         account processes.
                     </p>
-                    <p style="margin:0;">
+                    <p style="margin:0 0 10px;">
                         We do not collect rental payments from guests, hold funds, or pay you out.
                         Any reservation, deposit, payment or refund is arranged
                         <strong>directly between you and the guest</strong>, on whatever terms you set.
+                    </p>
+                    <p style="margin:0;">
+                        Payment is settled peer to peer, <strong>after</strong> you accept an offer
+                        and the dates are confirmed as available — not before, and never through us.
                     </p>
                 </div>
 
