@@ -128,7 +128,7 @@
         <div class="host-hero-inner">
             <div class="eyebrow">For property owners</div>
             <h1>Your second home, <em>earning its keep.</em></h1>
-            <p>Half the take-home of a hotel. Twice the booking pace of generic listing sites. List once, we handle the rest — photography, copywriting, pricing, payouts.</p>
+            <p>Advertise your property where travelers are already looking. List once — we handle photography, copywriting, and getting it in front of the right audience. You keep control of your rates, your calendar, and your relationship with the guest.</p>
             <div class="cta-row">
                 <a href="{{ route('host.onboarding.index') }}" class="cta-primary" data-track-audience="host" data-track-cta="become_host_apply">
                     Start your application
@@ -189,7 +189,7 @@
                 <div class="host-benefit">
                     <div class="host-benefit-icon">🤝</div>
                     <h3>One contract, one dashboard.</h3>
-                    <p>Sign once via DocuSign. Track upcoming bookings, payouts, and reviews from a single host dashboard.</p>
+                    <p>Sign once via DocuSign. Track offers, inquiries and listing performance from a single host dashboard.</p>
                 </div>
                 <div class="host-benefit">
                     <div class="host-benefit-icon">⚖</div>
@@ -215,8 +215,8 @@
                 <div class="host-step">
                     <div class="host-step-number"></div>
                     <div>
-                        <h3>Verify identity (one-time payout enrollment)</h3>
-                        <p>Enroll once and our payments team verifies your identity and payout banking details through a secure channel — legal name, DOB, business type, bank account, photo ID. Guest card data is tokenized by our PCI-DSS Level 1 gateway (NMI) and never touches Vaytoven servers. Most hosts clear within a business day.</p>
+                        <h3>Agree your advertising package</h3>
+                        <p>We confirm the details, agree what the listing includes, and set up your account. We never ask for bank details, government ID or tax forms — advertising a listing needs none of it, and Vaytoven does not handle rental money.</p>
                     </div>
                 </div>
                 <div class="host-step">
@@ -229,8 +229,8 @@
                 <div class="host-step">
                     <div class="host-step-number"></div>
                     <div>
-                        <h3>Go live + first booking</h3>
-                        <p>Listings activate the moment you approve. Most hosts see their first booking within 14 days; payouts release 24 hours after each guest check-in.</p>
+                        <h3>Go live + first offers</h3>
+                        <p>Listings activate the moment you approve. Travelers submit offers and inquiries on your dates, and you accept or decline from your dashboard. You then arrange the stay and payment with the guest directly, on your own terms.</p>
                     </div>
                 </div>
             </div>

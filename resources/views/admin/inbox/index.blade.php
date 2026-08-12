@@ -46,6 +46,10 @@
             Trip support
             @if ($counts['support']) <span class="badge">{{ $counts['support'] }}</span> @endif
         </a>
+        <a href="{{ route('admin.inbox.index', ['tab' => 'hosting']) }}" @class(['active' => $tab === 'hosting'])>
+            List-your-property
+            @if ($counts['hosting']) <span class="badge">{{ $counts['hosting'] }}</span> @endif
+        </a>
         <a href="{{ route('admin.inbox.index', ['tab' => 'applications']) }}" @class(['active' => $tab === 'applications'])>
             Job applications
             @if ($counts['applications']) <span class="badge">{{ $counts['applications'] }}</span> @endif
@@ -124,6 +128,42 @@
                 </table>
             @endif
 
+        @elseif ($tab === 'hosting')
+            @if ($hostingEnquiries->isEmpty())
+                <p style="text-align:center; padding:48px; color:var(--muted);">No property submissions yet.</p>
+            @else
+                <table class="inbox-table">
+                    <thead><tr>
+                        <th>Reference</th><th>Owner</th><th>Property</th><th>Location</th>
+                        <th>Rooms</th><th>Indicative rate</th><th>Availability</th><th>Received</th><th>Status</th>
+                    </tr></thead>
+                    <tbody>
+                        @foreach ($hostingEnquiries as $h)
+                            <tr>
+                                <td class="ref">{{ $h->reference }}</td>
+                                <td>{{ $h->name() }}<span class="sub">{{ $h->email }}</span>
+                                    @if ($h->phone)<span class="sub">{{ $h->phone }}</span>@endif</td>
+                                <td><strong>{{ $h->displayName() }}</strong>
+                                    <span class="sub">{{ $h->isResort() ? trim(($h->club_or_developer ?: 'Resort').' · '.($h->ownership_details ?: '')) : ($h->property_type ?: '') }}</span>
+                                    @if ($h->message)<div class="inbox-body">{{ Str::limit($h->message, 200) }}</div>@endif</td>
+                                <td class="inbox-body" style="max-width:170px;">{{ $h->location() }}</td>
+                                <td style="white-space:nowrap;">
+                                    {{ $h->bedrooms !== null ? $h->bedrooms.' bd' : '—' }}
+                                    {{ $h->bathrooms !== null ? '· '.$h->bathrooms.' ba' : '' }}
+                                </td>
+                                <td style="white-space:nowrap;">
+                                    {{ $h->indicative_nightly_cents ? '$'.number_format($h->indicative_nightly_cents / 100) : '—' }}
+                                </td>
+                                <td class="inbox-body" style="max-width:150px;">{{ $h->availability ?: '—' }}</td>
+                                <td style="white-space:nowrap;">{{ $h->created_at->format('M j, Y') }}
+                                    <span class="sub">{{ $h->created_at->format('g:i A') }}</span></td>
+                                <td><span class="inbox-pill {{ $h->status === 'new' ? 'inbox-new' : 'inbox-done' }}">{{ $h->status }}</span></td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+
         @else
             @if ($applications->isEmpty())
                 <p style="text-align:center; padding:48px; color:var(--muted);">No applications yet.</p>
@@ -149,7 +189,7 @@
         @endif
     </div>
 
-    @php $paginator = $contactMessages ?? $tickets ?? $applications; @endphp
+    @php $paginator = $contactMessages ?? $tickets ?? $hostingEnquiries ?? $applications; @endphp
     @if ($paginator && $paginator->hasPages())
         <div style="margin-top:20px;">{{ $paginator->links() }}</div>
     @endif

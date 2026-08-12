@@ -8,7 +8,7 @@
 
     <div class="help-search">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="search" id="help-search-input" placeholder="Search articles — cancellation, payouts, hosting…" autocomplete="off" data-track-audience="{{ $audience?->value ?? 'all' }}" data-track-cta="help_search">
+        <input type="search" id="help-search-input" placeholder="Search articles — offers, listings, hosting…" autocomplete="off" data-track-audience="{{ $audience?->value ?? 'all' }}" data-track-cta="help_search">
         <div class="help-results" id="help-search-results" style="display:none;"></div>
     </div>
 

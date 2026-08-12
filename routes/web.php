@@ -19,7 +19,7 @@ use App\Http\Controllers\Client\ContractController as ClientContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HelpController;
-use App\Http\Controllers\HostOnboardingController;
+use App\Http\Controllers\HostingEnquiryController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\MemberEnquiryController;
 use App\Http\Controllers\MemberOfferController;
@@ -58,6 +58,23 @@ Route::view('/members', 'members.show')->name('members.show');
 // Every footer link points at one of these by NAME (partials/site-footer), so
 // renaming a route breaks the build instead of producing a dead link.
 // ---------------------------------------------------------------------------
+// "List your property or resort" — public, because an owner should not need an
+// account to ask about being advertised.
+//
+// Served AT /host/onboarding because that URL is already published and linked;
+// what changed is what lives there. It used to be payout enrollment, which
+// described a model Vaytoven does not operate (guests paying Vaytoven, funds
+// held, ACH payouts) and asked owners for bank details, government ID and tax
+// forms. It is now a details-submission form that asks for none of that.
+Route::get('/host/onboarding', [HostingEnquiryController::class, 'show'])->name('host.onboarding.index');
+Route::post('/host/onboarding', [HostingEnquiryController::class, 'store'])
+    ->middleware('throttle:10,1')->name('host.onboarding.store');
+
+// Friendlier alias for the same form.
+Route::get('/list-your-property', [HostingEnquiryController::class, 'show'])->name('host.list-your-property');
+Route::post('/list-your-property', [HostingEnquiryController::class, 'store'])
+    ->middleware('throttle:10,1')->name('host.list-your-property.store');
+
 Route::get('/destinations', [SitePageController::class, 'destinations'])->name('destinations.index');
 Route::get('/mobile-app', [SitePageController::class, 'mobileApp'])->name('mobile-app');
 Route::get('/about', [SitePageController::class, 'about'])->name('about');
@@ -131,10 +148,8 @@ Route::middleware(['auth', 'terms.current'])->group(function () {
     Route::post('/account/listing-offers/{offer}/accept', [OfferController::class, 'accept'])->name('offers.accept');
     Route::post('/account/listing-offers/{offer}/decline', [OfferController::class, 'decline'])->name('offers.decline');
 
-    // Host payout enrollment (FR-5.x) — platform-managed since the NMI
-    // migration; ops verifies and flips status from the admin console.
-    Route::get('/host/onboarding', [HostOnboardingController::class, 'index'])->name('host.onboarding.index');
-    Route::post('/host/onboarding', [HostOnboardingController::class, 'start'])->name('host.onboarding.start');
+    // /host/onboarding now serves the public "list your property or resort"
+    // form — see the public route block above.
 });
 
 // ---------------------------------------------------------------------------

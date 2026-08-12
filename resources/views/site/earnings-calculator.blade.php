@@ -97,7 +97,7 @@
 
             <div>
                 <div class="calc-out">
-                    <div class="label">Estimated annual payout to you</div>
+                    <div class="label">Estimated annual gross to you</div>
                     <div class="big" id="calc-net">$0</div>
                     <div class="sub" id="calc-basis">Fill in the fields to see an estimate.</div>
 
@@ -114,7 +114,8 @@
                     Vaytoven Technologies LLC does not guarantee earnings, occupancy, rental income,
                     property sales, or financial results. Actual outcomes depend on demand,
                     seasonality, pricing, your club or program rules, and factors outside the
-                    platform's control.
+                    platform's control. Vaytoven advertises listings and does not collect rental
+                    payments or pay hosts — guests pay you directly.
                 </div>
             </div>
         </div>

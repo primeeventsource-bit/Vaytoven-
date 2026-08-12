@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
+use App\Models\HostingEnquiry;
 use App\Models\JobApplication;
 use App\Models\SupportTicket;
 use App\Services\AdminAuditLogService;
@@ -41,12 +42,16 @@ class InboxController extends Controller
                 ? JobApplication::query()->with('opening:id,title,slug')
                     ->latest()->paginate(self::PER_PAGE)->withQueryString()
                 : null,
+            'hostingEnquiries' => $tab === 'hosting'
+                ? HostingEnquiry::query()->latest()->paginate(self::PER_PAGE)->withQueryString()
+                : null,
             'counts' => [
                 'contact' => ContactMessage::query()->where('status', ContactMessage::STATUS_NEW)->count(),
                 'support' => SupportTicket::query()
                     ->where('source', SupportTicket::SOURCE_TRIP_SUPPORT)
                     ->where('status', 'open')->count(),
                 'applications' => JobApplication::query()->where('status', 'new')->count(),
+                'hosting' => HostingEnquiry::query()->where('status', HostingEnquiry::STATUS_NEW)->count(),
             ],
         ]);
     }

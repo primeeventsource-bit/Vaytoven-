@@ -715,7 +715,7 @@
                 <li>
                     <div>
                         <h4>Transparent pricing</h4>
-                        <p>What you see at search is what you pay at checkout. Cleaning, taxes, and fees broken out, never hidden.</p>
+                        <p>What you see at search is what the host advertises. Rates, cleaning and fees broken out, never hidden.</p>
                     </div>
                 </li>
                 <li>
@@ -741,7 +741,7 @@
             <div class="eyebrow" style="color: var(--pink);">What's different</div>
             <ul class="host-benefits">
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">3% host fee.</strong> Not 15. Not 20. Three.</span></li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Direct payouts.</strong> Funds clear within 24 hours of guest check-in.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">You deal direct.</strong> Guests pay you, on your terms — we advertise, we don't sit in the middle.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Damage cover, baked in.</strong> Up to $250K per stay, no separate purchase.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Listing concierge.</strong> Photography, copy, pricing — handled by our team, not yours.</span></li>
             </ul>
@@ -936,11 +936,11 @@
         </details>
         <details class="faq-item">
             <summary>Are there hidden fees?</summary>
-            <div class="faq-item-body">No. The price you see at search is what you pay. Cleaning, taxes, and fees are itemized at checkout, not buried.</div>
+            <div class="faq-item-body">Not from Vaytoven. We charge hosts for advertising and platform access, and we don't add a fee to what you arrange with them. Rates, cleaning and any charges are shown on the listing, not buried.</div>
         </details>
         <details class="faq-item">
-            <summary>How does host payout work?</summary>
-            <div class="faq-item-body">Direct bank deposit within 24 hours of guest check-in. No 7-day holds.</div>
+            <summary>Does Vaytoven take my payment for the stay?</summary>
+            <div class="faq-item-body">No. Vaytoven advertises listings — we don't take reservations, hold funds, or charge you for a stay. You submit an offer, and if the listing member accepts, you arrange the booking and payment with them directly.</div>
         </details>
         <details class="faq-item">
             <summary>What happens if there's a problem with my stay?</summary>

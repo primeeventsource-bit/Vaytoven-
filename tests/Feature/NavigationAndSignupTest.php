@@ -53,11 +53,15 @@ class NavigationAndSignupTest extends TestCase
     {
         $body = $this->get('/become-a-host')->assertOk()->getContent();
 
-        // Step headings.
+        // Step headings. "Verify identity (payout enrollment)" and "first
+        // booking" are gone: Vaytoven advertises listings, so there is no
+        // payout to enrol for and travelers send offers rather than bookings.
         $this->assertStringContainsString('Apply</h3>', $body);
-        $this->assertStringContainsString('Verify identity', $body);
+        $this->assertStringContainsString('Agree your advertising package', $body);
         $this->assertStringContainsString('Concierge buildout', $body);
-        $this->assertStringContainsString('Go live + first booking', $body);
+        $this->assertStringContainsString('Go live + first offers', $body);
+
+        $this->assertStringNotContainsString('payout enrollment', $body);
     }
 
     public function test_members_page_renders_with_program_details_and_faqs(): void

@@ -105,7 +105,7 @@
                 <div class="site-card" style="margin-top:16px;">
                     <h3>Faster answers</h3>
                     <p style="margin:0 0 10px;">
-                        Cancellation windows, refund timing, service fees and payout schedules are
+                        How offers work, listing guidance, account security and platform fees are
                         all documented and searchable.
                     </p>
                     <a href="{{ route('help.index') }}">Search the Help Center</a>

@@ -78,8 +78,10 @@
                 </table>
                 </div>
                 <p class="vyt-faint" style="font-size:12px; margin:14px 0 0;">
-                    Host net is shown before any other applicable deductions and before payout.
-                    Each booking keeps the fee rates that were in force when it was made.
+                    Historical records only. Vaytoven advertises listings and does not collect
+                    rental payments or pay hosts — figures shown here relate to bookings taken
+                    under the previous arrangement, and each keeps the fee rates in force at the
+                    time.
                 </p>
             @endif
         </div>
