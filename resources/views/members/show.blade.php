@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @include('partials.brand-styles')
+    @include('partials.footer-styles')
     <style>
         .members-hero {
             background: linear-gradient(135deg, #fdf2f8 0%, #f5f3ff 100%);
@@ -257,6 +258,8 @@
             </div>
         </section>
     </main>
+
+    @include('partials.site-footer')
 
     <script src="/vyt-track.js" defer></script>
 </body>

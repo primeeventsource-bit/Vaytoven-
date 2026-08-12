@@ -95,6 +95,7 @@
             border-left: 3px solid var(--line); padding-left: 14px; margin-top: 22px;
         }
     </style>
+    @include('partials.footer-styles')
     @stack('head')
 </head>
 <body>

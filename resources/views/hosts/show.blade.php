@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @include('partials.brand-styles')
+    @include('partials.footer-styles')
     <style>
         .host-hero {
             background: linear-gradient(135deg, #1d1f21 0%, #3a1d4d 100%);
@@ -264,6 +265,11 @@
             </div>
         </section>
     </main>
+
+    {{-- This page and members/show were the only public pages with no footer at
+         all, which meant the two most important landing pages carried no legal
+         links and no way to contact the company. --}}
+    @include('partials.site-footer')
 
     <script src="/vyt-track.js" defer></script>
 </body>

@@ -44,16 +44,42 @@ class ContactDetailsTest extends TestCase
         }
     }
 
+    /** Every public page, including the two that had no footer at all. */
+    private const PUBLIC_PAGES = [
+        '/', '/contact', '/about', '/press', '/become-a-host', '/members',
+        '/earnings-calculator', '/host-resources', '/destinations', '/careers',
+    ];
+
     /** The footer is on every public page, so this is the site-wide answer. */
     public function test_the_shared_footer_publishes_the_contact_email_and_phone(): void
     {
-        foreach (['/', '/contact', '/about', '/press'] as $url) {
+        foreach (self::PUBLIC_PAGES as $url) {
             $html = $this->get($url)->assertOk()->getContent();
 
             $this->assertStringContainsString('mailto:'.self::EMAIL, $html,
                 "{$url} has no contact email in the footer.");
             $this->assertStringContainsString('tel:+18777829868', $html,
                 "{$url} has no contact phone in the footer.");
+        }
+    }
+
+    /**
+     * Markup without CSS is not a footer.
+     *
+     * The footer was extracted into a shared partial but its styles were left
+     * inline in welcome.blade.php, so every page rendered through layouts/site
+     * shipped the markup unstyled — the homepage looked right, which is why it
+     * survived. An address nobody can read is not published.
+     */
+    public function test_every_page_that_renders_the_footer_also_ships_its_styles(): void
+    {
+        foreach (self::PUBLIC_PAGES as $url) {
+            $html = $this->get($url)->assertOk()->getContent();
+
+            $this->assertStringContainsString('footer-grid', $html,
+                "{$url} does not render the shared footer.");
+            $this->assertStringContainsString('.footer-grid {', $html,
+                "{$url} renders the footer markup but ships no footer CSS.");
         }
     }
 

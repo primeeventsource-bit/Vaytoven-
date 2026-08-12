@@ -396,27 +396,9 @@
         .faq-item[open] summary::after { transform: rotate(45deg); }
         .faq-item-body { padding: 0 0 22px; color: var(--muted); font-size: 16px; max-width: 60ch; }
 
-        /* Footer */
-        .footer {
-            background: var(--ink); color: rgba(255,255,255,.78);
-            padding: clamp(3rem, 6vw, 5rem) var(--section-x) 2rem;
-        }
-        .footer-grid {
-            display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 48px;
-            padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,.1);
-        }
-        .footer-grid h5 { color: #fff; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 18px; }
-        .footer-grid ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; font-size: 14px; }
-        .footer-brand .brand-mark-text { color: #fff; }
-        .footer-brand p { font-size: 14px; max-width: 32ch; margin-top: 16px; color: rgba(255,255,255,.6); }
-        .footer-brand address { font-style: normal; font-size: 14px; margin-top: 16px; color: rgba(255,255,255,.6); }
-        /* The global rule is `a { color: inherit; text-decoration: none }`, which
-           would leave the email and phone looking like plain address text. */
-        .footer-brand address a { text-decoration: underline; text-underline-offset: 3px; }
-        .footer-brand address a:hover { color: #fff; }
-        .footer-bottom { padding-top: 24px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: rgba(255,255,255,.5); }
-        @media (max-width: 800px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; } }
+        /* Footer styles now live in partials/footer-styles, included below —
+           the footer itself is a shared partial and its CSS has to travel with
+           it, or every page that is not this one renders it unstyled. */
 
         /* Modal */
         .modal-overlay {
@@ -531,6 +513,7 @@
         }
         .toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
     </style>
+    @include('partials.footer-styles')
     @include('partials.search-bar-styles')
     <script src="/vyt-search.js" defer></script>
     <script src="/vyt-track.js" defer></script>
