@@ -53,7 +53,11 @@ class LegalDocumentRegistry
             'kind'          => self::KIND_TOS,
             'view'          => 'legal.tos',
             'route'         => 'legal.tos',
-            'version_label' => 'v1',
+            // v2 (2026-08-12): replaced the placeholder terms with the full
+            // counsel-supplied Terms and Conditions. A genuine change of the
+            // agreement, so existing users are required to re-accept — which
+            // is the correct outcome, not a side effect to suppress.
+            'version_label' => 'v2',
         ],
         [
             'kind'          => self::KIND_PRIVACY,

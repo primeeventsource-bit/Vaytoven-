@@ -65,8 +65,8 @@ class LegalHashStabilityTest extends TestCase
         $this->assertStringNotContainsString('<!doctype', strtolower($canonical));
 
         // ...but still contains the agreement itself.
-        $this->assertStringContainsString('Terms of Service', $canonical);
-        $this->assertStringContainsString('Vaytoven Technologies LLC', $canonical);
+        $this->assertStringContainsString('Terms and Conditions', $canonical);
+        $this->assertStringContainsString('Limitation of liability', $canonical);
     }
 
     public function test_changing_the_document_text_does_change_the_hash(): void

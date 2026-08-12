@@ -1,11 +1,16 @@
 {{--
   Unified top nav across every public-facing branded surface.
 
-  Order is fixed (Stay → Become a Host → Members → Signup → Login) so the
-  user sees the same hierarchy on every page. The optional $current var
+  Order is fixed (Stay → Become a Host → Members → Terms → Signup → Login) so
+  the user sees the same hierarchy on every page. The optional $current var
   highlights the active tab — pass 'stay', 'become-a-host', 'members',
-  'signup', or 'login'. Auth'd users see their dashboard link instead of
-  Login/Signup.
+  'terms', 'signup', or 'login'. Auth'd users see their dashboard link instead
+  of Login/Signup.
+
+  Terms links to the named `terms` route, which is the friendly /terms alias
+  for the canonical /legal/tos document. Nav changes are safe for the legal
+  hash: LegalDocumentRegistry hashes only the <main class="legal-shell">
+  region, precisely so page chrome cannot mint a new terms version.
 --}}
 @php
     $current = $current ?? null;
@@ -74,6 +79,7 @@
         <a href="{{ route('properties.index') }}" class="{{ $current === 'stay' ? 'is-current' : '' }}" data-track-audience="traveler" data-track-cta="topnav_stay">Stay</a>
         <a href="{{ route('hosts.show') }}" class="{{ $current === 'become-a-host' ? 'is-current' : '' }}" data-track-audience="host" data-track-cta="topnav_become_host">Become a Host</a>
         <a href="{{ route('members.show') }}" class="{{ $current === 'members' ? 'is-current' : '' }}" data-track-audience="member" data-track-cta="topnav_members">Members</a>
+        <a href="{{ route('terms') }}" class="{{ $current === 'terms' ? 'is-current' : '' }}" data-track-cta="topnav_terms">Terms</a>
     </div>
 
     <div class="vyt-topnav-spacer"></div>

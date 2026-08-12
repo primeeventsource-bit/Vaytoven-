@@ -141,6 +141,14 @@ Route::get('/help/{slug}', [HelpController::class, 'show'])->name('help.show');
 // auditors and the chat agent can reconcile against terms_versions.
 // ---------------------------------------------------------------------------
 Route::get('/legal/tos', [LegalController::class, 'tos'])->name('legal.tos');
+
+// Friendly alias for the nav and for anything a customer might type or be
+// given verbally. A 301 rather than a second route rendering the same view:
+// /legal/tos stays the single canonical URL, which matters because it is the
+// address recorded on every terms_acceptance row.
+Route::permanentRedirect('/terms', '/legal/tos')->name('terms');
+Route::permanentRedirect('/terms-and-conditions', '/legal/tos');
+Route::permanentRedirect('/privacy', '/legal/privacy');
 Route::get('/legal/privacy', [LegalController::class, 'privacy'])->name('legal.privacy');
 Route::get('/legal/member-agreement', [LegalController::class, 'memberAgreement'])->name('legal.member-agreement');
 Route::get('/legal/versions', [LegalController::class, 'versions'])->name('legal.versions');
