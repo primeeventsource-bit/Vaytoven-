@@ -81,7 +81,13 @@
 <h2 id="general">4. General provisions</h2>
 <p>4.1 Once a Member is contacted regarding an inquiry or offer, the Company shall be deemed to have performed substantial services under this Agreement.</p>
 <p>4.2 Member agrees to abide by all terms of this Agreement and any applicable platform guidelines.</p>
-<p>4.3 Terms and Conditions: <a href="{{ route('legal.tos') }}">{{ route('legal.tos') }}</a></p>
+{{-- The link TEXT must not be route(), which renders an absolute URL built
+     from APP_URL. This region is what LegalDocumentRegistry hashes, so an
+     absolute URL makes the hash environment-specific — the agreement then has
+     a different fingerprint per environment, and pointing the app at a real
+     domain would force every member to re-accept an unchanged document. The
+     href may be absolute; the visible text is the stable path. --}}
+<p>4.3 Terms and Conditions: <a href="{{ route('legal.tos', absolute: false) }}">vaytoven.com/legal/tos</a></p>
 <p>4.4 Any amendment or modification to this Agreement must be in writing and signed by both Parties.</p>
 <p>4.5 This Agreement shall be governed by and construed in accordance with the laws of the State of Florida.</p>
 <p>4.6 The Parties agree to attempt in good faith to resolve disputes through mediation before pursuing arbitration or litigation.</p>

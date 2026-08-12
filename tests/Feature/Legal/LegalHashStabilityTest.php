@@ -43,6 +43,52 @@ class LegalHashStabilityTest extends TestCase
         $this->assertSame($before, $this->tosHash());
     }
 
+    /**
+     * EVERY legal document, not just the ToS.
+     *
+     * The Member Agreement regressed this exact way: section 4.3 linked the
+     * Terms with route(), whose absolute URL is built from APP_URL, so the
+     * agreement hashed differently on each environment and a domain change
+     * would have forced every member to re-accept an unchanged contract.
+     */
+    public function test_no_legal_document_hash_depends_on_the_app_url(): void
+    {
+        $registry = app(LegalDocumentRegistry::class);
+        $method = new \ReflectionMethod($registry, 'canonicalText');
+
+        $before = [];
+        foreach ($registry->documents() as $doc) {
+            $before[$doc['kind']] = hash('sha256', $method->invoke($registry, view($doc['view'])->render()));
+        }
+
+        config(['app.url' => 'https://www.vaytoven.example']);
+        URL::forceRootUrl('https://www.vaytoven.example');
+
+        foreach ($registry->documents() as $doc) {
+            $after = hash('sha256', $method->invoke($registry, view($doc['view'])->render()));
+
+            $this->assertSame($before[$doc['kind']], $after,
+                "The {$doc['kind']} document's hash moved when APP_URL changed — it contains an absolute URL.");
+        }
+    }
+
+    /** Belt and braces: no absolute host inside any hashed document region. */
+    public function test_no_legal_document_embeds_an_absolute_application_url(): void
+    {
+        $registry = app(LegalDocumentRegistry::class);
+        $method = new \ReflectionMethod($registry, 'canonicalText');
+
+        foreach ($registry->documents() as $doc) {
+            $canonical = $method->invoke($registry, view($doc['view'])->render());
+
+            $this->assertDoesNotMatchRegularExpression(
+                '#(href|src)="https?://(localhost|127\.0\.0\.1|[^"]*laravel\.cloud)#i',
+                $canonical,
+                "The {$doc['kind']} document embeds an environment-specific URL.",
+            );
+        }
+    }
+
     public function test_re_materialising_is_idempotent(): void
     {
         $this->tosHash();
