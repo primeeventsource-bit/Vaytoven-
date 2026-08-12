@@ -82,7 +82,10 @@
                                     </li>
                                     <li><span class="k">Guests</span><span class="v">{{ $offer->proposed_guests }}</span></li>
                                     <li>
-                                        <span class="k">Payout to you</span>
+                                        {{-- Not a payout: Vaytoven never holds or remits this
+                                             money. It is what the guest pays the member directly
+                                             once the offer is accepted and dates are agreed. --}}
+                                        <span class="k">Guest pays you</span>
                                         <span class="v" style="color:var(--purple);">${{ number_format($offer->payout_to_member_cents / 100, 2) }}</span>
                                     </li>
                                     <li>

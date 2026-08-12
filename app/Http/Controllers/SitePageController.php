@@ -90,11 +90,10 @@ class SitePageController extends Controller
 
     public function earningsCalculator(): View
     {
-        return view('site.earnings-calculator', [
-            // The calculator subtracts the same host commission the booking
-            // flow charges, read from settings rather than duplicated as a
-            // literal, so an operator changing the fee changes the estimate.
-            'hostFeePercent' => (int) setting('fees.host_commission_pct', 3),
-        ]);
+        // Deliberately passes no fee percentage. Vaytoven charges hosts an
+        // advertising subscription, not a commission on a stay, and no rental
+        // money passes through the platform — so the calculator has nothing to
+        // deduct and must not imply otherwise.
+        return view('site.earnings-calculator');
     }
 }

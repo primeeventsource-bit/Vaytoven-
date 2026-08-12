@@ -740,9 +740,9 @@
         <div>
             <div class="eyebrow" style="color: var(--pink);">What's different</div>
             <ul class="host-benefits">
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">3% host fee.</strong> Not 15. Not 20. Three.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">No commission.</strong> You pay to advertise; we take no cut of what you earn.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">You deal direct.</strong> Guests pay you, on your terms — we advertise, we don't sit in the middle.</span></li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Damage cover, baked in.</strong> Up to $250K per stay, no separate purchase.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Offers, not haggling.</strong> Every offer expires in 24 hours, so nothing sits unanswered.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Listing concierge.</strong> Photography, copy, pricing — handled by our team, not yours.</span></li>
             </ul>
 
@@ -823,7 +823,7 @@
                 <div class="earnings-total-num">$10,440</div>
             </div>
 
-            <p class="earnings-disclaimer">Illustrative only — actual payouts vary by property, season, club, and inventory. We'll quote your specific portfolio after a quick call.</p>
+            <p class="earnings-disclaimer">Illustrative only — what you actually earn varies by property, season, club, and inventory, and Vaytoven guarantees no result. Guests pay you directly; we neither collect nor hold that money. We'll quote your specific portfolio after a quick call.</p>
         </div>
     </div>
 </section>
@@ -928,7 +928,7 @@
     <div class="faq-list">
         <details class="faq-item">
             <summary>How is Vaytoven different from other rental sites?</summary>
-            <div class="faq-item-body">A 3% host fee instead of 15+%. Verified hosts only. Real-stay reviews. And a managed listing program for vacation club members that doesn't exist anywhere else.</div>
+            <div class="faq-item-body">We advertise; we don't sit between you and the host. Hosts pay us to list, not a commission on what they earn, so there's no platform cut inflating what you're quoted. And there's a managed listing program for vacation club members with unused weeks.</div>
         </details>
         <details class="faq-item">
             <summary>What does the managed listing program for members involve?</summary>
@@ -944,7 +944,7 @@
         </details>
         <details class="faq-item">
             <summary>What happens if there's a problem with my stay?</summary>
-            <div class="faq-item-body">Trip support is on-call 24/7 in your timezone. If a stay doesn't match what was booked, we relocate you within 24 hours and refund the difference under our $1M trip protection guarantee.</div>
+            <div class="faq-item-body">Raise a Trip Support request and we'll help you reach the listing member and work it through. Because your stay is arranged directly with them, any refund or change is theirs to agree — we can't issue one on their behalf, but we do keep a record of everything and will chase it with you.</div>
         </details>
         <details class="faq-item">
             <summary>When does the app launch?</summary>

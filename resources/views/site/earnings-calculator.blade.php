@@ -104,8 +104,8 @@
                     <div style="margin-top:20px;">
                         <div class="calc-line"><span>Nights booked</span><span id="calc-booked">0</span></div>
                         <div class="calc-line"><span>Gross booking value</span><span id="calc-gross">$0</span></div>
-                        <div class="calc-line"><span>Host commission ({{ $hostFeePercent }}%)</span><span id="calc-fee">$0</span></div>
-                        <div class="calc-line"><strong>Estimated net</strong><strong id="calc-net-line">$0</strong></div>
+                        <div class="calc-line"><span>Vaytoven's cut of it</span><span>$0</span></div>
+                        <div class="calc-line"><strong>Estimated to you</strong><strong id="calc-net-line">$0</strong></div>
                     </div>
                 </div>
 
@@ -117,6 +117,16 @@
                     platform's control. Vaytoven advertises listings and does not collect rental
                     payments or pay hosts — guests pay you directly.
                 </div>
+
+                {{-- Deliberately shows no deduction. Vaytoven charges the host an
+                     advertising subscription, quoted up front; it takes no
+                     percentage of what a guest pays, and that money never passes
+                     through the platform, so there is nothing to subtract here. --}}
+                <div class="calc-disclaimer" style="margin-top:14px;">
+                    <strong>What Vaytoven costs is separate.</strong> You pay us an advertising
+                    subscription to list, quoted in writing before you commit. We take no
+                    commission on a stay, so nothing is deducted from the figure above.
+                </div>
             </div>
         </div>
     </section>
@@ -126,10 +136,6 @@
 @push('scripts')
 <script>
 (function () {
-    // Host commission comes from the Settings console, not a literal, so the
-    // estimate tracks whatever the booking flow actually charges.
-    var FEE_PCT = {{ (int) $hostFeePercent }};
-
     var el = function (id) { return document.getElementById(id); };
     var money = function (n) {
         return '$' + Math.round(n).toLocaleString('en-US');
@@ -141,17 +147,16 @@
         var occupancy = Math.min(100, Math.max(0, parseFloat(el('calc-occupancy').value) || 0));
 
         var booked = Math.round(nights * (occupancy / 100));
+        // No deduction: Vaytoven takes no percentage of a stay, so gross to the
+        // host IS the estimate. Guests pay the host directly.
         var gross  = booked * rate;
-        var fee    = gross * (FEE_PCT / 100);
-        var net    = gross - fee;
 
         el('calc-booked').textContent   = booked.toLocaleString('en-US');
         el('calc-gross').textContent    = money(gross);
-        el('calc-fee').textContent      = '-' + money(fee);
-        el('calc-net-line').textContent = money(net);
-        el('calc-net').textContent      = money(net);
+        el('calc-net-line').textContent = money(gross);
+        el('calc-net').textContent      = money(gross);
         el('calc-basis').textContent    = booked > 0
-            ? booked + ' nights at ' + money(rate) + ', after the ' + FEE_PCT + '% host commission.'
+            ? booked + ' nights at ' + money(rate) + ', paid to you by the guest.'
             : 'Increase nights or occupancy to see an estimate.';
     }
 

@@ -144,18 +144,22 @@
     <main class="host-shell">
 
         <section class="host-section">
+            {{-- No fee-per-booking or payout claims here. Vaytoven is a
+                 peer-to-peer advertising platform: it takes no cut of a stay
+                 and moves no rental money, so a "3% host fee" and a payout
+                 schedule described a relationship that does not exist. --}}
             <div class="host-stats">
                 <div class="host-stat">
-                    <strong>3%</strong>
-                    <span>HOST FEE — NOT 15, NOT 20</span>
+                    <strong>0%</strong>
+                    <span>COMMISSION ON WHAT YOU EARN</span>
                 </div>
                 <div class="host-stat">
                     <strong>24h</strong>
-                    <span>PAYOUT AFTER GUEST CHECK-IN</span>
+                    <span>OFFERS EXPIRE, SO NOTHING STALLS</span>
                 </div>
                 <div class="host-stat">
-                    <strong>$250K</strong>
-                    <span>DAMAGE COVER PER STAY, INCLUDED</span>
+                    <strong>You</strong>
+                    <span>SET THE RATE AND THE TERMS</span>
                 </div>
             </div>
         </section>
@@ -163,23 +167,23 @@
         <section class="host-section">
             <div class="host-section-eyebrow">Why Vaytoven</div>
             <h2>Hosting that respects your time and your margin.</h2>
-            <p class="lede">We picked four things hosts complain loudest about on other platforms — and fixed each one.</p>
+            <p class="lede">You pay Vaytoven to advertise your property. What a guest pays you is yours — we take no cut of it, and it never passes through us.</p>
 
             <div class="host-benefits">
                 <div class="host-benefit">
                     <div class="host-benefit-icon">¢</div>
-                    <h3>3% host fee, flat.</h3>
-                    <p>Not 15. Not 20. Three. We make our money on volume and operational leverage, not by skimming hosts.</p>
+                    <h3>No commission on your earnings.</h3>
+                    <p>Not 15%. Not 20%. Nothing. You pay for advertising and platform access — a figure quoted in writing before you commit — and we take no percentage of what a guest pays you.</p>
+                </div>
+                <div class="host-benefit">
+                    <div class="host-benefit-icon">🤝</div>
+                    <h3>Peer to peer, by design.</h3>
+                    <p>Vaytoven introduces the traveler and carries the offer. Once you accept and the dates are agreed, you and the guest settle payment directly, on terms you set. We never hold the money.</p>
                 </div>
                 <div class="host-benefit">
                     <div class="host-benefit-icon">⏱</div>
-                    <h3>Payouts in 24 hours.</h3>
-                    <p>Funds release the day after guest check-in by direct bank deposit. No 30-day holding pattern. No "pending" line items.</p>
-                </div>
-                <div class="host-benefit">
-                    <div class="host-benefit-icon">🛡</div>
-                    <h3>$250K damage cover, baked in.</h3>
-                    <p>Up to $250,000 per stay, no separate purchase, no per-booking surcharge. First claim each year has zero deductible.</p>
+                    <h3>Offers that don't go stale.</h3>
+                    <p>Every offer expires 24 hours after it's submitted, so nothing sits unanswered. Accept, decline, or let it lapse — the record stays on your dashboard either way.</p>
                 </div>
                 <div class="host-benefit">
                     <div class="host-benefit-icon">📷</div>
@@ -187,7 +191,7 @@
                     <p>Photography, copy, pricing — handled by our team in supported metros at no charge for your first listing.</p>
                 </div>
                 <div class="host-benefit">
-                    <div class="host-benefit-icon">🤝</div>
+                    <div class="host-benefit-icon">▤</div>
                     <h3>One contract, one dashboard.</h3>
                     <p>Sign once via DocuSign. Track offers, inquiries and listing performance from a single host dashboard.</p>
                 </div>
@@ -201,8 +205,8 @@
 
         <section class="host-section" id="how-it-works">
             <div class="host-section-eyebrow">Onboarding</div>
-            <h2>From application to your first booking in 7–14 days.</h2>
-            <p class="lede">Everything happens online. Most hosts complete identity verification in under 10 minutes.</p>
+            <h2>From application to live listing in 7–14 days.</h2>
+            <p class="lede">Everything happens online, and the form takes a couple of minutes. We never ask for banking details or identity documents.</p>
 
             <div class="host-steps" style="margin-top: 32px;">
                 <div class="host-step">
@@ -230,7 +234,8 @@
                     <div class="host-step-number"></div>
                     <div>
                         <h3>Go live + first offers</h3>
-                        <p>Listings activate the moment you approve. Travelers submit offers and inquiries on your dates, and you accept or decline from your dashboard. You then arrange the stay and payment with the guest directly, on your own terms.</p>
+                        <p>Listings activate the moment you approve. Travelers submit offers on your dates, and you accept or decline from your dashboard.</p>
+                        <p style="margin-top:10px;">Payment is discussed <strong>after</strong> you accept an offer and the dates are agreed — directly between you and the guest, on terms you set. Vaytoven is peer to peer: we introduce and advertise, we don't collect or hold the money.</p>
                     </div>
                 </div>
             </div>
@@ -252,7 +257,7 @@
         <section class="host-section">
             <div class="host-final-cta">
                 <h2>Ready to list?</h2>
-                <p>The application takes about five minutes. KYC takes another five. Most hosts go live within two weeks.</p>
+                <p>The form takes a couple of minutes and asks for nothing sensitive. Most listings go live within two weeks.</p>
                 <a href="{{ route('host.onboarding.index') }}" class="cta-primary" style="background: var(--gradient);" data-track-audience="host" data-track-cta="become_host_apply_footer">
                     Start your application →
                 </a>

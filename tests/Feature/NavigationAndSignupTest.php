@@ -44,8 +44,16 @@ class NavigationAndSignupTest extends TestCase
         $resp->assertOk();
         $resp->assertSee('Your second home');
         $resp->assertSee('Start your application');
-        $resp->assertSee('3%');                    // host fee callout
-        $resp->assertSee('$250K');                  // damage cover
+
+        // The stat block used to advertise a "3% host fee" and "$250K damage
+        // cover". Both described a booking platform that takes a cut of a stay
+        // and stands behind it. Vaytoven charges the host to advertise and
+        // takes nothing from what the guest pays, so the headline number is 0%.
+        $resp->assertSee('0%');
+        $resp->assertSee('COMMISSION ON WHAT YOU EARN');
+        $resp->assertDontSee('3%');
+        $resp->assertDontSee('$250K');
+
         $resp->assertSee(route('host.onboarding.index'));
     }
 
