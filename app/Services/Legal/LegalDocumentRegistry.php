@@ -69,7 +69,11 @@ class LegalDocumentRegistry
             'kind'          => self::KIND_MEMBER_AGREEMENT,
             'view'          => 'legal.member-agreement',
             'route'         => 'legal.member-agreement',
-            'version_label' => 'v1',
+            // v2 (2026-08-12): replaced with the counsel-supplied Advertising
+            // Membership Agreement. The previous text described Vaytoven as
+            // the booking party holding guest funds in escrow — the opposite
+            // of what this agreement says at 2.6.
+            'version_label' => 'v2',
         ],
     ];
 

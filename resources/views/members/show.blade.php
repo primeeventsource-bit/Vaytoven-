@@ -131,7 +131,7 @@
                     <span>Net to member</span>
                     <span class="num">$10,440</span>
                 </div>
-                <p class="disclaimer">Net of upfront weekly cost ($200–$800 + tax) + program subscription fee. Quoted in writing on the onboarding call before commitment. Illustrative only — actual payouts vary by property, season, and inventory.</p>
+                <p class="disclaimer">Before the upfront weekly cost ($200–$800 + tax) + program subscription fee, quoted in writing on the onboarding call before commitment. Illustrative only — what you actually earn depends on demand, season and what you agree with each guest. Vaytoven advertises your weeks and does not collect rental payments, hold funds, or guarantee results.</p>
             </div>
         </div>
     </header>
@@ -161,19 +161,19 @@
             <h2>What you get when you list with us.</h2>
 
             <ul style="margin-top: 28px; padding-left: 22px; font-size: 15.5px; line-height: 2; color: var(--ink);">
-                <li><strong>Listed and booked across our network</strong> and partner channels under Vaytoven's escrow account, keeping your booking compliant with your club's rental policy.</li>
+                <li><strong>Advertised across our network</strong> and partner channels, so your unused weeks reach travelers already searching for them.</li>
                 <li><strong>Pricing transparency.</strong> Upfront weekly program cost ($200–$800 + tax, varying by property tier and season) plus a flat program subscription fee — both quoted in writing on the onboarding call before any commitment.</li>
                 <li><strong>Rate-locked for the term.</strong> Whatever we quote is what applies; we won't raise it mid-term without your written consent.</li>
                 <li><strong>No separate percentage cut.</strong> Once those costs are covered on each booking, the rest is yours.</li>
                 <li><strong>You stay in control.</strong> Keep, gift, or rent whichever weeks you want each year. Withdrawal of a week from the program doesn't affect bookings already confirmed against it.</li>
                 <li><strong>Real human onboarding.</strong> A specialist contacts you within one business day of your enquiry. No bots until your portfolio is live.</li>
-                <li><strong>Same payout schedule as standard hosts.</strong> Funds release 24 hours after guest check-in by direct bank deposit (ACH).</li>
+                <li><strong>You deal with the guest directly.</strong> Vaytoven advertises the week and passes the enquiry to you. The reservation, the payment and the terms are yours to agree — we don't sit in the middle of the money.</li>
             </ul>
         </section>
 
         <section class="members-section">
             <div class="members-section-eyebrow">How it works</div>
-            <h2>From enquiry to net payout.</h2>
+            <h2>From enquiry to live listing.</h2>
 
             <div class="members-flow" style="margin-top: 32px;">
                 <div class="members-flow-step">
@@ -193,15 +193,15 @@
                 <div class="members-flow-step">
                     <div class="members-flow-step-number"></div>
                     <div>
-                        <h3>Onboarding under our escrow account</h3>
-                        <p>Eligible weeks are loaded into Vaytoven's escrow account so guest payment, custodial holding, and payout flow to you all happen on Vaytoven infrastructure. This structure keeps the booking compliant with your club's rental policy by interposing Vaytoven as the booking party.</p>
+                        <h3>Your weeks go live</h3>
+                        <p>Eligible weeks are built into listings — photography, copy, amenities and availability — and published across our network. You approve before anything goes live, and you keep control of your rates and which weeks you offer.</p>
                     </div>
                 </div>
                 <div class="members-flow-step">
                     <div class="members-flow-step-number"></div>
                     <div>
-                        <h3>Listings live + first booking</h3>
-                        <p>We list the weeks across our network and partner channels. As guests check in, your net payouts release 24 hours later, on the same schedule as standard hosts. You see scheduled payouts in your member dashboard.</p>
+                        <h3>Offers arrive, you decide</h3>
+                        <p>Travelers submit offers and inquiries on your weeks. You see each one in your member dashboard — with the dates, guests, amount offered and when it expires — and accept or decline. From there you arrange the stay and the payment with the guest directly.</p>
                     </div>
                 </div>
             </div>
@@ -213,12 +213,12 @@
 
             <div class="members-faq" style="margin-top: 32px;">
                 <details>
-                    <summary>Will Vaytoven booking my weeks violate my club's rules?</summary>
-                    <p>No. We list under Vaytoven's escrow account, not under your member account. The booking party on the contract is Vaytoven, which keeps the transaction compliant with your club's rental policy in every program we currently support. If your club explicitly forbids managed rental we'll tell you on the onboarding call before any commitment.</p>
+                    <summary>Will advertising my weeks violate my club's rules?</summary>
+                    <p>Vaytoven advertises your weeks; it does not rent them, take the booking, or become a party to your arrangement with the guest. You remain the one who agrees the stay. Club rules on renting vary, so check yours — we'll talk through what your program allows on the onboarding call, and we'll tell you before any commitment if we think it's a poor fit.</p>
                 </details>
                 <details>
                     <summary>What does the upfront weekly cost cover?</summary>
-                    <p>Listing operations: pricing, calendar management, guest support, payment processing fees, our 24/7 trust &amp; safety coverage, and the platform infrastructure your booking runs on. The exact figure ($200–$800 per week + applicable tax) varies by property tier and season; we quote your specific portfolio in writing before commitment.</p>
+                    <p>Advertising and listing operations: photography, copywriting, pricing guidance, calendar management, distribution across our network and partner channels, and the platform your listing runs on. The exact figure ($200–$800 per week + applicable tax) varies by property tier and season; we quote your specific portfolio in writing before commitment.</p>
                 </details>
                 <details>
                     <summary>What's the program subscription fee?</summary>
@@ -230,11 +230,11 @@
                 </details>
                 <details>
                     <summary>What happens if I want to use a week myself after I've enrolled it?</summary>
-                    <p>You stay in control. Withdraw the week from the program before it's confirmed to a guest and it's yours. Bookings that are already confirmed are honoured to their conclusion — you can't cancel a confirmed guest just to use the week yourself.</p>
+                    <p>You stay in control. Withdraw the week from advertising at any time and it's yours. If you've already accepted an offer from a guest, that arrangement is between you and them — honour it as you would any commitment you've made.</p>
                 </details>
                 <details>
                     <summary>How do I get paid?</summary>
-                    <p>Direct bank deposit (ACH), 24 hours after each guest checks in. Same schedule as standard hosts. First payouts require one-time payout enrollment — our payments team verifies your identity and banking details, usually within a business day.</p>
+                    <p>By the guest, directly. Vaytoven is an advertising platform — we don't collect rental payments, hold funds in escrow, or pay you out, and we never ask for your banking details. When you accept an offer you agree payment terms with the guest yourself. The only money that moves through Vaytoven is what you pay us for advertising and your subscription.</p>
                 </details>
                 <details>
                     <summary>What if my club isn't on the list?</summary>
@@ -242,7 +242,7 @@
                 </details>
                 <details>
                     <summary>How long is the agreement?</summary>
-                    <p>Standard term is one year, with 30 days' written notice for either side to terminate at renewal. Bookings already confirmed at termination are honoured; payouts continue per the original schedule.</p>
+                    <p>Standard term is one year, with 30 days' written notice for either side to terminate at renewal. Stays you've already agreed with guests are unaffected — they are your arrangements, not ours.</p>
                 </details>
             </div>
         </section>
