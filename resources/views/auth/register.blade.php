@@ -65,7 +65,7 @@
             <span>
                 I have read and agree to the
                 @foreach (($legalDocs ?? []) as $i => $doc)
-                    <a href="{{ $doc->content_url }}" target="_blank" rel="noopener">{{ ucwords(str_replace('_', ' ', $doc->kind)) }}</a>@if ($i + 1 < count($legalDocs)), @endif
+                    <a href="{{ $doc->publicUrl() }}" target="_blank" rel="noopener">{{ ucwords(str_replace('_', ' ', $doc->kind)) }}</a>@if ($i + 1 < count($legalDocs)), @endif
                 @endforeach.
             </span>
         </label>

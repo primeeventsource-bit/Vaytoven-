@@ -45,7 +45,10 @@ class LegalController extends Controller
             $payload[] = [
                 'kind'          => $kind,
                 'version_label' => $version->version_label,
-                'content_url'   => $version->content_url,
+                // Resolved against the current host, not the value frozen into
+                // the row when the seeder ran on Laravel Cloud — an auditor
+                // following content_url was sent to the internal vanity domain.
+                'content_url'   => $version->publicUrl(),
                 'content_hash'  => $version->content_hash,
                 'effective_at'  => $version->effective_at?->toIso8601String(),
             ];

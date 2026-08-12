@@ -139,6 +139,24 @@ class LegalDocumentRegistry
         return self::DOCUMENTS;
     }
 
+    /**
+     * Route name that publishes a given kind, or null if it is not registered.
+     *
+     * Static because TermsVersion::publicUrl() needs it to turn a stored row
+     * back into a link on the CURRENT host, and a model accessor should not
+     * have to resolve a service out of the container to answer that.
+     */
+    public static function routeNameFor(string $kind): ?string
+    {
+        foreach (self::DOCUMENTS as $doc) {
+            if ($doc['kind'] === $kind) {
+                return $doc['route'];
+            }
+        }
+
+        return null;
+    }
+
     private function materialise(array $doc): TermsVersion
     {
         $rendered = View::make($doc['view'])->render();

@@ -15,7 +15,7 @@
                 <strong style="display:block;">{{ ucwords(str_replace('_', ' ', $version->kind)) }}</strong>
                 <span style="font-size:13px;color:var(--muted);">Version {{ $version->version_label }} · effective {{ $version->effective_at?->toFormattedDateString() }}</span>
             </div>
-            <a href="{{ $version->content_url }}" target="_blank" rel="noopener" style="font-size:13px;">Read →</a>
+            <a href="{{ $version->publicUrl() }}" target="_blank" rel="noopener" style="font-size:13px;">Read →</a>
         </li>
     @endforeach
 </ul>
