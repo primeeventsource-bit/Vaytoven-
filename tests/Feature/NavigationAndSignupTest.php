@@ -64,12 +64,17 @@ class NavigationAndSignupTest extends TestCase
         // Step headings. "Verify identity (payout enrollment)" and "first
         // booking" are gone: Vaytoven advertises listings, so there is no
         // payout to enrol for and travelers send offers rather than bookings.
+        //
+        // "Concierge buildout" is gone too. Hosts are on the monthly
+        // subscription and build their own listing; the managed buildout is
+        // the separate 180-day member program.
         $this->assertStringContainsString('Apply</h3>', $body);
-        $this->assertStringContainsString('Agree your advertising package', $body);
-        $this->assertStringContainsString('Concierge buildout', $body);
+        $this->assertStringContainsString('Start your monthly subscription', $body);
+        $this->assertStringContainsString('Build your listing', $body);
         $this->assertStringContainsString('Go live + first offers', $body);
 
         $this->assertStringNotContainsString('payout enrollment', $body);
+        $this->assertStringNotContainsString('Concierge buildout', $body);
     }
 
     public function test_members_page_renders_with_program_details_and_faqs(): void
@@ -82,10 +87,14 @@ class NavigationAndSignupTest extends TestCase
         // balance. The inventory is weeks the member already owns.
         $resp->assertSee("Turn the weeks you don't use into", false);
         $resp->assertSee('Member program FAQs');
-        // New pricing language consistent with the rest of the site.
-        $resp->assertSee('upfront weekly');
-        $resp->assertSee('$200');
-        $resp->assertSee('subscription fee', false);
+
+        // The member program is a ONE-TIME fee for a 180-day term. It was
+        // previously advertised here as "$200–$800 per week + a subscription
+        // fee", which is a recurring charge and contradicts the agreement.
+        $resp->assertSee('180-day');
+        $resp->assertSee('one-time fee', false);
+        $resp->assertDontSee('upfront weekly');
+        $resp->assertDontSee('per week');
     }
 
     public function test_members_page_lists_eligible_clubs(): void

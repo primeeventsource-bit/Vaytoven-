@@ -187,9 +187,9 @@
                     <p>Every offer expires 24 hours after it's submitted, so nothing sits unanswered. Accept, decline, or let it lapse — the record stays on your dashboard either way.</p>
                 </div>
                 <div class="host-benefit">
-                    <div class="host-benefit-icon">📷</div>
-                    <h3>Listing concierge.</h3>
-                    <p>Photography, copy, pricing — handled by our team in supported metros at no charge for your first listing.</p>
+                    <div class="host-benefit-icon">🎛</div>
+                    <h3>Your listing, your control.</h3>
+                    <p>On the monthly subscription you build and manage the listing yourself from your dashboard — photos, copy, rates and availability are yours to set and change whenever you want, with no one to ask.</p>
                 </div>
                 <div class="host-benefit">
                     <div class="host-benefit-icon">▤</div>
@@ -220,15 +220,16 @@
                 <div class="host-step">
                     <div class="host-step-number"></div>
                     <div>
-                        <h3>Agree your advertising package</h3>
-                        <p>We confirm the details, agree what the listing includes, and set up your account. We never ask for bank details, government ID or tax forms — advertising a listing needs none of it, and Vaytoven does not handle rental money.</p>
+                        <h3>Start your monthly subscription</h3>
+                        <p>Hosting runs on a monthly SaaS subscription that gives you access to the platform, the listing tools, the exposure and your dashboard. We confirm the details and set up your account. We never ask for bank details, government ID or tax forms — advertising a listing needs none of it, and Vaytoven does not handle rental money.</p>
                     </div>
                 </div>
                 <div class="host-step">
                     <div class="host-step-number"></div>
                     <div>
-                        <h3>Concierge buildout</h3>
-                        <p>Our team arranges photography, writes the listing copy, prices the property based on local comps, and surfaces the local short-term-rental rules. You review and approve before going live.</p>
+                        <h3>Build your listing</h3>
+                        <p>You create and manage the listing yourself from your dashboard — photos, description, rates and availability. We surface the local short-term-rental rules for your address as you go. Change any of it whenever you like; it's your listing.</p>
+                        <p style="margin-top:10px;">Would rather we did this for you? The <a href="{{ route('members.show') }}">180-day Managed Listing Program</a> is the other option — a one-time fee instead of a subscription, where our team assists with the listing and markets it for you.</p>
                     </div>
                 </div>
                 <div class="host-step">

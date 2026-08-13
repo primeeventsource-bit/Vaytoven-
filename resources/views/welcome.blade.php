@@ -730,7 +730,7 @@
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">No commission.</strong> You pay to advertise; we take no cut of what you earn.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">You deal direct.</strong> Guests pay you, on your terms — we advertise, we don't sit in the middle.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Offers, not haggling.</strong> Every offer expires in 24 hours, so nothing sits unanswered.</span></li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Listing concierge.</strong> Photography, copy, pricing — handled by our team, not yours.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Two ways in.</strong> A monthly subscription where you run your own listing, or a one-time 180-day managed program where we do it for you.</span></li>
             </ul>
 
             <a class="host-primary-cta" href="{{ route('host.onboarding.index') }}" data-track-audience="host" data-track-cta="host_onboarding_open">
@@ -766,7 +766,7 @@
 
             <ul class="members-list">
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>We list and market your weeks across our network and partner channels.</span></li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>Net-to-member minus our upfront cost of $200&ndash;$800 per week plus tax program subscription fee &mdash; quoted up front, no surprises.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>One fee, paid once, for a 180-day managed listing term &mdash; not a recurring subscription. Quoted up front, no surprises.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>Compliant with your club's rental policy — we work within your program's rules.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>You stay in control — keep, gift, or rent whichever weeks you want each year.</span></li>
             </ul>
@@ -805,7 +805,7 @@
             <div class="earnings-total">
                 <div>
                     <div style="font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600;">Net to member</div>
-                    <div style="font-size:13px;color:var(--muted);">Net of upfront weekly cost + subscription fee</div>
+                    <div style="font-size:13px;color:var(--muted);">Before the one-time 180-day program fee</div>
                 </div>
                 <div class="earnings-total-num">$10,440</div>
             </div>

@@ -3,7 +3,7 @@
 @section('eyebrow', 'Legal · Terms and Conditions')
 @section('title', 'Terms and Conditions')
 @section('effective_date', '2026-08-12')
-@section('version_label', 'v4')
+@section('version_label', 'v5')
 
 @section('content')
 <div class="legal-toc">
@@ -14,7 +14,7 @@
     <a href="#accounts">3. Account registration and responsibilities</a>
     <a href="#hosts">4. Host and property listing terms</a>
     <a href="#guests">5. Guest and visitor responsibilities</a>
-    <a href="#fees">6. Payments, hosting fees, advertising fees, subscriptions</a>
+    <a href="#fees">6. Payments, advertising fees, and subscriptions</a>
     <a href="#cancellations">7. Cancellations and refund policy</a>
     <a href="#ip">8. Content and intellectual property</a>
     <a href="#prohibited">9. Prohibited activities</a>
@@ -44,39 +44,51 @@
     <a href="#advertiser">33. Advertiser Disclosure Statement</a>
 </div>
 
-<p>Welcome to Vaytoven.com, a software-as-a-service (SaaS) showcase, advertising, and marketplace platform operated by Vaytoven ("Company," "we," "us," or "our"). These Terms and Conditions govern your use of the Vaytoven website, inquiry tools, host and owner features, communication systems, mobile interfaces, advertising services, and related services made available through the Platform.</p>
+<p>Welcome to Vaytoven.com, a software-as-a-service (SaaS) showcase and advertising platform operated by <strong>Vaytoven Technologies LLC</strong> ("Vaytoven," "Company," "we," "us," or "our"). These Terms and Conditions govern your use of the Vaytoven website, inquiry and offer tools, host and owner features, communication systems, mobile interfaces, advertising services, and related services made available through the Platform.</p>
 
 <p>By accessing or using the Platform, you agree to these Terms as a visitor, user, host, property owner, advertiser, client, or account holder. If you do not agree, please discontinue use of the Platform.</p>
 
 <h2 id="disclosures">Important relationship disclosures</h2>
 <p>Vaytoven operates as a digitally enabled software, advertising, showcase, and marketplace platform for vacation and short-term stay opportunities.</p>
 
-<p><strong>Vaytoven is a SaaS digital advertising and marketing platform. We do not act as a booking platform. We do not collect funds for rentals, act as a travel agency, or process payments between travelers and property owners. We only collect fees for advertising services and subscription access to our platform.</strong></p>
+<p><strong>Vaytoven is a SaaS digital advertising and peer-to-peer property listing platform. We provide advertising, marketing, listing management, account dashboards, and communication technology that allows property advertisers and interested users to connect. We do not act as a booking platform. We do not collect funds for rentals, act as a travel agency, or process payments between travelers and property owners. We only collect fees for advertising services and subscription access to our platform.</strong></p>
 
 <p>Any reservation, rental agreement, payment, deposit, refund, or cancellation relating to a stay is arranged and settled <strong>directly between the guest and the host or property owner</strong>. Vaytoven is not a party to that arrangement, does not hold or transmit those funds, and does not act as an escrow agent, payment intermediary, or merchant of record for a stay.</p>
 
 <p>Unless expressly stated in a separate written agreement signed by Vaytoven, the Company is not acting as a real estate broker, travel agency, escrow provider, or property management company.</p>
-<p>Hosts and property owners remain responsible for the accuracy of their listings, property information, pricing, availability, negotiations, booking obligations, taxes, permits, property rules, and legal compliance.</p>
-<p>Users are responsible for reviewing and verifying property details, availability, pricing, payment instructions, cancellation terms, and booking conditions before completing a transaction.</p>
-<p>Vaytoven does not guarantee leads, bookings, occupancy, revenue, profitability, advertising results, property availability, or stay outcomes.</p>
+<p>Hosts, members and property owners remain responsible for the accuracy of their listings, property information, pricing, availability, negotiations, the obligations they take on toward a traveler, taxes, permits, property rules, and legal compliance.</p>
+<p>Users are responsible for reviewing and verifying property details, availability, pricing, payment instructions, and the cancellation and refund terms offered by the property owner <strong>before paying that owner any money</strong>.</p>
+<p>Vaytoven does not guarantee leads, inquiries, offers, occupancy, revenue, profitability, advertising results, property availability, or stay outcomes.</p>
 
 <h2 id="terms">1. Terms and Conditions</h2>
 <p>These Terms form a binding agreement between you and Vaytoven for use of the Platform. The Terms apply to Vaytoven.com, mobile applications or interfaces, dashboards, forms, listing and showcase tools, communications, advertising services, hosting features, and other digital systems made available by Vaytoven.</p>
 <p>These Terms provide a marketplace-style legal framework tailored to Vaytoven's service model as a SaaS, advertising, property showcase, marketplace, and digital platform provider.</p>
 
 <h2 id="services">2. Overview of services</h2>
-<p>The Platform allows hosts, property owners, and authorized advertisers to:</p>
+<p>Vaytoven is a SaaS digital advertising and <strong>peer-to-peer property listing platform</strong>. We provide advertising, marketing, listing management, account dashboards, and communication technology that allows property advertisers and interested users to connect.</p>
+
+<p>The Platform allows hosts, property owners, members, and authorized advertisers to:</p>
 <ul>
     <li>Create and maintain property listings or showcases.</li>
     <li>Advertise vacation and short-term stay opportunities.</li>
     <li>Publish property information, pricing, and availability.</li>
-    <li>Receive inquiries and booking-related communications.</li>
+    <li>Receive inquiries and offers from interested users.</li>
     <li>Access software, dashboards, analytics, marketing, and related SaaS services.</li>
-    <li>Use available mobile or web-based hosting and marketplace tools.</li>
+    <li>Use available mobile or web-based listing and communication tools.</li>
 </ul>
+
+<h3>2.1 Two separate service options</h3>
+<p>Vaytoven offers two distinct services. A participant is on one or the other; they are not tiers of a single plan and they are not billed the same way.</p>
+
+<p><strong>Host — Monthly SaaS Subscription.</strong> Hosts pay a <strong>monthly subscription fee</strong> for access to the Vaytoven platform. Under this option the host is responsible for creating, maintaining, and managing their own property listing through their Vaytoven dashboard. Vaytoven provides the software platform, listing functionality, exposure, and communication tools.</p>
+
+<p><strong>Member — 180-Day Managed Listing Program.</strong> Members pay a <strong>one-time fee</strong> for a one hundred eighty (180) day managed advertising and listing program. Under this program Vaytoven provides additional managed services for the member's property advertisement during the 180-day term, including assisting with the listing, maintaining the advertisement on the Platform, and marketing the Vaytoven platform to generate public exposure for participating listings.</p>
+
+<p>The 180-Day Member Program <strong>is not a monthly or annual recurring subscription</strong>. It does not auto-renew as a subscription, and the one-time fee covers the 180-day term stated in the member's agreement.</p>
+
 <p>Unless Vaytoven expressly states otherwise in a separate written agreement, Vaytoven is not a real estate broker, travel agency, escrow provider, or property manager.</p>
 <p>Vaytoven does not own, control, inspect, or independently verify every property displayed on the Platform.</p>
-<p>The Platform's role in a stay ends at introduction and communication. Vaytoven does not take reservations on a host's behalf, does not collect rental payments, deposits or taxes from guests, and does not remit funds to hosts.</p>
+<p>The Platform's role in a stay ends at introduction and communication. Vaytoven does not take reservations on a host's or member's behalf, does not collect rental payments, deposits or taxes from guests, and does not remit funds to hosts or members.</p>
 
 <h2 id="accounts">3. Account registration and responsibilities</h2>
 <p>Users may be required to create an account to access certain Vaytoven features.</p>
@@ -90,34 +102,34 @@
 <p>Hosts certify that listing information, rates, photographs, availability, occupancy information, amenities, policies, and disclosures are accurate and not intentionally misleading.</p>
 <p>Hosts grant Vaytoven a non-exclusive, royalty-free license to use submitted listing content, photographs, logos, descriptions, and related materials for Platform display, advertising, marketing, lead generation, and promotional purposes.</p>
 <p>Hosts remain responsible for property operations, listing accuracy, availability, legal compliance, taxes, permits, occupancy requirements, and fulfillment of their obligations to guests.</p>
-<p>Vaytoven does not guarantee any minimum number of views, inquiries, leads, bookings, stays, or revenue.</p>
+<p>Vaytoven does not guarantee any minimum number of views, inquiries, leads, offers, stays, or revenue.</p>
 
 <h2 id="guests">5. Guest and visitor responsibilities</h2>
-<p>Users must review and verify property details, pricing, availability, amenities, house rules, cancellation terms, refund conditions, and applicable payment information before completing a booking.</p>
+<p>Users must review and verify property details, pricing, availability, amenities, house rules, cancellation terms, refund conditions, and applicable payment information before submitting an offer and, in particular, before paying a property owner anything.</p>
 <p>Users must communicate honestly and respectfully with hosts, owners, and other Platform users.</p>
 <p>Users may not use Vaytoven inquiries, forms, accounts, messaging systems, or other features for spam, harassment, fraud, impersonation, or unauthorized commercial solicitation.</p>
 
-<h2 id="fees">6. Payments, hosting fees, advertising fees, and subscriptions</h2>
-<p>Vaytoven may charge hosts, advertisers, clients, or users fees associated with use of the Platform.</p>
-<p>Applicable charges may include:</p>
+<h2 id="fees">6. Payments, advertising fees, and subscriptions</h2>
+<p>Vaytoven charges <strong>hosts, members, advertisers and clients</strong> for access to the Platform and for advertising services. Vaytoven does not charge travelers or other interested users, and never charges anyone for a stay.</p>
+
+<p>Charges fall under one of the two service options described in section 2.1:</p>
 <ul>
-    <li>Hosting or service fees.</li>
-    <li>Advertising and promotional fees.</li>
-    <li>Subscription fees.</li>
-    <li>Listing or placement fees.</li>
-    <li>Software access fees.</li>
-    <li>Setup or activation fees.</li>
-    <li>Content and marketing fees.</li>
-    <li>Other fees disclosed before purchase or contained in an applicable agreement.</li>
+    <li><strong>Host — Monthly SaaS Subscription:</strong> a recurring monthly subscription fee for platform access, listing functionality, exposure, and communication tools. It continues until cancelled in accordance with these Terms or the applicable agreement.</li>
+    <li><strong>Member — 180-Day Managed Listing Program:</strong> a one-time fee covering a 180-day managed advertising and listing term. This is not a recurring subscription.</li>
 </ul>
-<p>The amount and structure of applicable fees will be disclosed through the Platform, checkout process, service agreement, invoice, order form, or other applicable documentation.</p>
-<p>By providing a payment method, you authorize Vaytoven and its authorized payment-processing providers to process charges associated with your purchase, subscription, advertising service, hosting activity, or other Platform service.</p>
+
+<p>Depending on the option and any separate agreement, charges may also include setup or activation fees, content and marketing fees, placement fees, and other fees disclosed before purchase.</p>
+
+<p>The amount and structure of applicable fees will be disclosed through the Platform, the service agreement, an invoice, an order form, or other applicable documentation before you commit.</p>
+
+<p>By providing a payment method, you authorize Vaytoven and its authorized payment-processing providers to process charges associated with your subscription, managed program, advertising service, or other Platform service. <strong>This authorization covers what you pay Vaytoven for its own services only.</strong> Vaytoven's merchant account is never used to collect rent, deposits, or any other payment owed between a traveler and a property owner.</p>
 
 <h2 id="cancellations">7. Cancellations and refund policy</h2>
-<p>Hosts, advertisers, or clients purchasing advertising, subscription, or SaaS services may cancel within any cancellation or review period expressly provided in their applicable signed agreement.</p>
-<p>Once advertising campaigns have launched, listings have been published, software or dashboard access has been activated, marketing services have commenced, or contracted services have otherwise been materially performed, fees may become non-refundable as stated in the applicable agreement.</p>
-<p>Guest booking cancellations and refunds are governed by the cancellation terms displayed for the applicable property or booking.</p>
-<p>Any refund eligibility will be determined according to the terms applicable to the specific transaction.</p>
+<p>This section governs <strong>Vaytoven's own services only</strong> — the Host Monthly SaaS Subscription and the Member 180-Day Managed Listing Program. It does not govern a stay, because Vaytoven neither sells nor takes payment for one.</p>
+<p><strong>Host — Monthly SaaS Subscription:</strong> a host may cancel the monthly subscription in accordance with the applicable agreement. Cancellation stops future monthly charges; fees already paid for the current period are not pro-rated unless the applicable agreement says otherwise.</p>
+<p><strong>Member — 180-Day Managed Listing Program:</strong> cancellation rights are those expressly stated in the member's signed agreement, including any cancellation period provided there.</p>
+<p>Once advertising has launched, listings have been published, dashboard access has been activated, or managed services have otherwise been materially performed, fees may become non-refundable as stated in the applicable agreement.</p>
+<p><strong>Stays are not covered by this section.</strong> Any cancellation of, or refund for, a stay is a matter between the traveler and the property owner on the terms the two of them agreed. Vaytoven displays no cancellation policy for a stay, holds no funds relating to one, and cannot issue a refund for one.</p>
 
 <h2 id="ip">8. Content and intellectual property</h2>
 <p>Vaytoven's software, Platform design, branding, logos, graphics, copy, workflows, interfaces, databases, and digital systems are owned by or licensed to Vaytoven and are protected by applicable intellectual-property laws.</p>
@@ -149,7 +161,7 @@
 <h2 id="warranties">12. Disclaimer of warranties</h2>
 <p>The Platform is provided on an "as is" and "as available" basis.</p>
 <p>To the fullest extent permitted by law, Vaytoven disclaims warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, accuracy, availability, non-infringement, and quiet enjoyment.</p>
-<p>Vaytoven does not guarantee advertising performance, leads, inquiries, bookings, occupancy, revenue, profitability, property availability, or any particular travel or stay outcome.</p>
+<p>Vaytoven does not guarantee advertising performance, leads, inquiries, offers, occupancy, revenue, profitability, property availability, or any particular travel or stay outcome.</p>
 <p>Results may depend on factors outside Vaytoven's control, including market demand, seasonality, pricing, property quality, location, host responsiveness, competition, advertising performance, and user preferences.</p>
 
 <h2 id="liability">13. Limitation of liability</h2>
@@ -194,9 +206,10 @@
 <p><strong>User rights:</strong> Subject to applicable law, users may request access to, correction of, or deletion of certain personal information by emailing <a href="mailto:contact@vaytoven.com">contact@vaytoven.com</a>.</p>
 
 <h2 id="fees-policy">20. Fees &amp; Payments Policy</h2>
-<p>Vaytoven fees may include one-time or recurring subscription charges, hosting fees, advertising fees, placement fees, campaign fees, software-access fees, service fees, and other charges disclosed through the Platform or applicable agreement.</p>
-<p>Fees may cover advertising, property exposure, lead generation, listing creation, content support, dashboard access, software services, marketing, mobile access, or related digital services.</p>
-<p>Refund eligibility is governed by the applicable cancellation and refund terms.</p>
+<p>Vaytoven fees take one of two forms, matching the two service options in section 2.1: a <strong>recurring monthly subscription</strong> for hosts, or a <strong>one-time fee for a 180-day managed listing term</strong> for members. Either may be accompanied by setup, placement, content or marketing charges disclosed before purchase.</p>
+<p>Fees cover advertising, property exposure, lead generation, listing creation or assistance, content support, dashboard access, software services, marketing, mobile access, and related digital services.</p>
+<p><strong>Fees are payable to Vaytoven by the advertiser.</strong> No fee is charged to a traveler, and no percentage or commission is taken from what a traveler pays a property owner.</p>
+<p>Refund eligibility for Vaytoven's own services is governed by section 7 and the applicable agreement. Vaytoven issues no refunds in relation to a stay, having taken no payment for one.</p>
 <p>Fraudulent disputes, unauthorized payment activity, or violations of payment policies may result in account restrictions or termination and other remedies permitted by law.</p>
 <p>Hosts remain responsible for applicable taxes, permits, occupancy requirements, and other obligations associated with their property operations.</p>
 
@@ -218,9 +231,10 @@
 <p>By uploading content, users grant Vaytoven the right to store, reproduce, adapt, display, publish, distribute, and promote that content in connection with operation and marketing of the Platform.</p>
 
 <h2 id="cancellation-policy">24. Cancellation Policy</h2>
-<p><strong>Host/advertiser service cancellations:</strong> Cancellation rights for advertising, software, subscription, or marketing services are governed by the applicable service agreement or terms presented at purchase.</p>
-<p><strong>Guest cancellations:</strong> Booking cancellations are governed by the cancellation policy associated with the applicable property or reservation.</p>
-<p><strong>Vaytoven cancellation rights:</strong> Vaytoven may suspend or terminate accounts, services, listings, or bookings where necessary to address violations of these Terms, suspected fraud, payment issues, legal requirements, safety concerns, or other legitimate Platform risks.</p>
+<p><strong>Host monthly subscription:</strong> cancellable in accordance with section 7 and the applicable agreement. Cancellation ends platform access at the end of the paid period and removes the listing from publication.</p>
+<p><strong>Member 180-day program:</strong> cancellation rights are those stated in the member's signed agreement. The program is a one-time 180-day term, not a recurring subscription, so there is nothing to cancel to prevent a renewal charge.</p>
+<p><strong>Stay cancellations:</strong> Vaytoven has no stay cancellation policy, because it does not take reservations or hold payment for a stay. Whatever the traveler and the property owner agreed between themselves governs, and they settle it between themselves.</p>
+<p><strong>Vaytoven cancellation rights:</strong> Vaytoven may suspend or terminate accounts, services, or listings where necessary to address violations of these Terms, suspected fraud, payment issues, legal requirements, safety concerns, or other legitimate Platform risks.</p>
 
 <h2 id="standards">25. Hosting &amp; Listing Standards</h2>
 <p>Hosts must maintain reasonably accurate property photographs, descriptions, rates, availability, amenities, rules, and other listing information.</p>
@@ -252,7 +266,7 @@
 <p>Vaytoven may use subprocessors and service providers, including hosting companies, payment processors, analytics providers, email systems, advertising platforms, fraud-prevention providers, and customer-support services.</p>
 
 <h2 id="risk">31. Host Guarantee &amp; Risk Disclosure</h2>
-<p>Vaytoven does not guarantee any particular number of listing views, inquiries, leads, bookings, occupied nights, revenue, profits, or return on advertising expenditures.</p>
+<p>Vaytoven does not guarantee any particular number of listing views, inquiries, leads, offers, occupied nights, revenue, profits, or return on advertising expenditures.</p>
 <p>Results vary based on market demand, property quality, seasonality, pricing, reviews, availability, host responsiveness, competition, location, advertising conditions, and user preferences.</p>
 <p>Hosts acknowledge that participation in advertising, SaaS, hosting, and marketplace services involves business risk and that no marketing or software platform can guarantee results.</p>
 

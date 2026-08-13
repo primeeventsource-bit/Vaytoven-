@@ -132,7 +132,7 @@
                     <span>Net to member</span>
                     <span class="num">$10,440</span>
                 </div>
-                <p class="disclaimer">Before the upfront weekly cost ($200–$800 + tax) + program subscription fee, quoted in writing on the onboarding call before commitment. Illustrative only — what you actually earn depends on demand, season and what you agree with each guest. Vaytoven advertises your weeks and does not collect rental payments, hold funds, or guarantee results.</p>
+                <p class="disclaimer">Before the one-time fee for the 180-day Managed Listing Program, quoted in writing on the onboarding call before commitment. Illustrative only — what you actually earn depends on demand, season and what you agree with each guest. Vaytoven advertises your weeks and does not collect rental payments, hold funds, or guarantee results.</p>
             </div>
         </div>
     </header>
@@ -163,7 +163,7 @@
 
             <ul style="margin-top: 28px; padding-left: 22px; font-size: 15.5px; line-height: 2; color: var(--ink);">
                 <li><strong>Advertised across our network</strong> and partner channels, so your unused weeks reach travelers already searching for them.</li>
-                <li><strong>Pricing transparency.</strong> Upfront weekly program cost ($200–$800 + tax, varying by property tier and season) plus a flat program subscription fee — both quoted in writing on the onboarding call before any commitment.</li>
+                <li><strong>Pricing transparency.</strong> One fee, paid once, covering a 180-day managed advertising and listing term — quoted in writing on the onboarding call before any commitment. It is not a monthly or annual subscription and it does not recur.</li>
                 <li><strong>Rate-locked for the term.</strong> Whatever we quote is what applies; we won't raise it mid-term without your written consent.</li>
                 <li><strong>No separate percentage cut.</strong> Once those costs are covered on each booking, the rest is yours.</li>
                 <li><strong>You stay in control.</strong> Keep, gift, or rent whichever weeks you want each year. Withdrawal of a week from the program doesn't affect bookings already confirmed against it.</li>
@@ -188,7 +188,7 @@
                     <div class="members-flow-step-number"></div>
                     <div>
                         <h3>Specialist call within one business day</h3>
-                        <p>A real person on the member team reaches out. We confirm your program rules, audit which weeks are eligible to rent, and quote the exact upfront weekly cost + subscription fee for your specific portfolio. You decide whether to move forward — no commitment until you sign.</p>
+                        <p>A real person on the member team reaches out. We confirm your program rules, audit which weeks are eligible to rent, and quote the exact one-time fee for your specific portfolio's 180-day term. You decide whether to move forward — no commitment until you sign.</p>
                     </div>
                 </div>
                 <div class="members-flow-step">
@@ -218,12 +218,13 @@
                     <p>Vaytoven advertises your weeks; it does not rent them, take the booking, or become a party to your arrangement with the guest. You remain the one who agrees the stay. Club rules on renting vary, so check yours — we'll talk through what your program allows on the onboarding call, and we'll tell you before any commitment if we think it's a poor fit.</p>
                 </details>
                 <details>
-                    <summary>What does the upfront weekly cost cover?</summary>
-                    <p>Advertising and listing operations: photography, copywriting, pricing guidance, calendar management, distribution across our network and partner channels, and the platform your listing runs on. The exact figure ($200–$800 per week + applicable tax) varies by property tier and season; we quote your specific portfolio in writing before commitment.</p>
+                    <summary>What does the one-time fee cover?</summary>
+                    <p>A 180-day managed advertising and listing term. Over that period we assist with building the listing, keep the advertisement running on the platform, and market Vaytoven itself to generate public exposure for participating listings — plus your member dashboard and the platform the listing runs on. We quote the exact figure for your specific portfolio in writing before commitment.</p>
                 </details>
                 <details>
-                    <summary>What's the program subscription fee?</summary>
-                    <p>A flat fee that covers your member dashboard, ongoing portfolio management, and recurring compliance review across your club rules. Quoted alongside the upfront weekly cost on the onboarding call.</p>
+                    <summary>Is this a subscription? Will it bill me again?</summary>
+                    <p>No. The Member program is a <strong>one-time fee for a 180-day term</strong> — it is not a monthly or annual recurring subscription and it does not auto-bill. If you want to continue after 180 days, that's a decision you make at the time.</p>
+                    <p>The monthly subscription is a separate option, for hosts who want to build and manage their own listing through the dashboard rather than have us do it.</p>
                 </details>
                 <details>
                     <summary>Can fees go up after I sign?</summary>

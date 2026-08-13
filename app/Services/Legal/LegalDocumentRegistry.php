@@ -70,7 +70,16 @@ class LegalDocumentRegistry
             // which states what an offer is, that it reserves nothing and
             // charges nothing, and that any resulting arrangement is between
             // the traveler and the listing member alone.
-            'version_label' => 'v4',
+            //
+            // v5 (2026-08-13): the agreement said nothing about how Vaytoven
+            // bills. Section 2.1 now sets out the two services actually sold —
+            // a recurring monthly host subscription, and a one-time fee for a
+            // 180-day managed member term that is explicitly not a recurring
+            // subscription — and sections 6, 7, 20 and 24 follow from it.
+            // Sections 7 and 24 previously promised guests a cancellation
+            // policy "displayed for the applicable property", for a payment
+            // Vaytoven never took.
+            'version_label' => 'v5',
         ],
         [
             'kind'          => self::KIND_PRIVACY,
