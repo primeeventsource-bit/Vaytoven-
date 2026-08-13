@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\Mail\MailDeliverability;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -11,17 +12,32 @@ class HealthController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-        $checks = [
+        // Splitting these matters. This endpoint is what the platform polls to
+        // decide whether the container should receive traffic, so only things
+        // that make the app unable to serve requests may influence the status
+        // code. Mail is reported because it failed silently for months and
+        // nobody could see it — but a mail outage must never take the site out
+        // of rotation, which is what returning 503 here would do.
+        $critical = [
             'database' => $this->checkDatabase(),
             'redis'    => $this->checkRedis(),
         ];
 
-        $allHealthy = collect($checks)->every(fn (array $check) => $check['ok'] === true);
+        $advisory = [
+            'mail' => $this->checkMail(),
+        ];
+
+        $serving = collect($critical)->every(fn (array $check) => $check['ok'] === true);
+        $degraded = collect($advisory)->contains(fn (array $check) => $check['ok'] !== true);
 
         return response()->json([
-            'status' => $allHealthy ? 'ok' : 'degraded',
-            'checks' => $checks,
-        ], $allHealthy ? 200 : 503);
+            'status' => match (true) {
+                ! $serving => 'unhealthy',
+                $degraded  => 'degraded',
+                default    => 'ok',
+            },
+            'checks' => $critical + $advisory,
+        ], $serving ? 200 : 503);
     }
 
     private function checkDatabase(): array
@@ -35,6 +51,28 @@ class HealthController extends Controller
             // The exception class is enough to triage from logs.
             return ['ok' => false, 'error' => class_basename($e)];
         }
+    }
+
+    /**
+     * Mail was misconfigured in production for months without anything
+     * noticing, because a broken mailer produces no errors — it produces
+     * silence. Nothing was watching for silence, so this endpoint watches now.
+     *
+     * Reports configuration, not connectivity: opening an SMTP session on every
+     * health poll would be its own outage. The reason string names a transport
+     * and never a credential.
+     */
+    private function checkMail(): array
+    {
+        if (MailDeliverability::isDeliverable()) {
+            return ['ok' => true, 'transport' => config('mail.default')];
+        }
+
+        return [
+            'ok'        => false,
+            'transport' => config('mail.default'),
+            'error'     => MailDeliverability::reason(),
+        ];
     }
 
     private function checkRedis(): array
