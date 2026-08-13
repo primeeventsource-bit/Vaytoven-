@@ -85,16 +85,10 @@
 
         /* Hero */
         .hero { padding: clamp(2.5rem, 6vw, 5rem) var(--section-x) var(--section-y); }
-        /* Sized for a sentence, not for four words. The previous headline was
-           "Find your place anywhere." at up to 120px inside max-width:12ch —
-           at that measure the current line would stack into six enormous rows
-           on a desktop and run off a phone. */
         .hero h1 {
-            font-size: clamp(32px, 5.2vw, 68px);
-            line-height: 1.06;
-            margin: 0 0 40px;
-            max-width: 20ch;
-            text-wrap: balance;
+            font-size: clamp(48px, 9vw, 120px);
+            margin: 0 0 24px;
+            max-width: 12ch;
         }
         .hero h1 em { font-style: italic; font-weight: 500; }
         .hero p { font-size: clamp(17px, 1.5vw, 21px); max-width: 56ch; color: var(--muted); margin: 0 0 40px; }
@@ -541,10 +535,10 @@
 @include('partials.top-nav')
 
 <header class="hero">
-    {{-- One line, not a headline plus a subline. The supporting sentence used
-         to read "Booked simply, hosted with care", which promised a booking
-         product; there is nothing to replace it with that this hero needs. --}}
-    <h1 class="display">Put your vacation property <em class="grad-text">in tune</em> with Vaytoven&rsquo;s Listing Program</h1>
+    <h1 class="display">Find your place <em class="grad-text">anywhere.</em></h1>
+    {{-- Ends at "stay." The sentence used to continue "Booked simply, hosted
+         with care", which promised a booking product Vaytoven does not run. --}}
+    <p>Curated vacation properties across the world's best places to stay.</p>
 
     @include('partials.search-bar', ['compact' => false])
 
