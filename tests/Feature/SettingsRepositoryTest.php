@@ -70,14 +70,17 @@ class SettingsRepositoryTest extends TestCase
 
     public function test_every_write_produces_exactly_one_audit_row(): void
     {
-        $this->repo->set('booking.min_nights', 2, $this->admin, '203.0.113.7');
+        // Was booking.min_nights, which no longer exists — the booking.*
+        // settings group went with the booking product. Any int key exercises
+        // the same audit path.
+        $this->repo->set('fees.guest_service_pct', 14, $this->admin, '203.0.113.7');
 
         $logs = AdminAuditLog::query()->where('action', 'setting.update')->get();
         $this->assertCount(1, $logs);
         $this->assertSame($this->admin->id, $logs[0]->actor_user_id);
-        $this->assertSame('booking.min_nights', $logs[0]->payload['key']);
+        $this->assertSame('fees.guest_service_pct', $logs[0]->payload['key']);
         $this->assertNull($logs[0]->payload['old_value']);
-        $this->assertSame('2', $logs[0]->payload['new_value']);
+        $this->assertSame('14', $logs[0]->payload['new_value']);
         $this->assertSame('203.0.113.7', $logs[0]->ip_address);
     }
 

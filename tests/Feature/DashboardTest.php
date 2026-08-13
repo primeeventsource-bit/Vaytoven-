@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Enums\BookingStatus;
+use App\Enums\MemberOfferStatus;
+use App\Enums\OfferDirection;
+use App\Enums\OfferKind;
 use App\Enums\UserRole;
-use App\Models\Booking;
 use App\Models\MemberEnquiry;
+use App\Models\MemberOffer;
+use App\Models\Property;
 use App\Models\TermsAcceptance;
 use App\Models\User;
 use App\Services\Legal\LegalDocumentRegistry;
@@ -61,24 +64,45 @@ class DashboardTest extends TestCase
 
         $resp->assertOk();
         $resp->assertSee('Welcome back, '.$traveler->name);
-        $resp->assertSee('My bookings');
+        // A traveler has offers, not bookings — nothing is ever reserved or
+        // charged through Vaytoven.
+        $resp->assertSee('My offers');
+        $resp->assertDontSee('My bookings');
         $resp->assertDontSee('Operations dashboard');
         $resp->assertDontSee('Open disputes');
     }
 
-    public function test_user_dashboard_only_lists_own_bookings(): void
+    /** Scoping still matters; the thing being scoped is now the offer. */
+    public function test_user_dashboard_only_lists_own_offers(): void
     {
         $me = $this->makeUser(UserRole::Traveler);
         $other = $this->makeUser(UserRole::Traveler);
 
-        Booking::factory()->create(['traveler_id' => $me->id, 'confirmation_code' => 'VYT-MINE01']);
-        Booking::factory()->create(['traveler_id' => $other->id, 'confirmation_code' => 'VYT-THEIR1']);
+        $mine = Property::factory()->create(['title' => 'Cabin I Offered On']);
+        $theirs = Property::factory()->create(['title' => 'Villa Not Mine']);
+
+        // MemberOffer has no factory; build the rows the way the controller does.
+        foreach ([[$me, $mine], [$other, $theirs]] as [$buyer, $property]) {
+            MemberOffer::create([
+                'direction' => OfferDirection::FromBuyer,
+                'kind' => OfferKind::Offer,
+                'buyer_user_id' => $buyer->id,
+                'member_user_id' => $property->host_id,
+                'property_id' => $property->id,
+                'proposed_check_in' => now()->addDays(10),
+                'proposed_check_out' => now()->addDays(12),
+                'offer_amount_cents' => 240000,
+                'status' => MemberOfferStatus::Active,
+                'sent_at' => now(),          // NOT NULL on member_offers
+                'expires_at' => now()->addDay(),
+            ]);
+        }
 
         $resp = $this->actingAs($me)->get('/dashboard');
 
         $resp->assertOk();
-        $resp->assertSee('VYT-MINE01');
-        $resp->assertDontSee('VYT-THEIR1');
+        $resp->assertSee('Cabin I Offered On');
+        $resp->assertDontSee('Villa Not Mine');
     }
 
     public function test_admin_dashboard_shows_enquiry_reference_and_count(): void
@@ -102,7 +126,7 @@ class DashboardTest extends TestCase
         $resp = $this->actingAs($admin)->get('/dashboard');
 
         $resp->assertOk();
-        $resp->assertSee('No bookings yet.');
+        $resp->assertSee('No offers yet.');
         $resp->assertSee('No enquiries yet');
     }
 

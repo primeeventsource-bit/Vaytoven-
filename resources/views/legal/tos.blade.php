@@ -3,7 +3,7 @@
 @section('eyebrow', 'Legal · Terms and Conditions')
 @section('title', 'Terms and Conditions')
 @section('effective_date', '2026-08-12')
-@section('version_label', 'v3')
+@section('version_label', 'v4')
 
 @section('content')
 <div class="legal-toc">
@@ -29,7 +29,7 @@
     <a href="#contact">18. Contact information</a>
     <a href="#privacy">19. Privacy Policy</a>
     <a href="#fees-policy">20. Fees &amp; Payments Policy</a>
-    <a href="#booking">21. Guest Booking Terms</a>
+    <a href="#booking">21. Offers and Direct Arrangements</a>
     <a href="#trust">22. Trust &amp; Safety Policy</a>
     <a href="#content">23. Content Policy</a>
     <a href="#cancellation-policy">24. Cancellation Policy</a>
@@ -200,10 +200,12 @@
 <p>Fraudulent disputes, unauthorized payment activity, or violations of payment policies may result in account restrictions or termination and other remedies permitted by law.</p>
 <p>Hosts remain responsible for applicable taxes, permits, occupancy requirements, and other obligations associated with their property operations.</p>
 
-<h2 id="booking">21. Guest Booking Terms</h2>
-<p>Guests must review property details, dates, pricing, fees, payment methods, cancellation terms, refund conditions, and stay rules before confirming a booking.</p>
-<p>Hosts are responsible for maintaining accurate property and availability information.</p>
-<p>The specific terms displayed during a transaction or booking will govern that transaction in addition to these general Terms.</p>
+<h2 id="booking">21. Offers and Direct Arrangements</h2>
+<p>Vaytoven does not accept reservations. A traveler may submit an <strong>offer</strong> on a listing. An offer is an expression of interest only: it does not reserve or hold the property, does not create a contract for a stay, and does not charge the traveler anything.</p>
+<p>An offer expires twenty-four (24) hours after submission unless the listing member responds sooner.</p>
+<p>If a listing member accepts an offer, any resulting arrangement is made <strong>directly between the traveler and the listing member</strong>. The two of them agree the dates, the amount, the payment method and timing, any deposit, the cancellation and refund terms, and the rules of the stay. Vaytoven is not a party to that arrangement, sets none of those terms, and cannot enforce, vary, cancel or refund them.</p>
+<p>Travelers should agree those terms in writing with the listing member, and satisfy themselves as to the property and the counterparty, before paying any money. Vaytoven does not verify that a listing member is able to deliver the stay they advertise.</p>
+<p>Listing members are responsible for maintaining accurate property, pricing and availability information, and for honouring the arrangements they enter into.</p>
 
 <h2 id="trust">22. Trust &amp; Safety Policy</h2>
 <p>Users must provide truthful information and refrain from fraudulent, deceptive, threatening, abusive, or unlawful conduct.</p>

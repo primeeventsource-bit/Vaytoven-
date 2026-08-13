@@ -17,7 +17,7 @@
                     </tr>
                     <tr>
                         <td style="padding:28px 32px;font-size:15px">
-                            <p style="margin:0 0 16px">A real person on our member team will reach out within one business day to walk through how Vaytoven can put your unused points to work.</p>
+                            <p style="margin:0 0 16px">A real person on our member team will reach out within one business day to walk through how Vaytoven can put the weeks you don't use to work.</p>
 
                             <p style="margin:0 0 8px;font-size:13px;color:#6b7280">Your reference</p>
                             <div style="display:inline-block;padding:8px 14px;border-radius:8px;background:#f5f3ff;color:#7B2CBF;font-family:'SFMono-Regular',Consolas,monospace;font-size:15px;font-weight:600;letter-spacing:.02em">{{ $reference }}</div>

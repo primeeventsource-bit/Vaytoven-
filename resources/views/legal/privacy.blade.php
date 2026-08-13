@@ -3,7 +3,7 @@
 @section('eyebrow', 'Legal · Privacy Policy')
 @section('title', 'Privacy Policy')
 @section('effective_date', '2026-05-06')
-@section('version_label', 'v2')
+@section('version_label', 'v3')
 
 @section('content')
 <div class="legal-toc">
@@ -18,11 +18,12 @@
 </div>
 
 <h2 id="what">1. What we collect</h2>
-<p>We collect information you give us directly (name, email, phone, payment instrument details handled by our processor) and information about how you use the Service (login records, IP, device, page views, search and booking activity, support conversations).</p>
+<p>We collect information you give us directly (name, email, phone, and — for property owners who pay us for advertising — payment instrument details handled by our processor) and information about how you use the Service (login records, IP, device, page views, searches, offers you submit or receive, and support conversations).</p>
 <p>We do not store full card numbers. Card data is tokenised by our payment processor.</p>
 
 <h2 id="why">2. Why we collect it</h2>
-<p>To run the Service, complete bookings, process payments and refunds, prevent fraud, defend chargebacks, communicate with you, and improve product quality. Login and consumption records also support our Service Usage Confirmation evidence.</p>
+<p>To run the Service, advertise listings, pass offers between travelers and listing members, bill property owners for advertising and subscription services, prevent fraud, defend chargebacks on our own billing, communicate with you, and improve product quality. Login and consumption records also support our Service Usage Confirmation evidence.</p>
+<p>We do not process payments between travelers and property owners, so we hold no record of what you pay for a stay. That arrangement is made directly between you and the listing member.</p>
 
 <h2 id="sharing">3. Who we share it with</h2>
 <p>Payment processors (NMI, etc.), email and SMS providers, fraud prevention vendors, and service providers acting on our behalf under written contracts. We do not sell your personal information.</p>

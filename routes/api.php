@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\Admin\SettingsApiController;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\DestinationSuggestController;
 use App\Http\Controllers\Api\LoginHistoryController;
 use App\Http\Controllers\Api\PropertyController;
@@ -50,10 +49,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
     Route::get('auth/me', [AuthController::class, 'me']);
 
-    Route::get('bookings', [BookingController::class, 'index']);
-    Route::post('bookings', [BookingController::class, 'store']);
-    Route::get('bookings/{booking}', [BookingController::class, 'show']);
-    Route::post('bookings/{booking}/cancel', [BookingController::class, 'cancel']);
+    // The bookings endpoints are gone along with the rest of the booking
+    // product. An API that creates reservations contradicts the platform just
+    // as much as a web checkout does, and it was reachable with any user token.
 
     // FR-10.7: user-side login history + activity map
     Route::get('me/login-history', [LoginHistoryController::class, 'mine']);

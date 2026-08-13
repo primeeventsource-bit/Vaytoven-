@@ -78,7 +78,9 @@ class NavigationAndSignupTest extends TestCase
 
         $resp->assertOk();
         $resp->assertSee('Managed Listing Program');
-        $resp->assertSee('Turn unused points into');
+        // "Turn unused points into real income" read like cashing in a loyalty
+        // balance. The inventory is weeks the member already owns.
+        $resp->assertSee("Turn the weeks you don't use into", false);
         $resp->assertSee('Member program FAQs');
         // New pricing language consistent with the rest of the site.
         $resp->assertSee('upfront weekly');

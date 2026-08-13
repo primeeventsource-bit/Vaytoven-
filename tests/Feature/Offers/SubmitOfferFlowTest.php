@@ -9,7 +9,6 @@ use App\Models\MemberOffer;
 use App\Models\Property;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Concerns\EnablesStayCheckout;
 use Tests\TestCase;
 
 /**
@@ -22,7 +21,7 @@ use Tests\TestCase;
  */
 class SubmitOfferFlowTest extends TestCase
 {
-    use EnablesStayCheckout, RefreshDatabase;
+    use RefreshDatabase;
 
     private function property(array $attributes = []): Property
     {
@@ -152,65 +151,9 @@ class SubmitOfferFlowTest extends TestCase
             ->assertSee('ACTIVE');
     }
 
-    // --- Nothing charges a visitor for a stay ------------------------------
-
-    public function test_the_stay_checkout_is_unreachable(): void
-    {
-        $property = $this->property();
-        $buyer = User::factory()->create(['role' => UserRole::Traveler]);
-
-        // The funnel that created a booking and charged a card for the rental.
-        $this->actingAs($buyer)
-            ->get(route('bookings.review', $property).'?check_in='.now()->addDays(9)->toDateString()
-                .'&check_out='.now()->addDays(10)->toDateString().'&guests=2')
-            ->assertNotFound();
-
-        $this->actingAs($buyer)
-            ->post(route('bookings.store', $property), [
-                'check_in' => now()->addDays(9)->toDateString(),
-                'check_out' => now()->addDays(10)->toDateString(),
-                'guests' => 2,
-            ])
-            ->assertNotFound();
-    }
-
-    public function test_existing_bookings_remain_readable_to_their_owner(): void
-    {
-        $traveler = User::factory()->create(['role' => UserRole::Traveler]);
-        $booking = \App\Models\Booking::factory()->create(['traveler_id' => $traveler->id]);
-
-        // Records already taken must stay visible even though the funnel that
-        // created them is closed.
-        $this->actingAs($traveler)->get(route('bookings.show', $booking))->assertOk();
-        $this->actingAs($traveler)->get(route('bookings.index'))->assertOk();
-    }
-
-    /**
-     * The checkout code is retained, not deleted, so a future managed-booking
-     * arrangement can turn it on. Until an operator does, it does not exist as
-     * far as a visitor is concerned.
-     */
-    public function test_an_operator_can_re_enable_checkout_deliberately(): void
-    {
-        app(\App\Services\Legal\LegalDocumentRegistry::class)->materialiseAll();
-        $this->enableStayCheckout();
-
-        $property = $this->property();
-        $buyer = User::factory()->create([
-            'role' => UserRole::Traveler,
-            'email_verified_at' => now(),
-        ]);
-        foreach (app(\App\Services\Legal\LegalDocumentRegistry::class)->registrationRequired() as $version) {
-            \App\Models\TermsAcceptance::create([
-                'user_id' => $buyer->id,
-                'terms_version_id' => $version->id,
-                'accepted_at' => now(),
-            ]);
-        }
-
-        $this->actingAs($buyer)
-            ->get(route('bookings.review', $property).'?check_in='.now()->addDays(9)->toDateString()
-                .'&check_out='.now()->addDays(10)->toDateString().'&guests=2')
-            ->assertOk();
-    }
+    // Booking coverage moved to NoBookingProductTest. The three tests that
+    // lived here asserted that the checkout was gated, that old bookings were
+    // still readable, and that an operator could deliberately re-enable
+    // checkout. None of those describe the product any more: the checkout is
+    // deleted rather than gated, and there is no switch to turn it back on.
 }

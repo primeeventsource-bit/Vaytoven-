@@ -15,22 +15,23 @@ use App\Services\Fees\ServiceFeeResolver;
 use Database\Seeders\RbacSeeder;
 use Database\Seeders\ServiceFeeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Concerns\EnablesStayCheckout;
 use Tests\TestCase;
 
+/**
+ * The fee structure is now an admin-configured pricing model with no customer
+ * checkout in front of it — the guest-facing assertions that used to live here
+ * went with the booking product. What remains is worth keeping: resolution
+ * order, basis-point arithmetic, immutable snapshots and the admin console.
+ */
 class ServiceFeeStructureTest extends TestCase
 {
-    use EnablesStayCheckout, RefreshDatabase;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->seed(ServiceFeeSeeder::class);
         ServiceFeeResolver::bustCache();
-
-        // Two tests here assert what the guest sees at the stay checkout,
-        // which is gated off by default.
-        $this->enableStayCheckout();
     }
 
     private function property(array $attributes = []): Property
@@ -196,110 +197,95 @@ class ServiceFeeStructureTest extends TestCase
         $this->assertSame(((int) setting('fees.host_commission_pct', 3)) * 100, $q['host_fee_bps']);
     }
 
-    // --- The snapshot is immutable ----------------------------------------
+    // --- The breakdown carries a full snapshot -----------------------------
 
-    public function test_a_booking_keeps_its_original_rates_when_the_config_changes_later(): void
-    {
-        $this->setDefault(FeeStructure::Split, 1500);
-        $property = $this->property();
-        $traveler = User::factory()->create(['role' => UserRole::Traveler]);
-
-        $booking = app(\App\Services\Bookings\BookingService::class)->create(
-            property: $property,
-            traveler: $traveler,
-            checkIn: now()->addDays(10)->toDateString(),
-            checkOut: now()->addDays(11)->toDateString(),
-            guests: 2,
-        );
-
-        $this->assertSame(300, $booking->host_fee_bps);
-        $this->assertSame(3000, $booking->host_fee_cents);
-        $this->assertSame(97000, $booking->host_net_cents);
-
-        // Vaytoven changes its pricing afterwards.
-        ServiceFeeConfig::query()->where('scope_type', 'default')->update([
-            'fee_structure' => 'single', 'single_host_bps' => 1550,
-        ]);
-        ServiceFeeResolver::bustCache();
-
-        $booking->refresh();
-
-        $this->assertSame(300, $booking->host_fee_bps, 'A rate change must not rewrite history.');
-        $this->assertSame(3000, $booking->host_fee_cents);
-        $this->assertSame(97000, $booking->host_net_cents);
-        $this->assertSame(FeeStructure::Split, $booking->fee_structure);
-    }
-
-    public function test_the_snapshot_records_every_required_field(): void
+    /**
+     * Three tests here used to create a booking through BookingService and
+     * assert that its stored rates survived a later pricing change. Nothing
+     * creates a booking any more, so there is no stored snapshot to protect.
+     *
+     * What survives is the calculator that produced it, which the admin fee
+     * console still uses to preview a structure. It must emit every snapshot
+     * field — a caller that persists a quote needs the rates, not just the
+     * cents, or the figure becomes unexplainable the moment pricing changes.
+     */
+    public function test_the_breakdown_emits_every_snapshot_field(): void
     {
         $this->setDefault(FeeStructure::Split, 1410);
         $property = $this->property();
-        $traveler = User::factory()->create(['role' => UserRole::Traveler]);
 
-        $booking = app(\App\Services\Bookings\BookingService::class)->create(
-            property: $property, traveler: $traveler,
-            checkIn: now()->addDays(5)->toDateString(),
-            checkOut: now()->addDays(6)->toDateString(),
-            guests: 2,
+        $quote = app(QuoteCalculator::class)->breakdown(
+            rateCents: 100000, nights: 1, cleaningCents: 0, property: $property,
         );
 
         foreach ([
             'fee_structure', 'host_fee_bps', 'host_fee_cents',
             'guest_fee_bps', 'host_net_cents', 'service_fee_config_id',
         ] as $field) {
-            $this->assertNotNull($booking->{$field}, "Snapshot is missing {$field}");
+            $this->assertArrayHasKey($field, $quote, "Breakdown is missing {$field}");
+            $this->assertNotNull($quote[$field], "Breakdown has a null {$field}");
         }
 
-        $this->assertSame(1410, $booking->guest_fee_bps);
-        $this->assertSame($property->id, $booking->property_id);
+        $this->assertSame(1410, $quote['guest_fee_bps']);
+        $this->assertSame(300, $quote['host_fee_bps']);
+        $this->assertSame(3000, $quote['host_fee_cents']);
+        $this->assertSame(97000, $quote['host_net_cents']);
     }
 
-    // --- Guest-facing checkout --------------------------------------------
-
-    public function test_checkout_shows_a_guest_service_fee_line_under_split_fee(): void
+    /** A pricing change is reflected in the next quote, not retro-applied. */
+    public function test_a_pricing_change_applies_to_the_next_quote(): void
     {
         $this->setDefault(FeeStructure::Split, 1500);
         $property = $this->property();
-        $traveler = $this->traveler();
 
-        $this->actingAs($traveler)
-            ->get(route('bookings.review', $property).'?check_in='.now()->addDays(9)->toDateString()
-                .'&check_out='.now()->addDays(10)->toDateString().'&guests=2')
-            ->assertOk()
-            ->assertSee('Vaytoven Guest Service Fee');
+        // The breakdown carries the structure as its backing string value, not
+        // the enum — it is built to be persisted as a snapshot.
+        $before = app(QuoteCalculator::class)->breakdown(100000, 1, 0, $property);
+        $this->assertSame(FeeStructure::Split->value, $before['fee_structure']);
+        $this->assertSame(300, $before['host_fee_bps']);
+
+        ServiceFeeConfig::query()->where('scope_type', 'default')->update([
+            'fee_structure' => 'single', 'single_host_bps' => 1550,
+        ]);
+        ServiceFeeResolver::bustCache();
+
+        $after = app(QuoteCalculator::class)->breakdown(100000, 1, 0, $property);
+
+        $this->assertSame(FeeStructure::Single->value, $after['fee_structure']);
+        $this->assertSame(1550, $after['host_fee_bps']);
+        $this->assertSame(0, $after['guest_fee_bps'], 'Single-Fee charges the guest nothing.');
     }
 
-    public function test_checkout_hides_the_guest_fee_line_entirely_under_single_fee(): void
-    {
-        $this->setDefault(FeeStructure::Single);
-        $property = $this->property();
-        $traveler = $this->traveler();
+    // --- Guest-facing surfaces --------------------------------------------
 
-        $this->actingAs($traveler)
-            ->get(route('bookings.review', $property).'?check_in='.now()->addDays(9)->toDateString()
-                .'&check_out='.now()->addDays(10)->toDateString().'&guests=2')
-            ->assertOk()
-            // The fee line must be absent entirely, not rendered as $0.00 —
-            // and the guest told plainly that there is no such fee. The
-            // fragment avoids the line break the template wraps at.
-            ->assertDontSee('<span class="props-card-loc">Vaytoven Guest Service Fee</span>', false)
-            ->assertSee('separate Vaytoven Guest Service Fee on this listing');
+    /**
+     * No customer surface quotes a guest service fee any more.
+     *
+     * Two tests here used to assert what the checkout showed a guest under
+     * each fee structure. There is no checkout, and more to the point there is
+     * no guest-facing fee at all: Vaytoven bills the host for advertising and
+     * takes nothing from what a traveler pays.
+     */
+    public function test_no_public_page_quotes_a_guest_service_fee(): void
+    {
+        $this->setDefault(FeeStructure::Split, 1500);
+        $property = $this->property();
+
+        foreach (['/', '/properties', route('properties.show', $property)] as $url) {
+            $this->get($url)->assertOk()->assertDontSee('Guest Service Fee');
+        }
     }
 
     /** The system must never state or imply an Airbnb affiliation. */
     public function test_no_customer_surface_mentions_airbnb(): void
     {
         $property = $this->property();
-        $traveler = User::factory()->create(['role' => UserRole::Traveler]);
 
         $pages = [
             $this->get('/')->getContent(),
             $this->get('/properties')->getContent(),
             $this->get(route('properties.show', $property))->getContent(),
             $this->get('/earnings-calculator')->getContent(),
-            $this->actingAs($traveler)->get(route('bookings.review', $property)
-                .'?check_in='.now()->addDays(9)->toDateString()
-                .'&check_out='.now()->addDays(10)->toDateString().'&guests=2')->getContent(),
         ];
 
         foreach ($pages as $i => $html) {
@@ -364,23 +350,24 @@ class ServiceFeeStructureTest extends TestCase
 
     // --- Host dashboard ----------------------------------------------------
 
-    public function test_the_host_dashboard_shows_the_fee_breakdown(): void
+    /**
+     * The inverse of the test that was here.
+     *
+     * The host dashboard used to render a per-booking fee breakdown — booking
+     * amount, host service fee, host net. It showed money Vaytoven was said to
+     * be deducting from a host's earnings, which is not what happens: the host
+     * pays to advertise and keeps what the guest pays. The panel is gone, and
+     * this makes sure it does not come back.
+     */
+    public function test_the_host_dashboard_shows_no_per_booking_fee_deduction(): void
     {
         $this->setDefault(FeeStructure::Single);
         $host = User::factory()->create(['role' => UserRole::Host]);
-        $property = $this->property(['host_id' => $host->id]);
-        $traveler = User::factory()->create(['role' => UserRole::Traveler]);
-
-        app(\App\Services\Bookings\BookingService::class)->create(
-            property: $property, traveler: $traveler,
-            checkIn: now()->addDays(20)->toDateString(),
-            checkOut: now()->addDays(21)->toDateString(),
-            guests: 2,
-        );
+        $this->property(['host_id' => $host->id]);
 
         $this->actingAs($host)->get('/dashboard')->assertOk()
-            ->assertSee('Host Service Fee')
-            ->assertSee('Single-Fee')
-            ->assertSee('15.5%');
+            ->assertDontSee('Host Service Fee')
+            ->assertDontSee('Recent bookings')
+            ->assertDontSee('Host net');
     }
 }

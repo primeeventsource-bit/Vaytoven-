@@ -133,8 +133,11 @@ class SitePagesTest extends TestCase
     {
         $response = $this->post('/trip-support', [
             'name' => 'Sam Ito', 'email' => 'sam@example.com',
-            'category' => 'booking', 'property_reference' => 'VYT-BK-9911',
-            'subject' => 'Cannot check in', 'message' => 'The door code from the host is not working.',
+            // Was 'booking'. That category is gone: offering it told visitors
+            // Vaytoven holds their reservation and can act on it.
+            'category' => 'reaching_an_owner', 'property_reference' => 'VYT-BK-9911',
+            'subject' => 'No reply from the listing member',
+            'message' => 'I accepted terms with the owner and now cannot reach them.',
         ]);
 
         $ticket = SupportTicket::query()->sole();
@@ -144,7 +147,8 @@ class SitePagesTest extends TestCase
 
         $this->assertSame(SupportTicket::SOURCE_TRIP_SUPPORT, $ticket->source);
         $this->assertSame('open', $ticket->status);
-        // Booking problems are someone mid-trip — they must not queue normally.
+        // Someone who cannot reach a listing member may have travel booked
+        // around it — this must not sit in a queue overnight.
         $this->assertSame('high', $ticket->priority);
         $this->assertStringStartsWith('VYT-S-', $ticket->reference);
     }

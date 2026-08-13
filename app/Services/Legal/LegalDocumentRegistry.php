@@ -62,7 +62,15 @@ class LegalDocumentRegistry
             // the registered office. A notice provision that does not say where
             // notices go is not a provision, so this belongs inside the hashed
             // agreement text and the re-acceptance it triggers is intended.
-            'version_label' => 'v3',
+            //
+            // v4 (2026-08-13): section 21 was "Guest Booking Terms" and told
+            // guests to review payment methods and cancellation terms "before
+            // confirming a booking" — describing a reservation flow Vaytoven
+            // does not operate. Replaced with Offers and Direct Arrangements,
+            // which states what an offer is, that it reserves nothing and
+            // charges nothing, and that any resulting arrangement is between
+            // the traveler and the listing member alone.
+            'version_label' => 'v4',
         ],
         [
             'kind'          => self::KIND_PRIVACY,
@@ -72,7 +80,11 @@ class LegalDocumentRegistry
             // privacy@vaytoven.com, a mailbox that does not exist — a GDPR/CCPA
             // request sent there was silently lost. Now contact@vaytoven.com,
             // with the registered office added.
-            'version_label' => 'v2',
+            //
+            // v3 (2026-08-13): said we collect data to "complete bookings,
+            // process payments and refunds". We do neither — the only payments
+            // we process are property owners paying us for advertising.
+            'version_label' => 'v3',
         ],
         [
             'kind'          => self::KIND_MEMBER_AGREEMENT,

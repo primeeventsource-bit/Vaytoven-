@@ -551,7 +551,7 @@
         </div>
         <div>
             <div class="hero-stat-num">$0</div>
-            <div class="hero-stat-label">Hidden booking fees</div>
+            <div class="hero-stat-label">Charged to travelers</div>
         </div>
     </div>
 </header>
@@ -683,7 +683,7 @@
     <div class="trust-grid">
         <div>
             <div class="eyebrow">Why Vaytoven</div>
-            <h2 class="display" style="margin: 14px 0 16px; font-size: clamp(34px, 4.5vw, 52px);">Trust, built into <em class="grad-text">every booking.</em></h2>
+            <h2 class="display" style="margin: 14px 0 16px; font-size: clamp(34px, 4.5vw, 52px);">Trust, built into <em class="grad-text">every listing.</em></h2>
             <p style="color: var(--muted); margin: 0 0 32px;">No surprise fees. No fake reviews. No questions about who's behind the listing. Here's how we keep it that way.</p>
 
             <ol class="trust-list">
@@ -720,7 +720,7 @@
     <div class="section-header">
         <div class="eyebrow">Become a host</div>
         <h2 class="display">Your second home, <em class="grad-text">earning its keep.</em></h2>
-        <p>Half the take-home of a hotel. Twice the booking pace of generic listing sites. List once, we handle the rest.</p>
+        <p>You keep what the guest pays — we take no cut of it. List once, we handle the advertising.</p>
     </div>
 
     <div class="host-grid">
@@ -761,11 +761,11 @@
     <div class="members-grid">
         <div>
             <div class="eyebrow">For vacation club members</div>
-            <h2 class="display" style="margin: 14px 0 16px; font-size: clamp(34px, 4.5vw, 56px);">Turn unused points into <em class="grad-text">real income.</em></h2>
+            <h2 class="display" style="margin: 14px 0 16px; font-size: clamp(34px, 4.5vw, 56px);">Turn the weeks you don't use into <em class="grad-text">real income.</em></h2>
             <p style="color: var(--muted); margin: 0;">If you own points-based vacation property — Marriott, Hilton, Disney, Wyndham, RCI, Interval, or any major club — Vaytoven's managed listing program lets you rent the weeks you don't use, with zero hassle and full compliance with your program rules.</p>
 
             <ul class="members-list">
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>We list, market, and book your weeks across our network and partner channels.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>We list and market your weeks across our network and partner channels.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>Net-to-member minus our upfront cost of $200&ndash;$800 per week plus tax program subscription fee &mdash; quoted up front, no surprises.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>Compliant with your club's rental policy — we work within your program's rules.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>You stay in control — keep, gift, or rent whichever weeks you want each year.</span></li>
@@ -872,7 +872,7 @@
     <div class="testimonials-grid">
         <div class="testimonial">
             <div class="testimonial-quote">"</div>
-            <p>The cottage was exactly the photos. Host messaged before we even landed. First Vaytoven booking — definitely not the last.</p>
+            <p>The cottage was exactly the photos. Offer accepted the same evening, and the owner messaged before we even landed. First place I found on Vaytoven — definitely not the last.</p>
             <div class="testimonial-who">
                 <div class="testimonial-avatar"></div>
                 <div>
@@ -919,7 +919,7 @@
         </details>
         <details class="faq-item">
             <summary>What does the managed listing program for members involve?</summary>
-            <div class="faq-item-body">If you own points-based vacation property in a program like Marriott, Hilton, Disney, RCI, or Interval, we handle marketing, booking, and guest communications for the weeks you don't use — fully compliant with your club's rental rules. A specialist will walk you through specifics on a 20-minute call.</div>
+            <div class="faq-item-body">If you own points-based vacation property in a program like Marriott, Hilton, Disney, RCI, or Interval, we advertise the weeks you don't use and pass the offers to you — fully compliant with your club's rental rules. You accept or decline, then deal with the guest directly. A specialist will walk you through specifics on a 20-minute call.</div>
         </details>
         <details class="faq-item">
             <summary>Are there hidden fees?</summary>
@@ -927,7 +927,7 @@
         </details>
         <details class="faq-item">
             <summary>Does Vaytoven take my payment for the stay?</summary>
-            <div class="faq-item-body">No. Vaytoven advertises listings — we don't take reservations, hold funds, or charge you for a stay. You submit an offer, and if the listing member accepts, you arrange the booking and payment with them directly.</div>
+            <div class="faq-item-body">No. Vaytoven advertises listings — we don't take reservations, hold funds, or charge you for a stay. You submit an offer, and if the listing member accepts, you arrange the stay and payment with them directly.</div>
         </details>
         <details class="faq-item">
             <summary>What happens if there's a problem with my stay?</summary>
@@ -1004,7 +1004,7 @@
                         <span class="hint">If you have multiple properties, list one — we'll discuss the rest on the call.</span>
                     </div>
                     <div class="form-field">
-                        <label for="m-points">Annual points balance <span class="req">*</span></label>
+                        <label for="m-points">Annual points allocation <span class="req">*</span></label>
                         <input id="m-points" name="points" type="text" required placeholder="e.g. 75,000">
                     </div>
                 </div>

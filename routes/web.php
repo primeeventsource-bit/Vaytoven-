@@ -12,7 +12,6 @@ use App\Http\Controllers\Admin\ServiceFeeController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserCertificateController as AdminUserCertificateController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\BookingFlowController;
 use App\Http\Controllers\CareersController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Client\ContractController as ClientContractController;
@@ -108,31 +107,19 @@ Route::post('/signup', [NewsletterSubscriptionController::class, 'store'])->name
 Route::get('/properties', [PropertyBrowseController::class, 'index'])->name('properties.index');
 Route::get('/properties/{property}', [PropertyBrowseController::class, 'show'])->name('properties.show');
 
-// Booking flow — auth-required so unauthenticated visitors get bounced to
-// /login with intended URL, then back to the review page after sign-in.
-// terms.current keeps the legal-acceptance gate on the booking funnel too.
+// There is deliberately no booking flow.
+//
+// Vaytoven advertises listings. It does not take reservations, hold dates,
+// collect rental funds, or process payments between travelers and property
+// owners. The checkout previously lived here behind a `stay.checkout` feature
+// gate that defaulted to off — a gate is still a door, and it described a
+// product this company does not sell. Travelers use Submit Offer instead
+// (OfferController below); the host and guest settle everything directly once
+// an offer is accepted and the dates are agreed.
+//
+// The bookings tables are retained as records of what happened before the
+// model changed. Nothing on the site reads them.
 Route::middleware(['auth', 'terms.current'])->group(function () {
-    // Reading existing bookings stays available — records already taken must
-    // remain visible to the people they belong to.
-    Route::get('/account/bookings', [BookingFlowController::class, 'index'])->name('bookings.index');
-    Route::get('/bookings/{booking}', [BookingFlowController::class, 'show'])->name('bookings.show');
-    Route::get('/bookings/{booking}/cancel', [BookingFlowController::class, 'cancelForm'])->name('bookings.cancel.form');
-    Route::post('/bookings/{booking}/cancel', [BookingFlowController::class, 'cancel'])->name('bookings.cancel');
-
-    // CREATING a booking and CHARGING for a stay are gated off. Vaytoven does
-    // not act as a booking platform, collect rental funds, or process payments
-    // between travelers and property owners — its merchant account is for
-    // Vaytoven's own advertising, listing, membership and platform fees. These
-    // routes 404 unless an operator explicitly enables
-    // `booking.stay_checkout_enabled`, which defaults to false. Visitors use
-    // Submit Offer instead; see OfferController.
-    Route::middleware('stay.checkout')->group(function () {
-        Route::get('/properties/{property}/book', [BookingFlowController::class, 'review'])->name('bookings.review');
-        Route::post('/properties/{property}/book', [BookingFlowController::class, 'store'])->name('bookings.store');
-        Route::get('/bookings/{booking}/pay', [BookingFlowController::class, 'pay'])->name('bookings.pay');
-        Route::post('/bookings/{booking}/pay', [BookingFlowController::class, 'processPayment'])->name('bookings.pay.process');
-    });
-
     // Member offers — accept/decline from the member dashboard. Controller
     // verifies the offer's member_user_id matches the current user and that
     // status is still Pending.

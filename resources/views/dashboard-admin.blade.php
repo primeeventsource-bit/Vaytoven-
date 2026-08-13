@@ -35,14 +35,10 @@
     {{-- Second row — money + activity -------------------------------------- --}}
     <section class="vyt-section">
         <div class="vyt-tiles">
-            <div class="vyt-tile">
-                <div class="vyt-tile-label">Charges · last 7d</div>
-                <span class="vyt-tile-value t-emerald">${{ number_format($chargesLast7dCents/100) }}</span>
-            </div>
-            <div class="vyt-tile">
-                <div class="vyt-tile-label">Refunds · last 7d</div>
-                <span class="vyt-tile-value t-slate">${{ number_format($refundsLast7dCents/100) }}</span>
-            </div>
+            {{-- Charges and refunds tiles are gone with the booking product.
+                 They summed money taken for stays, which Vaytoven does not
+                 take; leaving them would have reported $0 forever and read
+                 like a reporting bug rather than an absent product. --}}
             <div class="vyt-tile">
                 <div class="vyt-tile-label">Tracking events · 24h</div>
                 <span class="vyt-tile-value t-blue">{{ number_format($trackingEvents24h) }}</span>
@@ -54,17 +50,17 @@
         </div>
     </section>
 
-    {{-- Bookings + Users breakdown ----------------------------------------- --}}
+    {{-- Offers + Users breakdown ------------------------------------------- --}}
     <section class="vyt-section">
         <div class="vyt-row-2">
             <div class="vyt-card">
-                <div class="vyt-card-header"><h3>Bookings by status</h3></div>
+                <div class="vyt-card-header"><h3>Offers by status</h3></div>
                 <div class="vyt-card-body">
-                    @if ($bookingsByStatus->isEmpty())
-                        <p class="vyt-faint" style="margin:0;">No bookings yet.</p>
+                    @if ($offersByStatus->isEmpty())
+                        <p class="vyt-faint" style="margin:0;">No offers yet.</p>
                     @else
                         <ul class="vyt-kv">
-                            @foreach ($bookingsByStatus as $status => $count)
+                            @foreach ($offersByStatus as $status => $count)
                                 <li><span class="k">{{ str_replace('_', ' ', $status) }}</span><span class="v">{{ $count }}</span></li>
                             @endforeach
                         </ul>
@@ -142,34 +138,42 @@
         </div>
     </section>
 
-    {{-- Recent bookings -------------------------------------------------- --}}
+    {{-- Recent offers ------------------------------------------------------ --}}
     <section class="vyt-section">
         <div class="vyt-card">
             <div class="vyt-card-header">
-                <h3>Recent bookings</h3>
+                <h3>Recent offers</h3>
                 <span class="vyt-section-meta">Latest 5</span>
             </div>
-            @if ($bookingsRecent->isEmpty())
-                <div class="vyt-card-empty">No bookings yet.</div>
+            @if ($offersRecent->isEmpty())
+                <div class="vyt-card-empty">No offers yet.</div>
             @else
                 <table class="vyt-table">
                     <thead>
                         <tr>
-                            <th>Code</th>
-                            <th>Property</th>
+                            <th>Listing</th>
+                            <th>Dates</th>
                             <th>Status</th>
-                            <th>Total</th>
+                            <th>Amount</th>
                             <th>Created</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($bookingsRecent as $booking)
+                        @foreach ($offersRecent as $offer)
                             <tr>
-                                <td><span class="vyt-mono">{{ $booking->confirmation_code }}</span></td>
-                                <td>{{ $booking->property?->title ?? '—' }}</td>
-                                <td><span class="vyt-pill">{{ $booking->status->value }}</span></td>
-                                <td>${{ number_format($booking->total_cents / 100, 2) }}</td>
-                                <td class="vyt-faint">{{ $booking->created_at?->diffForHumans() }}</td>
+                                <td>{{ $offer->property?->title ?? '—' }}</td>
+                                <td class="vyt-faint">
+                                    {{ $offer->proposed_check_in?->format('M j') }} – {{ $offer->proposed_check_out?->format('M j, Y') }}
+                                </td>
+                                <td><span class="vyt-pill">{{ $offer->effectiveStatus()->value }}</span></td>
+                                <td>
+                                    @if ($offer->offer_amount_cents !== null)
+                                        ${{ number_format($offer->offer_amount_cents / 100, 2) }}
+                                    @else
+                                        <span class="vyt-faint">Inquiry</span>
+                                    @endif
+                                </td>
+                                <td class="vyt-faint">{{ $offer->created_at?->diffForHumans() }}</td>
                             </tr>
                         @endforeach
                     </tbody>

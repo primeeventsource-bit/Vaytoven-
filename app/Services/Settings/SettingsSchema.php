@@ -127,17 +127,17 @@ final class SettingsSchema
             'general.social_x' => ['general', 'string', '', 'X (Twitter) URL', ['nullable', 'string', 'max:255'], null, true],
             'general.social_youtube' => ['general', 'string', '', 'YouTube URL', ['nullable', 'string', 'max:255'], null, true],
 
-            // ---------------------------------------------------------- booking
-            'booking.stay_checkout_enabled' => ['booking', 'bool', false, 'Enable stay checkout (charges guests for rentals)', ['boolean'], 'OFF by default. Vaytoven advertises listings and does not collect rental funds or process payments between travelers and owners — visitors use Submit Offer. Only enable under a written arrangement that makes Vaytoven a party to the rental transaction.'],
-            'booking.min_nights' => ['booking', 'int', 1, 'Minimum nights (site-wide floor)', ['integer', 'min:1', 'max:30'], 'Hosts can require more per property, never less.'],
-            'booking.max_nights' => ['booking', 'int', 30, 'Maximum nights', ['integer', 'min:1', 'max:365'], 'v1 caps long-term stays at 30 nights.'],
-            'booking.advance_window_days' => ['booking', 'int', 365, 'Advance booking window (days)', ['integer', 'min:1', 'max:1095'], 'How far in the future check-in may be.'],
-            'booking.checkin_time' => ['booking', 'string', '15:00', 'Default check-in time', ['date_format:H:i']],
-            'booking.checkout_time' => ['booking', 'string', '11:00', 'Default check-out time', ['date_format:H:i']],
-            'booking.instant_book_default' => ['booking', 'bool', false, 'Instant book on by default for new listings', ['boolean']],
-            'booking.default_cancellation_policy' => ['booking', 'enum', 'moderate', 'Default cancellation policy', ['in:flexible,moderate,strict,non_refundable'], null, false, false, ['flexible', 'moderate', 'strict', 'non_refundable']],
-            'booking.allow_same_day' => ['booking', 'bool', true, 'Allow same-day bookings', ['boolean']],
-            'booking.hold_minutes' => ['booking', 'int', 15, 'Checkout hold (minutes)', ['integer', 'min:5', 'max:120'], 'How long a pending checkout reserves the dates.'],
+            // The entire booking.* group is gone. It configured minimum and
+            // maximum nights, check-in and check-out times, instant book,
+            // cancellation policy, same-day availability, and a checkout hold
+            // that reserved dates — every one of them a setting for a
+            // reservation system this platform does not operate. An admin
+            // console that offers those knobs teaches whoever reads it that
+            // Vaytoven takes bookings.
+            //
+            // booking.stay_checkout_enabled went with them, which is what
+            // makes the removal permanent: there is no longer a switch to
+            // turn the checkout back on.
 
             // ---------------------------------------------------------- fees
             'fees.active_schedule_id' => ['fees', 'int', 0, 'Active fee schedule', ['integer', 'min:0'], '0 = use the scalar percentages below.'],

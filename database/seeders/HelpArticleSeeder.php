@@ -23,8 +23,37 @@ use Illuminate\Database\Seeder;
  */
 class HelpArticleSeeder extends Seeder
 {
+    /**
+     * Articles that must NOT exist any more.
+     *
+     * Upserting by slug is idempotent for content that stays, but it has no
+     * opinion about content that leaves — deleting an entry from articles()
+     * below leaves the published row untouched in every environment that has
+     * already been seeded. These nine documented the booking product: three
+     * cancellation policies, a 3% checkout service fee, card refund timings,
+     * how to book, how to modify a booking, what's included in a stay, and
+     * $250,000 of damage cover. All of them described a company that takes
+     * reservations and holds guests' money.
+     *
+     * Deleted rather than unpublished so the support assistant cannot quote
+     * them either — it searches the table, not the public index.
+     */
+    private const RETIRED_SLUGS = [
+        'cancellation-flexible',
+        'cancellation-moderate',
+        'cancellation-strict',
+        'service-fee',
+        'refund-timing',
+        'how-to-book',
+        'modify-booking',
+        'whats-included',
+        'damage-cover',
+    ];
+
     public function run(): void
     {
+        HelpArticle::whereIn('slug', self::RETIRED_SLUGS)->delete();
+
         foreach ($this->articles() as $i => $article) {
             HelpArticle::updateOrCreate(
                 ['slug' => $article['slug']],
@@ -39,44 +68,35 @@ class HelpArticleSeeder extends Seeder
     private function articles(): array
     {
         return [
-            // ── Cancellation ────────────────────────────────────────────────
+            // ── What Vaytoven is ────────────────────────────────────────────
             [
-                'slug'     => 'cancellation-flexible',
-                'audience' => HelpAudience::Traveler->value,
-                'category' => 'cancellation',
-                'title'    => 'Flexible cancellation policy',
-                'summary'  => 'Full refund if you cancel at least 24 hours before check-in. No refund within 24 hours.',
-                'body'     => "Bookings on the Flexible policy refund the full nightly rate and cleaning fee when you cancel at least 24 hours before the local check-in time at the property.\n\nWithin the 24-hour window, the booking is non-refundable apart from any taxes that the destination authority requires us to return.\n\nThe Vaytoven service fee is non-refundable in all cases. Refunds clear back to the original payment method within 5–10 business days depending on your bank.",
-                'search_keywords' => 'cancel, refund, flexible, 24 hours, change of plans',
-            ],
-            [
-                'slug'     => 'cancellation-moderate',
-                'audience' => HelpAudience::Traveler->value,
-                'category' => 'cancellation',
-                'title'    => 'Moderate cancellation policy',
-                'summary'  => 'Full refund if you cancel 5+ days before check-in. 50% between 5 days and 24 hours. No refund within 24 hours.',
-                'body'     => "Moderate is the default policy on most managed listings. Cancel at least 5 days before check-in for a full refund of the nightly rate and cleaning fee. Cancel between 5 days and 24 hours of check-in and you receive 50% of the nightly rate back; the cleaning fee is fully refunded.\n\nWithin 24 hours of check-in, the booking is non-refundable apart from required tax returns.\n\nThe Vaytoven service fee is non-refundable in all cases.",
-                'search_keywords' => 'cancel, refund, moderate, 50 percent, partial refund',
-            ],
-            [
-                'slug'     => 'cancellation-strict',
-                'audience' => HelpAudience::Traveler->value,
-                'category' => 'cancellation',
-                'title'    => 'Strict cancellation policy',
-                'summary'  => '50% refund if you cancel 7+ days before check-in. No refund within 7 days.',
-                'body'     => "Strict applies to peak-season inventory and high-value properties. You get 50% of the nightly rate refunded when you cancel at least 7 days before check-in; the cleaning fee is also refunded.\n\nWithin 7 days of check-in, the booking is non-refundable.\n\nThe Vaytoven service fee is non-refundable in all cases. We always show the policy on the booking page before you confirm — if you don't see Strict listed, this rule does not apply to your stay.",
-                'search_keywords' => 'cancel, refund, strict, peak season, premium',
+                'slug'     => 'what-vaytoven-is',
+                'audience' => HelpAudience::All->value,
+                'category' => 'basics',
+                'title'    => 'What Vaytoven does, and what it does not',
+                'summary'  => 'We advertise vacation properties. We do not take reservations, collect payment for a stay, or hold anyone\'s money.',
+                'body'     => "Vaytoven is a software-as-a-service advertising and marketing platform for vacation property owners. Owners pay us to list and promote their property. That is the whole of our role.\n\nWe are not a booking platform, a travel agency, an escrow provider, or a property manager. You cannot reserve a property through Vaytoven, and Vaytoven never charges you for a stay.\n\nWhat you can do is submit an offer on a listing. If the listing member accepts it, you and they arrange the dates, the payment method and the terms directly between yourselves. No rental money passes through us at any point.\n\nThe only money Vaytoven collects is what property owners pay us for advertising, listing and subscription services.",
+                'search_keywords' => 'what is vaytoven, booking, reservation, book, how does it work, advertising',
             ],
 
-            // ── Fees & payouts ──────────────────────────────────────────────
+            // ── Offers ──────────────────────────────────────────────────────
             [
-                'slug'     => 'service-fee',
-                'audience' => HelpAudience::All->value,
-                'category' => 'fees',
-                'title'    => 'Vaytoven service fee',
-                'summary'  => 'A flat 3% service fee added at checkout. Funds platform operations, fraud prevention, and 24/7 support.',
-                'body'     => "Travelers pay a 3% service fee at checkout, calculated on the subtotal of nightly rates and cleaning fees. The fee is shown clearly on the price breakdown — there are no surprise charges.\n\nThe service fee is non-refundable in all cancellation scenarios. It funds platform operations including payments infrastructure, fraud prevention, dispute handling, and our 24/7 support agent.",
-                'search_keywords' => 'fee, service fee, 3 percent, surcharge, hidden fees',
+                'slug'     => 'how-offers-work',
+                'audience' => HelpAudience::Traveler->value,
+                'category' => 'offers',
+                'title'    => 'How to submit an offer',
+                'summary'  => 'Pick your dates, name your price, submit. The listing member has 24 hours to respond. Nothing is charged.',
+                'body'     => "Open any listing and use Submit Offer. Choose your dates and party size, enter the amount you want to offer, and add a message if it helps your case.\n\nSubmitting an offer is not a reservation and does not hold the dates. It does not charge you, and Vaytoven never asks you for card details to make one.\n\nThe listing member sees your offer on their dashboard with the dates, party size and amount. They can accept or decline. Every offer expires 24 hours after it is submitted, so you are never left waiting indefinitely — if nothing happens, it lapses and you are free to look elsewhere.\n\nYou can see every offer you have sent, and its current status, on your dashboard.",
+                'search_keywords' => 'offer, submit offer, how to, bid, make an offer, reserve, book',
+            ],
+            [
+                'slug'     => 'offer-accepted',
+                'audience' => HelpAudience::Traveler->value,
+                'category' => 'offers',
+                'title'    => 'My offer was accepted — what happens now?',
+                'summary'  => 'You and the listing member arrange the stay and payment directly. Vaytoven is not part of that transaction.',
+                'body'     => "An accepted offer means the listing member is willing to proceed on the dates and amount you proposed. It is the start of a conversation between the two of you, not a confirmed reservation held by Vaytoven.\n\nFrom there you agree directly with them: how and when you pay, what deposit if any, what happens if either side needs to cancel, check-in arrangements, and anything else about the stay. Those terms are theirs to set and yours to accept.\n\nVaytoven does not take the payment, hold a deposit, guarantee the stay, or issue refunds — we are not a party to your agreement. Treat the arrangement as you would any direct booking with a property owner, and keep your own record of what was agreed.\n\nIf you cannot reach the listing member, raise a Trip Support request and we will help you make contact.",
+                'search_keywords' => 'accepted, offer accepted, next steps, pay, deposit, confirm',
             ],
             [
                 'slug'     => 'host-payouts',
@@ -88,42 +108,13 @@ class HelpArticleSeeder extends Seeder
                 'search_keywords' => 'payout, payment, when paid, how do i get paid, bank, advertising fee',
             ],
             [
-                'slug'     => 'refund-timing',
+                'slug'     => 'who-handles-refunds',
                 'audience' => HelpAudience::Traveler->value,
-                'category' => 'payouts',
-                'title'    => 'When will my refund arrive?',
-                'summary'  => 'Once approved, refunds clear back to the original card in 5–10 business days. Bank transfers can take longer.',
-                'body'     => "Refunds are issued back to the card or account that was charged. We initiate the refund the moment the cancellation is approved; from there it's the issuing bank's clearing schedule that determines when the funds appear.\n\nVisa and Mastercard refunds typically post within 5–7 business days. Some debit cards and bank transfers take up to 10 business days. If 10 business days have passed and you still don't see the refund, contact support and we'll trace it with the processor.",
-                'search_keywords' => 'refund, when will, how long, money back, where is',
-            ],
-
-            // ── Booking & travel ────────────────────────────────────────────
-            [
-                'slug'     => 'how-to-book',
-                'audience' => HelpAudience::Traveler->value,
-                'category' => 'booking',
-                'title'    => 'How to book a stay',
-                'summary'  => 'Search, pick dates, confirm guests, pay. The host has 24 hours to accept; charge captures on acceptance.',
-                'body'     => "Use the search on the home page or any destination page. Pick your dates and guest count, review the price breakdown, then confirm.\n\nFor instant-book listings, your card is authorised immediately and you receive a confirmation code (format VYT-XXXXXX). For request-to-book listings, the host has 24 hours to accept; we authorise but don't capture your card until they confirm. If they decline or 24 hours elapse, the authorisation is voided and no charge appears on your statement.\n\nYou can see all your bookings under My Trips.",
-                'search_keywords' => 'how to book, reservation, confirmation, instant book, request to book',
-            ],
-            [
-                'slug'     => 'modify-booking',
-                'audience' => HelpAudience::Traveler->value,
-                'category' => 'booking',
-                'title'    => 'Changing dates or guest count',
-                'summary'  => 'Both sides must agree to a change. We re-quote the price and only charge or refund the difference.',
-                'body'     => "Open the booking under My Trips and use Request a change. Pick your new dates or guest count and submit. The host sees the request and can accept or decline within 24 hours.\n\nIf they accept, we re-quote the booking against current availability and rates. We capture the difference if the new total is higher, and refund the difference if it's lower. Service fees adjust pro-rata.\n\nIf either side wants to cancel rather than modify, the active cancellation policy applies — the modification request itself doesn't lock you in.",
-                'search_keywords' => 'modify, change dates, change booking, edit reservation, add guest',
-            ],
-            [
-                'slug'     => 'whats-included',
-                'audience' => HelpAudience::Traveler->value,
-                'category' => 'booking',
-                'title'    => "What's included in my stay",
-                'summary'  => 'Linens, towels, basic toiletries, and Wi-Fi are standard. Each listing notes anything additional or excluded.',
-                'body'     => "Every Vaytoven property is required to provide clean linens, fresh towels, basic bathroom toiletries, hand soap and dish soap, paper goods, and Wi-Fi. Listings note anything beyond that — pool, hot tub, parking, breakfast — under Amenities.\n\nIf something the listing claims is missing or non-functional on arrival, take a photo and message your host through the booking thread within 24 hours. If they don't resolve it, escalate to Vaytoven Support and we'll either get it fixed, partially refund, or relocate you.",
-                'search_keywords' => 'amenities, included, linens, wifi, what comes with',
+                'category' => 'offers',
+                'title'    => 'Cancellations and refunds',
+                'summary'  => 'Whoever took your payment handles it. Vaytoven never charged you for the stay, so it cannot refund one.',
+                'body'     => "Because you pay the listing member directly, cancellation and refund terms are whatever you agreed with them. Vaytoven never took the money, so there is nothing here for us to refund and no cancellation policy of ours that applies to your stay.\n\nAgree the cancellation terms in writing before you pay anything. What happens if you cancel, what happens if they cancel, and what is refundable are all worth settling up front.\n\nIf you cannot reach the listing member or you believe a listing misrepresented the property, raise a Trip Support request. We keep a record of the offer and the correspondence, and we will help you make contact — but we cannot issue a refund on their behalf.",
+                'search_keywords' => 'refund, cancel, cancellation, money back, dispute, where is my refund',
             ],
 
             // ── Hosting ─────────────────────────────────────────────────────
@@ -137,13 +128,13 @@ class HelpArticleSeeder extends Seeder
                 'search_keywords' => 'host, list property, become host, host application, listing concierge',
             ],
             [
-                'slug'     => 'damage-cover',
+                'slug'     => 'host-protecting-yourself',
                 'audience' => HelpAudience::Host->value,
                 'category' => 'hosting',
-                'title'    => 'Damage cover for hosts',
-                'summary'  => 'Up to $250,000 per stay, baked into every booking. No separate purchase, no deductible on the first claim.',
-                'body'     => "Every confirmed stay is covered up to \$250,000 USD for accidental damage caused by guests. The cover is included in the host fee — there's no add-on to buy and no per-booking surcharge.\n\nTo make a claim, document the damage with photos and a description in your host dashboard within 14 days of guest checkout. We adjudicate and pay verified claims within 30 days. The first claim per calendar year has no deductible; subsequent claims have a \$250 deductible.\n\nIntentional damage and theft are handled separately under our Trust & Safety process — contact support immediately rather than filing a damage claim.",
-                'search_keywords' => 'damage, insurance, cover, claim, broken, theft',
+                'title'    => 'Damage, deposits and protecting yourself',
+                'summary'  => 'Vaytoven provides no damage cover or insurance. You set your own deposit and terms with each guest.',
+                'body'     => "Vaytoven advertises your listing. It does not insure your property, provide damage cover, hold a security deposit, or adjudicate a claim between you and a guest — we are not a party to the arrangement you make.\n\nThat means the protections are yours to put in place. Most owners agree a security deposit and written terms with the guest before handing over access, and carry short-term-rental insurance of their own. Your existing homeowner's policy usually does not cover paying guests; check with your insurer rather than assuming.\n\nIf your property is in a vacation club or managed resort, the club may have its own guest-damage process. Ask them what applies before you advertise a week.\n\nIf a guest found through Vaytoven behaves in a way other owners should know about, tell us — we act on listings and accounts that abuse the platform even though we are not part of the transaction.",
+                'search_keywords' => 'damage, insurance, cover, claim, deposit, broken, theft, protection',
             ],
             [
                 'slug'     => 'listing-requirements',

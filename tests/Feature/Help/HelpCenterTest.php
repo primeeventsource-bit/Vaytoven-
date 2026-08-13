@@ -19,9 +19,12 @@ class HelpCenterTest extends TestCase
         $this->get('/help')
             ->assertOk()
             ->assertSee('How can we help?')
-            ->assertSee('Flexible cancellation policy')
+            ->assertSee('How to submit an offer')
             ->assertSee('Becoming a Vaytoven host')
-            ->assertSee('How the managed program works');
+            ->assertSee('How the managed program works')
+            // The cancellation-policy articles described refund tiers on stays
+            // Vaytoven never took payment for.
+            ->assertDontSee('cancellation policy');
     }
 
     public function test_index_filters_by_audience_query_string(): void
@@ -41,10 +44,10 @@ class HelpCenterTest extends TestCase
     {
         $this->seed(HelpArticleSeeder::class);
 
-        $this->get('/help/cancellation-flexible')
+        $this->get('/help/how-offers-work')
             ->assertOk()
-            ->assertSee('Flexible cancellation policy')
-            ->assertSee('full nightly rate', false);
+            ->assertSee('How to submit an offer')
+            ->assertSee('is not a reservation', false);
     }
 
     public function test_show_404_for_missing_slug(): void
@@ -79,8 +82,12 @@ class HelpCenterTest extends TestCase
                 'results' => [['slug', 'title', 'summary', 'audience', 'category', 'url']],
             ]);
 
+        // "cancel" still has to return something useful — it is a question
+        // people genuinely arrive with. It now resolves to the article that
+        // explains cancellation is between them and the listing member,
+        // rather than to a Vaytoven refund tier that never existed.
         $slugs = collect($resp->json('results'))->pluck('slug')->all();
-        $this->assertContains('cancellation-flexible', $slugs);
+        $this->assertContains('who-handles-refunds', $slugs);
     }
 
     public function test_search_endpoint_scopes_by_audience(): void

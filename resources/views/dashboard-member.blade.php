@@ -16,7 +16,7 @@
                     <ul class="vyt-kv">
                         <li><span class="k">Club</span><span class="v">{{ $myEnquiry->club }}</span></li>
                         <li><span class="k">Property</span><span class="v">{{ $myEnquiry->property }}</span></li>
-                        <li><span class="k">Annual points</span><span class="v">{{ number_format((int) $myEnquiry->points) }}</span></li>
+                        <li><span class="k">Annual points allocation</span><span class="v">{{ number_format((int) $myEnquiry->points) }}</span></li>
                         @php($det = $myEnquiry->exchange_detection)
                         @if ($det && ! empty($det['matches']))
                             @php($top = $det['matches'][0])
@@ -58,7 +58,7 @@
             </div>
             @if ($offers->isEmpty())
                 <div class="vyt-card-empty">
-                    No offers yet. When Vaytoven proposes a booking against your points, it'll appear here.
+                    No offers yet. When a traveler makes an offer on one of your weeks, it'll appear here.
                 </div>
             @else
                 @foreach ($offers as $offer)

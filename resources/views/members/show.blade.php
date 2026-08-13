@@ -107,7 +107,7 @@
         <div class="members-hero-inner">
             <div>
                 <div class="eyebrow">Managed Listing Program</div>
-                <h1>Turn unused points into <em>real income.</em></h1>
+                <h1>Turn the weeks you don't use into <em>real income.</em></h1>
                 <p>If you own points-based vacation property — Marriott, Hilton, Disney, Wyndham, RCI, Interval, or any major club — Vaytoven's Managed Listing Program rents the weeks you don't use, with zero hassle and full compliance with your program rules.</p>
                 <a href="/#members" class="members-hero-cta" data-track-audience="member" data-track-cta="members_page_apply">
                     Get on the program

@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\BookingStatus;
 use App\Enums\MemberEnquiryStatus;
 use App\Enums\MemberOfferStatus;
 use App\Enums\UserRole;
-use App\Models\Booking;
-use App\Models\Charge;
 use App\Models\ChargebackDispute;
 use App\Models\HelpArticle;
 use App\Models\LoginSession;
@@ -15,7 +12,6 @@ use App\Models\MemberEnquiry;
 use App\Models\MemberOffer;
 use App\Models\Property;
 use App\Models\PropertyView;
-use App\Models\Refund;
 use App\Models\SupportChatSession;
 use App\Models\SupportTicket;
 use App\Models\TermsVersion;
@@ -71,21 +67,12 @@ class DashboardController extends Controller
             ->orderBy('title')
             ->get();
 
-        // Recent bookings on this host's listings — the funnel signal hosts
-        // want to see first. Capped at 10 most recent across all listings.
-        // Eager-loads property:id,title + traveler:id,name to avoid N+1 in
-        // the dashboard table render.
-        $bookings = Booking::query()
-            ->whereIn('property_id', $listings->pluck('id'))
-            ->with(['property:id,title', 'traveler:id,name'])
-            ->orderByDesc('created_at')
-            ->limit(10)
-            ->get();
-
+        // No bookings panel. Vaytoven advertises listings; the funnel signal a
+        // host wants is offers on their listings, which the offers dashboard
+        // already carries.
         return [
             'me' => $user,
             'listings' => $listings,
-            'bookings' => $bookings,
         ] + $this->analyticsPayload($listings);
     }
 
@@ -277,26 +264,22 @@ class DashboardController extends Controller
 
     private function adminPayload(): array
     {
-        $sevenDaysAgo = now()->subDays(7);
-
         return [
             // Member enquiries — the conversion funnel for the managed program.
             'enquiriesNew' => MemberEnquiry::where('status', MemberEnquiryStatus::New)->count(),
             'enquiriesRecent' => MemberEnquiry::orderByDesc('created_at')->limit(5)->get(),
 
-            // Bookings — operational health, what's in flight today.
-            'bookingsByStatus' => Booking::query()
+            // Offers — the actual funnel. What travelers send and what listing
+            // owners do with it, in place of the booking counts that used to
+            // sit here.
+            'offersByStatus' => MemberOffer::query()
                 ->selectRaw('status, count(*) as c')
                 ->groupBy('status')
                 ->pluck('c', 'status'),
-            'bookingsRecent' => Booking::with('property:id,title')
+            'offersRecent' => MemberOffer::with('property:id,title')
                 ->orderByDesc('created_at')
                 ->limit(5)
                 ->get(),
-
-            // Payments — money flow at a glance.
-            'chargesLast7dCents' => (int) Charge::where('created_at', '>=', $sevenDaysAgo)->sum('amount_cents'),
-            'refundsLast7dCents' => (int) Refund::where('created_at', '>=', $sevenDaysAgo)->sum('amount_cents'),
 
             // Support — agent + human ticketing load.
             'ticketsOpen' => SupportTicket::where('status', 'open')->count(),
@@ -330,26 +313,23 @@ class DashboardController extends Controller
 
     private function userPayload(User $user): array
     {
-        $bookings = Booking::query()
-            ->where('traveler_id', $user->id)
-            ->with('property:id,title')
+        // Offers this traveler has SENT, in place of bookings and charges.
+        // charges rows hang off booking_id with no user_id of their own, so
+        // they only ever described money taken for a stay — which Vaytoven
+        // does not take. What a traveler actually has here is submissions
+        // waiting on a listing owner.
+        $offers = MemberOffer::query()
+            ->where('buyer_user_id', $user->id)
+            ->with('property:id,title,city')
             ->orderByDesc('created_at')
             ->limit(10)
             ->get();
 
-        $charges = Charge::query()
-            ->whereIn('booking_id', $bookings->pluck('id'))
-            ->orderByDesc('created_at')
-            ->limit(5)
-            ->get();
-
         return [
             'me' => $user,
-            'bookings' => $bookings,
-            'charges' => $charges,
-            'upcomingCount' => $bookings
-                ->where('status', BookingStatus::Confirmed)
-                ->where('check_in_date', '>=', now())
+            'offers' => $offers,
+            'openOfferCount' => $offers
+                ->filter(fn (MemberOffer $o) => $o->effectiveStatus() === MemberOfferStatus::Pending)
                 ->count(),
         ];
     }
