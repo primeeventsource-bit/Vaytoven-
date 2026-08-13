@@ -89,8 +89,13 @@ class MailDeliverability
             return false;
         }
 
-        // Public relays universally require authentication. A host with no
-        // credentials is either a local relay or a half-finished config.
-        return (bool) Config::get('mail.mailers.smtp.username');
+        // Public relays universally require authentication, and they require
+        // BOTH halves of it. A username with no password is the most likely
+        // half-finished state — someone sets MAIL_USERNAME while waiting on an
+        // API key — and it fails at send time with an auth error rather than
+        // at configuration time, which is exactly the delay this class exists
+        // to remove.
+        return (bool) Config::get('mail.mailers.smtp.username')
+            && (bool) Config::get('mail.mailers.smtp.password');
     }
 }

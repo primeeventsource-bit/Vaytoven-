@@ -93,6 +93,26 @@ class PasswordResetDeliveryTest extends TestCase
         $this->assertFalse(MailDeliverability::isDeliverable());
     }
 
+    /**
+     * Half-configured is not configured.
+     *
+     * The likely real-world state: someone sets MAIL_USERNAME while waiting on
+     * an API key. Without this, the app would call itself healthy and fail at
+     * send time with an auth error — the same silent failure, later.
+     */
+    public function test_smtp_with_a_username_but_no_password_is_not_deliverable(): void
+    {
+        config([
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.host' => 'smtp.resend.com',
+            'mail.mailers.smtp.username' => 'resend',
+            'mail.mailers.smtp.password' => null,
+        ]);
+        app()->detectEnvironment(fn () => 'production');
+
+        $this->assertFalse(MailDeliverability::isDeliverable());
+    }
+
     // --- the form's behaviour --------------------------------------------
 
     public function test_it_refuses_and_says_so_when_mail_cannot_be_sent(): void
