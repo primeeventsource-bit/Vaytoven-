@@ -65,11 +65,11 @@ class NavigationAndSignupTest extends TestCase
         // booking" are gone: Vaytoven advertises listings, so there is no
         // payout to enrol for and travelers send offers rather than bookings.
         //
-        // "Concierge buildout" is gone too. Hosts are on the monthly
-        // subscription and build their own listing; the managed buildout is
+        // "Concierge buildout" is gone too. Hosts are on the 30-day
+        // subscription and create their own listings; the managed buildout is
         // the separate 180-day member program.
         $this->assertStringContainsString('Apply</h3>', $body);
-        $this->assertStringContainsString('Start your monthly subscription', $body);
+        $this->assertStringContainsString('Start your 30-day subscription', $body);
         $this->assertStringContainsString('Build your listing', $body);
         $this->assertStringContainsString('Go live + first offers', $body);
 

@@ -730,7 +730,7 @@
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">No commission.</strong> You pay to advertise; we take no cut of what you earn.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">You deal direct.</strong> Guests pay you, on your terms — we advertise, we don't sit in the middle.</span></li>
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Offers, not haggling.</strong> Every offer expires in 24 hours, so nothing sits unanswered.</span></li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Two ways in.</strong> A monthly subscription where you run your own listing, or a one-time 180-day managed program where we do it for you.</span></li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span><strong style="color:#fff;">Two ways in.</strong> A recurring 30-day subscription where you run your own listings, or a one-time fee for our 180-day managed program.</span></li>
             </ul>
 
             <a class="host-primary-cta" href="{{ route('host.onboarding.index') }}" data-track-audience="host" data-track-cta="host_onboarding_open">

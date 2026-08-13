@@ -189,7 +189,7 @@
                 <div class="host-benefit">
                     <div class="host-benefit-icon">🎛</div>
                     <h3>Your listing, your control.</h3>
-                    <p>On the monthly subscription you build and manage the listing yourself from your dashboard — photos, copy, rates and availability are yours to set and change whenever you want, with no one to ask.</p>
+                    <p>On the 30-day subscription you create and manage your listings yourself from your dashboard — photos, copy, rates and availability are yours to set and change whenever you want, with no one to ask.</p>
                 </div>
                 <div class="host-benefit">
                     <div class="host-benefit-icon">▤</div>
@@ -220,8 +220,8 @@
                 <div class="host-step">
                     <div class="host-step-number"></div>
                     <div>
-                        <h3>Start your monthly subscription</h3>
-                        <p>Hosting runs on a monthly SaaS subscription that gives you access to the platform, the listing tools, the exposure and your dashboard. We confirm the details and set up your account. We never ask for bank details, government ID or tax forms — advertising a listing needs none of it, and Vaytoven does not handle rental money.</p>
+                        <h3>Start your 30-day subscription</h3>
+                        <p>Hosting runs on a recurring 30-day subscription giving you access to our SaaS platform and dashboard — the listing tools, the exposure, and the tools you use to talk to interested travelers. It renews every 30 days until you cancel. We confirm the details and set up your account. We never ask for bank details, government ID or tax forms — advertising a listing needs none of it, and Vaytoven does not handle rental money.</p>
                     </div>
                 </div>
                 <div class="host-step">
@@ -229,7 +229,7 @@
                     <div>
                         <h3>Build your listing</h3>
                         <p>You create and manage the listing yourself from your dashboard — photos, description, rates and availability. We surface the local short-term-rental rules for your address as you go. Change any of it whenever you like; it's your listing.</p>
-                        <p style="margin-top:10px;">Would rather we did this for you? The <a href="{{ route('members.show') }}">180-day Managed Listing Program</a> is the other option — a one-time fee instead of a subscription, where our team assists with the listing and markets it for you.</p>
+                        <p style="margin-top:10px;">Would rather we did this for you? The <a href="{{ route('members.show') }}">180-Day Member Managed Listing Program</a> is the other option — a one-time fee instead of a recurring subscription, where we provide managed listing and advertising services for the whole 180 days.</p>
                     </div>
                 </div>
                 <div class="host-step">

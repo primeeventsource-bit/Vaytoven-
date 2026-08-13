@@ -163,7 +163,7 @@
 
             <ul style="margin-top: 28px; padding-left: 22px; font-size: 15.5px; line-height: 2; color: var(--ink);">
                 <li><strong>Advertised across our network</strong> and partner channels, so your unused weeks reach travelers already searching for them.</li>
-                <li><strong>Pricing transparency.</strong> One fee, paid once, covering a 180-day managed advertising and listing term — quoted in writing on the onboarding call before any commitment. It is not a monthly or annual subscription and it does not recur.</li>
+                <li><strong>Pricing transparency.</strong> One fee, paid once, covering a 180-day managed advertising and listing term — quoted in writing on the onboarding call before any commitment. It is not a recurring subscription and it does not bill again.</li>
                 <li><strong>Rate-locked for the term.</strong> Whatever we quote is what applies; we won't raise it mid-term without your written consent.</li>
                 <li><strong>No separate percentage cut.</strong> Once those costs are covered on each booking, the rest is yours.</li>
                 <li><strong>You stay in control.</strong> Keep, gift, or rent whichever weeks you want each year. Withdrawal of a week from the program doesn't affect bookings already confirmed against it.</li>
@@ -223,8 +223,8 @@
                 </details>
                 <details>
                     <summary>Is this a subscription? Will it bill me again?</summary>
-                    <p>No. The Member program is a <strong>one-time fee for a 180-day term</strong> — it is not a monthly or annual recurring subscription and it does not auto-bill. If you want to continue after 180 days, that's a decision you make at the time.</p>
-                    <p>The monthly subscription is a separate option, for hosts who want to build and manage their own listing through the dashboard rather than have us do it.</p>
+                    <p>No. The 180-Day Member Managed Listing Program is a <strong>one-time fee</strong> — it is not a recurring subscription and it does not auto-bill. If you want to continue after the 180 days, that's a decision you make at the time.</p>
+                    <p>The <a href="{{ route('hosts.show') }}">Host 30-Day Subscription</a> is the separate option: a recurring 30-day subscription for hosts who want to create and manage their own listings through the dashboard rather than have us do it.</p>
                 </details>
                 <details>
                     <summary>Can fees go up after I sign?</summary>

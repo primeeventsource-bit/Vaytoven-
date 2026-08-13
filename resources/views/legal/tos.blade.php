@@ -3,7 +3,7 @@
 @section('eyebrow', 'Legal · Terms and Conditions')
 @section('title', 'Terms and Conditions')
 @section('effective_date', '2026-08-12')
-@section('version_label', 'v5')
+@section('version_label', 'v6')
 
 @section('content')
 <div class="legal-toc">
@@ -80,11 +80,13 @@
 <h3>2.1 Two separate service options</h3>
 <p>Vaytoven offers two distinct services. A participant is on one or the other; they are not tiers of a single plan and they are not billed the same way.</p>
 
-<p><strong>Host — Monthly SaaS Subscription.</strong> Hosts pay a <strong>monthly subscription fee</strong> for access to the Vaytoven platform. Under this option the host is responsible for creating, maintaining, and managing their own property listing through their Vaytoven dashboard. Vaytoven provides the software platform, listing functionality, exposure, and communication tools.</p>
+<p><strong>180-Day Member Managed Listing Program.</strong> Members pay a <strong>one-time fee</strong> for Vaytoven to provide managed listing and advertising services during the one hundred eighty (180) day program. Those managed services include assisting with the listing, maintaining the advertisement on the Platform, and marketing the Vaytoven platform to generate public exposure for participating listings.</p>
 
-<p><strong>Member — 180-Day Managed Listing Program.</strong> Members pay a <strong>one-time fee</strong> for a one hundred eighty (180) day managed advertising and listing program. Under this program Vaytoven provides additional managed services for the member's property advertisement during the 180-day term, including assisting with the listing, maintaining the advertisement on the Platform, and marketing the Vaytoven platform to generate public exposure for participating listings.</p>
+<p>The 180-Day Member Program <strong>is not a recurring subscription</strong>. It does not auto-renew and does not bill again; the one-time fee covers the 180-day program stated in the member's agreement.</p>
 
-<p>The 180-Day Member Program <strong>is not a monthly or annual recurring subscription</strong>. It does not auto-renew as a subscription, and the one-time fee covers the 180-day term stated in the member's agreement.</p>
+<p><strong>Host 30-Day Subscription.</strong> Hosts pay a <strong>recurring 30-day subscription</strong> for access to Vaytoven's SaaS platform and dashboard. Under this option the host is responsible for creating and managing their own listings. Vaytoven provides the software platform, listing functionality, exposure, and communication tools.</p>
+
+<p>The Host subscription renews every thirty (30) days from the date it begins, and continues until cancelled. It is a 30-day billing cycle rather than a calendar month, so the renewal date does not track the first of the month.</p>
 
 <p>Unless Vaytoven expressly states otherwise in a separate written agreement, Vaytoven is not a real estate broker, travel agency, escrow provider, or property manager.</p>
 <p>Vaytoven does not own, control, inspect, or independently verify every property displayed on the Platform.</p>
@@ -114,8 +116,8 @@
 
 <p>Charges fall under one of the two service options described in section 2.1:</p>
 <ul>
-    <li><strong>Host — Monthly SaaS Subscription:</strong> a recurring monthly subscription fee for platform access, listing functionality, exposure, and communication tools. It continues until cancelled in accordance with these Terms or the applicable agreement.</li>
-    <li><strong>Member — 180-Day Managed Listing Program:</strong> a one-time fee covering a 180-day managed advertising and listing term. This is not a recurring subscription.</li>
+    <li><strong>180-Day Member Managed Listing Program:</strong> a one-time fee for managed listing and advertising services across the 180-day program. It is not a recurring subscription and does not bill again.</li>
+    <li><strong>Host 30-Day Subscription:</strong> a recurring 30-day subscription for access to the SaaS platform and dashboard. It renews every 30 days until cancelled in accordance with these Terms or the applicable agreement.</li>
 </ul>
 
 <p>Depending on the option and any separate agreement, charges may also include setup or activation fees, content and marketing fees, placement fees, and other fees disclosed before purchase.</p>
@@ -125,9 +127,9 @@
 <p>By providing a payment method, you authorize Vaytoven and its authorized payment-processing providers to process charges associated with your subscription, managed program, advertising service, or other Platform service. <strong>This authorization covers what you pay Vaytoven for its own services only.</strong> Vaytoven's merchant account is never used to collect rent, deposits, or any other payment owed between a traveler and a property owner.</p>
 
 <h2 id="cancellations">7. Cancellations and refund policy</h2>
-<p>This section governs <strong>Vaytoven's own services only</strong> — the Host Monthly SaaS Subscription and the Member 180-Day Managed Listing Program. It does not govern a stay, because Vaytoven neither sells nor takes payment for one.</p>
-<p><strong>Host — Monthly SaaS Subscription:</strong> a host may cancel the monthly subscription in accordance with the applicable agreement. Cancellation stops future monthly charges; fees already paid for the current period are not pro-rated unless the applicable agreement says otherwise.</p>
-<p><strong>Member — 180-Day Managed Listing Program:</strong> cancellation rights are those expressly stated in the member's signed agreement, including any cancellation period provided there.</p>
+<p>This section governs <strong>Vaytoven's own services only</strong> — the 180-Day Member Managed Listing Program and the Host 30-Day Subscription. It does not govern a stay, because Vaytoven neither sells nor takes payment for one.</p>
+<p><strong>180-Day Member Managed Listing Program:</strong> cancellation rights are those expressly stated in the member's signed agreement, including any cancellation period provided there.</p>
+<p><strong>Host 30-Day Subscription:</strong> a host may cancel at any time in accordance with the applicable agreement. Cancellation stops the next 30-day renewal; the current 30-day period runs to its end and fees already paid for it are not pro-rated unless the applicable agreement says otherwise.</p>
 <p>Once advertising has launched, listings have been published, dashboard access has been activated, or managed services have otherwise been materially performed, fees may become non-refundable as stated in the applicable agreement.</p>
 <p><strong>Stays are not covered by this section.</strong> Any cancellation of, or refund for, a stay is a matter between the traveler and the property owner on the terms the two of them agreed. Vaytoven displays no cancellation policy for a stay, holds no funds relating to one, and cannot issue a refund for one.</p>
 
@@ -206,7 +208,7 @@
 <p><strong>User rights:</strong> Subject to applicable law, users may request access to, correction of, or deletion of certain personal information by emailing <a href="mailto:contact@vaytoven.com">contact@vaytoven.com</a>.</p>
 
 <h2 id="fees-policy">20. Fees &amp; Payments Policy</h2>
-<p>Vaytoven fees take one of two forms, matching the two service options in section 2.1: a <strong>recurring monthly subscription</strong> for hosts, or a <strong>one-time fee for a 180-day managed listing term</strong> for members. Either may be accompanied by setup, placement, content or marketing charges disclosed before purchase.</p>
+<p>Vaytoven fees take one of two forms, matching the two services in section 2.1: a <strong>one-time fee for the 180-day Member Managed Listing Program</strong>, or a <strong>recurring 30-day Host Subscription</strong>. Either may be accompanied by setup, placement, content or marketing charges disclosed before purchase.</p>
 <p>Fees cover advertising, property exposure, lead generation, listing creation or assistance, content support, dashboard access, software services, marketing, mobile access, and related digital services.</p>
 <p><strong>Fees are payable to Vaytoven by the advertiser.</strong> No fee is charged to a traveler, and no percentage or commission is taken from what a traveler pays a property owner.</p>
 <p>Refund eligibility for Vaytoven's own services is governed by section 7 and the applicable agreement. Vaytoven issues no refunds in relation to a stay, having taken no payment for one.</p>
@@ -231,8 +233,8 @@
 <p>By uploading content, users grant Vaytoven the right to store, reproduce, adapt, display, publish, distribute, and promote that content in connection with operation and marketing of the Platform.</p>
 
 <h2 id="cancellation-policy">24. Cancellation Policy</h2>
-<p><strong>Host monthly subscription:</strong> cancellable in accordance with section 7 and the applicable agreement. Cancellation ends platform access at the end of the paid period and removes the listing from publication.</p>
-<p><strong>Member 180-day program:</strong> cancellation rights are those stated in the member's signed agreement. The program is a one-time 180-day term, not a recurring subscription, so there is nothing to cancel to prevent a renewal charge.</p>
+<p><strong>180-Day Member Managed Listing Program:</strong> cancellation rights are those stated in the member's signed agreement. The program is a one-time fee for a 180-day program, not a recurring subscription, so there is no renewal charge to cancel.</p>
+<p><strong>Host 30-Day Subscription:</strong> cancellable in accordance with section 7 and the applicable agreement. Cancellation stops the next 30-day renewal; access and publication end when the current 30-day period expires.</p>
 <p><strong>Stay cancellations:</strong> Vaytoven has no stay cancellation policy, because it does not take reservations or hold payment for a stay. Whatever the traveler and the property owner agreed between themselves governs, and they settle it between themselves.</p>
 <p><strong>Vaytoven cancellation rights:</strong> Vaytoven may suspend or terminate accounts, services, or listings where necessary to address violations of these Terms, suspected fraud, payment issues, legal requirements, safety concerns, or other legitimate Platform risks.</p>
 

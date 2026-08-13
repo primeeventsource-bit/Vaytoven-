@@ -79,7 +79,14 @@ class LegalDocumentRegistry
             // Sections 7 and 24 previously promised guests a cancellation
             // policy "displayed for the applicable property", for a payment
             // Vaytoven never took.
-            'version_label' => 'v5',
+            //
+            // v6 (2026-08-13): the host plan is a recurring 30-DAY
+            // subscription, not a monthly one. A 30-day cycle drifts against
+            // the calendar; describing it as monthly sets a renewal-date
+            // expectation the billing will not meet. Both services now use
+            // their proper names throughout: "180-Day Member Managed Listing
+            // Program" and "Host 30-Day Subscription".
+            'version_label' => 'v6',
         ],
         [
             'kind'          => self::KIND_PRIVACY,

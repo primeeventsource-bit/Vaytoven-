@@ -11,11 +11,16 @@ use Tests\TestCase;
  *
  * Vaytoven sells exactly two things:
  *
- *   Host   — a recurring MONTHLY SaaS subscription. The host builds and
- *            manages their own listing through the dashboard.
- *   Member — a ONE-TIME fee for a 180-day managed listing term. Vaytoven
- *            assists with the listing and markets it. Explicitly NOT a
- *            recurring subscription.
+ *   180-Day Member Managed Listing Program — a ONE-TIME fee for managed
+ *            listing and advertising services across the 180-day program.
+ *            Explicitly NOT a recurring subscription.
+ *   Host 30-Day Subscription — a RECURRING 30-day subscription for access to
+ *            the SaaS platform and dashboard. The host creates and manages
+ *            their own listings.
+ *
+ * "30-day" is not shorthand for "monthly": the cycle runs 30 days from the
+ * start date, so the renewal drifts against the calendar. Describing it as
+ * monthly in a contract sets a billing expectation the system will not meet.
  *
  * Getting this wrong in the Terms is not a copy problem — it is a contract
  * describing a billing relationship the customer does not have. The pricing
@@ -34,31 +39,41 @@ class ServiceModelConsistencyTest extends TestCase
             strip_tags($this->get('/legal/tos')->assertOk()->getContent()));
     }
 
-    public function test_the_terms_describe_the_host_monthly_subscription(): void
+    public function test_the_terms_describe_the_host_30_day_subscription(): void
     {
         $text = $this->tosText();
 
-        $this->assertStringContainsString('Monthly SaaS Subscription', $text);
-        $this->assertStringContainsString('monthly subscription fee', $text);
+        $this->assertStringContainsString('Host 30-Day Subscription', $text);
+        $this->assertStringContainsString('recurring 30-day subscription', $text);
         $this->assertStringContainsString(
-            'responsible for creating, maintaining, and managing their own property listing',
+            'responsible for creating and managing their own listings',
             $text,
         );
+    }
+
+    /**
+     * The Terms must not call the host subscription "monthly".
+     *
+     * A 30-day cycle and a calendar month are different products from a
+     * billing standpoint — 30 days drifts, a month does not — and a customer
+     * who reads "monthly" will expect the same date each month.
+     */
+    public function test_the_terms_do_not_describe_the_host_plan_as_monthly(): void
+    {
+        $this->assertStringNotContainsStringIgnoringCase('monthly subscription', $this->tosText());
     }
 
     public function test_the_terms_describe_the_180_day_member_program(): void
     {
         $text = $this->tosText();
 
-        $this->assertStringContainsString('180-Day Managed Listing Program', $text);
+        $this->assertStringContainsString('180-Day Member Managed Listing Program', $text);
         $this->assertStringContainsString('one-time fee', $text);
 
         // The negative is the part that protects the customer: they must not
         // be able to read this as something that bills again.
-        $this->assertStringContainsString(
-            'is not a monthly or annual recurring subscription',
-            $text,
-        );
+        $this->assertStringContainsString('is not a recurring subscription', $text);
+        $this->assertStringContainsString('does not bill again', $text);
     }
 
     public function test_the_terms_state_that_travelers_are_never_charged(): void
@@ -117,8 +132,9 @@ class ServiceModelConsistencyTest extends TestCase
             $this->get('/help/host-subscription-or-member-program')->assertOk()->getContent(),
         ));
 
-        $this->assertStringContainsString('monthly subscription fee', $text);
-        $this->assertStringContainsString('one-time fee for a 180-day', $text);
-        $this->assertStringContainsString('NOT a monthly or annual recurring subscription', $text);
+        $this->assertStringContainsString('recurring 30-day subscription', $text);
+        $this->assertStringContainsString('one-time fee', $text);
+        $this->assertStringContainsString('NOT a recurring subscription', $text);
+        $this->assertStringContainsString('creating and managing your own listings', $text);
     }
 }
