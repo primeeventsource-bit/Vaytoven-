@@ -63,15 +63,23 @@ class OfferController extends Controller
     {
         $owner = $request->user();
 
-        return view('offers.index', [
-            'offers' => MemberOffer::query()
-                ->fromBuyers()
-                ->forListingsOwnedBy($owner)
-                ->with(['buyer:id,name,email', 'property:id,title,city,country'])
-                ->orderByDesc('sent_at')
-                ->paginate(25)
-                ->withQueryString(),
-        ]);
+        $offers = MemberOffer::query()
+            ->fromBuyers()
+            ->forListingsOwnedBy($owner)
+            ->with(['buyer:id,name,email', 'property:id,title,city,country'])
+            ->orderByDesc('sent_at')
+            ->paginate(25)
+            ->withQueryString();
+
+        // Stamp the first time the owner sees each one. This is what lets
+        // staff answer "did they ever look at it?" — an offer that lapsed
+        // unopened and one that was read and ignored are different failures
+        // and need different conversations.
+        foreach ($offers as $offer) {
+            $offer->markViewed();
+        }
+
+        return view('offers.index', ['offers' => $offers]);
     }
 
     public function accept(Request $request, MemberOffer $offer): RedirectResponse

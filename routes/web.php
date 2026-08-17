@@ -257,6 +257,8 @@ Route::middleware(['auth'])
         // Cross-platform inquiry/offer register. Read-only: responding is the
         // listing owner's action and lives on the owner dashboard.
         Route::get('offers', [AdminOfferController::class, 'index'])->middleware('permission:offers.view')->name('offers.index');
+        Route::get('offers/{offer}', [AdminOfferController::class, 'show'])
+            ->middleware('permission:offers.view')->name('offers.show');
 
         // Hosting → Service Fees. Every percentage a booking charges comes
         // from a row here; nothing is hard-coded in the application.

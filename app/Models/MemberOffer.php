@@ -26,7 +26,45 @@ class MemberOffer extends Model
     /** How long a buyer submission stays open. */
     public const BUYER_OFFER_TTL_HOURS = 24;
 
+    /**
+     * A quotable public reference, e.g. VT-8K2M4X.
+     *
+     * Random rather than sequential, for the same reason order references are:
+     * a counter in a URL or an email lets anyone walk the range. The alphabet
+     * omits I, O, 1 and 0 because this gets read aloud on the phone.
+     */
+    public static function generateReference(): string
+    {
+        do {
+            $body = substr(str_replace(
+                ['I', 'O', '1', '0'], '',
+                \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(20)).'23456789',
+            ), 0, 6);
+
+            $reference = 'VT-'.$body;
+        } while (static::query()->where('reference', $reference)->exists());
+
+        return $reference;
+    }
+
+    /**
+     * Record the first time the listing owner opened it.
+     *
+     * Only the first: "when did they see it" has one answer, and overwriting
+     * it on every subsequent load would destroy the fact worth keeping —
+     * whether an offer lapsed unopened or was read and ignored. Those are
+     * different failures needing different responses.
+     */
+    public function markViewed(): void
+    {
+        if ($this->viewed_at === null) {
+            $this->forceFill(['viewed_at' => now()])->save();
+        }
+    }
+
     protected $fillable = [
+        'reference',
+        'viewed_at',
         'direction',
         'kind',
         'member_user_id',
@@ -60,6 +98,7 @@ class MemberOffer extends Model
             'offer_amount_cents' => 'integer',
             'status' => MemberOfferStatus::class,
             'sent_at' => 'datetime',
+            'viewed_at' => 'datetime',
             'expires_at' => 'datetime',
             'responded_at' => 'datetime',
         ];

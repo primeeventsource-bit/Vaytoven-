@@ -73,6 +73,7 @@
                     <table class="vyt-offers">
                         <thead>
                             <tr>
+                                <th>Reference</th>
                                 <th>Buyer</th>
                                 <th>Listing owner</th>
                                 <th>Property</th>
@@ -90,6 +91,20 @@
                             @foreach ($offers as $offer)
                                 @php $status = $offer->effectiveStatus(); @endphp
                                 <tr>
+                                    <td>
+                                        <a href="{{ route('admin.offers.show', $offer) }}" class="vyt-mono">
+                                            {{ $offer->reference ?? '#'.$offer->id }}
+                                        </a>
+                                        @if ($offer->viewed_at)
+                                            <span class="sub">opened {{ $offer->viewed_at->diffForHumans() }}</span>
+                                        @elseif ($offer->effectiveStatus() === \App\Enums\MemberOfferStatus::Expired)
+                                            {{-- The fact worth surfacing: it lapsed without
+                                                 the owner ever looking at it. --}}
+                                            <span class="sub" style="color:#b91c1c;">never opened</span>
+                                        @else
+                                            <span class="sub">not yet opened</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         {{ $offer->buyer?->name ?? 'Removed account' }}
                                         <span class="sub">{{ $offer->buyer?->email }}</span>

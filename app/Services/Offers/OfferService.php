@@ -42,6 +42,9 @@ class OfferService
         $submittedAt = now();
 
         $offer = DB::transaction(fn () => MemberOffer::query()->create([
+            // Quotable on the phone and in email. Random, not sequential — a
+            // counter in a reference lets anyone walk the range.
+            'reference' => MemberOffer::generateReference(),
             'direction' => OfferDirection::FromBuyer,
             'kind' => $kind,
             'property_id' => $property->id,
