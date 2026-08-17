@@ -396,41 +396,19 @@
         .faq-item[open] summary::after { transform: rotate(45deg); }
         .faq-item-body { padding: 0 0 22px; color: var(--muted); font-size: 16px; max-width: 60ch; }
 
-        /* Member Services pricing */
+        /* Member Services pricing. The cards themselves are styled by
+           partials/package-styles, shared with the activation page. */
         .pricing-section { background: var(--paper-2); }
-        .pricing-grid {
-            display: grid; gap: 18px; grid-template-columns: 1fr;
-            max-width: 1000px; margin: 0 auto;
+        .pkg-compare-toggle { max-width: 1100px; margin: 34px auto 0; }
+        .pkg-compare-toggle summary {
+            cursor: pointer; list-style: none; text-align: center;
+            font-size: 14px; font-weight: 600; color: var(--purple);
+            padding: 12px; border-radius: 999px;
         }
-        @media (min-width: 820px) { .pricing-grid { grid-template-columns: repeat(3, 1fr); } }
-        .pricing-card {
-            position: relative; display: block; background: #fff;
-            border: 2px solid var(--line); border-radius: 18px;
-            padding: 30px 28px; text-align: center;
-            transition: transform .18s cubic-bezier(.2,.7,.3,1), border-color .18s, box-shadow .18s;
-        }
-        .pricing-card:hover {
-            transform: translateY(-4px); border-color: var(--magenta);
-            box-shadow: 0 18px 44px -20px rgba(214,51,132,.5); text-decoration: none;
-        }
-        .pricing-card.is-featured { border-color: var(--magenta); }
-        .pricing-badge {
-            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-            background: var(--gradient); color: #fff; font-size: 11px; font-weight: 700;
-            letter-spacing: .1em; text-transform: uppercase; padding: 5px 14px; border-radius: 999px;
-            white-space: nowrap;
-        }
-        .pricing-name { display: block; font-size: 12px; font-weight: 700; letter-spacing: .16em; color: var(--muted); }
-        .pricing-price {
-            display: block; font-family: 'Fraunces', serif; font-size: 46px; font-weight: 600;
-            letter-spacing: -.03em; margin: 10px 0 4px;
-        }
-        .pricing-price span { font-family: 'Geist', sans-serif; font-size: 15px; font-weight: 500; color: var(--muted); }
-        .pricing-sub { display: block; font-size: 13.5px; color: var(--muted); }
-        .pricing-eg {
-            display: block; margin-top: 16px; padding-top: 14px;
-            border-top: 1px solid var(--line); font-size: 13.5px; color: var(--ink); font-weight: 500;
-        }
+        .pkg-compare-toggle summary::-webkit-details-marker { display: none; }
+        .pkg-compare-toggle summary::after { content: ' ↓'; }
+        .pkg-compare-toggle[open] summary::after { content: ' ↑'; }
+        .pkg-compare-toggle[open] summary { margin-bottom: 18px; }
 
         /* Footer styles now live in partials/footer-styles, included below —
            the footer itself is a shared partial and its CSS has to travel with
@@ -549,6 +527,7 @@
         }
         .toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
     </style>
+    @include('partials.package-styles')
     @include('partials.footer-styles')
     @include('partials.search-bar-styles')
     <script src="/vyt-search.js" defer></script>
@@ -863,23 +842,67 @@
         <p>Priced per week and charged once — not a recurring subscription. Choose your weeks and the total is calculated for you.</p>
     </div>
 
-    <div class="pricing-grid">
-        @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
-            <a class="pricing-card{{ $pkg === \App\Enums\MemberServicePackage::Gold ? ' is-featured' : '' }}"
-               href="{{ route('member-services.show') }}"
-               data-track-audience="member" data-track-cta="home_pricing_{{ $pkg->value }}">
-                @if ($pkg === \App\Enums\MemberServicePackage::Gold)
-                    <span class="pricing-badge">Most chosen</span>
-                @endif
-                <span class="pricing-name">{{ strtoupper($pkg->label()) }}</span>
-                <span class="pricing-price">${{ number_format($pkg->currentPricePerWeekCents() / 100, 0) }}<span>/week</span></span>
-                <span class="pricing-sub">Member Services Activation</span>
-                <span class="pricing-eg">
-                    4 weeks = ${{ number_format(($pkg->currentPricePerWeekCents() * 4) / 100, 0) }}
-                </span>
-            </a>
-        @endforeach
-    </div>
+    @include('partials.package-cards', ['linkTo' => route('member-services.show')])
+
+    {{-- The matrix, for anyone who wants to compare rather than skim. --}}
+    <details class="pkg-compare-toggle">
+        <summary>Compare all features</summary>
+
+        <div class="pkg-compare-wrap">
+            <table class="pkg-compare">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">Feature</th>
+                        @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
+                            <th class="{{ $pkg->value === 'gold' ? 'col-gold' : '' }}">
+                                {{ $pkg->emoji() }} {{ strtoupper($pkg->label()) }}
+                            </th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Price</th>
+                        @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
+                            <td class="{{ $pkg->value === 'gold' ? 'col-gold' : '' }}">
+                                <strong>${{ number_format($pkg->currentPricePerWeekCents() / 100, 0) }}/week</strong>
+                            </td>
+                        @endforeach
+                    </tr>
+
+                    @foreach (\App\Enums\MemberServicePackage::comparisonMatrix() as $row)
+                        <tr>
+                            <th>{{ $row['label'] }}</th>
+                            @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
+                                @php($v = $row['values'][$pkg->value] ?? '—')
+                                <td class="{{ $pkg->value === 'gold' ? 'col-gold' : '' }}{{ $v === '—' ? ' is-excluded' : '' }}">
+                                    {{ $v }}
+                                </td>
+                            @endforeach
+                        </tr>
+                    @endforeach
+
+                    <tr>
+                        <th>Complimentary benefit</th>
+                        @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
+                            @php($b = $pkg->bonusBenefit())
+                            <td class="{{ $pkg->value === 'gold' ? 'col-gold' : '' }}">
+                                {{ $b['emoji'] }} {{ str_replace('Complimentary ', '', $b['label']) }}
+                            </td>
+                        @endforeach
+                    </tr>
+                    <tr>
+                        <th>Package position</th>
+                        @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
+                            <td class="{{ $pkg->value === 'gold' ? 'col-gold' : '' }}">
+                                <strong>{{ $pkg->position() }}</strong>
+                            </td>
+                        @endforeach
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </details>
 
     <div style="text-align:center;margin-top:36px;">
         <a href="{{ route('member-services.show') }}" class="cta-primary"

@@ -1,6 +1,13 @@
 @extends('layouts.site')
 
-@php($navCurrent = 'pricing')
+{{-- Use the block form here, not the inline single-expression variant: the
+     inline one compiled to an unterminated PHP open tag on this template and
+     swallowed everything after it. Note also that a Blade comment is not a
+     safe place to quote Blade or PHP syntax — the compiler still processes
+     what is inside it. --}}
+@php
+    $navCurrent = 'pricing';
+@endphp
 
 @section('title', 'Member Services Activation · Vaytoven')
 @section('meta_description', 'Activate Vaytoven Member Services. Choose Bronze, Silver or Gold, set your number of weeks, and pay securely online.')
@@ -21,17 +28,56 @@
         <form method="POST" action="{{ route('member-services.store') }}" id="ms-form">
             @csrf
 
-            {{-- Packages ------------------------------------------------ --}}
-            <div class="ms-packages" role="radiogroup" aria-label="Member Services package">
-                @foreach ($packages as $pkg)
-                    <label class="ms-package" for="pkg-{{ $pkg['value'] }}">
-                        <input type="radio" id="pkg-{{ $pkg['value'] }}" name="package"
-                               value="{{ $pkg['value'] }}"
-                               data-cents="{{ $pkg['cents_per_week'] }}"
-                               @checked(old('package') === $pkg['value'])>
-                        <span class="ms-package-name">{{ strtoupper($pkg['label']) }}</span>
-                        <span class="ms-package-price">${{ number_format($pkg['cents_per_week'] / 100, 0) }}<span>/week</span></span>
-                        <span class="ms-package-sub">Member Services Activation</span>
+            {{-- Packages. The whole card is the radio label, so the feature
+                 list and the benefit are part of what you click. --}}
+            <div class="pkg-grid" role="radiogroup" aria-label="Member Services package">
+                @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
+                    @php
+                        $benefit = $pkg->bonusBenefit();
+                        $weekly  = $pkg->currentPricePerWeekCents();
+                        $tag     = 'is-'.$pkg->value;
+                    @endphp
+
+                    <label class="pkg-card pkg-selectable {{ $tag }}{{ $pkg->badge() ? ' has-badge' : '' }}"
+                           for="pkg-{{ $pkg->value }}" id="pkg-{{ $pkg->value }}-card">
+                        <input type="radio" id="pkg-{{ $pkg->value }}" name="package"
+                               value="{{ $pkg->value }}"
+                               data-cents="{{ $weekly }}"
+                               @checked(old('package') === $pkg->value)>
+
+                        @if ($pkg->badge())
+                            <span class="pkg-badge">{{ $pkg->badge() }}</span>
+                        @endif
+
+                        <div class="pkg-emoji" aria-hidden="true">{{ $pkg->emoji() }}</div>
+                        <div class="pkg-name">{{ strtoupper($pkg->label()) }}</div>
+                        <div class="pkg-headline">{{ $pkg->headline() }}</div>
+
+                        <div class="pkg-price">${{ number_format($weekly / 100, 0) }}<span>/week</span></div>
+                        <div class="pkg-allowance">{{ $pkg->propertyAllowance() }}</div>
+
+                        <p class="pkg-tagline">{{ $pkg->tagline() }}</p>
+
+                        <ul class="pkg-features">
+                            @foreach ($pkg->features() as $feature)
+                                <li class="{{ $feature['included'] ? '' : 'is-excluded' }}">
+                                    <span class="pkg-tick" aria-hidden="true">{{ $feature['included'] ? '✓' : '—' }}</span>
+                                    <span>
+                                        {{ $feature['label'] }}
+                                        @if ($feature['included'] && $feature['value'] !== '✓')
+                                            <strong>{{ $feature['value'] }}</strong>
+                                        @endif
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+
+                        <div class="pkg-bonus">
+                            <span class="pkg-bonus-label">Bonus member benefit</span>
+                            <span class="pkg-bonus-value">{{ $benefit['emoji'] }} {{ $benefit['label'] }}</span>
+                        </div>
+
+                        <span class="pkg-cta pkg-choose">{{ $pkg->ctaLabel() }}</span>
                     </label>
                 @endforeach
             </div>
@@ -107,28 +153,21 @@
 @endsection
 
 @push('head')
+@include('partials.package-styles')
 <style>
-    .ms-packages { display:grid; gap:14px; grid-template-columns:1fr; margin-bottom:28px; }
-    @media (min-width:760px) { .ms-packages { grid-template-columns:repeat(3,1fr); } }
-    .ms-package {
-        position:relative; display:block; cursor:pointer;
-        background:#fff; border:2px solid var(--line); border-radius:16px;
-        padding:22px 24px; transition:border-color .15s, box-shadow .15s;
-    }
-    .ms-package:hover { border-color:var(--magenta); }
-    .ms-package input { position:absolute; opacity:0; pointer-events:none; }
-    .ms-package:has(input:checked) {
+    /* Selectable variant of the shared card. */
+    .pkg-selectable { cursor:pointer; }
+    .pkg-selectable input { position:absolute; opacity:0; pointer-events:none; }
+    .pkg-selectable:has(input:checked) {
         border-color:var(--magenta);
-        box-shadow:0 10px 30px -14px rgba(214,51,132,.45);
+        box-shadow:0 14px 38px -16px rgba(214,51,132,.55);
     }
-    .ms-package:has(input:focus-visible) { outline:2px solid var(--purple); outline-offset:3px; }
-    .ms-package-name { display:block; font-size:12px; font-weight:700; letter-spacing:.14em; color:var(--muted); }
-    .ms-package-price {
-        display:block; font-family:'Fraunces',serif; font-size:34px; font-weight:600;
-        margin:8px 0 4px; letter-spacing:-.02em;
-    }
-    .ms-package-price span { font-family:'Geist',sans-serif; font-size:14px; font-weight:500; color:var(--muted); }
-    .ms-package-sub { display:block; font-size:13px; color:var(--muted); }
+    .pkg-selectable:has(input:focus-visible) { outline:2px solid var(--purple); outline-offset:4px; }
+    /* The CTA reads as the selected state rather than as a second button. */
+    .pkg-selectable .pkg-choose { opacity:.5; transition:opacity .15s; }
+    .pkg-selectable:has(input:checked) .pkg-choose { opacity:1; }
+    .pkg-selectable:has(input:checked) .pkg-choose::after { content:'  ✓'; }
+    .pkg-grid { margin-bottom:34px; }
 
     .ms-calc { display:grid; gap:20px; grid-template-columns:1fr; align-items:end; }
     @media (min-width:760px) { .ms-calc { grid-template-columns:1fr 1fr; } }
