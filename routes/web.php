@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\InboxController;
 use App\Http\Controllers\Admin\MemberServiceOrderController as AdminMemberServiceOrderController;
 use App\Http\Controllers\Admin\OfferController as AdminOfferController;
 use App\Http\Controllers\Admin\PaymentProcessorController;
+use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ServiceFeeController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -265,6 +266,16 @@ Route::middleware(['auth'])
             ->middleware('permission:billing.service_fees')->name('hosting.service-fees.update');
         Route::delete('hosting/service-fees/{config}', [ServiceFeeController::class, 'destroy'])
             ->middleware('permission:billing.service_fees')->name('hosting.service-fees.destroy');
+
+        // Staff-created listings. An admin builds the listing for an existing
+        // account or for an owner who has none yet; the owner is emailed
+        // either way.
+        Route::get('properties', [AdminPropertyController::class, 'index'])
+            ->middleware('permission:properties.view')->name('properties.index');
+        Route::get('properties/create', [AdminPropertyController::class, 'create'])
+            ->middleware('permission:properties.create')->name('properties.create');
+        Route::post('properties', [AdminPropertyController::class, 'store'])
+            ->middleware('permission:properties.create')->name('properties.store');
 
         // Member Services activations — what was ordered and whether it paid.
         Route::get('member-services', [AdminMemberServiceOrderController::class, 'index'])
