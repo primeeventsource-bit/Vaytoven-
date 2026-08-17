@@ -32,6 +32,11 @@ class User extends Authenticatable
         'deactivated_by_user_id',
         'created_by_user_id',
         'last_login_at',
+        // Set when staff issue a password, cleared when the account holder
+        // replaces it. Without this in $fillable a create() would silently
+        // drop it and the forced change would never happen.
+        'must_change_password',
+        'password_changed_at',
     ];
 
     protected $hidden = [
@@ -58,6 +63,8 @@ class User extends Authenticatable
             'fee_structure' => FeeStructure::class,
             'deactivated_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'must_change_password' => 'boolean',
+            'password_changed_at' => 'datetime',
         ];
     }
 

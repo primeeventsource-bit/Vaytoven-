@@ -4,6 +4,7 @@ use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureAdminOrMemberSpecialist;
 use App\Http\Middleware\EnsureCurrentTermsAccepted;
+use App\Http\Middleware\EnsurePasswordChanged;
 use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\SetVaytovenSurface;
 use Illuminate\Foundation\Application;
@@ -41,10 +42,22 @@ return Application::configure(basePath: dirname(__DIR__))
             SetVaytovenSurface::class,
         ]);
 
+        // The forced password change applies to the API too. Without this an
+        // account still holding a staff-issued password could skip the whole
+        // flow by using a token instead of a browser.
+        $middleware->api(append: [
+            EnsurePasswordChanged::class,
+        ]);
+
         // Operator-toggled maintenance mode (setting general.maintenance_mode).
         // Appended so it runs after session/auth resolve — admins pass through.
+        //
+        // EnsurePasswordChanged runs on every web route rather than on the
+        // admin group alone: an account still holding a password somebody else
+        // chose should not be able to act at all under that credential.
         $middleware->web(append: [
             CheckMaintenanceMode::class,
+            EnsurePasswordChanged::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

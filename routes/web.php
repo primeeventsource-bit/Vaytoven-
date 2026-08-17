@@ -237,6 +237,11 @@ Route::middleware(['auth'])
         Route::post('users/{user}/deactivate', [UserController::class, 'deactivate'])->middleware('permission:users.deactivate')->name('users.deactivate');
         Route::post('users/{user}/reactivate', [UserController::class, 'reactivate'])->middleware('permission:users.deactivate')->name('users.reactivate');
 
+        // Issue a single-use temporary password. The permission already
+        // existed in the catalog; nothing was wired to it until now.
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])
+            ->middleware('permission:users.reset_password')->name('users.reset-password');
+
         // Roles & Permissions. Creating roles is deliberately narrower than
         // creating users — see PermissionCatalog and RbacSeeder.
         Route::get('roles', [RoleController::class, 'index'])->middleware('permission:roles.view')->name('roles.index');

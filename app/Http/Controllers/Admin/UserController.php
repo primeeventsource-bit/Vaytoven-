@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Services\AdminAuditLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
@@ -137,6 +139,57 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.show', $user)
             ->with('success', "Updated {$user->email}.");
+    }
+
+    /**
+     * Issue a temporary password so staff can get someone back into their
+     * account.
+     *
+     * This is the supported answer to "a member is locked out and needs help".
+     * The alternative — keeping members' real passwords readable so staff can
+     * look one up — would mean storing them in a form that can be reversed,
+     * which defeats hashing entirely: one database breach would hand an
+     * attacker every member's actual password, and because people reuse
+     * passwords, their email and bank logins with it.
+     *
+     * So nobody, including a super admin, can read an existing password. Staff
+     * can REPLACE one, which is auditable, and the new password is single-use:
+     * must_change_password forces the member to set their own on next sign-in,
+     * so the staff-known credential stops working the moment it is used.
+     */
+    public function resetPassword(Request $request, User $user): RedirectResponse
+    {
+        $actor = $request->user();
+
+        abort_if($user->isSuperAdmin() && ! $actor->isSuperAdmin(), 403);
+
+        $temporary = Str::password(14, symbols: false);
+
+        $user->forceFill([
+            'password'             => $temporary,   // hashed by cast
+            'must_change_password' => true,
+            'password_changed_at'  => null,
+        ])->save();
+
+        // Kill every existing session on the account. A lockout is often a
+        // "someone else has my account" report, and leaving their session live
+        // would make the reset pointless.
+        DB::table('sessions')->where('user_id', $user->id)->delete();
+
+        AdminAuditLogService::log(
+            actor:    $actor,
+            action:   'user.reset_password',
+            subject:  $user,
+            // The password itself is never logged. Recording it here would
+            // recreate the readable-password problem in the audit trail.
+            payload:  ['email' => $user->email],
+            ipAddress: $request->ip(),
+        );
+
+        return back()->with('temporary_password', [
+            'email'    => $user->email,
+            'password' => $temporary,
+        ])->with('success', "Temporary password issued for {$user->email}. It is shown once — copy it now.");
     }
 
     public function deactivate(Request $request, User $user): RedirectResponse
