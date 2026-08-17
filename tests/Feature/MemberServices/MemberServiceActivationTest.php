@@ -341,6 +341,33 @@ class MemberServiceActivationTest extends TestCase
         $this->get('/')->assertOk()->assertSee('data-track-cta="footer_pricing"', false);
     }
 
+    /**
+     * The packages advertise no travel incentive.
+     *
+     * Complimentary restaurant, airfare and cruise offers were removed. A
+     * "free cruise with purchase" is a regulated promotion in several states
+     * and the FTC expects material redemption conditions disclosed alongside
+     * the offer — advertising one with no published terms is a complaint the
+     * platform cannot answer. What the packages sell is advertising.
+     */
+    public function test_no_package_surface_advertises_a_travel_incentive(): void
+    {
+        $forbidden = [
+            'incentive', 'complimentary', 'cruise', 'airfare',
+            'restaurant discount', 'bonus member benefit',
+        ];
+
+        foreach (['/', '/member-services'] as $url) {
+            $text = strtolower(preg_replace('/\s+/', ' ',
+                strip_tags($this->get($url)->assertOk()->getContent())));
+
+            foreach ($forbidden as $phrase) {
+                $this->assertStringNotContainsString($phrase, $text,
+                    "{$url} advertises \"{$phrase}\" — the travel incentives are withdrawn.");
+            }
+        }
+    }
+
     public function test_the_quote_helper_matches_what_gets_charged(): void
     {
         $quote = app(MemberServiceOrderFactory::class)->quote(MemberServicePackage::Silver, 5);

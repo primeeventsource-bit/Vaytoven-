@@ -21,8 +21,7 @@
 <div class="pkg-grid">
     @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
         @php
-            $benefit = $pkg->bonusBenefit();
-            $weekly  = $pkg->currentPricePerWeekCents();
+            $weekly = $pkg->currentPricePerWeekCents();
         @endphp
 
         <a class="pkg-card is-{{ $pkg->value }}{{ $pkg->badge() ? ' has-badge' : '' }}"
@@ -59,11 +58,6 @@
                     @endforeach
                 </ul>
             @endunless
-
-            <div class="pkg-bonus">
-                <span class="pkg-bonus-label">Bonus member benefit</span>
-                <span class="pkg-bonus-value">{{ $benefit['emoji'] }} {{ $benefit['label'] }}</span>
-            </div>
 
             <span class="pkg-cta">{{ $pkg->ctaLabel() }}</span>
         </a>

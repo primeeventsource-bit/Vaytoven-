@@ -33,9 +33,8 @@
             <div class="pkg-grid" role="radiogroup" aria-label="Member Services package">
                 @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
                     @php
-                        $benefit = $pkg->bonusBenefit();
-                        $weekly  = $pkg->currentPricePerWeekCents();
-                        $tag     = 'is-'.$pkg->value;
+                        $weekly = $pkg->currentPricePerWeekCents();
+                        $tag    = 'is-'.$pkg->value;
                     @endphp
 
                     <label class="pkg-card pkg-selectable {{ $tag }}{{ $pkg->badge() ? ' has-badge' : '' }}"
@@ -71,11 +70,6 @@
                                 </li>
                             @endforeach
                         </ul>
-
-                        <div class="pkg-bonus">
-                            <span class="pkg-bonus-label">Bonus member benefit</span>
-                            <span class="pkg-bonus-value">{{ $benefit['emoji'] }} {{ $benefit['label'] }}</span>
-                        </div>
 
                         <span class="pkg-cta pkg-choose">{{ $pkg->ctaLabel() }}</span>
                     </label>

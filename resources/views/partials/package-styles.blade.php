@@ -54,7 +54,7 @@
     }
 
     .pkg-features {
-        list-style:none; padding:0; margin:20px 0 0; text-align:left;
+        list-style:none; padding:0; margin:20px 0 24px; text-align:left;
         display:grid; gap:9px; font-size:13.5px;
     }
     .pkg-features li { display:grid; grid-template-columns:20px 1fr; gap:8px; align-items:start; }
@@ -63,18 +63,10 @@
     .pkg-tick { color:var(--magenta); font-weight:700; }
     .pkg-features li.is-excluded .pkg-tick { color:rgba(26,20,38,.3); }
 
-    .pkg-bonus {
-        margin-top:20px; padding:14px 16px; border-radius:12px;
-        background:linear-gradient(135deg,#fdf2f8,#f5f3ff); text-align:left;
-    }
-    .pkg-bonus-label {
-        display:block; font-size:10.5px; font-weight:700; letter-spacing:.12em;
-        text-transform:uppercase; color:var(--muted);
-    }
-    .pkg-bonus-value { display:block; font-size:13.5px; font-weight:600; margin-top:4px; line-height:1.4; }
-
+    /* The CTA carries the bottom spacing now that the bonus-benefit panel
+       between the feature list and the button is gone. */
     .pkg-cta {
-        display:block; margin-top:20px; padding:13px 20px; border-radius:999px;
+        display:block; margin-top:auto; padding:13px 20px; border-radius:999px;
         background:var(--gradient); color:#fff; font-weight:700; font-size:13px;
         letter-spacing:.08em;
     }

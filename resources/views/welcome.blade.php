@@ -883,15 +883,6 @@
                     @endforeach
 
                     <tr>
-                        <th>Complimentary benefit</th>
-                        @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
-                            @php($b = $pkg->bonusBenefit())
-                            <td class="{{ $pkg->value === 'gold' ? 'col-gold' : '' }}">
-                                {{ $b['emoji'] }} {{ str_replace('Complimentary ', '', $b['label']) }}
-                            </td>
-                        @endforeach
-                    </tr>
-                    <tr>
                         <th>Package position</th>
                         @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
                             <td class="{{ $pkg->value === 'gold' ? 'col-gold' : '' }}">

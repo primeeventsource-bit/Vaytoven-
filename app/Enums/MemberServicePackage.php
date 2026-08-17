@@ -104,15 +104,12 @@ enum MemberServicePackage: string
         };
     }
 
-    /** @return array{emoji:string,label:string} */
-    public function bonusBenefit(): array
-    {
-        return match ($this) {
-            self::Bronze => ['emoji' => '🍽️', 'label' => 'Complimentary Restaurant Discount Incentive'],
-            self::Silver => ['emoji' => '✈️',  'label' => 'Complimentary Airfare Incentive'],
-            self::Gold   => ['emoji' => '🚢', 'label' => 'Complimentary Cruise Incentive'],
-        };
-    }
+    // The packages deliberately carry no complimentary travel incentive.
+    // Restaurant, airfare and cruise offers were removed: a "free cruise with
+    // purchase" is a regulated promotion in several states, and advertising
+    // one without published redemption terms invites a complaint the platform
+    // has no answer to. What each tier sells is advertising and visibility,
+    // which is what the packages describe.
 
     public function ctaLabel(): string
     {
