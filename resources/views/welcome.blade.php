@@ -396,6 +396,42 @@
         .faq-item[open] summary::after { transform: rotate(45deg); }
         .faq-item-body { padding: 0 0 22px; color: var(--muted); font-size: 16px; max-width: 60ch; }
 
+        /* Member Services pricing */
+        .pricing-section { background: var(--paper-2); }
+        .pricing-grid {
+            display: grid; gap: 18px; grid-template-columns: 1fr;
+            max-width: 1000px; margin: 0 auto;
+        }
+        @media (min-width: 820px) { .pricing-grid { grid-template-columns: repeat(3, 1fr); } }
+        .pricing-card {
+            position: relative; display: block; background: #fff;
+            border: 2px solid var(--line); border-radius: 18px;
+            padding: 30px 28px; text-align: center;
+            transition: transform .18s cubic-bezier(.2,.7,.3,1), border-color .18s, box-shadow .18s;
+        }
+        .pricing-card:hover {
+            transform: translateY(-4px); border-color: var(--magenta);
+            box-shadow: 0 18px 44px -20px rgba(214,51,132,.5); text-decoration: none;
+        }
+        .pricing-card.is-featured { border-color: var(--magenta); }
+        .pricing-badge {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: var(--gradient); color: #fff; font-size: 11px; font-weight: 700;
+            letter-spacing: .1em; text-transform: uppercase; padding: 5px 14px; border-radius: 999px;
+            white-space: nowrap;
+        }
+        .pricing-name { display: block; font-size: 12px; font-weight: 700; letter-spacing: .16em; color: var(--muted); }
+        .pricing-price {
+            display: block; font-family: 'Fraunces', serif; font-size: 46px; font-weight: 600;
+            letter-spacing: -.03em; margin: 10px 0 4px;
+        }
+        .pricing-price span { font-family: 'Geist', sans-serif; font-size: 15px; font-weight: 500; color: var(--muted); }
+        .pricing-sub { display: block; font-size: 13.5px; color: var(--muted); }
+        .pricing-eg {
+            display: block; margin-top: 16px; padding-top: 14px;
+            border-top: 1px solid var(--line); font-size: 13.5px; color: var(--ink); font-weight: 500;
+        }
+
         /* Footer styles now live in partials/footer-styles, included below —
            the footer itself is a shared partial and its CSS has to travel with
            it, or every page that is not this one renders it unstyled. */
@@ -814,6 +850,48 @@
 
             <p class="earnings-disclaimer">Illustrative only — what you actually earn varies by property, season, club, and inventory, and Vaytoven guarantees no result. Guests pay you directly; we neither collect nor hold that money. We'll quote your specific portfolio after a quick call.</p>
         </div>
+    </div>
+</section>
+
+{{-- Member Services packages. This section is the reason the pricing page is
+     findable at all: the activation flow shipped reachable only from a line at
+     the foot of /members, which made it an orphan. --}}
+<section class="section pricing-section" id="pricing">
+    <div class="section-header" style="text-align:center;margin-left:auto;margin-right:auto;">
+        <div class="eyebrow">Member Services</div>
+        <h2 class="display">Pick a package, <em class="grad-text">activate online.</em></h2>
+        <p>Priced per week and charged once — not a recurring subscription. Choose your weeks and the total is calculated for you.</p>
+    </div>
+
+    <div class="pricing-grid">
+        @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
+            <a class="pricing-card{{ $pkg === \App\Enums\MemberServicePackage::Gold ? ' is-featured' : '' }}"
+               href="{{ route('member-services.show') }}"
+               data-track-audience="member" data-track-cta="home_pricing_{{ $pkg->value }}">
+                @if ($pkg === \App\Enums\MemberServicePackage::Gold)
+                    <span class="pricing-badge">Most chosen</span>
+                @endif
+                <span class="pricing-name">{{ strtoupper($pkg->label()) }}</span>
+                <span class="pricing-price">${{ number_format($pkg->currentPricePerWeekCents() / 100, 0) }}<span>/week</span></span>
+                <span class="pricing-sub">Member Services Activation</span>
+                <span class="pricing-eg">
+                    4 weeks = ${{ number_format(($pkg->currentPricePerWeekCents() * 4) / 100, 0) }}
+                </span>
+            </a>
+        @endforeach
+    </div>
+
+    <div style="text-align:center;margin-top:36px;">
+        <a href="{{ route('member-services.show') }}" class="cta-primary"
+           data-track-audience="member" data-track-cta="home_pricing_activate">
+            Activate Member Services
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+        <p style="color:var(--muted);font-size:13.5px;margin:16px 0 0;">
+            You complete the whole thing yourself online. Need a hand? Call
+            <a href="tel:+18777829868" style="text-decoration:underline;text-underline-offset:3px;">(877) 782-9868</a>
+            and we'll talk you through it.
+        </p>
     </div>
 </section>
 

@@ -300,6 +300,47 @@ class MemberServiceActivationTest extends TestCase
         }
     }
 
+    // --- it has to be findable -------------------------------------------
+
+    /**
+     * The activation flow shipped reachable only from one line at the foot of
+     * /members. It was live and correct and nobody could find it, which for a
+     * payment page is the same as not shipping it. These assert the routes a
+     * real visitor would actually take.
+     */
+    public function test_the_homepage_links_to_the_pricing_page(): void
+    {
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $this->assertStringContainsString(route('member-services.show'), $html,
+            'The homepage does not link to Member Services activation.');
+    }
+
+    public function test_the_homepage_shows_all_three_package_prices(): void
+    {
+        $text = preg_replace('/\s+/', ' ', strip_tags($this->get('/')->assertOk()->getContent()));
+
+        foreach (['$249', '$349', '$449'] as $price) {
+            $this->assertStringContainsString($price, $text, "The homepage does not show {$price}.");
+        }
+    }
+
+    public function test_the_top_nav_carries_a_pricing_tab_on_every_public_page(): void
+    {
+        foreach (['/', '/members', '/become-a-host', '/properties', '/member-services'] as $url) {
+            $this->assertStringContainsString(
+                'data-track-cta="topnav_pricing"',
+                $this->get($url)->assertOk()->getContent(),
+                "{$url} has no Pricing tab in the top nav.",
+            );
+        }
+    }
+
+    public function test_the_footer_links_to_pricing(): void
+    {
+        $this->get('/')->assertOk()->assertSee('data-track-cta="footer_pricing"', false);
+    }
+
     public function test_the_quote_helper_matches_what_gets_charged(): void
     {
         $quote = app(MemberServiceOrderFactory::class)->quote(MemberServicePackage::Silver, 5);

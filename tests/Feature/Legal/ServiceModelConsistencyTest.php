@@ -104,23 +104,51 @@ class ServiceModelConsistencyTest extends TestCase
     /**
      * The marketing pages must not contradict the contract.
      *
-     * A per-week charge is a recurring charge. Advertising one while the Terms
-     * promise a single payment for 180 days is the kind of mismatch a customer
+     * The distinction is between a fee CALCULATED per week and a fee CHARGED
+     * every week. The member packages are priced per week ($249/$349/$449) and
+     * charged once — "$449/week × 6 weeks, paid today" is accurate and is what
+     * the pricing section says.
+     *
+     * What must never appear is the framing that says the member keeps paying:
+     * "upfront weekly cost", "weekly program cost", "plus a subscription fee".
+     * That is what the page used to claim, and it is the mismatch a customer
      * discovers on their second invoice.
      */
     public function test_no_public_page_advertises_a_recurring_member_charge(): void
     {
         $pages = ['/', '/members', '/become-a-host'];
 
+        $recurringFraming = [
+            'upfront weekly',
+            'weekly program cost',
+            'weekly cost',
+            'per week plus a subscription',
+            'weekly subscription',
+        ];
+
         foreach ($pages as $url) {
             $text = preg_replace('/\s+/', ' ',
                 strip_tags($this->get($url)->assertOk()->getContent()));
 
-            foreach (['per week', 'upfront weekly', 'weekly program cost'] as $phrase) {
+            foreach ($recurringFraming as $phrase) {
                 $this->assertStringNotContainsStringIgnoringCase($phrase, $text,
-                    "{$url} advertises \"{$phrase}\", contradicting the one-time 180-day member fee.");
+                    "{$url} advertises \"{$phrase}\", which reads as a recurring charge.");
             }
         }
+    }
+
+    /**
+     * Where a weekly rate IS shown, it must say the charge happens once.
+     *
+     * "$449/week" on its own invites the reading that it bills weekly. The
+     * pricing section has to carry the qualifier next to the numbers.
+     */
+    public function test_the_pricing_section_says_the_fee_is_charged_once(): void
+    {
+        $text = preg_replace('/\s+/', ' ', strip_tags($this->get('/')->assertOk()->getContent()));
+
+        $this->assertStringContainsString('charged once', $text);
+        $this->assertStringContainsString('not a recurring subscription', $text);
     }
 
     /** The help center has to answer "which one am I on?" correctly. */

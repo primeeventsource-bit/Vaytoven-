@@ -1,11 +1,15 @@
 {{--
   Unified top nav across every public-facing branded surface.
 
-  Order is fixed (Stay → Become a Host → Members → Terms → Signup → Login) so
-  the user sees the same hierarchy on every page. The optional $current var
-  highlights the active tab — pass 'stay', 'become-a-host', 'members',
-  'terms', 'signup', or 'login'. Auth'd users see their dashboard link instead
-  of Login/Signup.
+  Order is fixed (Stay → Become a Host → Members → Pricing → Terms → Signup →
+  Login) so the user sees the same hierarchy on every page. The optional
+  $current var highlights the active tab — pass 'stay', 'become-a-host',
+  'members', 'pricing', 'terms', 'signup', or 'login'. Auth'd users see their
+  dashboard link instead of Login/Signup.
+
+  Pricing is the entry to Member Services activation. It was reachable only
+  from a line at the foot of /members when it shipped, which made it an
+  orphan — live, but invisible to anyone who did not already know the URL.
 
   Terms links to the named `terms` route, which is the friendly /terms alias
   for the canonical /legal/tos document. Nav changes are safe for the legal
@@ -79,6 +83,7 @@
         <a href="{{ route('properties.index') }}" class="{{ $current === 'stay' ? 'is-current' : '' }}" data-track-audience="traveler" data-track-cta="topnav_stay">Stay</a>
         <a href="{{ route('hosts.show') }}" class="{{ $current === 'become-a-host' ? 'is-current' : '' }}" data-track-audience="host" data-track-cta="topnav_become_host">Become a Host</a>
         <a href="{{ route('members.show') }}" class="{{ $current === 'members' ? 'is-current' : '' }}" data-track-audience="member" data-track-cta="topnav_members">Members</a>
+        <a href="{{ route('member-services.show') }}" class="{{ $current === 'pricing' ? 'is-current' : '' }}" data-track-audience="member" data-track-cta="topnav_pricing">Pricing</a>
         <a href="{{ route('terms') }}" class="{{ $current === 'terms' ? 'is-current' : '' }}" data-track-cta="topnav_terms">Terms</a>
     </div>
 

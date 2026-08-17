@@ -54,6 +54,7 @@
             <ul>
                 <li><a href="{{ route('hosts.show') }}" data-track-audience="host" data-track-cta="footer_become_host">Become a host</a></li>
                 <li><a href="{{ route('members.show') }}" data-track-audience="member" data-track-cta="footer_members_program">Members program</a></li>
+                <li><a href="{{ route('member-services.show') }}" data-track-audience="member" data-track-cta="footer_pricing">Pricing &amp; activation</a></li>
                 <li><a href="{{ route('host-resources.index') }}" data-track-audience="host" data-track-cta="footer_host_resources">Host resources</a></li>
                 <li><a href="{{ route('earnings-calculator') }}" data-track-audience="host" data-track-cta="footer_earnings_calculator">Earnings calculator</a></li>
             </ul>

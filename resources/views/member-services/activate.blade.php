@@ -1,5 +1,7 @@
 @extends('layouts.site')
 
+@php($navCurrent = 'pricing')
+
 @section('title', 'Member Services Activation · Vaytoven')
 @section('meta_description', 'Activate Vaytoven Member Services. Choose Bronze, Silver or Gold, set your number of weeks, and pay securely online.')
 
