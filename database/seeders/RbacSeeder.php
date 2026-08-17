@@ -32,7 +32,7 @@ class RbacSeeder extends Seeder
      * `level` gates privilege escalation: nobody may create, edit, or assign a
      * role at or above their own level.
      */
-    private const SYSTEM_ROLES = [
+    public const SYSTEM_ROLES = [
         'super_admin' => [
             'name' => 'Super Admin',
             'description' => 'Unrestricted access. Bypasses every permission check and is the only role that can manage roles.',
@@ -103,6 +103,44 @@ class RbacSeeder extends Seeder
                 'reports.view',
             ],
         ],
+        // Read-mostly. Can see accounts, offers and activity to answer a
+        // question, and cannot change what they are looking at — the point of
+        // the role is that a large support team is not a large blast radius.
+        'support' => [
+            'name' => 'Support',
+            'description' => 'Views accounts, offers and activity to answer questions. Cannot edit records, publish, or see billing.',
+            'level' => 30,
+            'is_super' => false,
+            'permissions' => [
+                'users.view',
+                'members.view',
+                'properties.view',
+                'offers.view',
+                'resorts.view', 'media.view',
+                'inbox.view',
+                'contracts.view',
+                'reports.view',
+            ],
+        ],
+
+        // Advertising performance without the money. Deliberately has no
+        // billing.* permission at all: campaign work needs traffic and
+        // conversion, never a card transaction or a member's payment history.
+        'marketing' => [
+            'name' => 'Marketing',
+            'description' => 'Advertising analytics, traffic, clicks and property performance. No access to payments or billing.',
+            'level' => 35,
+            'is_super' => false,
+            'permissions' => [
+                'reports.view', 'reports.export',
+                'properties.view',
+                'offers.view',
+                'media.view', 'media.upload',
+                'content.view', 'content.edit',
+                'members.view',
+            ],
+        ],
+
         'host' => [
             'name' => 'Host / Property Owner',
             'description' => 'Owns listings. Can edit and upload media for their own properties only.',

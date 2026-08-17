@@ -45,7 +45,16 @@ class RbacPermissionTest extends TestCase
         $this->seedRbac();
 
         $this->assertSame($firstCount, Permission::query()->count());
-        $this->assertSame(9, Role::query()->where('is_system', true)->count());
+
+        // Asserted against the seeder's own definition, not a literal. A
+        // hardcoded count only ever fails when someone legitimately adds a
+        // role, which trains you to bump the number; what needs guarding is
+        // that every defined role actually seeded, and that re-running does
+        // not duplicate them.
+        $this->assertSame(
+            count(\Database\Seeders\RbacSeeder::SYSTEM_ROLES),
+            Role::query()->where('is_system', true)->count(),
+        );
     }
 
     // --- Resolution through the legacy role column ------------------------

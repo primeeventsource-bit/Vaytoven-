@@ -64,6 +64,18 @@
 
         /* Shell */
         .vyt-shell { max-width:1200px; margin:0 auto; padding: 28px 24px 80px; }
+        .vyt-headsearch { flex: 1; max-width: 460px; margin: 0 24px; }
+        .vyt-headsearch input {
+            width: 100%; padding: 10px 16px; font: inherit; font-size: 14px;
+            border: 1px solid var(--line); border-radius: 999px; background: #fff;
+            outline: none;
+        }
+        .vyt-headsearch input:focus {
+            border-color: var(--magenta);
+            box-shadow: 0 0 0 3px rgba(255, 61, 138, .14);
+        }
+        @media (max-width: 860px) { .vyt-headsearch { order: 3; flex-basis: 100%; margin: 14px 0 0; max-width: none; } }
+
         .vyt-section { margin-bottom: 32px; }
         .vyt-section-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:14px; }
         .vyt-section-header h2 {
@@ -154,6 +166,17 @@
                 <div class="vyt-eyebrow">@yield('eyebrow', 'Dashboard')</div>
                 <h1>@yield('title', 'Dashboard')</h1>
             </div>
+
+            {{-- Staff search. Shown only to accounts that can actually use it,
+                 so a host or member is not handed a box that 403s. --}}
+            @if (auth()->user()?->hasPermission('users.view'))
+                <form method="GET" action="{{ route('admin.search') }}" class="vyt-headsearch">
+                    <input type="search" name="q" value="{{ request('q') }}"
+                           placeholder="Search members, properties, offers, transactions…"
+                           aria-label="Search the admin">
+                </form>
+            @endif
+
             @hasSection('header_meta')
                 <div class="vyt-faint">@yield('header_meta')</div>
             @endif

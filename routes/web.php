@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\OfferController as AdminOfferController;
 use App\Http\Controllers\Admin\PaymentProcessorController;
 use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\ServiceFeeController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserCertificateController as AdminUserCertificateController;
@@ -276,6 +277,12 @@ Route::middleware(['auth'])
             ->middleware("permission:members.view")->name("members.show");
         Route::post("members/{user}/notes", [MemberProfileController::class, "updateNotes"])
             ->middleware("permission:members.edit")->name("members.notes");
+
+        // One box over members, properties, offers and orders. Reads a name,
+        // an email, a phone number in any format, an offer reference or an NMI
+        // transaction id and works out which it was given.
+        Route::get('search', [SearchController::class, 'index'])
+            ->middleware('permission:users.view')->name('search');
 
         // Platform-wide listing activity: views, visitor map and the click
         // stream across every owner's advertisement.
