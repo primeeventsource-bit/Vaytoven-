@@ -368,6 +368,32 @@ class MemberServiceActivationTest extends TestCase
         }
     }
 
+    /**
+     * All three tiers cover exactly one property.
+     *
+     * They differ by visibility — placement, presentation, featured status,
+     * promotional exposure and support — not by listing count. The cards
+     * previously said 1 / 2 / 3 properties, so this guards against the copy
+     * drifting back to a multi-property promise the packages do not include.
+     */
+    public function test_every_package_covers_one_property(): void
+    {
+        foreach (MemberServicePackage::ordered() as $pkg) {
+            $this->assertSame(1, $pkg->propertyCount(), "{$pkg->value} is not one property.");
+            $this->assertSame('1 PROPERTY', $pkg->propertyAllowance());
+        }
+
+        foreach (['/', '/member-services'] as $url) {
+            $text = strtolower(preg_replace('/\s+/', ' ',
+                strip_tags($this->get($url)->assertOk()->getContent())));
+
+            foreach (['up to 2 propert', 'up to 3 propert', 'multi-property'] as $phrase) {
+                $this->assertStringNotContainsString($phrase, $text,
+                    "{$url} still promises more than one property.");
+            }
+        }
+    }
+
     public function test_the_quote_helper_matches_what_gets_charged(): void
     {
         $quote = app(MemberServiceOrderFactory::class)->quote(MemberServicePackage::Silver, 5);

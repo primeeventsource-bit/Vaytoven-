@@ -71,37 +71,35 @@ enum MemberServicePackage: string
     {
         return match ($this) {
             self::Bronze => 'Your First Step to Greater Visibility.',
-            self::Silver => 'Double the Opportunity. Elevate Your Exposure.',
-            self::Gold   => 'More Properties. More Features. Maximum Visibility.',
+            self::Silver => 'Stand Out. Elevate Your Exposure.',
+            self::Gold   => 'Maximum Exposure. Maximum Visibility.',
         };
     }
 
     public function description(): string
     {
         return match ($this) {
-            self::Bronze => 'Showcase one property through the Vaytoven platform with professional presentation, member inquiry tools, availability display, direct communication features, and standard platform visibility.',
-            self::Silver => 'Showcase up to two properties while unlocking enhanced visibility, featured listing capabilities, priority placement, multi-property management, enhanced promotional exposure, and priority inquiry notifications.',
-            self::Gold   => "Showcase up to three properties with Vaytoven's highest level of platform exposure. Gold unlocks premier placement, premium property presentation, featured-area eligibility, advanced multi-property management, priority support, and Vaytoven's strongest promotional feature set.",
+            self::Bronze => 'Showcase your property through the Vaytoven platform with professional presentation, member inquiry tools, availability display, direct communication features, and standard platform visibility.',
+            self::Silver => 'Showcase your property with enhanced visibility, featured listing capabilities, priority placement, enhanced promotional exposure, and priority inquiry notifications.',
+            self::Gold   => "Showcase your property with Vaytoven's highest level of platform exposure. Gold unlocks premier placement, premium property presentation, featured-area eligibility, priority support, and Vaytoven's strongest promotional feature set.",
         };
     }
 
-    /** How many property profiles the package covers. */
+    /**
+     * Every package covers one property profile.
+     *
+     * The tiers differ by how visible that property is — search placement,
+     * presentation, featured status, promotional exposure and support — not
+     * by how many listings they carry.
+     */
     public function propertyCount(): int
     {
-        return match ($this) {
-            self::Bronze => 1,
-            self::Silver => 2,
-            self::Gold   => 3,
-        };
+        return 1;
     }
 
     public function propertyAllowance(): string
     {
-        return match ($this) {
-            self::Bronze => '1 PROPERTY',
-            self::Silver => 'UP TO 2 PROPERTIES',
-            self::Gold   => 'UP TO 3 PROPERTIES',
-        };
+        return '1 PROPERTY';
     }
 
     // The packages deliberately carry no complimentary travel incentive.
@@ -134,16 +132,21 @@ enum MemberServicePackage: string
     public static function comparisonMatrix(): array
     {
         return [
-            ['label' => 'Property profiles',        'values' => ['bronze' => '1 property',  'silver' => 'Up to 2 properties', 'gold' => 'Up to 3 properties']],
-            ['label' => 'Search visibility',        'values' => ['bronze' => 'Standard',    'silver' => 'Enhanced',           'gold' => 'Premier']],
-            ['label' => 'Listing presentation',     'values' => ['bronze' => 'Professional','silver' => 'Enhanced',           'gold' => 'Premium']],
-            ['label' => 'Featured listing',         'values' => ['bronze' => '—',           'silver' => '✓',                  'gold' => '✓']],
-            ['label' => 'Priority placement',       'values' => ['bronze' => '—',           'silver' => '✓',                  'gold' => 'Highest priority']],
-            ['label' => 'Inquiry notifications',    'values' => ['bronze' => 'Standard',    'silver' => 'Priority',           'gold' => 'Priority']],
-            ['label' => 'Promotional exposure',     'values' => ['bronze' => 'Standard',    'silver' => 'Enhanced',           'gold' => 'Premium']],
-            ['label' => 'Multi-property dashboard', 'values' => ['bronze' => '—',           'silver' => '✓',                  'gold' => '✓']],
-            ['label' => 'Featured-area eligibility','values' => ['bronze' => '—',           'silver' => '—',                  'gold' => '✓']],
-            ['label' => 'Member support',           'values' => ['bronze' => 'Standard',    'silver' => 'Enhanced',           'gold' => 'Priority']],
+            // Every tier is one property. The row stays because "how many
+            // listings do I get?" is the first question a buyer asks, and
+            // answering it identically across all three is the answer.
+            ['label' => 'Property profiles',        'values' => ['bronze' => '1 property',  'silver' => '1 property', 'gold' => '1 property']],
+            ['label' => 'Search visibility',        'values' => ['bronze' => 'Standard',    'silver' => 'Enhanced',   'gold' => 'Premier']],
+            ['label' => 'Listing presentation',     'values' => ['bronze' => 'Professional','silver' => 'Enhanced',   'gold' => 'Premium']],
+            ['label' => 'Featured listing',         'values' => ['bronze' => '—',           'silver' => '✓',          'gold' => '✓']],
+            ['label' => 'Priority placement',       'values' => ['bronze' => '—',           'silver' => '✓',          'gold' => 'Highest priority']],
+            ['label' => 'Inquiry notifications',    'values' => ['bronze' => 'Standard',    'silver' => 'Priority',   'gold' => 'Priority']],
+            ['label' => 'Promotional exposure',     'values' => ['bronze' => 'Standard',    'silver' => 'Enhanced',   'gold' => 'Premium']],
+            // The multi-property dashboard row is gone with the multi-property
+            // allowance — it would have promised a feature with nothing to use
+            // it on.
+            ['label' => 'Featured-area eligibility','values' => ['bronze' => '—',           'silver' => '—',          'gold' => '✓']],
+            ['label' => 'Member support',           'values' => ['bronze' => 'Standard',    'silver' => 'Enhanced',   'gold' => 'Priority']],
         ];
     }
 
