@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityController;
 use App\Http\Controllers\Admin\ConfigCollectionController;
 use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Admin\EmailTemplateController;
@@ -266,6 +267,11 @@ Route::middleware(['auth'])
             ->middleware('permission:billing.service_fees')->name('hosting.service-fees.update');
         Route::delete('hosting/service-fees/{config}', [ServiceFeeController::class, 'destroy'])
             ->middleware('permission:billing.service_fees')->name('hosting.service-fees.destroy');
+
+        // Platform-wide listing activity: views, visitor map and the click
+        // stream across every owner's advertisement.
+        Route::get('activity', [ActivityController::class, 'index'])
+            ->middleware('permission:reports.view')->name('activity.index');
 
         // Staff-created listings. An admin builds the listing for an existing
         // account or for an owner who has none yet; the owner is emailed

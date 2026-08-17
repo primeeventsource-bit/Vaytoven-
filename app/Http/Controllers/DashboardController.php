@@ -17,6 +17,7 @@ use App\Models\SupportTicket;
 use App\Models\TermsVersion;
 use App\Models\TrackingEvent;
 use App\Models\User;
+use App\Services\Analytics\ListingAnalytics;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -125,141 +126,18 @@ class DashboardController extends Controller
     }
 
     /**
-     * Shared analytics shape for the listing-views panel — used by both the
-     * host and member dashboards. Empty listings → empty stats + empty map.
+     * Shared analytics shape for the listing-views panel.
+     *
+     * Delegates to ListingAnalytics so the host dashboard, the member
+     * dashboard and the admin activity screen report the same numbers for the
+     * same listing. Two copies of "views in the last 30 days" drift, and then
+     * a host and an admin disagree about the same property.
      *
      * @param Collection<int, Property> $listings
      */
     private function analyticsPayload(Collection $listings): array
     {
-        if ($listings->isEmpty()) {
-            return [
-                'totalViews30d'   => 0,
-                'totalViews7d'    => 0,
-                'uniqueCountries' => 0,
-                'perListingStats' => [],
-                'pinPoints'       => [],
-                'pinsByListing'   => [],
-                // The map partial reads these unconditionally, so the empty
-                // branch has to supply them too — omitting them 500s the
-                // dashboard for any host or member with no listings yet.
-                'mapboxToken'     => $this->publicMapboxTokenOrNull(config('services.mapbox.token')),
-                'mapboxStyle'     => config('services.mapbox.style'),
-            ];
-        }
-
-        $ids = $listings->pluck('id')->all();
-        $cutoff30 = now()->subDays(30);
-        $cutoff7  = now()->subDays(7);
-
-        $totalViews30d = PropertyView::whereIn('property_id', $ids)
-            ->where('occurred_at', '>=', $cutoff30)
-            ->count();
-
-        $totalViews7d = PropertyView::whereIn('property_id', $ids)
-            ->where('occurred_at', '>=', $cutoff7)
-            ->count();
-
-        $uniqueCountries = PropertyView::whereIn('property_id', $ids)
-            ->where('occurred_at', '>=', $cutoff30)
-            ->whereNotNull('country')
-            ->distinct('country')
-            ->count('country');
-
-        // Per-listing aggregates for the table.
-        $perListingStats = [];
-        foreach ($listings as $listing) {
-            $base = PropertyView::where('property_id', $listing->id);
-            $views30 = (clone $base)->where('occurred_at', '>=', $cutoff30)->count();
-            $views7  = (clone $base)->where('occurred_at', '>=', $cutoff7)->count();
-
-            $topRow = (clone $base)
-                ->where('occurred_at', '>=', $cutoff30)
-                ->whereNotNull('city')
-                ->selectRaw('city, country, count(*) as c')
-                ->groupBy('city', 'country')
-                ->orderByDesc('c')
-                ->first();
-
-            $perListingStats[$listing->id] = [
-                'views_30d'   => $views30,
-                'views_7d'    => $views7,
-                'top_city'    => $topRow?->city,
-                'top_country' => $topRow?->country,
-            ];
-        }
-
-        // Pin aggregation for the map. Group by (lat, lng) rounded so visits
-        // from the same metro stack into one pin rather than scattering.
-        $aggregate = fn ($q) => $q
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->selectRaw('round(latitude, 1) as lat, round(longitude, 1) as lng, city, country, count(*) as c')
-            ->groupBy('lat', 'lng', 'city', 'country')
-            ->orderByDesc('c');
-
-        $shape = fn ($r) => [
-            'lat'     => (float) $r->lat,
-            'lng'     => (float) $r->lng,
-            'city'    => $r->city,
-            'country' => $r->country,
-            'count'   => (int) $r->c,
-        ];
-
-        // Global pins (default map view across all listings).
-        $pinPoints = $aggregate(PropertyView::query()
-                ->whereIn('property_id', $ids)
-                ->where('occurred_at', '>=', $cutoff30))
-            ->limit(200)
-            ->get()
-            ->map($shape)
-            ->all();
-
-        // Per-listing pins so clicking a listing row in the table can zoom
-        // the map to just that listing's visitor cities (FR-12.x analytics
-        // drill-down). Keyed by property_id for cheap JS lookup.
-        $pinsByListing = [];
-        foreach ($listings as $listing) {
-            $pinsByListing[(string) $listing->id] = $aggregate(PropertyView::query()
-                    ->where('property_id', $listing->id)
-                    ->where('occurred_at', '>=', $cutoff30))
-                ->limit(100)
-                ->get()
-                ->map($shape)
-                ->all();
-        }
-
-        return [
-            'totalViews30d'   => $totalViews30d,
-            'totalViews7d'    => $totalViews7d,
-            'uniqueCountries' => $uniqueCountries,
-            'perListingStats' => $perListingStats,
-            'pinPoints'       => $pinPoints,
-            'pinsByListing'   => $pinsByListing,
-            // Only expose a Mapbox PUBLIC token (pk.*) to the browser. Secret
-            // tokens (sk.*) have scopes like manage-uploads / create-tokens
-            // and must never leave the server — if env contains one, fall
-            // back to OSM and log so ops can rotate it. Tokens are otherwise
-            // designed for client-side use, restricted by URL referrer in the
-            // Mapbox dashboard.
-            'mapboxToken'     => $this->publicMapboxTokenOrNull(config('services.mapbox.token')),
-            'mapboxStyle'     => config('services.mapbox.style'),
-        ];
-    }
-
-    private function publicMapboxTokenOrNull(?string $token): ?string
-    {
-        if (! $token) {
-            return null;
-        }
-        if (str_starts_with($token, 'pk.')) {
-            return $token;
-        }
-        // sk.* (secret) or anything else — don't ship to the browser.
-        \Illuminate\Support\Facades\Log::warning(
-            'mapbox: MAPBOX_API does not begin with pk.* — refusing to expose. Falling back to OSM tiles. Rotate at https://account.mapbox.com/access-tokens/'
-        );
-        return null;
+        return app(ListingAnalytics::class)->payload($listings);
     }
 
     private function adminPayload(): array
