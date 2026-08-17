@@ -160,9 +160,15 @@ return new class extends Migration
      */
     private function assertTriggersExist(): void
     {
-        $present = collect(DB::select('SHOW TRIGGERS LIKE ?', ['tracking_events']))
-            ->pluck('Trigger')
-            ->all();
+        // information_schema rather than SHOW TRIGGERS: MySQL rejects a
+        // placeholder in SHOW TRIGGERS LIKE ? with a 1064 syntax error, and
+        // interpolating a table name into SQL to work around that is a habit
+        // worth not starting.
+        $present = collect(DB::select(
+            'SELECT TRIGGER_NAME FROM information_schema.TRIGGERS '
+            .'WHERE TRIGGER_SCHEMA = DATABASE() AND EVENT_OBJECT_TABLE = ?',
+            ['tracking_events']
+        ))->pluck('TRIGGER_NAME')->all();
 
         foreach (array_keys(self::TRIGGERS) as $name) {
             if (! in_array($name, $present, true)) {
