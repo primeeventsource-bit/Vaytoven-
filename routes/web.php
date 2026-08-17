@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\FeatureFlagController;
 use App\Http\Controllers\Admin\InboxController;
+use App\Http\Controllers\Admin\MemberProfileController;
 use App\Http\Controllers\Admin\MemberServiceOrderController as AdminMemberServiceOrderController;
 use App\Http\Controllers\Admin\OfferController as AdminOfferController;
 use App\Http\Controllers\Admin\PaymentProcessorController;
@@ -267,6 +268,12 @@ Route::middleware(['auth'])
             ->middleware('permission:billing.service_fees')->name('hosting.service-fees.update');
         Route::delete('hosting/service-fees/{config}', [ServiceFeeController::class, 'destroy'])
             ->middleware('permission:billing.service_fees')->name('hosting.service-fees.destroy');
+
+        // Member 360 — one screen holding everything about one member.
+        Route::get("members/{user}", [MemberProfileController::class, "show"])
+            ->middleware("permission:members.view")->name("members.show");
+        Route::post("members/{user}/notes", [MemberProfileController::class, "updateNotes"])
+            ->middleware("permission:members.edit")->name("members.notes");
 
         // Platform-wide listing activity: views, visitor map and the click
         // stream across every owner's advertisement.

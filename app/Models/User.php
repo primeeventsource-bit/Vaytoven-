@@ -37,6 +37,10 @@ class User extends Authenticatable
         // drop it and the forced change would never happen.
         'must_change_password',
         'password_changed_at',
+        // Free-text staff notes on the member profile. Without this in
+        // $fillable, update() drops it and the form appears to save while
+        // changing nothing.
+        'staff_notes',
     ];
 
     protected $hidden = [
