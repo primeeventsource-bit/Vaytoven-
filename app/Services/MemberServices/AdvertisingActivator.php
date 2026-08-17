@@ -62,15 +62,29 @@ class AdvertisingActivator
         $endsAt = $startsAt->copy()->addWeeks($order->weeks);
 
         return DB::transaction(function () use ($order, $properties, $actor, $startsAt, $endsAt) {
-            return $properties->map(fn (Property $property) => AdvertisingPeriod::create([
-                'member_service_order_id' => $order->id,
-                'property_id'             => $property->id,
-                'starts_at'               => $startsAt,
-                'ends_at'                 => $endsAt,
-                'activated_at'            => now(),
-                'activated_by_user_id'    => $actor->id,
-                'status'                  => AdvertisingPeriodStatus::Active,
-            ]));
+            return $properties->map(function (Property $property) use ($order, $actor, $startsAt, $endsAt) {
+                $period = AdvertisingPeriod::create([
+                    'member_service_order_id' => $order->id,
+                    'property_id'             => $property->id,
+                    'starts_at'               => $startsAt,
+                    'ends_at'                 => $endsAt,
+                    'activated_at'            => now(),
+                    'activated_by_user_id'    => $actor->id,
+                    'status'                  => AdvertisingPeriodStatus::Active,
+                ]);
+
+                // Freeze the ad as it goes live. Without this, a dispute six
+                // months from now could only be answered with the CURRENT
+                // listing, which may share nothing with what actually ran
+                // during the period the member paid for.
+                app(\App\Services\Listings\PropertySnapshotter::class)->capture(
+                    $property,
+                    \App\Models\PropertySnapshot::REASON_ACTIVATED,
+                    $actor,
+                );
+
+                return $period;
+            });
         });
     }
 

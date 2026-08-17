@@ -213,6 +213,28 @@ class EvidenceBundleService
                 ->all()
             : [];
 
+        // The advertisements as published, for the properties this member had
+        // running. Each carries the hash recorded at capture, so the copy in
+        // the pack can be shown not to have been edited since.
+        $snapshots = $email
+            ? \App\Models\PropertySnapshot::query()
+                ->whereIn('property_id', \App\Models\AdvertisingPeriod::query()
+                    ->whereIn('member_service_order_id',
+                        \App\Models\MemberServiceOrder::where('email', $email)->select('id'))
+                    ->select('property_id'))
+                ->orderBy('captured_at')
+                ->get()
+                ->map(fn ($s) => [
+                    'property_id'  => $s->property_id,
+                    'reason'       => $s->reason,
+                    'captured_at'  => $s->captured_at?->toIso8601String(),
+                    'content_hash' => $s->content_hash,
+                    'intact'       => $s->isIntact(),
+                    'content'      => $s->content,
+                ])
+                ->all()
+            : [];
+
         return new EvidenceBundle(
             booking_id: $booking?->id,
             user_id: $userId,
@@ -228,6 +250,7 @@ class EvidenceBundleService
             generated_at: CarbonImmutable::now()->toIso8601String(),
             member_service_orders: $orders,
             advertising_periods: $periods,
+            ad_snapshots: $snapshots,
         );
     }
 }

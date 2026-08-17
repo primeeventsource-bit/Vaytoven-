@@ -33,6 +33,9 @@ final readonly class EvidenceBundle
         // transaction, which is the one thing a processor asks for.
         public array $member_service_orders = [],
         public array $advertising_periods = [],
+        // What the advertisement actually said while it ran. The current
+        // listing may share nothing with the version the member paid for.
+        public array $ad_snapshots = [],
     ) {
     }
 
@@ -54,6 +57,7 @@ final readonly class EvidenceBundle
             'contracts' => $this->contracts,
             'member_service_orders' => $this->member_service_orders,
             'advertising_periods' => $this->advertising_periods,
+            'ad_snapshots' => $this->ad_snapshots,
             'generated_at' => $this->generated_at,
         ];
     }

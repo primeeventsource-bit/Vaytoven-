@@ -170,6 +170,42 @@
     <div class="empty">No advertising periods recorded.</div>
 @endif
 
+{{-- What the advertisement actually said while it ran. The live listing may
+     share nothing with the version the member paid for. --}}
+<h2>Advertisement as published</h2>
+@if(count($ad_snapshots ?? []) > 0)
+    @foreach($ad_snapshots as $snap)
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2">
+                        {{ $snap['content']['title'] ?? 'Listing #'.$snap['property_id'] }}
+                        — captured {{ $snap['captured_at'] }} ({{ $snap['reason'] }})
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Location</td><td>{{ trim(($snap['content']['city'] ?? '').' '.($snap['content']['country'] ?? '')) ?: '—' }}</td></tr>
+                <tr><td>Nightly rate</td><td>${{ number_format(($snap['content']['base_nightly_cents'] ?? 0) / 100, 2) }}</td></tr>
+                <tr><td>Sleeps</td><td>{{ $snap['content']['capacity'] ?? '—' }}</td></tr>
+                <tr><td>Status when captured</td><td>{{ $snap['content']['status'] ?? '—' }}</td></tr>
+                <tr>
+                    <td>Integrity</td>
+                    <td class="mono">
+                        {{-- The hash recorded at capture. A snapshot that no
+                             longer matches its own hash is flagged rather than
+                             presented as evidence. --}}
+                        {{ substr($snap['content_hash'], 0, 32) }}…
+                        {{ ($snap['intact'] ?? false) ? '(verified unaltered)' : '(FAILED INTEGRITY CHECK)' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    @endforeach
+@else
+    <div class="empty">No advertisement snapshots recorded.</div>
+@endif
+
 {{-- ============================================================ --}}
 <h2>Charges &amp; refunds</h2>
 @if(count($charges) > 0)

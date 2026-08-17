@@ -141,6 +141,13 @@ $this->app->singleton(GeoIpService::class, function ($app) {
         \App\Models\MemberEnquiry::observe(\App\Observers\ExchangeDetectionObserver::class);
         \App\Models\Property::observe(\App\Observers\ExchangeDetectionObserver::class);
 
+        // Keeps a point-in-time copy of a listing whenever a material field
+        // changes. Registered on the model rather than called from each
+        // controller: listings are edited from the host dashboard, the admin
+        // console and anywhere added later, and a snapshot that relies on the
+        // editor remembering is missing exactly when it is needed.
+        \App\Models\Property::observe(\App\Observers\PropertyObserver::class);
+
         $this->registerPermissionGates();
     }
 
