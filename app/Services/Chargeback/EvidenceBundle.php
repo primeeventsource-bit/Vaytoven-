@@ -26,6 +26,13 @@ final readonly class EvidenceBundle
         public array $passive_events,            // last by FR-10.6
         public array $contracts,                 // DocuSign contracts (signed agreements)
         public string $generated_at,             // ISO-8601
+        // Vaytoven's own billing — what the member actually paid for, and the
+        // advertising that was delivered against it. The bundle previously
+        // carried only booking charges, so a certificate for a member who paid
+        // for Member Services showed their logins and contracts but not the
+        // transaction, which is the one thing a processor asks for.
+        public array $member_service_orders = [],
+        public array $advertising_periods = [],
     ) {
     }
 
@@ -45,6 +52,8 @@ final readonly class EvidenceBundle
             'consumption_events_count' => count($this->consumption_events),
             'passive_events_count' => count($this->passive_events),
             'contracts' => $this->contracts,
+            'member_service_orders' => $this->member_service_orders,
+            'advertising_periods' => $this->advertising_periods,
             'generated_at' => $this->generated_at,
         ];
     }

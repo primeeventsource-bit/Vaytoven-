@@ -164,6 +164,55 @@ class EvidenceBundleService
                 ->all()
             : [];
 
+        // Vaytoven's own billing. Matched by the user's email, because
+        // activation is a public flow that does not require an account — the
+        // order and the user are linked by the address the member typed.
+        $email = $userId ? \App\Models\User::find($userId)?->email : null;
+
+        $orders = $email
+            ? \App\Models\MemberServiceOrder::where('email', $email)
+                ->orderBy('created_at')
+                ->get()
+                ->map(fn ($o) => [
+                    'reference'            => $o->reference,
+                    'package'              => $o->package->label(),
+                    'weeks'                => $o->weeks,
+                    'price_per_week_cents' => $o->price_per_week_cents,
+                    'total_cents'          => $o->total_cents,
+                    'currency'             => $o->currency,
+                    'status'               => $o->status->value,
+                    'paid_at'              => $o->paid_at?->toIso8601String(),
+                    // The processor's own reference is the single most useful
+                    // field in this entire bundle when a dispute is filed.
+                    'nmi_transaction_id'   => $o->nmi_transaction_id,
+                    'nmi_authcode'         => $o->nmi_authcode,
+                    'submitted_ip'         => $o->submitted_ip,
+                    'created_at'           => $o->created_at?->toIso8601String(),
+                ])
+                ->all()
+            : [];
+
+        // Fulfilment: which property was advertised, for how long, from when.
+        // A receipt proves a charge; this proves the service was delivered.
+        $periods = $email
+            ? \App\Models\AdvertisingPeriod::query()
+                ->whereIn('member_service_order_id',
+                    \App\Models\MemberServiceOrder::where('email', $email)->select('id'))
+                ->with('property:id,title,city,country')
+                ->orderBy('starts_at')
+                ->get()
+                ->map(fn ($p) => [
+                    'property_id'    => $p->property_id,
+                    'property_title' => $p->property?->title,
+                    'property_city'  => $p->property?->city,
+                    'starts_at'      => $p->starts_at?->toIso8601String(),
+                    'ends_at'        => $p->ends_at?->toIso8601String(),
+                    'activated_at'   => $p->activated_at?->toIso8601String(),
+                    'status'         => $p->effectiveStatus()->value,
+                ])
+                ->all()
+            : [];
+
         return new EvidenceBundle(
             booking_id: $booking?->id,
             user_id: $userId,
@@ -177,6 +226,8 @@ class EvidenceBundleService
             passive_events: $passive,
             contracts: $contracts,
             generated_at: CarbonImmutable::now()->toIso8601String(),
+            member_service_orders: $orders,
+            advertising_periods: $periods,
         );
     }
 }

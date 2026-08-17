@@ -51,6 +51,11 @@ class MemberProfileAssembler
             'member'      => $user,
             'properties'  => $properties,
             'orders'      => $orders,
+            'periods'     => \App\Models\AdvertisingPeriod::query()
+                ->whereIn('member_service_order_id', $orders->pluck('id'))
+                ->with(['property:id,title,city', 'activatedBy:id,email'])
+                ->orderByDesc('starts_at')
+                ->get(),
             'package'     => $this->currentPackage($orders),
             'offers'      => $this->offers($user),
             'contracts'   => Contract::query()

@@ -54,6 +54,59 @@ class MemberServiceOrderController extends Controller
         ]);
     }
 
+    /**
+     * Turn a paid order into running advertising.
+     *
+     * Separate from payment on purpose: money arriving and a listing going
+     * live are different events, often days apart, and a dispute needs both
+     * timestamps rather than an assumption that one implies the other.
+     */
+    public function activate(
+        Request $request,
+        MemberServiceOrder $order,
+        \App\Services\MemberServices\AdvertisingActivator $activator,
+    ): \Illuminate\Http\RedirectResponse {
+        $validated = $request->validate([
+            'property_ids'   => ['required', 'array', 'min:1'],
+            'property_ids.*' => ['integer', 'exists:properties,id'],
+            'starts_at'      => ['nullable', 'date'],
+        ]);
+
+        $properties = \App\Models\Property::whereIn('id', $validated['property_ids'])->get();
+
+        try {
+            $periods = $activator->activate(
+                order: $order,
+                properties: $properties,
+                actor: $request->user(),
+                startsAt: isset($validated['starts_at'])
+                    ? \Illuminate\Support\Carbon::parse($validated['starts_at'])
+                    : null,
+            );
+        } catch (\RuntimeException $e) {
+            return back()->withErrors(['property_ids' => $e->getMessage()]);
+        }
+
+        \App\Services\AdminAuditLogService::log(
+            actor:     $request->user(),
+            action:    'advertising.activated',
+            subject:   $order,
+            payload:   [
+                'reference'   => $order->reference,
+                'properties'  => $properties->pluck('id')->all(),
+                'ends_at'     => $periods->first()?->ends_at?->toIso8601String(),
+            ],
+            ipAddress: $request->ip(),
+        );
+
+        return back()->with('success', sprintf(
+            'Advertising activated for %d %s until %s.',
+            $periods->count(),
+            \Illuminate\Support\Str::plural('property', $periods->count()),
+            $periods->first()?->ends_at?->format('M j, Y'),
+        ));
+    }
+
     /** Cancel an unpaid order so its link stops working. */
     public function cancel(Request $request, MemberServiceOrder $order): \Illuminate\Http\RedirectResponse
     {

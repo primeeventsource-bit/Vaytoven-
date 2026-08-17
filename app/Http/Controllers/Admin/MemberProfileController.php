@@ -20,9 +20,10 @@ use Illuminate\View\View;
 class MemberProfileController extends Controller
 {
     private const TABS = [
-        'overview'   => 'Overview',
-        'properties' => 'Properties',
-        'analytics'  => 'Analytics',
+        'overview'    => 'Overview',
+        'properties'  => 'Properties',
+        'advertising' => 'Advertising',
+        'analytics'   => 'Analytics',
         'offers'     => 'Offers',
         'documents'  => 'Contracts & documents',
         'payments'   => 'Payments',

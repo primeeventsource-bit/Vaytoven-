@@ -115,6 +115,62 @@
 @endif
 
 {{-- ============================================================ --}}
+{{-- Vaytoven's own billing. This is the transaction a processor asks about
+     when a Member Services payment is disputed; the charges table below it
+     belongs to the retired booking product and will be empty. --}}
+<h2>Member Services orders</h2>
+@if(count($member_service_orders ?? []) > 0)
+    <table>
+        <thead>
+            <tr>
+                <th>Order</th><th>Package</th><th>Weeks</th><th>Amount</th>
+                <th>Status</th><th>Transaction</th><th>Paid</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach($member_service_orders as $o)
+            <tr>
+                <td class="mono">{{ $o['reference'] }}</td>
+                <td>{{ $o['package'] }}</td>
+                <td>{{ $o['weeks'] }} &times; ${{ number_format(($o['price_per_week_cents'] ?? 0) / 100, 2) }}</td>
+                <td>${{ number_format(($o['total_cents'] ?? 0) / 100, 2) }} {{ $o['currency'] }}</td>
+                <td>{{ $o['status'] }}</td>
+                <td class="mono">{{ $o['nmi_transaction_id'] ?? '—' }}</td>
+                <td class="mono">{{ $o['paid_at'] ?? '—' }}</td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+@else
+    <div class="empty">No Member Services orders for this account.</div>
+@endif
+
+{{-- Fulfilment. A receipt proves a charge; this proves the advertising was
+     actually delivered, against a named property, for a stated period. --}}
+<h2>Advertising delivered</h2>
+@if(count($advertising_periods ?? []) > 0)
+    <table>
+        <thead>
+            <tr><th>Property</th><th>Location</th><th>From</th><th>To</th><th>Activated</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+        @foreach($advertising_periods as $p)
+            <tr>
+                <td>{{ $p['property_title'] ?? ('#'.$p['property_id']) }}</td>
+                <td>{{ $p['property_city'] ?? '—' }}</td>
+                <td class="mono">{{ $p['starts_at'] }}</td>
+                <td class="mono">{{ $p['ends_at'] }}</td>
+                <td class="mono">{{ $p['activated_at'] ?? '—' }}</td>
+                <td>{{ $p['status'] }}</td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+@else
+    <div class="empty">No advertising periods recorded.</div>
+@endif
+
+{{-- ============================================================ --}}
 <h2>Charges &amp; refunds</h2>
 @if(count($charges) > 0)
     <table>

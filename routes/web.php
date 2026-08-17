@@ -295,6 +295,8 @@ Route::middleware(['auth'])
             ->middleware('permission:billing.view')->name('member-services.index');
         Route::post('member-services/{order}/cancel', [AdminMemberServiceOrderController::class, 'cancel'])
             ->middleware('permission:billing.manage')->name('member-services.cancel');
+        Route::post('member-services/{order}/activate', [AdminMemberServiceOrderController::class, 'activate'])
+            ->middleware('permission:properties.publish')->name('member-services.activate');
 
         // Everything the public forms produce. Without this the /contact and
         // /trip-support forms would be write-only.
