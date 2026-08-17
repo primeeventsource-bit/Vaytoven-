@@ -19,7 +19,7 @@ final class SettingsSchema
 {
     public const GROUPS = [
         'general' => 'General',
-        'booking' => 'Booking',
+        'member_services' => 'Member Services',
         'fees' => 'Fees',
         'payments' => 'Payments',
         'mlp' => 'Managed Listings',
@@ -138,6 +138,16 @@ final class SettingsSchema
             // booking.stay_checkout_enabled went with them, which is what
             // makes the removal permanent: there is no longer a switch to
             // turn the checkout back on.
+
+            // ----------------------------------------------- member services
+            // The three activation packages, priced per week. An order
+            // snapshots the rate it was created at, so changing a price here
+            // never reprices a payment link a member is already holding.
+            'member_services.bronze_price_per_week_cents' => ['member_services', 'cents', 24900, 'Bronze — price per week', ['integer', 'min:0'], 'Charged once, as rate x weeks. Not a recurring weekly charge.'],
+            'member_services.silver_price_per_week_cents' => ['member_services', 'cents', 34900, 'Silver — price per week', ['integer', 'min:0']],
+            'member_services.gold_price_per_week_cents' => ['member_services', 'cents', 44900, 'Gold — price per week', ['integer', 'min:0']],
+            'member_services.max_weeks' => ['member_services', 'int', 52, 'Maximum weeks per order', ['integer', 'between:1,260'], 'Upper bound on the weeks field, so a typo cannot create a six-figure order.'],
+            'member_services.link_ttl_days' => ['member_services', 'int', 7, 'Payment link lifetime (days)', ['integer', 'between:1,90']],
 
             // ---------------------------------------------------------- fees
             'fees.active_schedule_id' => ['fees', 'int', 0, 'Active fee schedule', ['integer', 'min:0'], '0 = use the scalar percentages below.'],

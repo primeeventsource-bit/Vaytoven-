@@ -256,6 +256,15 @@
                 <a href="/#members" class="members-hero-cta" data-track-audience="member" data-track-cta="members_page_apply_footer">
                     Request a call →
                 </a>
+                {{-- Members who already know what they want can activate and
+                     pay themselves, without waiting for a call back. --}}
+                <p style="margin:22px 0 0;font-size:14px;">
+                    <a href="{{ route('member-services.show') }}"
+                       style="color:#fff;text-decoration:underline;text-underline-offset:3px;"
+                       data-track-audience="member" data-track-cta="members_page_activate">
+                        Already spoken to us? Activate Member Services →
+                    </a>
+                </p>
             </div>
         </section>
     </main>

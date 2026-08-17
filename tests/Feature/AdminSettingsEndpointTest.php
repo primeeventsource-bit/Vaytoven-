@@ -85,11 +85,14 @@ class AdminSettingsEndpointTest extends TestCase
 
     public function test_api_rejects_unknown_setting_keys(): void
     {
+        // Was the "booking" group, which no longer exists — that made this
+        // 404 on the group before it could reject the key, so it stopped
+        // testing what it is named after.
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->putJson('/api/v1/admin/settings/booking', ['settings' => ['booking.nonsense' => 1]])
+            ->putJson('/api/v1/admin/settings/fees', ['settings' => ['fees.nonsense' => 1]])
             ->assertStatus(422);
 
-        $this->assertArrayHasKey('booking.nonsense', $response->json('errors'));
+        $this->assertArrayHasKey('fees.nonsense', $response->json('errors'));
     }
 
     public function test_api_settings_read_redacts_sensitive_values(): void

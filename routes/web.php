@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\FeatureFlagController;
 use App\Http\Controllers\Admin\InboxController;
+use App\Http\Controllers\Admin\MemberServiceOrderController as AdminMemberServiceOrderController;
 use App\Http\Controllers\Admin\OfferController as AdminOfferController;
 use App\Http\Controllers\Admin\PaymentProcessorController;
 use App\Http\Controllers\Admin\RoleController;
@@ -18,6 +19,8 @@ use App\Http\Controllers\Client\ContractController as ClientContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HelpController;
+use App\Http\Controllers\MemberPaymentController;
+use App\Http\Controllers\MemberServicesController;
 use App\Http\Controllers\HostingEnquiryController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\MemberEnquiryController;
@@ -45,6 +48,26 @@ Route::post('/members/enquiry', [MemberEnquiryController::class, 'store'])
 // ---------------------------------------------------------------------------
 Route::view('/become-a-host', 'hosts.show')->name('hosts.show');
 Route::view('/members', 'members.show')->name('members.show');
+
+// Member Services activation and payment.
+//
+// This is the one money flow Vaytoven operates, and it collects Vaytoven's own
+// fee — advertising and listing services billed to the member. It is not a
+// stay, and no money here belongs to anyone else.
+//
+// The member completes both steps themselves on their own device; staff may
+// talk them through it by phone but never enter card details or submit on
+// their behalf, so every sale is a customer-initiated e-commerce transaction.
+Route::get('/member-services', [MemberServicesController::class, 'show'])->name('member-services.show');
+Route::post('/member-services', [MemberServicesController::class, 'store'])
+    ->middleware('throttle:10,1')->name('member-services.store');
+
+// The reference is the credential here, so the page is rate limited: without
+// it, the URL space could be walked to find live orders.
+Route::get('/member-payment/{reference}', [MemberPaymentController::class, 'show'])
+    ->middleware('throttle:60,1')->name('member-payment.show');
+Route::post('/member-payment/{reference}', [MemberPaymentController::class, 'pay'])
+    ->middleware('throttle:10,1')->name('member-payment.pay');
 
 // ---------------------------------------------------------------------------
 // Company + resource pages. These replaced the footer's `href="#"` links, and
@@ -237,6 +260,12 @@ Route::middleware(['auth'])
             ->middleware('permission:billing.service_fees')->name('hosting.service-fees.update');
         Route::delete('hosting/service-fees/{config}', [ServiceFeeController::class, 'destroy'])
             ->middleware('permission:billing.service_fees')->name('hosting.service-fees.destroy');
+
+        // Member Services activations — what was ordered and whether it paid.
+        Route::get('member-services', [AdminMemberServiceOrderController::class, 'index'])
+            ->middleware('permission:billing.view')->name('member-services.index');
+        Route::post('member-services/{order}/cancel', [AdminMemberServiceOrderController::class, 'cancel'])
+            ->middleware('permission:billing.manage')->name('member-services.cancel');
 
         // Everything the public forms produce. Without this the /contact and
         // /trip-support forms would be write-only.
