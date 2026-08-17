@@ -63,6 +63,14 @@ class MemberProfileAssembler
                 ->orWhere('client_email', $user->email)
                 ->orderByDesc('created_at')
                 ->get(),
+            'documents'   => \App\Models\MemberDocument::query()
+                ->where('user_id', $user->id)
+                ->with('uploadedBy:id,email')
+                ->orderByDesc('created_at')
+                ->get(),
+            // Drives whether the upload form renders at all — see
+            // DocumentStorage. Uploads are refused rather than silently lost.
+            'storageDurable' => \App\Support\Storage\DocumentStorage::isDurable(),
             'enquiries'   => MemberEnquiry::query()
                 ->where('email', $user->email)
                 ->orderByDesc('created_at')

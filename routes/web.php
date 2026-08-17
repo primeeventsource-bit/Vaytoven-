@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\FeatureFlagController;
 use App\Http\Controllers\Admin\InboxController;
+use App\Http\Controllers\Admin\MemberDocumentController;
 use App\Http\Controllers\Admin\MemberProfileController;
 use App\Http\Controllers\Admin\MemberServiceOrderController as AdminMemberServiceOrderController;
 use App\Http\Controllers\Admin\OfferController as AdminOfferController;
@@ -277,6 +278,15 @@ Route::middleware(['auth'])
             ->middleware("permission:members.view")->name("members.show");
         Route::post("members/{user}/notes", [MemberProfileController::class, "updateNotes"])
             ->middleware("permission:members.edit")->name("members.notes");
+
+        // Member document store. Downloads are audited, so they go through the
+        // controller rather than a public disk URL.
+        Route::post('members/{user}/documents', [MemberDocumentController::class, 'store'])
+            ->middleware('permission:members.edit')->name('members.documents.store');
+        Route::get('members/{user}/documents/{document}', [MemberDocumentController::class, 'download'])
+            ->middleware('permission:members.view')->name('members.documents.download');
+        Route::delete('members/{user}/documents/{document}', [MemberDocumentController::class, 'destroy'])
+            ->middleware('permission:members.edit')->name('members.documents.destroy');
 
         // One box over members, properties, offers and orders. Reads a name,
         // an email, a phone number in any format, an offer reference or an NMI
