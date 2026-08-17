@@ -41,13 +41,29 @@ class TrackingService
         // Strip anything from metadata that we don't want stored.
         $metadata = $this->filterMetadata($metadata ?? []);
 
-        // GeoIP enrichment (FR-10.5). Stored inside metadata.geo so the event
-        // schema doesn't need new columns. Lookup failures are silent — the
+        // GeoIP enrichment (FR-10.5). Lookup failures are silent — the
         // GeoIpService contract guarantees no exceptions bubble up.
+        $geoColumns = [];
+
         if ($ipAddress) {
             $geo = $this->geoIp->lookup($ipAddress);
+
             if ($geo->isResolved() || $geo->is_vpn || $geo->is_tor || $geo->is_datacenter) {
+                // Kept in metadata.geo, where it has always lived and where
+                // the fraud signals (vpn/tor/datacenter/asn) belong.
                 $metadata['geo'] = $geo->toArray();
+
+                // ...and promoted to columns. The engagement map aggregates
+                // clicks by city over a date range, and a JSON path is neither
+                // indexable nor written the same way across SQLite and MySQL —
+                // the alternative was pulling every row into PHP to group it.
+                $geoColumns = [
+                    'country'   => $geo->country,
+                    'region'    => $geo->region,
+                    'city'      => $geo->city,
+                    'latitude'  => $geo->latitude,
+                    'longitude' => $geo->longitude,
+                ];
             }
         }
 
@@ -61,7 +77,7 @@ class TrackingService
             'metadata' => $metadata,
             // event_uuid, occurred_at, parent_hash, current_hash are filled by
             // the model's creating hook (Phase 2E).
-        ]);
+        ] + $geoColumns);
     }
 
     /**

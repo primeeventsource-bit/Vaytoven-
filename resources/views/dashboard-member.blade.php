@@ -185,4 +185,8 @@
         'mapboxStyle'     => $mapboxStyle,
     ])
 
+    {{-- Where the advertisement is getting attention. Approximate cities and
+         counts only — the identifying detail stays on the admin side. --}}
+    @include('partials.engagement-map')
+
 @endsection

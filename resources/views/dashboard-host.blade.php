@@ -17,6 +17,10 @@
         'mapboxStyle'     => $mapboxStyle,
     ])
 
+    {{-- Where the advertisement is getting attention. Approximate cities and
+         counts only — the identifying detail stays on the admin side. --}}
+    @include('partials.engagement-map')
+
     {{-- The "Recent bookings" panel is gone with the rest of the booking
          product. A host's funnel here is offers on their listings, which
          /account/listing-offers already shows. --}}

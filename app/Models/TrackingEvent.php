@@ -22,6 +22,14 @@ class TrackingEvent extends Model
         'visitor_id',
         'surface',
         'ip_address',
+        // Resolved from the IP at write time. Also present in metadata.geo;
+        // these exist so the engagement map can group by city in SQL rather
+        // than pulling every row into PHP.
+        'country',
+        'region',
+        'city',
+        'latitude',
+        'longitude',
         'user_agent',
         'metadata',
         'parent_hash',

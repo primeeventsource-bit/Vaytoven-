@@ -18,6 +18,7 @@ use App\Models\TermsVersion;
 use App\Models\TrackingEvent;
 use App\Models\User;
 use App\Services\Analytics\ListingAnalytics;
+use App\Services\Analytics\MemberEngagementMap;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -74,6 +75,7 @@ class DashboardController extends Controller
         return [
             'me' => $user,
             'listings' => $listings,
+            'engagement' => $this->engagementMap($listings),
         ] + $this->analyticsPayload($listings);
     }
 
@@ -122,6 +124,7 @@ class DashboardController extends Controller
             'myEnquiry' => $myEnquiry,
             'offers' => $offers,
             'pendingOfferCount' => $pendingOfferCount,
+            'engagement' => $this->engagementMap($listings),
         ] + $this->analyticsPayload($listings);
     }
 
@@ -138,6 +141,23 @@ class DashboardController extends Controller
     private function analyticsPayload(Collection $listings): array
     {
         return app(ListingAnalytics::class)->payload($listings);
+    }
+
+    /**
+     * The privacy-safe engagement map a member or host sees.
+     *
+     * Deliberately a different service from the admin analytics: this one
+     * emits approximate cities and counts and nothing else. Login IPs,
+     * contract IPs, device details and payment history stay on the admin side.
+     */
+    private function engagementMap(Collection $listings): array
+    {
+        $days = (int) request()->query('engagement_days', 30);
+        $days = array_key_exists($days, MemberEngagementMap::WINDOWS) ? $days : 30;
+
+        $propertyId = request()->integer('engagement_property') ?: null;
+
+        return app(MemberEngagementMap::class)->build($listings, $days, $propertyId);
     }
 
     private function adminPayload(): array
