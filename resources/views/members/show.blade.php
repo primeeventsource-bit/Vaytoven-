@@ -197,33 +197,13 @@
                     <p>Vaytoven advertises; it does not take the reservation or become a party to your arrangement with the guest. You remain the one who agrees the stay. Ownership agreements differ on what they permit, so check yours — we'll talk through what applies to your property on the onboarding call, and we'll tell you before any commitment if we think it's a poor fit.</p>
                 </details>
                 <details>
-                    <summary>What does the one-time fee cover?</summary>
-                    <p>A 180-day managed advertising and listing term. Over that period we assist with building the listing, keep the advertisement running on the platform, and market Vaytoven itself to generate public exposure for participating listings — plus your member dashboard and the platform the listing runs on. We quote the exact figure for your specific portfolio in writing before commitment.</p>
-                </details>
-                <details>
                     <summary>Is this a subscription? Will it bill me again?</summary>
                     <p>No. The 180-Day Member Managed Listing Program is a <strong>one-time fee</strong> — it is not a recurring subscription and it does not auto-bill. If you want to continue after the 180 days, that's a decision you make at the time.</p>
                     <p>The <a href="{{ route('hosts.show') }}">Host 30-Day Subscription</a> is the separate option: a recurring 30-day subscription for hosts who want to create and manage their own listings through the dashboard rather than have us do it.</p>
                 </details>
                 <details>
-                    <summary>Can fees go up after I sign?</summary>
-                    <p>No, not without your written consent. The Member Agreement explicitly commits us to the quoted figures for the term. If we propose changes at renewal, you get plenty of notice and can decline.</p>
-                </details>
-                <details>
-                    <summary>What happens if I want to use the time myself after I've enrolled it?</summary>
-                    <p>You stay in control. Withdraw the time from advertising at any time and it's yours. If you've already accepted an offer from a guest, that arrangement is between you and them — honour it as you would any commitment you've made.</p>
-                </details>
-                <details>
                     <summary>How do I get paid?</summary>
                     <p>By the guest, directly. Vaytoven is an advertising platform — we don't collect payments from guests, hold funds in escrow, or pay you out, and we never ask for your banking details. When you accept an offer you agree payment terms with the guest yourself. The only money that moves through Vaytoven is what you pay us for advertising and your subscription.</p>
-                </details>
-                <details>
-                    <summary>What if my property type isn't covered?</summary>
-                    <p>Mention it on your enquiry — we review case by case. We take on new property types once we're confident we can advertise them compliantly.</p>
-                </details>
-                <details>
-                    <summary>How long is the agreement?</summary>
-                    <p>Standard term is one year, with 30 days' written notice for either side to terminate at renewal. Stays you've already agreed with guests are unaffected — they are your arrangements, not ours.</p>
                 </details>
             </div>
         </section>
