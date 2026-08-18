@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\Mail\MailDeliverability;
+use App\Support\Queue\QueueProcessing;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -24,7 +25,8 @@ class HealthController extends Controller
         ];
 
         $advisory = [
-            'mail' => $this->checkMail(),
+            'mail'  => $this->checkMail(),
+            'queue' => $this->checkQueue(),
         ];
 
         $serving = collect($critical)->every(fn (array $check) => $check['ok'] === true);
@@ -72,6 +74,26 @@ class HealthController extends Controller
             'ok'        => false,
             'transport' => config('mail.default'),
             'error'     => MailDeliverability::reason(),
+        ];
+    }
+
+    /**
+     * A queue with no worker fails exactly like a mailer pointed at the log:
+     * every dispatch succeeds and nothing happens. Advisory rather than
+     * critical — a stalled queue must not pull the container out of rotation,
+     * because serving the site is still better than not serving it.
+     */
+    private function checkQueue(): array
+    {
+        if (QueueProcessing::isProcessed()) {
+            return ['ok' => true, 'driver' => QueueProcessing::driver()];
+        }
+
+        return [
+            'ok'      => false,
+            'driver'  => QueueProcessing::driver(),
+            'pending' => QueueProcessing::pendingCount(),
+            'error'   => QueueProcessing::reason(),
         ];
     }
 

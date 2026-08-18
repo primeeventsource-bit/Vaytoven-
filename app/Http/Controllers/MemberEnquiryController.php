@@ -52,7 +52,19 @@ class MemberEnquiryController extends Controller
         }
 
         // Slack ping to ops so a human can pick it up.
-        NotifyOpsOfMemberEnquiry::dispatch($enquiry);
+        //
+        // Guarded for the same reason the mail above is. On an environment
+        // running the `sync` driver this executes inside the request, so an
+        // unreachable Slack webhook would turn a captured lead into a 500 and
+        // the prospect would see a failed form. The row is the source of
+        // truth; the ping is a convenience.
+        try {
+            NotifyOpsOfMemberEnquiry::dispatch($enquiry);
+        } catch (Throwable $e) {
+            Log::warning('member enquiry: ops notification failed: '.$e->getMessage(), [
+                'enquiry_id' => $enquiry->id,
+            ]);
+        }
 
         return response()->json([
             'ok' => true,
