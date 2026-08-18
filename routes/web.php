@@ -339,6 +339,10 @@ Route::middleware(['auth'])
             ->middleware('permission:properties.edit')->name('properties.edit');
         Route::patch('properties/{property}', [AdminPropertyController::class, 'update'])
             ->middleware('permission:properties.edit')->name('properties.update');
+        // Publishing is a separate permission from editing: a specialist may
+        // maintain a listing without deciding when it goes live.
+        Route::post('properties/{property}/status', [AdminPropertyController::class, 'transition'])
+            ->middleware('permission:properties.publish')->name('properties.transition');
 
         // Photos. Same permission as the builder; ownership is checked in the
         // controller because properties.edit is also granted to hosts.

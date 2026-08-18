@@ -54,7 +54,9 @@ class UpdateListingRequest extends FormRequest
             'title'               => ['required', 'string', 'max:200'],
             'resort_name'         => ['nullable', 'string', 'max:160'],
             'property_kind'       => ['nullable', Rule::in(array_keys(self::KINDS))],
-            'status'              => ['required', Rule::enum(PropertyStatus::class)],
+            // Accepted but ignored by the controller: status changes go
+            // through the publishing actions, which check readiness first.
+            'status'              => ['nullable', Rule::enum(PropertyStatus::class)],
             'host_id'             => ['required', 'exists:users,id'],
             'position_in_package' => ['nullable', 'integer', 'min:1', 'max:20'],
 

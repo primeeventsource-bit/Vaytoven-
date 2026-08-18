@@ -7,6 +7,8 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreAdminPropertyRequest;
 use App\Http\Requests\Admin\UpdateListingRequest;
+use App\Support\Listings\ListingReadiness;
+use Illuminate\Validation\Rule;
 use App\Models\Amenity;
 use App\Mail\ListingCreatedForOwner;
 use App\Enums\ActivityType;
@@ -251,6 +253,7 @@ class PropertyController extends Controller
             'viewTypes' => UpdateListingRequest::VIEW_TYPES,
             'precision' => UpdateListingRequest::LOCATION_PRECISION,
             'statuses'  => PropertyStatus::cases(),
+            'blockers'  => ListingReadiness::blockers($property),
             'storageDurable' => \App\Support\Storage\DocumentStorage::isDurable(),
         ]);
     }
@@ -276,6 +279,11 @@ class PropertyController extends Controller
             ->filter()
             ->values()
             ->all();
+
+        // Status is owned by transition(), which checks readiness. Leaving
+        // it here would let a stale form field quietly republish a paused
+        // listing on the next save.
+        unset($data['status']);
 
         $amenityIds = $data['amenities'] ?? [];
         $custom     = trim((string) ($data['custom_amenity'] ?? ''));
@@ -394,5 +402,71 @@ class PropertyController extends Controller
             'snapshots' => PropertySnapshot::where('property_id', $property->id)
                 ->latest()->limit(20)->get(),
         ]);
+    }
+
+    /**
+     * Move a listing along its lifecycle.
+     *
+     * Status is a deliberate action with a check behind it, not a dropdown.
+     * The dropdown let anyone set a listing to Active with no photos and no
+     * dates, which spends part of a paid advertising period on an
+     * advertisement nobody can act on.
+     */
+    public function transition(Request $request, Property $property): RedirectResponse
+    {
+        $this->authorizeListing($request, $property);
+
+        $to = $request->validate([
+            'to' => ['required', Rule::in(['draft', 'pending_review', 'active', 'paused'])],
+        ])['to'];
+
+        $from = $property->status->value;
+
+        // Going live is the only transition that is refused, and only for
+        // reasons the person can act on. Everything else is staff choosing to
+        // take something down, which never needs permission.
+        if ($to === 'active') {
+            $blockers = ListingReadiness::blockers($property);
+
+            if ($blockers !== []) {
+                return back()->withErrors(['status' => 'Not ready to activate: '.implode(' ', $blockers)]);
+            }
+        }
+
+        $property->forceFill(['status' => PropertyStatus::from($to)])->save();
+
+        AdminAuditLogService::log(
+            actor:     $request->user(),
+            action:    'property.status_changed',
+            subject:   $property,
+            payload:   ['reference' => $property->reference, 'from' => $from, 'to' => $to],
+            ipAddress: $request->ip(),
+        );
+
+        // Only the two transitions that change what the public sees are worth
+        // a place on the activity trail; draft-to-review is internal.
+        $activity = match ($to) {
+            'active' => ActivityType::AdvertisementActivated,
+            'paused' => ActivityType::AdvertisementPaused,
+            default  => null,
+        };
+
+        if ($activity) {
+            app(\App\Services\Tracking\ActivityRecorder::class)->record(
+                $activity,
+                $request,
+                subjectType: 'property',
+                subjectReference: $property->reference,
+                result: 'completed',
+                metadata: ['from' => $from],
+            );
+        }
+
+        return back()->with('success', match ($to) {
+            'draft'          => 'Saved as a draft. It is not advertised.',
+            'pending_review' => 'Submitted for review.',
+            'active'         => 'Listing is live.',
+            'paused'         => 'Listing paused. It is no longer advertised.',
+        });
     }
 }

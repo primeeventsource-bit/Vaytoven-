@@ -161,14 +161,14 @@
                     </select>
                 </div>
                 <div class="vyt-field">
-                    <label for="status">Status</label>
-                    <select id="status" name="status" required>
-                        @foreach ($statuses as $status)
-                            <option value="{{ $status->value }}" @selected(old('status', $property->status->value) === $status->value)>
-                                {{ ucwords(str_replace('_', ' ', $status->value)) }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <label>Status</label>
+                    {{-- Read-only here on purpose. Status is changed by the
+                         actions below, which check the listing is ready first;
+                         a dropdown let anyone set Active on a listing with no
+                         photos and no dates. --}}
+                    <div style="padding:9px 0;">
+                        <span class="vyt-pill">{{ strtoupper(str_replace('_', ' ', $property->status->value)) }}</span>
+                    </div>
                 </div>
                 <div class="vyt-field">
                     <label for="position_in_package">Position in package</label>
@@ -456,12 +456,60 @@
         </div>
 
         <div class="vyt-actions">
-            <a href="{{ route('admin.properties.index') }}" class="vyt-faint">← All listings</a>
+            <a href="{{ route('admin.properties.show', $property) }}" class="vyt-faint">← Property</a>
             <div class="spacer"></div>
-            <button type="submit" class="vyt-save">Save listing</button>
+            <button type="submit" class="vyt-save">Save changes</button>
         </div>
     </form>
 
+    <div class="vyt-section" id="publishing">
+        <h3>Publishing</h3>
+        <p class="hint">
+            Currently <strong>{{ strtoupper(str_replace('_', ' ', $property->status->value)) }}</strong>.
+            Only an active listing is advertised.
+        </p>
+
+        @error('status')
+            <div class="site-alert" style="background:#fef2f2;border-color:#fecaca;color:#991b1b;">{{ $message }}</div>
+        @enderror
+
+        @if ($blockers)
+            <div class="site-alert" style="background:#fffbeb;border-color:#fde68a;color:#92400e;">
+                <strong>Not ready to go live.</strong>
+                <ul style="margin:8px 0 0;padding-left:18px;">
+                    @foreach ($blockers as $blocker)
+                        <li>{{ $blocker }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+            @foreach ([
+                'draft'          => 'Save as draft',
+                'pending_review' => 'Submit for review',
+                'active'         => 'Activate listing',
+                'paused'         => 'Pause listing',
+            ] as $value => $label)
+                @continue($property->status->value === $value)
+                <form method="POST" action="{{ route('admin.properties.transition', $property) }}">
+                    @csrf
+                    <input type="hidden" name="to" value="{{ $value }}">
+                    <button type="submit"
+                            class="{{ $value === 'active' ? 'vyt-save' : '' }}"
+                            style="{{ $value === 'active' ? 'padding:10px 22px;font-size:14px;' : 'padding:10px 18px;font-size:14px;border:1px solid var(--line);border-radius:9px;background:#fff;' }}"
+                            @disabled($value === 'active' && $blockers)>
+                        {{ $label }}
+                    </button>
+                </form>
+            @endforeach
+        </div>
+
+        <p class="site-note" style="margin-top:12px;font-size:12.5px;color:var(--muted);">
+            Activating starts what the member paid for, so it is refused until the
+            listing has something to advertise.
+        </p>
+    </div>
     @include('admin.properties._availability')
 
     @include('admin.properties._photos')
