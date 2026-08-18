@@ -3,6 +3,7 @@
 namespace App\Services\Legal;
 
 use App\Models\TermsVersion;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 
 /**
@@ -190,12 +191,18 @@ class LegalDocumentRegistry
         $rendered = View::make($doc['view'])->render();
         $url = route($doc['route']);
 
-        return TermsVersion::forContent(
-            kind:         $doc['kind'],
-            content:      $this->canonicalText($rendered),
-            url:          $url,
-            versionLabel: $doc['version_label'],
-        );
+        return DB::transaction(function () use ($doc, $rendered, $url) {
+            $version = TermsVersion::forContent(
+                kind:         $doc['kind'],
+                content:      $this->canonicalText($rendered),
+                url:          $url,
+                versionLabel: $doc['version_label'],
+            );
+
+            $version->markAsTheCurrentVersion();
+
+            return $version;
+        });
     }
 
     /**

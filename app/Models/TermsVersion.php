@@ -54,14 +54,49 @@ class TermsVersion extends Model
     }
 
     /**
-     * Most recent effective version for a given kind. Used by the "accept again"
-     * middleware in Phase 13.
+     * Make this the one version of its kind in force, and retire the rest.
+     *
+     * Only supersession bookkeeping is written. kind, version_label,
+     * content_hash, content_url and effective_at are never touched on any row,
+     * because somebody accepted those exact terms at that exact moment and
+     * that record has to stay as it was.
+     *
+     * effective_at deliberately keeps meaning "when this text FIRST took
+     * effect", so re-instating a previously retired version does not rewrite
+     * its history. That is also why currentFor() leans on superseded_at rather
+     * than on ordering — see the note there.
+     */
+    public function markAsTheCurrentVersion(): void
+    {
+        if ($this->superseded_at !== null) {
+            // A revert: this exact text is in force again.
+            $this->forceFill(['superseded_at' => null])->save();
+        }
+
+        static::where('kind', $this->kind)
+            ->whereKeyNot($this->getKey())
+            ->whereNull('superseded_at')
+            ->update(['superseded_at' => now()]);
+    }
+
+    /**
+     * The version of a given kind currently in force.
+     *
+     * superseded_at is the authority here, not the effective_at ordering.
+     * Ordering alone gets the wrong answer the moment a document is reverted
+     * to earlier text: content-addressing returns the ORIGINAL row, whose
+     * effective_at is older than the text it replaced, so "latest effective"
+     * would name a version the site is no longer serving — and the
+     * re-acceptance middleware would then ask people to accept a document
+     * that is not the one on screen. The ordering stays only as a tiebreak
+     * for rows predating the invariant.
      */
     public static function currentFor(string $kind): ?self
     {
         return static::where('kind', $kind)
             ->whereNull('superseded_at')
             ->orderByDesc('effective_at')
+            ->orderByDesc('id')
             ->first();
     }
 
