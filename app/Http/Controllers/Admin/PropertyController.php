@@ -9,7 +9,12 @@ use App\Http\Requests\Admin\StoreAdminPropertyRequest;
 use App\Http\Requests\Admin\UpdateListingRequest;
 use App\Models\Amenity;
 use App\Mail\ListingCreatedForOwner;
+use App\Enums\ActivityType;
+use App\Models\MemberOffer;
 use App\Models\Property;
+use App\Models\PropertySnapshot;
+use App\Models\PropertyView;
+use App\Models\TrackingEvent;
 use App\Models\User;
 use App\Services\AdminAuditLogService;
 use App\Support\Mail\MailDeliverability;
@@ -345,5 +350,46 @@ class PropertyController extends Controller
         }
 
         return $changed;
+    }
+
+    /**
+     * The property hub.
+     *
+     * Everything about one listing in one place: who it belongs to, what it is
+     * doing, and the way through to each part of it. These numbers and records
+     * already existed and were scattered across four screens, which meant
+     * answering "how is this advertisement doing" required knowing where to
+     * look four times.
+     */
+    public function show(Request $request, Property $property): View
+    {
+        $this->authorizeListing($request, $property);
+
+        $property->load(['host', 'memberServiceOrder', 'photos', 'availabilityWeeks']);
+
+        // Counted here rather than carried on the property row. A cached
+        // counter that drifts is worse than a query: staff would quote it in a
+        // dispute and be wrong.
+        $offers = MemberOffer::where('property_id', $property->id);
+
+        return view('admin.properties.show', [
+            'property' => $property,
+            'stats'    => [
+                'views'  => PropertyView::where('property_id', $property->id)->count(),
+                'clicks' => TrackingEvent::where('subject_reference', $property->reference)
+                    ->whereIn('event_type', [
+                        ActivityType::PropertyViewed->value,
+                        ActivityType::AdvertisementClicked->value,
+                    ])->count(),
+                // The pivot, not the wishlist: a Wishlist is a named list a
+                // member owns, and the save itself lives in wishlist_properties.
+                'saves'  => DB::table('wishlist_properties')->where('property_id', $property->id)->count(),
+                'offers' => (clone $offers)->count(),
+            ],
+            'recentOffers' => (clone $offers)->with('buyer:id,name,email')
+                ->latest()->limit(10)->get(),
+            'snapshots' => PropertySnapshot::where('property_id', $property->id)
+                ->latest()->limit(20)->get(),
+        ]);
     }
 }

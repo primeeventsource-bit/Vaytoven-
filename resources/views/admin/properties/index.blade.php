@@ -64,7 +64,10 @@
         @foreach ($properties as $property)
             <tr>
                 <td>
-                    <a href="{{ route('properties.show', $property) }}">{{ $property->title }}</a>
+                    {{-- The admin hub, not the public page. Staff clicking a
+                         listing want to manage it; the public view is a tab there. --}}
+                    <a href="{{ route('admin.properties.show', $property) }}">{{ $property->title }}</a>
+                    <span class="vyt-faint" style="display:block;font-size:11.5px;font-family:ui-monospace,monospace;">{{ $property->reference }}</span>
                 </td>
                 <td>
                     {{ $property->host?->name ?? '—' }}

@@ -332,6 +332,8 @@ Route::middleware(['auth'])
         // The listing builder. Editing is a separate permission from creating:
         // a specialist may maintain listings without being able to add new ones
         // against a package allowance.
+        Route::get('properties/{property}', [AdminPropertyController::class, 'show'])
+            ->middleware('permission:properties.view')->name('properties.show');
         Route::get('properties/{property}/edit', [AdminPropertyController::class, 'edit'])
             ->middleware('permission:properties.edit')->name('properties.edit');
         Route::patch('properties/{property}', [AdminPropertyController::class, 'update'])
