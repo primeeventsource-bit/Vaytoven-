@@ -72,4 +72,30 @@ class FaviconTest extends TestCase
                 ->assertSee('href="/favicon.svg"', false);
         }
     }
+
+    /**
+     * The homepage and the auth screens each carried their own inline
+     * data-URI icon before the shared partial existed. Two rel="icon"
+     * declarations means the browser picks one, so those pages showed a
+     * different mark from the rest of the site — which is the one thing a
+     * favicon must not do.
+     */
+    public function test_no_page_declares_a_second_competing_icon(): void
+    {
+        foreach (['/', '/login', '/become-a-host', '/properties'] as $path) {
+            $html = $this->get($path)->getContent();
+
+            $this->assertSame(
+                0,
+                substr_count($html, 'href="data:image/svg+xml'),
+                "{$path} still carries an inline data-URI icon alongside the shared one."
+            );
+
+            $this->assertSame(
+                1,
+                preg_match_all('/<link[^>]+rel="icon"[^>]+type="image\/svg\+xml"/', $html),
+                "{$path} declares more than one SVG icon."
+            );
+        }
+    }
 }

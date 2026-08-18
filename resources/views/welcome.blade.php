@@ -13,7 +13,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23FF3D8A'/%3E%3Cstop offset='.5' stop-color='%23D63384'/%3E%3Cstop offset='1' stop-color='%237B2CBF'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M10 8h12l10 30 10-30h12L34 56h-8z'/%3E%3Ccircle cx='48' cy='14' r='8' fill='url(%23g)'/%3E%3Ccircle cx='48' cy='14' r='3' fill='%23fff'/%3E%3C/svg%3E">
     <style>
         :root {
             --pink: #FF3D8A;
