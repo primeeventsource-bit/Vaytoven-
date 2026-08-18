@@ -311,6 +311,14 @@ Route::middleware(['auth'])
         Route::post('properties', [AdminPropertyController::class, 'store'])
             ->middleware('permission:properties.create')->name('properties.store');
 
+        // The listing builder. Editing is a separate permission from creating:
+        // a specialist may maintain listings without being able to add new ones
+        // against a package allowance.
+        Route::get('properties/{property}/edit', [AdminPropertyController::class, 'edit'])
+            ->middleware('permission:properties.edit')->name('properties.edit');
+        Route::patch('properties/{property}', [AdminPropertyController::class, 'update'])
+            ->middleware('permission:properties.edit')->name('properties.update');
+
         // Member Services activations — what was ordered and whether it paid.
         Route::get('member-services', [AdminMemberServiceOrderController::class, 'index'])
             ->middleware('permission:billing.view')->name('member-services.index');

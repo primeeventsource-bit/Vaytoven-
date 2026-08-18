@@ -6,6 +6,8 @@ use App\Enums\PropertyStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreAdminPropertyRequest;
+use App\Http\Requests\Admin\UpdateListingRequest;
+use App\Models\Amenity;
 use App\Mail\ListingCreatedForOwner;
 use App\Models\Property;
 use App\Models\User;
@@ -202,5 +204,136 @@ class PropertyController extends Controller
 
             return false;
         }
+    }
+
+    /**
+     * The listing builder.
+     *
+     * One screen rather than a wizard. Staff assemble a listing out of order —
+     * basics today, dates when the club confirms, photos when the member sends
+     * them — and a wizard forces a sequence that does not match how the work
+     * actually arrives.
+     */
+    /**
+     * May this person build THIS listing?
+ *
+     * The properties.edit permission is not enough on its own: the RBAC `host`
+     * role grants it so hosts can maintain their own listings, which means the
+     * route middleware alone would let any host open any member's property.
+     * Staff may edit anything; everyone else may edit only what they own.
+     */
+    private function authorizeListing(Request $request, Property $property): void
+    {
+        $user = $request->user();
+
+        abort_unless(
+            $user && ($user->isStaff() || $property->host_id === $user->id),
+            403,
+            'This listing belongs to another account.',
+        );
+    }
+
+    public function edit(Request $request, Property $property): View
+    {
+        $this->authorizeListing($request, $property);
+
+        $property->load(['amenities', 'host', 'availabilityWeeks', 'memberServiceOrder']);
+
+        return view('admin.properties.edit', [
+            'property'  => $property,
+            'amenities' => Amenity::query()->orderBy('category')->orderBy('label')->get()->groupBy('category'),
+            'kinds'     => UpdateListingRequest::KINDS,
+            'viewTypes' => UpdateListingRequest::VIEW_TYPES,
+            'precision' => UpdateListingRequest::LOCATION_PRECISION,
+            'statuses'  => PropertyStatus::cases(),
+        ]);
+    }
+
+    public function update(UpdateListingRequest $request, Property $property): RedirectResponse
+    {
+        $this->authorizeListing($request, $property);
+
+        $data = $request->validated();
+
+        // Money as integer cents, and rounded before the cast. 249.99 * 100 is
+        // 24998.999... in binary floating point, which truncates to 24998.
+        $data['minimum_offer_cents'] = isset($data['minimum_offer_dollars'])
+            && $data['minimum_offer_dollars'] !== null
+                ? (int) round(((float) $data['minimum_offer_dollars']) * 100)
+                : null;
+        unset($data['minimum_offer_dollars']);
+
+        // Empty rows are how a repeating field reports "nothing here"; storing
+        // them would print blank bullets on the listing.
+        $data['highlights'] = collect($data['highlights'] ?? [])
+            ->map(fn ($h) => trim((string) $h))
+            ->filter()
+            ->values()
+            ->all();
+
+        $amenityIds = $data['amenities'] ?? [];
+        $custom     = trim((string) ($data['custom_amenity'] ?? ''));
+        unset($data['amenities'], $data['custom_amenity']);
+
+        $changed = $this->materialChanges($property, $data);
+
+        DB::transaction(function () use ($property, $data, $amenityIds, $custom) {
+            $property->update($data);
+
+            if ($custom !== '') {
+                // firstOrCreate, not create: two staff adding "Pickleball" on
+                // different listings must land on one amenity, or the filter
+                // ends up with duplicates that each match half the listings.
+                $amenity = Amenity::firstOrCreate(
+                    ['slug' => Str::slug($custom)],
+                    // 'other', not 'custom'. The category column is a constrained
+                    // enum; 'custom' is not one of its values, so the insert fails
+                    // at the database rather than in validation. A test caught it.
+                    ['label' => $custom, 'category' => 'other'],
+                );
+                $amenityIds[] = $amenity->id;
+            }
+
+            $property->amenities()->sync(array_unique($amenityIds));
+        });
+
+        AdminAuditLogService::log(
+            actor:     $request->user(),
+            action:    'property.updated',
+            subject:   $property,
+            payload:   ['reference' => $property->reference, 'changed' => $changed],
+            ipAddress: $request->ip(),
+        );
+
+        return redirect()->route('admin.properties.edit', $property)
+            ->with('success', 'Listing saved.');
+    }
+
+    /**
+     * Which fields actually changed, for the audit entry.
+     *
+     * "Staff edited this listing" is not evidence of anything. During a dispute
+     * the question is what was different and when, so the log records the field
+     * names rather than the fact that a form was submitted. Values are left out
+     * deliberately: the full before-and-after belongs in the listing snapshot,
+     * which is content-hashed, not in a log line anyone could paraphrase.
+     *
+     * @return array<int, string>
+     */
+    private function materialChanges(Property $property, array $data): array
+    {
+        $changed = [];
+
+        foreach ($data as $field => $value) {
+            if (! array_key_exists($field, $property->getAttributes())) {
+                continue;
+            }
+
+            if ((string) json_encode($property->{$field}) !== (string) json_encode($value)) {
+                $changed[] = $field;
+            }
+        }
+
+        return $changed;
     }
 }
