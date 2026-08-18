@@ -315,6 +315,9 @@ Route::middleware(['auth'])
         Route::get('activity/session/{session}', [ActivityController::class, 'session'])
             ->middleware('permission:audit.view')->name('activity.session');
 
+        Route::get('activity/map', [ActivityController::class, 'map'])
+            ->middleware('permission:audit.view')->name('activity.map');
+
         // Staff-created listings. An admin builds the listing for an existing
         // account or for an owner who has none yet; the owner is emailed
         // either way.

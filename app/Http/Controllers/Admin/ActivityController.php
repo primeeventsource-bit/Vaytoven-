@@ -7,6 +7,7 @@ use App\Models\Property;
 use App\Models\TrackingEvent;
 use App\Enums\ActivityType;
 use App\Services\Activity\ActivityLogQuery;
+use App\Services\Activity\ActivityMap;
 use App\Services\Analytics\ListingAnalytics;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -146,6 +147,25 @@ class ActivityController extends Controller
             'sessionId' => $session,
             'events'    => $events,
             'first'     => $events->first(),
+        ]);
+    }
+
+    /**
+     * The same activity, plotted.
+     *
+     * A separate action rather than a toggle inside log(), because the two
+     * answer different questions and share no query: the list is "what
+     * happened, in order", the map is "where is this coming from".
+     */
+    public function map(Request $request, ActivityMap $map): View
+    {
+        $filters = $request->only(['layer', 'from', 'to']);
+
+        return view('admin.activity.map', [
+            'pins'    => $map->pins($filters),
+            'layers'  => ActivityMap::layers(),
+            'layer'   => $filters['layer'] ?? 'all',
+            'filters' => $filters,
         ]);
     }
 }

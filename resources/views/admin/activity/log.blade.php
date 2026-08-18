@@ -31,6 +31,11 @@
 @endpush
 
 @section('content')
+    <div style="display:flex;gap:4px;margin-bottom:14px;">
+        <a href="{{ route('admin.activity.log') }}" style="padding:8px 16px;font-size:13.5px;border:1px solid transparent;border-radius:8px;color:#fff;background:var(--gradient);font-weight:600;" aria-current="page">List view</a>
+        <a href="{{ route('admin.activity.map') }}" style="padding:8px 16px;font-size:13.5px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:#fff;">Map view</a>
+    </div>
+
     <nav class="vyt-tabs" aria-label="Activity filters">
         @foreach ($groups as $key => $label)
             <a href="{{ route('admin.activity.log', array_merge($filters, ['group' => $key, 'page' => null])) }}"
