@@ -16,8 +16,12 @@ use Illuminate\Support\Str;
  *
  * Usage:  php artisan db:seed --class=DemoUsersSeeder
  *
- * Universal password: Vaytoven$2026  (User::password has the `hashed` cast,
- * so we pass plaintext and Laravel bcrypts on save.)
+ * The password is GENERATED, never written down here. A seeder is source code
+ * and source code gets pushed, so a constant in this file is a published
+ * credential — and these accounts include a super_admin. Set DEMO_PASSWORD to
+ * choose one, otherwise a random password is generated and printed once, to
+ * the operator running the seeder and nowhere else. (User::password has the
+ * `hashed` cast, so plaintext is passed and Laravel bcrypts on save.)
  *
  * Demo emails all use the fake `.local` TLD so they can never receive mail
  * and can never be confused with real customers. To wipe before launch:
@@ -25,8 +29,21 @@ use Illuminate\Support\Str;
  */
 class DemoUsersSeeder extends Seeder
 {
-    private const PASSWORD = 'Vaytoven$2026';
-    private const DOMAIN   = '@demo.vaytoven.local';
+    private const DOMAIN = '@demo.vaytoven.local';
+
+    /**
+     * Resolved once per run. Deliberately not a constant: the previous
+     * constant shipped a fixed password to the public repository, and every
+     * demo account on the live site still accepted it months later —
+     * including a super_admin, on the environment holding real users and the
+     * live payment keys.
+     */
+    private ?string $password = null;
+
+    private function password(): string
+    {
+        return $this->password ??= (string) (env('DEMO_PASSWORD') ?: Str::password(20));
+    }
 
     public function run(): void
     {
@@ -45,7 +62,15 @@ class DemoUsersSeeder extends Seeder
         $this->seedMemberOffer($users);
         $this->seedAdditionalDemoUsers($users['admin']);
 
-        $this->command->info('DemoUsersSeeder complete. Password for all named accounts: ' . self::PASSWORD);
+        // Printed once, to the terminal of whoever ran the seeder. If the
+        // password came from the environment they already have it, so there is
+        // no reason to echo it back into a CI log.
+        $this->command->info('DemoUsersSeeder complete.');
+
+        if (! env('DEMO_PASSWORD')) {
+            $this->command->warn('Generated password for all demo accounts: '.$this->password());
+            $this->command->warn('It is not stored anywhere. Save it now or re-seed to get a new one.');
+        }
     }
 
     /**
@@ -69,7 +94,7 @@ class DemoUsersSeeder extends Seeder
                 ['email' => $email],
                 [
                     'name'              => $name,
-                    'password'          => self::PASSWORD, // hashed by cast
+                    'password'          => $this->password(), // hashed by cast
                     'role'              => $role,
                     'email_verified_at' => now(),
                 ]
@@ -617,7 +642,7 @@ class DemoUsersSeeder extends Seeder
                 ['email' => $email],
                 [
                     'name'                   => $name,
-                    'password'               => self::PASSWORD,  // hashed by cast
+                    'password'               => $this->password(),  // hashed by cast
                     'role'                   => $role,
                     'email_verified_at'      => $createdAt,
                     'created_at'             => $createdAt,
