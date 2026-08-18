@@ -41,11 +41,51 @@ class Property extends Model
         'status',
         'payout_account_id',
         'converted_from_enquiry_id',
+
+        // Listing builder. Absent from $fillable these are silently discarded
+        // by create()/update() - the failure mode that made staff_notes look
+        // like it saved when it did not.
+        'reference',
+        'property_kind',
+        'resort_name',
+        'member_service_order_id',
+        'position_in_package',
+        'location_precision',
+        'square_feet',
+        'floor_unit',
+        'bed_configuration',
+        'check_in_day',
+        'check_in_time',
+        'check_out_time',
+        'unit_size_type',
+        'view_type',
+        'accessibility_notes',
+        'pet_policy',
+        'smoking_policy',
+        'parking_info',
+        'headline',
+        'short_description',
+        'highlights',
+        'allow_offers',
+        'allow_inquiries',
+        'display_suggested_amount',
+        'minimum_offer_cents',
+        'require_guest_count',
+        'require_message',
     ];
 
     protected function casts(): array
     {
         return [
+            'highlights'               => 'array',
+            'allow_offers'             => 'bool',
+            'allow_inquiries'          => 'bool',
+            'display_suggested_amount' => 'bool',
+            'require_guest_count'      => 'bool',
+            'require_message'          => 'bool',
+            'square_feet'              => 'integer',
+            'minimum_offer_cents'      => 'integer',
+            'position_in_package'      => 'integer',
             'latitude' => 'decimal:7',
             'longitude' => 'decimal:7',
             'bathrooms' => 'decimal:1',
@@ -64,6 +104,46 @@ class Property extends Model
         ];
     }
 
+    /**
+     * Column defaults, declared here as well as in the schema.
+     *
+     * A database default is not applied to the instance create() hands back,
+     * so code reading $property->location_precision immediately after creating
+     * one got null and treated it as "no preference". Declaring it here means
+     * the object and the row agree from the first line.
+     */
+    protected $attributes = [
+        'location_precision'       => 'approximate',
+        'allow_offers'             => true,
+        'allow_inquiries'          => true,
+        'display_suggested_amount' => false,
+        'require_guest_count'      => true,
+        'require_message'          => true,
+    ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $property) {
+            $property->reference ??= static::generateReference();
+        });
+    }
+
+    /**
+     * A quotable reference, e.g. VAY-P-48213.
+     *
+     * Random rather than sequential, for the reason order and offer references
+     * are: a sequential id published on a listing page tells anyone who looks
+     * how many properties exist and lets them walk the set. The numeric shape
+     * is kept because staff read these down a phone line.
+     */
+    public static function generateReference(): string
+    {
+        do {
+            $reference = 'VAY-P-'.random_int(10000, 99999);
+        } while (static::query()->where('reference', $reference)->exists());
+
+        return $reference;
+    }
     public function host(): BelongsTo
     {
         return $this->belongsTo(User::class, 'host_id');
@@ -74,6 +154,60 @@ class Property extends Model
         return $this->belongsToMany(Amenity::class, 'property_amenities');
     }
 
+    public function availabilityWeeks(): HasMany
+    {
+        return $this->hasMany(PropertyAvailabilityWeek::class)->orderBy('starts_on');
+    }
+
+    /** The paid order this advertisement is running under, if any. */
+    public function memberServiceOrder(): BelongsTo
+    {
+        return $this->belongsTo(MemberServiceOrder::class, 'member_service_order_id');
+    }
+
+    /** "Property 2 of 3", or null when the listing is not tied to an order. */
+    public function packagePosition(): ?string
+    {
+        $order = $this->memberServiceOrder;
+
+        if (! $order || ! $this->position_in_package) {
+            return null;
+        }
+
+        return sprintf(
+            '%s Package — Property %d of %d',
+            $order->package->label(),
+            $this->position_in_package,
+            max($order->package->propertyCount(), $this->position_in_package),
+        );
+    }
+
+    /**
+     * Coordinates as the public may see them.
+     *
+     * A member advertising a home they still live in has a real interest in
+     * the pin not being their front door, so anything short of an explicit
+     * "exact" is rounded to about a kilometre.
+     */
+    public function publicCoordinates(): ?array
+    {
+        if ($this->latitude === null || $this->longitude === null) {
+            return null;
+        }
+
+        if ($this->location_precision === 'exact') {
+            return ['lat' => (float) $this->latitude, 'lng' => (float) $this->longitude];
+        }
+
+        if ($this->location_precision === 'city_only') {
+            return null;
+        }
+
+        return [
+            'lat' => round((float) $this->latitude, 2),
+            'lng' => round((float) $this->longitude, 2),
+        ];
+    }
     public function photos(): HasMany
     {
         return $this->hasMany(PropertyPhoto::class)->orderBy('sort_order');
