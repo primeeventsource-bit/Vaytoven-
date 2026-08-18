@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\MemberServiceOrderController as AdminMemberServic
 use App\Http\Controllers\Admin\OfferController as AdminOfferController;
 use App\Http\Controllers\Admin\PaymentProcessorController;
 use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
+use App\Http\Controllers\Admin\PropertyPhotoController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\ServiceFeeController;
@@ -36,6 +37,7 @@ use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PressController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyBrowseController;
+use App\Http\Controllers\PropertyPhotoStreamController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SitePageController;
 use App\Http\Controllers\TripSupportController;
@@ -136,6 +138,11 @@ Route::post('/signup', [NewsletterSubscriptionController::class, 'store'])->name
 // ?destination= (alias for city), ?min_capacity=, ?max_price=.
 Route::get('/properties', [PropertyBrowseController::class, 'index'])->name('properties.index');
 Route::get('/properties/{property}', [PropertyBrowseController::class, 'show'])->name('properties.show');
+
+// Uploaded listing images. The bucket is private, so they are streamed through
+// the app; see PropertyPhotoStreamController for why not signed URLs.
+// Declared BEFORE the {property} wildcard would otherwise swallow it.
+Route::get('/property-photo/{photo}', PropertyPhotoStreamController::class)->name('properties.photo');
 
 // There is deliberately no booking flow.
 //
@@ -318,6 +325,19 @@ Route::middleware(['auth'])
             ->middleware('permission:properties.edit')->name('properties.edit');
         Route::patch('properties/{property}', [AdminPropertyController::class, 'update'])
             ->middleware('permission:properties.edit')->name('properties.update');
+
+        // Photos. Same permission as the builder; ownership is checked in the
+        // controller because properties.edit is also granted to hosts.
+        Route::post('properties/{property}/photos', [PropertyPhotoController::class, 'store'])
+            ->middleware('permission:properties.edit')->name('properties.photos.store');
+        Route::patch('properties/{property}/photos/{photo}', [PropertyPhotoController::class, 'update'])
+            ->middleware('permission:properties.edit')->name('properties.photos.update');
+        Route::post('properties/{property}/photos/{photo}/cover', [PropertyPhotoController::class, 'cover'])
+            ->middleware('permission:properties.edit')->name('properties.photos.cover');
+        Route::post('properties/{property}/photos/reorder', [PropertyPhotoController::class, 'reorder'])
+            ->middleware('permission:properties.edit')->name('properties.photos.reorder');
+        Route::delete('properties/{property}/photos/{photo}', [PropertyPhotoController::class, 'destroy'])
+            ->middleware('permission:properties.edit')->name('properties.photos.destroy');
 
         // Member Services activations — what was ordered and whether it paid.
         Route::get('member-services', [AdminMemberServiceOrderController::class, 'index'])

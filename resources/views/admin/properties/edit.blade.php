@@ -77,6 +77,21 @@
         .vyt-switch .copy { font-size:14px; }
         .vyt-switch .copy .sub { display:block; color:var(--muted); font-size:12.5px; }
 
+        .vyt-dropzone { position:relative; border:2px dashed var(--line); border-radius:12px; background:var(--bg); }
+        .vyt-dropzone.is-over { border-color:var(--magenta); background:#fff; }
+        .vyt-dropzone input[type=file] { position:absolute; inset:0; opacity:0; width:100%; height:100%; cursor:pointer; }
+        .vyt-dropzone label { display:block; padding:26px 18px; text-align:center; cursor:pointer; text-transform:none; letter-spacing:0; margin:0; }
+        .vyt-dropzone label strong { display:block; font-size:15px; color:var(--ink); }
+        .vyt-dropzone label span { display:block; font-size:12.5px; color:var(--muted); margin-top:4px; }
+
+        .vyt-photo-grid { display:grid; gap:12px; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); }
+        .vyt-photo-card { border:1px solid var(--line); border-radius:10px; overflow:hidden; background:#fff; cursor:grab; }
+        .vyt-photo-card.is-dragging { opacity:.4; }
+        .vyt-photo-thumb { position:relative; aspect-ratio:4/3; background:#f3f4f6; }
+        .vyt-photo-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+        .vyt-photo-missing { display:flex; align-items:center; justify-content:center; height:100%; font-size:12px; color:#b91c1c; text-align:center; padding:8px; }
+        .vyt-photo-badge { position:absolute; top:8px; left:8px; background:var(--gradient); color:#fff; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; }
+        .vyt-photo-meta { padding:8px 10px; display:grid; gap:2px; font-size:11.5px; color:var(--muted); }
         .vyt-actions {
             position:sticky; bottom:0; background:#fff;
             border:1px solid var(--line); border-radius:14px;
@@ -475,4 +490,6 @@
             <button type="submit" class="vyt-save">Save listing</button>
         </div>
     </form>
+
+    @include('admin.properties._photos')
 @endsection

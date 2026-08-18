@@ -237,7 +237,7 @@ class PropertyController extends Controller
     {
         $this->authorizeListing($request, $property);
 
-        $property->load(['amenities', 'host', 'availabilityWeeks', 'memberServiceOrder']);
+        $property->load(['amenities', 'host', 'availabilityWeeks', 'memberServiceOrder', 'photos.uploadedBy']);
 
         return view('admin.properties.edit', [
             'property'  => $property,
@@ -246,6 +246,7 @@ class PropertyController extends Controller
             'viewTypes' => UpdateListingRequest::VIEW_TYPES,
             'precision' => UpdateListingRequest::LOCATION_PRECISION,
             'statuses'  => PropertyStatus::cases(),
+            'storageDurable' => \App\Support\Storage\DocumentStorage::isDurable(),
         ]);
     }
 
