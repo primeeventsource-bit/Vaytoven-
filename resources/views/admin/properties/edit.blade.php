@@ -455,41 +455,14 @@
             </div>
         </div>
 
-        {{-- ---------------------------------------------------------------- --}}
-        <div class="vyt-section">
-            <h3>Availability</h3>
-            <p class="hint">The time being advertised on this property.</p>
-
-            @if ($property->availabilityWeeks->isEmpty())
-                <p class="vyt-faint" style="margin:0;">
-                    No weeks recorded yet. Until at least one is added, this listing advertises a
-                    property with no dates — a traveler has nothing to make an offer against.
-                    The availability manager is the next piece of the builder; nothing here is
-                    silently dropping dates.
-                </p>
-            @else
-                <table class="vyt-table">
-                    <thead><tr><th>Dates</th><th>Nights</th><th>Status</th><th>Updated by</th></tr></thead>
-                    <tbody>
-                        @foreach ($property->availabilityWeeks as $week)
-                            <tr>
-                                <td>{{ $week->label() }}</td>
-                                <td class="vyt-faint">{{ $week->nights() }}</td>
-                                <td><span class="vyt-pill">{{ $week->status->label() }}</span></td>
-                                <td class="vyt-faint">{{ $week->updatedBy?->email ?? '—' }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
-        </div>
-
         <div class="vyt-actions">
             <a href="{{ route('admin.properties.index') }}" class="vyt-faint">← All listings</a>
             <div class="spacer"></div>
             <button type="submit" class="vyt-save">Save listing</button>
         </div>
     </form>
+
+    @include('admin.properties._availability')
 
     @include('admin.properties._photos')
 @endsection
