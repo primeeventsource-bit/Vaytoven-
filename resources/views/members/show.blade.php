@@ -60,18 +60,6 @@
         }
         .members-section .lede { color: var(--muted); font-size: 16px; max-width: 620px; line-height: 1.6; }
 
-        .members-clubs {
-            display: grid; gap: 14px; grid-template-columns: 1fr 1fr;
-            margin-top: 32px;
-        }
-        @media (min-width: 700px) { .members-clubs { grid-template-columns: 1fr 1fr 1fr; } }
-        @media (min-width: 980px) { .members-clubs { grid-template-columns: 1fr 1fr 1fr 1fr; } }
-        .members-club {
-            background: #fff; border: 1px solid var(--line); border-radius: 12px;
-            padding: 18px; text-align: center;
-            font-family:'Fraunces',serif; font-weight: 600; font-size: 16px;
-        }
-        .members-club .tier { display:block; font-family:'Geist',sans-serif; font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 6px; letter-spacing: .04em; }
 
         .members-flow { counter-reset: m-step; }
         .members-flow-step { display: grid; grid-template-columns: 60px 1fr; gap: 22px; padding: 28px 0; border-top: 1px solid var(--line); counter-increment: m-step; }
@@ -108,15 +96,15 @@
         <div class="members-hero-inner">
             <div>
                 <div class="eyebrow">Managed Listing Program</div>
-                <h1>Turn the weeks you don't use into <em>real income.</em></h1>
-                <p>If you own points-based vacation property — Marriott, Hilton, Disney, Wyndham, RCI, Interval, or any major club — Vaytoven's Managed Listing Program rents the weeks you don't use, with zero hassle and full compliance with your program rules.</p>
+                <h1>Turn the time you don't use into <em>real income.</em></h1>
+                <p>If you own a vacation property — Vaytoven's Managed Listing Program advertises the time you don't use, with zero hassle and full compliance.</p>
                 <a href="/#members" class="members-hero-cta" data-track-audience="member" data-track-cta="members_page_apply">
                     Get on the program
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
                 </a>
             </div>
             <div class="members-hero-card">
-                <h4>Sample 3-week rental — illustrative</h4>
+                <h4>Sample advertising period — illustrative</h4>
                 <div class="members-hero-card-row">
                     <span style="color:var(--muted);">Maui beachfront, peak</span>
                     <span class="num">$5,280</span>
@@ -133,7 +121,7 @@
                     <span>Net to member</span>
                     <span class="num">$10,440</span>
                 </div>
-                <p class="disclaimer">Before the one-time fee for the 180-day Managed Listing Program, quoted in writing on the onboarding call before commitment. Illustrative only — what you actually earn depends on demand, season and what you agree with each guest. Vaytoven advertises your weeks and does not collect rental payments, hold funds, or guarantee results.</p>
+                <p class="disclaimer">Before the one-time fee for the 180-day Managed Listing Program, quoted in writing on the onboarding call before commitment. Illustrative only — what you actually earn depends on demand, season and what you agree with each guest. Vaytoven advertises your listing and does not collect payments from guests, hold funds, or guarantee results.</p>
             </div>
         </div>
     </header>
@@ -141,21 +129,11 @@
     <main class="members-shell">
 
         <section class="members-section">
-            <div class="members-section-eyebrow">Eligible programs</div>
-            <h2>We work with most major points-based clubs.</h2>
-            <p class="lede">Points across multiple clubs? Mention them all on the onboarding call — we manage them as one portfolio.</p>
+            <div class="members-section-eyebrow">Eligible properties</div>
+            <h2>We work with most properties.</h2>
+            <p class="lede">We manage them as one portfolio.</p>
 
-            <div class="members-clubs">
-                <div class="members-club">Marriott Vacation Club <span class="tier">Premier &amp; Destinations</span></div>
-                <div class="members-club">Hilton Grand Vacations <span class="tier">All tiers</span></div>
-                <div class="members-club">Disney Vacation Club <span class="tier">Member-direct only</span></div>
-                <div class="members-club">Wyndham Destinations <span class="tier">Including CLUB</span></div>
-                <div class="members-club">RCI Points <span class="tier">Points + Weeks</span></div>
-                <div class="members-club">Interval International <span class="tier">Standard &amp; Platinum</span></div>
-                <div class="members-club">Worldmark <span class="tier">By RCI</span></div>
-                <div class="members-club">Other major clubs <span class="tier">Reviewed case by case</span></div>
-            </div>
-            <p class="lede" style="margin-top: 22px;">Fixed-week and right-to-use systems are reviewed case by case. Some programs explicitly forbid managed rental — we'll tell you up front rather than risk your membership. Compliance with your club's rules is non-negotiable on our side.</p>
+            <p class="lede" style="margin-top: 22px;">Some ownership types are reviewed case by case, and some ownership agreements do not permit third-party advertising at all — we'll tell you up front rather than put your ownership at risk. Compliance with whatever rules apply to your property is non-negotiable on our side.</p>
         </section>
 
         <section class="members-section">
@@ -163,13 +141,13 @@
             <h2>What you get when you list with us.</h2>
 
             <ul style="margin-top: 28px; padding-left: 22px; font-size: 15.5px; line-height: 2; color: var(--ink);">
-                <li><strong>Advertised across our network</strong> and partner channels, so your unused weeks reach travelers already searching for them.</li>
+                <li><strong>Advertised across our network</strong> and partner channels, so the time you are not using reaches travelers already searching for it.</li>
                 <li><strong>Pricing transparency.</strong> One fee, paid once, covering a 180-day managed advertising and listing term — quoted in writing on the onboarding call before any commitment. It is not a recurring subscription and it does not bill again.</li>
                 <li><strong>Rate-locked for the term.</strong> Whatever we quote is what applies; we won't raise it mid-term without your written consent.</li>
                 <li><strong>No separate percentage cut.</strong> Once those costs are covered on each booking, the rest is yours.</li>
-                <li><strong>You stay in control.</strong> Keep, gift, or rent whichever weeks you want each year. Withdrawal of a week from the program doesn't affect bookings already confirmed against it.</li>
+                <li><strong>You stay in control.</strong> Keep, gift, or advertise whichever time you want each year. Withdrawing time from the program doesn't affect arrangements already confirmed against it.</li>
                 <li><strong>Real human onboarding.</strong> A specialist contacts you within one business day of your enquiry. No bots until your portfolio is live.</li>
-                <li><strong>You deal with the guest directly.</strong> Vaytoven advertises the week and passes the enquiry to you. The reservation, the payment and the terms are yours to agree — we don't sit in the middle of the money.</li>
+                <li><strong>You deal with the guest directly.</strong> Vaytoven advertises the listing and passes the enquiry to you. The reservation, the payment and the terms are yours to agree — we don't sit in the middle of the money.</li>
             </ul>
         </section>
 
@@ -182,28 +160,28 @@
                     <div class="members-flow-step-number"></div>
                     <div>
                         <h3>You submit an enquiry</h3>
-                        <p>Drop your name, contact details, club, property, and points balance via the form on our home page. Takes about 90 seconds. You get an automated confirmation email with a reference code (format <code style="font-family:'SFMono-Regular',Consolas,monospace; font-size: 12.5px; background: #f5f3ff; padding: 2px 6px; border-radius: 4px;">VYT-XXXXXXXX</code>) you can quote in any reply.</p>
+                        <p>Drop your name, contact details and property details via the form on our home page. Takes about 90 seconds. You get an automated confirmation email with a reference code (format <code style="font-family:'SFMono-Regular',Consolas,monospace; font-size: 12.5px; background: #f5f3ff; padding: 2px 6px; border-radius: 4px;">VYT-XXXXXXXX</code>) you can quote in any reply.</p>
                     </div>
                 </div>
                 <div class="members-flow-step">
                     <div class="members-flow-step-number"></div>
                     <div>
                         <h3>Specialist call within one business day</h3>
-                        <p>A real person on the member team reaches out. We confirm your program rules, audit which weeks are eligible to rent, and quote the exact one-time fee for your specific portfolio's 180-day term. You decide whether to move forward — no commitment until you sign.</p>
+                        <p>A real person on the member team reaches out. We confirm the rules that apply to your property, audit which time is eligible to advertise, and quote the exact one-time fee for your specific portfolio's 180-day term. You decide whether to move forward — no commitment until you sign.</p>
                     </div>
                 </div>
                 <div class="members-flow-step">
                     <div class="members-flow-step-number"></div>
                     <div>
-                        <h3>Your weeks go live</h3>
-                        <p>Eligible weeks are built into listings — photography, copy, amenities and availability — and published across our network. You approve before anything goes live, and you keep control of your rates and which weeks you offer.</p>
+                        <h3>Your listing goes live</h3>
+                        <p>Eligible time is built into listings — photography, copy, amenities and availability — and published across our network. You approve before anything goes live, and you keep control of your rates and which time you offer.</p>
                     </div>
                 </div>
                 <div class="members-flow-step">
                     <div class="members-flow-step-number"></div>
                     <div>
                         <h3>Offers arrive, you decide</h3>
-                        <p>Travelers submit offers and inquiries on your weeks. You see each one in your member dashboard — with the dates, guests, amount offered and when it expires — and accept or decline. From there you arrange the stay and the payment with the guest directly.</p>
+                        <p>Travelers submit offers and inquiries on your listing. You see each one in your member dashboard — with the dates, guests, amount offered and when it expires — and accept or decline. From there you arrange the stay and the payment with the guest directly.</p>
                     </div>
                 </div>
             </div>
@@ -215,8 +193,8 @@
 
             <div class="members-faq" style="margin-top: 32px;">
                 <details>
-                    <summary>Will advertising my weeks violate my club's rules?</summary>
-                    <p>Vaytoven advertises your weeks; it does not rent them, take the booking, or become a party to your arrangement with the guest. You remain the one who agrees the stay. Club rules on renting vary, so check yours — we'll talk through what your program allows on the onboarding call, and we'll tell you before any commitment if we think it's a poor fit.</p>
+                    <summary>Will advertising my property breach my ownership agreement?</summary>
+                    <p>Vaytoven advertises; it does not take the reservation or become a party to your arrangement with the guest. You remain the one who agrees the stay. Ownership agreements differ on what they permit, so check yours — we'll talk through what applies to your property on the onboarding call, and we'll tell you before any commitment if we think it's a poor fit.</p>
                 </details>
                 <details>
                     <summary>What does the one-time fee cover?</summary>
@@ -232,16 +210,16 @@
                     <p>No, not without your written consent. The Member Agreement explicitly commits us to the quoted figures for the term. If we propose changes at renewal, you get plenty of notice and can decline.</p>
                 </details>
                 <details>
-                    <summary>What happens if I want to use a week myself after I've enrolled it?</summary>
-                    <p>You stay in control. Withdraw the week from advertising at any time and it's yours. If you've already accepted an offer from a guest, that arrangement is between you and them — honour it as you would any commitment you've made.</p>
+                    <summary>What happens if I want to use the time myself after I've enrolled it?</summary>
+                    <p>You stay in control. Withdraw the time from advertising at any time and it's yours. If you've already accepted an offer from a guest, that arrangement is between you and them — honour it as you would any commitment you've made.</p>
                 </details>
                 <details>
                     <summary>How do I get paid?</summary>
-                    <p>By the guest, directly. Vaytoven is an advertising platform — we don't collect rental payments, hold funds in escrow, or pay you out, and we never ask for your banking details. When you accept an offer you agree payment terms with the guest yourself. The only money that moves through Vaytoven is what you pay us for advertising and your subscription.</p>
+                    <p>By the guest, directly. Vaytoven is an advertising platform — we don't collect payments from guests, hold funds in escrow, or pay you out, and we never ask for your banking details. When you accept an offer you agree payment terms with the guest yourself. The only money that moves through Vaytoven is what you pay us for advertising and your subscription.</p>
                 </details>
                 <details>
-                    <summary>What if my club isn't on the list?</summary>
-                    <p>Mention it on your enquiry — we review case by case. New programs get added when we're confident we can structure compliant rentals for them.</p>
+                    <summary>What if my property type isn't covered?</summary>
+                    <p>Mention it on your enquiry — we review case by case. We take on new property types once we're confident we can advertise them compliantly.</p>
                 </details>
                 <details>
                     <summary>How long is the agreement?</summary>

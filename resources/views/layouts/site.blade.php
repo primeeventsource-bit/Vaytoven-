@@ -15,7 +15,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title') · {{ setting('general.site_name', 'Vaytoven') }}</title>
     @include('partials.favicon')
-    <meta name="description" content="@yield('meta_description', setting('seo.meta_description_default', 'Curated vacation homes for travelers, hosts, and vacation club members.'))">
+    <meta name="description" content="@yield('meta_description', setting('seo.meta_description_default', 'Curated vacation homes for travelers, hosts and property owners.'))">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">

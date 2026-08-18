@@ -25,16 +25,8 @@
                             <p style="margin:24px 0 8px;font-size:13px;color:#6b7280">What you told us</p>
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:14px">
                                 <tr>
-                                    <td style="padding:8px 0;color:#6b7280;width:140px">Club</td>
-                                    <td style="padding:8px 0">{{ $club }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:8px 0;color:#6b7280">Property</td>
+                                    <td style="padding:8px 0;color:#6b7280;width:140px">Property</td>
                                     <td style="padding:8px 0">{{ $property }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:8px 0;color:#6b7280">Points balance</td>
-                                    <td style="padding:8px 0">{{ $points }}</td>
                                 </tr>
                             </table>
 
@@ -43,7 +35,7 @@
                     </tr>
                     <tr>
                         <td style="padding:20px 32px;background:#fafaf9;border-top:1px solid #f0eded;font-size:12px;color:#6b7280">
-                            Vaytoven — vacation property club &amp; member services. We never share your details with third parties.
+                            Vaytoven — vacation property advertising and listing services. We never share your details with third parties.
                         </td>
                     </tr>
                 </table>

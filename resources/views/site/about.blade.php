@@ -18,7 +18,7 @@
         <h2>What Vaytoven is</h2>
         <p>
             Vaytoven is a technology and marketing platform. Members and hosts create listings for
-            vacation properties and points-based club inventory; we give them the tools to present
+            vacation properties; we give them the tools to present
             it well, keep availability current, receive inquiries and offers, and manage the
             resulting bookings. Travelers browse those listings, ask questions, make offers and
             book through the platform.
@@ -42,7 +42,7 @@
             <div class="site-card">
                 <h3>Membership services</h3>
                 <p style="margin:0;">
-                    Subscription-based access to the Managed Listing Program and the Vacation Club,
+                    Subscription-based access to the Managed Listing Program,
                     with a dashboard for the listings and offers attached to an account.
                 </p>
             </div>

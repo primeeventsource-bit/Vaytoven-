@@ -32,7 +32,7 @@
                 </svg>
                 <span class="brand-mark-text">Vaytoven</span>
             </div>
-            <p>Curated vacation properties. Built for travelers, hosts, and vacation club members who want the trip to feel right.</p>
+            <p>Curated vacation properties. Built for travelers, hosts, and property owners who want the trip to feel right.</p>
             <address>
                 500 S Australian Ave, Ste 600<br>West Palm Beach, FL 33401<br>
                 <a href="mailto:contact@vaytoven.com" data-track-cta="footer_email">contact@vaytoven.com</a><br>

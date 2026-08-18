@@ -14,9 +14,7 @@
                 </div>
                 <div class="vyt-card-body">
                     <ul class="vyt-kv">
-                        <li><span class="k">Club</span><span class="v">{{ $myEnquiry->club }}</span></li>
                         <li><span class="k">Property</span><span class="v">{{ $myEnquiry->property }}</span></li>
-                        <li><span class="k">Annual points allocation</span><span class="v">{{ number_format((int) $myEnquiry->points) }}</span></li>
                         @php($det = $myEnquiry->exchange_detection)
                         @if ($det && ! empty($det['matches']))
                             @php($top = $det['matches'][0])
@@ -44,7 +42,7 @@
         </section>
     @endif
 
-    {{-- Offers Vaytoven has extended for the member's points inventory.
+    {{-- Offers Vaytoven has extended against the member's listed time.
          Pending first (most actionable), then a short tail of responded/expired. --}}
     <section class="vyt-section">
         <div class="vyt-card">
@@ -58,7 +56,7 @@
             </div>
             @if ($offers->isEmpty())
                 <div class="vyt-card-empty">
-                    No offers yet. When a traveler makes an offer on one of your weeks, it'll appear here.
+                    No offers yet. When a traveler makes an offer on your listing, it'll appear here.
                 </div>
             @else
                 @foreach ($offers as $offer)
@@ -153,19 +151,15 @@
             <div class="vyt-card-body" style="font-size:14px;line-height:1.7;">
                 <ol style="margin:0;padding-left:22px;">
                     <li>
-                        <strong>Check availability for the dates above</strong> in your home program's member portal
-                        @if ($myEnquiry?->club)
-                            (your {{ $myEnquiry->club }} account).
-                        @else
-                            (Marriott, Hilton, Disney, RCI, Interval International, etc.).
-                        @endif
+                        <strong>Check availability for the dates above</strong> wherever you normally
+                        manage bookings for your property.
                     </li>
-                    <li><strong>Reserve the unit</strong> using your points / week-equivalents for the proposed dates.</li>
+                    <li><strong>Reserve the unit</strong> for the proposed dates.</li>
                     <li><strong>Reply to your member specialist</strong> with the resort's confirmation number once the booking is in.</li>
                     <li><strong>Add Vaytoven's guests</strong> to your guest pass list when prompted by your home program — your specialist will share the full guest names a few days before check-in.</li>
                 </ol>
                 <p style="margin:18px 0 0;color:var(--muted);font-size:13.5px;">
-                    Questions about reservation windows, points conversion, or guest passes?
+                    Questions about reservation windows or guest passes?
                     <a href="mailto:contact@vaytoven.com?subject=Help with my offer">Contact your member specialist</a>
                     or check the <a href="{{ route('help.index') }}">help center</a>.
                 </p>

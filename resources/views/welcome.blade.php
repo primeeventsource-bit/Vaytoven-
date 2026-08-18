@@ -9,7 +9,7 @@
          is how "Vaytoven Rentals" survived the rename in every browser tab. --}}
     <title>{{ setting('general.site_name', 'Vaytoven') }} — {{ setting('general.tagline', 'Find your place anywhere.') }}</title>
     @include('partials.favicon')
-    <meta name="description" content="{{ setting('seo.meta_description_default', 'Curated vacation homes for travelers, hosts, and vacation club members.') }}">
+    <meta name="description" content="{{ setting('seo.meta_description_default', 'Curated vacation homes for travelers, hosts and property owners.') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -767,7 +767,7 @@
             </div>
 
             <div class="calc-row">
-                <div class="calc-label"><span>Booked weeks per year</span><span id="calc-weeks">13</span></div>
+                <div class="calc-label"><span>Time booked per year</span><span id="calc-weeks">13</span></div>
                 <input type="range" id="calc-weeks-input" min="2" max="40" value="13" step="1">
             </div>
         </div>
@@ -777,9 +777,9 @@
 <section class="section members-section" id="members">
     <div class="members-grid">
         <div>
-            <div class="eyebrow">For vacation club members</div>
-            <h2 class="display" style="margin: 14px 0 16px; font-size: clamp(34px, 4.5vw, 56px);">Turn the weeks you don't use into <em class="grad-text">real income.</em></h2>
-            <p style="color: var(--muted); margin: 0;">If you own points-based vacation property — Marriott, Hilton, Disney, Wyndham, RCI, Interval, or any major club — Vaytoven's managed listing program lets you rent the weeks you don't use, with zero hassle and full compliance with your program rules.</p>
+            <div class="eyebrow">For property owners</div>
+            <h2 class="display" style="margin: 14px 0 16px; font-size: clamp(34px, 4.5vw, 56px);">Turn the time you don't use into <em class="grad-text">real income.</em></h2>
+            <p style="color: var(--muted); margin: 0;">If you own a vacation property — Vaytoven's Managed Listing Program advertises the time you don't use, with zero hassle and full compliance.</p>
 
             <ul class="members-list">
                 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>We list and market your weeks across our network and partner channels.</span></li>
@@ -795,7 +795,7 @@
         </div>
 
         <div class="earnings-card">
-            <h4>Sample member earnings · 3 weeks</h4>
+            <h4>Sample member earnings · illustrative</h4>
 
             <div class="earnings-row">
                 <div>
@@ -988,12 +988,12 @@
         </div>
         <div class="testimonial">
             <div class="testimonial-quote">"</div>
-            <p>I had three weeks of points sitting unused. Vaytoven put $9,200 in my account. Honestly didn't think it was real until I saw the deposit.</p>
+            <p>I had time sitting unused every year and no idea what to do with it. Vaytoven advertised it, the enquiries came straight to me, and I agreed the stays myself.</p>
             <div class="testimonial-who">
                 <div class="testimonial-avatar" style="background: linear-gradient(135deg, #D63384, #4A2C5A);"></div>
                 <div>
                     <div class="testimonial-name">Carmen L.</div>
-                    <div class="testimonial-role">Vacation club member</div>
+                    <div class="testimonial-role">Property owner</div>
                 </div>
             </div>
         </div>
@@ -1009,11 +1009,11 @@
     <div class="faq-list">
         <details class="faq-item">
             <summary>How is Vaytoven different from other rental sites?</summary>
-            <div class="faq-item-body">We advertise; we don't sit between you and the host. Hosts pay us to list, not a commission on what they earn, so there's no platform cut inflating what you're quoted. And there's a managed listing program for vacation club members with unused weeks.</div>
+            <div class="faq-item-body">We advertise; we don't sit between you and the host. Hosts pay us to list, not a commission on what they earn, so there's no platform cut inflating what you're quoted. And there's a managed listing program for owners with time they don't use.</div>
         </details>
         <details class="faq-item">
             <summary>What does the managed listing program for members involve?</summary>
-            <div class="faq-item-body">If you own points-based vacation property in a program like Marriott, Hilton, Disney, RCI, or Interval, we advertise the weeks you don't use and pass the offers to you — fully compliant with your club's rental rules. You accept or decline, then deal with the guest directly. A specialist will walk you through specifics on a 20-minute call.</div>
+            <div class="faq-item-body">If you own a vacation property, we advertise the time you don't use and pass the offers to you — within whatever rules apply to your property. You accept or decline, then deal with the guest directly. A specialist will walk you through specifics on a 20-minute call.</div>
         </details>
         <details class="faq-item">
             <summary>Are there hidden fees?</summary>
@@ -1072,34 +1072,11 @@
                     </div>
                 </div>
 
-                <div class="form-field form-field-full">
-                    <label for="m-club">Vacation club <span class="req">*</span></label>
-                    <select id="m-club" name="club" required>
-                        <option value="">Choose your program</option>
-                        <option>Marriott Vacation Club</option>
-                        <option>Hilton Grand Vacations</option>
-                        <option>Disney Vacation Club</option>
-                        <option>Wyndham</option>
-                        <option>Hyatt Residence Club</option>
-                        <option>Diamond Resorts</option>
-                        <option>Worldmark by Wyndham</option>
-                        <option>Bluegreen Vacations</option>
-                        <option>Westgate Resorts</option>
-                        <option>RCI Points</option>
-                        <option>Interval International</option>
-                        <option>Other</option>
-                    </select>
-                </div>
-
                 <div class="form-row">
                     <div class="form-field">
                         <label for="m-property">Property name &amp; location <span class="req">*</span></label>
-                        <input id="m-property" name="property" type="text" required placeholder="e.g. Grande Ocean, Hilton Head">
+                        <input id="m-property" name="property" type="text" required placeholder="e.g. beachfront condo, Hilton Head SC">
                         <span class="hint">If you have multiple properties, list one — we'll discuss the rest on the call.</span>
-                    </div>
-                    <div class="form-field">
-                        <label for="m-points">Annual points allocation <span class="req">*</span></label>
-                        <input id="m-points" name="points" type="text" required placeholder="e.g. 75,000">
                     </div>
                 </div>
 
@@ -1220,9 +1197,7 @@
             if (!data.last_name) missing.push('Last name');
             if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) missing.push('Email');
             if (!data.phone) missing.push('Phone');
-            if (!data.club) missing.push('Vacation club');
             if (!data.property) missing.push('Property');
-            if (!data.points) missing.push('Points balance');
             if (!form.consent.checked) missing.push('Consent');
 
             if (missing.length) {

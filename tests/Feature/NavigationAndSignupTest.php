@@ -84,8 +84,10 @@ class NavigationAndSignupTest extends TestCase
         $resp->assertOk();
         $resp->assertSee('Managed Listing Program');
         // "Turn unused points into real income" read like cashing in a loyalty
-        // balance. The inventory is weeks the member already owns.
-        $resp->assertSee("Turn the weeks you don't use into", false);
+        // balance; "weeks" replaced it, and "time" replaced that. The point of
+        // the current wording is that nothing on the page frames this as a
+        // points programme or a rental.
+        $resp->assertSee("Turn the time you don't use into", false);
         $resp->assertSee('Member program FAQs');
 
         // The member program is a ONE-TIME fee for a 180-day term. It was
@@ -97,13 +99,28 @@ class NavigationAndSignupTest extends TestCase
         $resp->assertDontSee('per week');
     }
 
-    public function test_members_page_lists_eligible_clubs(): void
+    /**
+     * The inverse of what this test used to assert.
+     *
+     * It required the page to name Marriott, Hilton, Disney, Wyndham, RCI and
+     * Interval. Naming other companies' programmes made the page read as a
+     * points-club rental service, which is not what Vaytoven sells and is not
+     * a positioning it wants. Vaytoven advertises vacation properties.
+     *
+     * Kept as a test rather than deleted, because a brand name is exactly the
+     * kind of thing that creeps back in one bullet at a time.
+     */
+    public function test_the_members_page_names_no_club_brands_and_no_points(): void
     {
         $body = $this->get('/members')->assertOk()->getContent();
 
-        // The clubs grid covers the major points-based programs.
-        foreach (['Marriott', 'Hilton', 'Disney', 'Wyndham', 'RCI', 'Interval'] as $club) {
-            $this->assertStringContainsString($club, $body, "Expected club: {$club}");
+        foreach (['Marriott', 'Hilton', 'Disney', 'Wyndham', 'RCI', 'Interval',
+                  'Worldmark', 'Bluegreen', 'Westgate', 'Hyatt', 'Diamond Resorts'] as $brand) {
+            $this->assertStringNotContainsString($brand, $body, "Brand name on the page: {$brand}");
+        }
+
+        foreach (['points', 'Points', 'vacation club', 'Vacation Club'] as $phrase) {
+            $this->assertStringNotContainsString($phrase, $body, "Club/points wording on the page: {$phrase}");
         }
     }
 

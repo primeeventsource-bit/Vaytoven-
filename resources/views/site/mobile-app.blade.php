@@ -47,9 +47,9 @@
                 </p>
             </div>
             <div class="site-card">
-                <h3>Vacation Club</h3>
+                <h3>Programs</h3>
                 <p style="margin:0;">
-                    Access Vacation Club information and the Managed Listing Program details tied to
+                    Access Managed Listing Program details tied to
                     your membership.
                 </p>
             </div>

@@ -48,18 +48,34 @@ class MemberEnquiryConfirmationTest extends TestCase
     {
         $enquiry = MemberEnquiry::factory()->create([
             'first_name' => 'Ada',
-            'club'       => 'Marriott Vacation Club',
             'property'   => 'Ko Olina',
-            'points'     => '4500',
         ]);
 
         $rendered = (new MemberEnquiryReceived($enquiry))->render();
 
         $this->assertStringContainsString('Ada', $rendered);
         $this->assertStringContainsString($enquiry->reference, $rendered);
-        $this->assertStringContainsString('Marriott Vacation Club', $rendered);
         $this->assertStringContainsString('Ko Olina', $rendered);
-        $this->assertStringContainsString('4500', $rendered);
+    }
+
+    /**
+     * The confirmation email used to echo a club name and a points balance
+     * back at the sender. Neither is asked for any more: Vaytoven advertises
+     * vacation properties, and quoting a club programme back to someone framed
+     * it as a points-club rental service.
+     */
+    public function test_the_confirmation_mail_does_not_mention_clubs_or_points(): void
+    {
+        $enquiry = MemberEnquiry::factory()->create([
+            'club'   => 'Some Club',      // a legacy row can still hold these
+            'points' => '4500',
+        ]);
+
+        $rendered = (new MemberEnquiryReceived($enquiry))->render();
+
+        $this->assertStringNotContainsString('Some Club', $rendered);
+        $this->assertStringNotContainsString('4500', $rendered);
+        $this->assertStringNotContainsString('Points', $rendered);
     }
 
     public function test_each_enquiry_gets_unique_reference(): void

@@ -87,7 +87,7 @@
         <div class="site-card">
             <h3>Own a property in one of these places?</h3>
             <p style="margin:0 0 16px;">
-                List it alongside them. Members advertise vacation properties and points-based club
+                List it alongside them. Members advertise vacation properties
                 inventory through the Managed Listing Program.
             </p>
             <a href="{{ route('hosts.show') }}" class="site-cta"

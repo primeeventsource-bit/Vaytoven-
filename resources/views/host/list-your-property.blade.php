@@ -61,7 +61,7 @@
                             <input type="radio" name="listing_kind" value="resort"
                                    @checked(old('listing_kind') === 'resort')>
                             <strong>A resort or club week</strong>
-                            <span>Vacation Club inventory — a fixed week, floating weeks, or points.</span>
+                            <span>Time in a vacation property you own or hold rights to.</span>
                         </label>
                     </div>
 
@@ -128,13 +128,13 @@
                             <div class="site-field">
                                 <label for="resort_name">Resort name</label>
                                 <input id="resort_name" name="resort_name" type="text"
-                                       value="{{ old('resort_name') }}" placeholder="e.g. Marbella Beach Club">
+                                       value="{{ old('resort_name') }}" placeholder="The name your property goes by">
                                 @error('resort_name') <div class="err">{{ $message }}</div> @enderror
                             </div>
                             <div class="site-field">
-                                <label for="club_or_developer">Club or developer</label>
+                                <label for="club_or_developer">Managing company <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
                                 <input id="club_or_developer" name="club_or_developer" type="text"
-                                       value="{{ old('club_or_developer') }}" placeholder="e.g. Marriott Vacation Club">
+                                       value="{{ old('club_or_developer') }}" placeholder="Who manages the property, if anyone">
                                 @error('club_or_developer') <div class="err">{{ $message }}</div> @enderror
                             </div>
                         </div>

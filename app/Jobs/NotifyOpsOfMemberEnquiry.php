@@ -34,15 +34,22 @@ class NotifyOpsOfMemberEnquiry implements ShouldQueue
         $e = $this->enquiry;
 
         // Plain-text fallback so even legacy clients render something useful.
+        // Club and points are no longer collected. They stay on older rows, so
+        // they are shown only when present rather than rendering as empty
+        // labels on every new enquiry.
+        $legacy = array_filter([
+            $e->club ? "Club: {$e->club}" : null,
+            $e->points ? "Points: {$e->points}" : null,
+        ]);
+
         $text = sprintf(
-            ":wave: New member enquiry — %s\n*%s* · %s · %s\nClub: %s · Property: %s · Points: %s\n%s",
+            ":wave: New member enquiry — %s\n*%s* · %s · %s\nProperty: %s%s\n%s",
             $e->reference,
             $e->fullName(),
             $e->email,
             $e->phone,
-            $e->club,
             $e->property,
-            $e->points,
+            $legacy ? ' · '.implode(' · ', $legacy) : '',
             $e->contact_window ? 'Best contact window: '.$e->contact_window : '',
         );
 
@@ -59,9 +66,7 @@ class NotifyOpsOfMemberEnquiry implements ShouldQueue
                         ['type' => 'mrkdwn', 'text' => "*Name*\n{$e->fullName()}"],
                         ['type' => 'mrkdwn', 'text' => "*Email*\n{$e->email}"],
                         ['type' => 'mrkdwn', 'text' => "*Phone*\n{$e->phone}"],
-                        ['type' => 'mrkdwn', 'text' => "*Club*\n{$e->club}"],
                         ['type' => 'mrkdwn', 'text' => "*Property*\n{$e->property}"],
-                        ['type' => 'mrkdwn', 'text' => "*Points*\n{$e->points}"],
                     ],
                 ],
                 ...($e->contact_window ? [[

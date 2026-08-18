@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
 @section('title', 'Careers')
-@section('meta_description', 'Open roles at Vaytoven Technologies LLC — building the platform behind vacation property listings, memberships and the Vacation Club.')
+@section('meta_description', 'Open roles at Vaytoven Technologies LLC — building the platform behind vacation property listings and memberships.')
 
 @section('content')
 <div class="site-shell">
