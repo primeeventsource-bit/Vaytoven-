@@ -36,6 +36,7 @@ use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PressController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyBrowseController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SitePageController;
 use App\Http\Controllers\TripSupportController;
 use App\Http\Controllers\Webhooks\DocuSignWebhookController;
@@ -385,6 +386,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Public sitemap. The URL list is an allow-list inside the controller, not a
+// walk of the router — see SitemapController.
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
 // Where browsers post CSP violations. Posted by the browser, so it cannot
 // carry a CSRF token and cannot be authenticated; rate limited instead, and

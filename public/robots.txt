@@ -1,2 +1,32 @@
 User-agent: *
-Disallow:
+
+# Signed-in areas. Nothing behind these is useful in a search result, and
+# crawling them just generates redirects to the login page.
+Disallow: /admin
+Disallow: /account
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /login
+Disallow: /register
+Disallow: /password
+Disallow: /reset-password
+Disallow: /forgot-password
+
+# Payment links are issued to one member for one order and are not secrets a
+# crawler should be helping to enumerate.
+Disallow: /member-payment
+
+# Endpoints, not pages.
+Disallow: /security/
+Disallow: /webhooks/
+Disallow: /health
+Disallow: /up
+Disallow: /api/
+
+# Search result pages produce endless crawlable permutations from filters.
+Disallow: /help/search
+Disallow: /properties?
+
+Allow: /
+
+Sitemap: https://vaytoven.com/sitemap.xml

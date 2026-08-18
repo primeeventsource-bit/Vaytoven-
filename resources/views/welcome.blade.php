@@ -8,6 +8,7 @@
          change the tab title and description without a deploy. Hardcoding it
          is how "Vaytoven Rentals" survived the rename in every browser tab. --}}
     <title>{{ setting('general.site_name', 'Vaytoven') }} — {{ setting('general.tagline', 'Find your place anywhere.') }}</title>
+    @include('partials.favicon')
     <meta name="description" content="{{ setting('seo.meta_description_default', 'Curated vacation homes for travelers, hosts, and vacation club members.') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

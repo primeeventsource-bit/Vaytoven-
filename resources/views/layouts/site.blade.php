@@ -14,6 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title') · {{ setting('general.site_name', 'Vaytoven') }}</title>
+    @include('partials.favicon')
     <meta name="description" content="@yield('meta_description', setting('seo.meta_description_default', 'Curated vacation homes for travelers, hosts, and vacation club members.'))">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
