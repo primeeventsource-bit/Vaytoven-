@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PropertyStatus;
+use App\Enums\ActivityType;
 use App\Models\Amenity;
 use App\Models\Property;
 use App\Models\PropertyView;
 use App\Services\GeoIp\GeoIpService;
+use App\Services\Tracking\ActivityRecorder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -37,6 +39,16 @@ class PropertyBrowseController extends Controller
             ->with(['photos' => fn ($q) => $q->orderBy('sort_order')]);
 
         if ($q = trim((string) $request->query('q', ''))) {
+            // The TERM is recorded, not the visitor. It answers "what are
+            // people looking for that we do not advertise", which is the
+            // only reason to keep a search at all.
+            app(ActivityRecorder::class)->record(
+                ActivityType::SearchPerformed,
+                $request,
+                result: 'successful',
+                metadata: ['term' => mb_substr($q, 0, 120)],
+            );
+
             $query->where(function ($w) use ($q) {
                 $w->where('title', 'like', "%{$q}%")
                     ->orWhere('city', 'like', "%{$q}%")
@@ -142,6 +154,17 @@ class PropertyBrowseController extends Controller
         $property->load(['amenities', 'photos' => fn ($q) => $q->orderBy('sort_order'), 'host:id,name,first_name,last_name']);
 
         $this->recordView($property, $request, $geoIp);
+
+        // The audit log's own record of the same moment. property_views
+        // powers the member's analytics; this is the staff-side trail that
+        // carries IP, session and device alongside it.
+        app(ActivityRecorder::class)->record(
+            ActivityType::PropertyViewed,
+            $request,
+            subjectType: 'property',
+            subjectReference: $property->reference,
+            result: 'successful',
+        );
 
         $response = view('properties.show', [
             'property' => $property,

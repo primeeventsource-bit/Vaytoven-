@@ -3,6 +3,8 @@
 namespace App\Listeners;
 
 use App\Models\User;
+use App\Enums\ActivityType;
+use App\Services\Tracking\ActivityRecorder;
 use App\Services\Tracking\LoginTrackingService;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Lockout;
@@ -25,6 +27,7 @@ class TrackAuthEvents
 {
     public function __construct(
         private readonly LoginTrackingService $tracker,
+        private readonly ActivityRecorder $activity,
         private readonly Request $request,
     ) {
     }
@@ -36,6 +39,14 @@ class TrackAuthEvents
             authEvent: 'login',
             request: $this->request,
             sessionId: session()->getId(),
+        ));
+
+        $this->safe(fn () => $this->activity->record(
+            ActivityType::LoginSucceeded,
+            $this->request,
+            subjectType: 'user',
+            subjectReference: (string) $event->user?->getAuthIdentifier(),
+            result: 'successful',
         ));
 
         // Cache "last seen" on the user row so the admin user-mgmt table
@@ -51,6 +62,12 @@ class TrackAuthEvents
         if (! $event->user) {
             return; // Logout fires even when there's no user (rare edge case)
         }
+        $this->safe(fn () => $this->activity->record(
+            ActivityType::LoggedOut,
+            $this->request,
+            result: 'successful',
+        ));
+
         $this->safe(fn () => $this->tracker->record(
             user: $event->user,
             authEvent: 'logout',
@@ -66,6 +83,16 @@ class TrackAuthEvents
         if (! $event->user instanceof User) {
             return;
         }
+        // A failed attempt is the one an auditor looks for, so it carries
+        // result: failed rather than being left off the trail.
+        $this->safe(fn () => $this->activity->record(
+            ActivityType::LoginFailed,
+            $this->request,
+            subjectType: 'user',
+            subjectReference: (string) $event->user->getAuthIdentifier(),
+            result: 'failed',
+        ));
+
         $this->safe(fn () => $this->tracker->record(
             user: $event->user,
             authEvent: 'failed',

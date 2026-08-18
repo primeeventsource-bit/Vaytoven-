@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Enums\ActivityType;
+use App\Services\Tracking\ActivityRecorder;
 
 use App\Http\Requests\StoreOfferRequest;
 use App\Models\MemberOffer;
@@ -41,6 +43,15 @@ class OfferController extends Controller
             checkIn: $request->validated('check_in'),
             checkOut: $request->validated('check_out'),
             guests: $request->validated('guests') ? (int) $request->validated('guests') : null,
+        );
+
+        app(ActivityRecorder::class)->record(
+            ActivityType::OfferSubmitted,
+            $request,
+            subjectType: 'offer',
+            subjectReference: $offer->reference,
+            result: 'completed',
+            metadata: ['property' => $property->reference],
         );
 
         // Deliberately explicit that nothing has been reserved and nothing has

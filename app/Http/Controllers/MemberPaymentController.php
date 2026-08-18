@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Enums\ActivityType;
+use App\Services\Tracking\ActivityRecorder;
 
 use App\Mail\MemberServiceReceipt;
 use App\Models\MemberServiceOrder;
@@ -33,8 +35,24 @@ class MemberPaymentController extends Controller
         $order = $this->resolve($reference);
 
         if ($order->status === \App\Enums\MemberServiceOrderStatus::Paid) {
+            app(ActivityRecorder::class)->record(
+                ActivityType::ReceiptViewed,
+                subjectType: 'order',
+                subjectReference: $order->reference,
+                result: 'successful',
+            );
+
             return view('member-services.receipt', ['order' => $order]);
         }
+
+        // Never carries a card number or a CVV - nothing in this method
+        // has seen one. Collect.js tokenises in the browser.
+        app(ActivityRecorder::class)->record(
+            ActivityType::CheckoutOpened,
+            subjectType: 'order',
+            subjectReference: $order->reference,
+            result: 'successful',
+        );
 
         return view('member-services.payment', [
             'order'           => $order,
@@ -72,10 +90,28 @@ class MemberPaymentController extends Controller
         );
 
         if ($order->status !== \App\Enums\MemberServiceOrderStatus::Paid) {
+            app(ActivityRecorder::class)->record(
+                ActivityType::PaymentDeclined,
+                $request,
+                subjectType: 'order',
+                subjectReference: $order->reference,
+                result: 'failed',
+                metadata: ['response' => $order->nmi_response_text],
+            );
+
             return back()->withErrors([
                 'payment_token' => $this->declineMessage($order->nmi_response_text),
             ]);
         }
+
+        app(ActivityRecorder::class)->record(
+            ActivityType::PaymentApproved,
+            $request,
+            subjectType: 'order',
+            subjectReference: $order->reference,
+            result: 'completed',
+            metadata: ['transaction' => $order->nmi_transaction_id],
+        );
 
         $this->emailReceipt($order);
 

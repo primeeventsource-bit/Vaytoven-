@@ -139,6 +139,11 @@
                                 <span class="vyt-faint" style="display:block;font-size:11.5px;">
                                     {{ ucfirst($event->actor->role?->value ?? 'user') }} · {{ $event->actor->email }}
                                 </span>
+                            @elseif ($event->actor_user_id)
+                                {{-- The account is gone but the event is not: the
+                                     foreign key was dropped so deletion cannot erase
+                                     the trail. Saying "Guest" here would be false. --}}
+                                <span class="vyt-faint">Deleted account #{{ $event->actor_user_id }}</span>
                             @else
                                 <span class="vyt-faint">Guest</span>
                             @endif
