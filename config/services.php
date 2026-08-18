@@ -29,7 +29,11 @@ return [
     // mount the .mmdb files via the deploy filesystem and set the absolute
     // path here, or leave both unset to fall back to NoOpGeoIpService.
     'maxmind' => [
+        // Set MAXMIND_MMDB_PATH only when the database is installed system-wide.
+        // Otherwise it is fetched by vaytoven:geoip-download and kept on the
+        // durable disk, because the container filesystem does not survive a deploy.
         'mmdb_path'           => env('MAXMIND_MMDB_PATH'),
+        'license_key'         => env('MAXMIND_LICENSE_KEY'),
         'anonymous_mmdb_path' => env('MAXMIND_ANONYMOUS_MMDB_PATH'),
     ],
 

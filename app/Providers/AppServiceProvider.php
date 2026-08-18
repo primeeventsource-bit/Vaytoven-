@@ -116,6 +116,11 @@ $this->app->singleton(GeoIpService::class, function ($app) {
             // result derives from per-request headers, and the cache key
             // (the IP) doesn't capture that — caching could pin an empty
             // result from a CLI/queue context for an hour.
+            // Hydrates from durable storage on first use in this container.
+            // Returns null when there is nothing to read, which falls through
+            // to Cloudflare headers rather than breaking every lookup.
+            $cityPath = $cityPath ?: \App\Support\GeoIp\GeoIpDatabase::ensureAvailable();
+
             if ($cityPath && is_readable($cityPath)) {
                 return new CachedGeoIpService(
                     new MaxMindGeoIpService($cityPath, $anonPath),
