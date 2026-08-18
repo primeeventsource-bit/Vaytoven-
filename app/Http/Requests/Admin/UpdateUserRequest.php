@@ -54,7 +54,11 @@ class UpdateUserRequest extends FormRequest
         $target = $this->route('user');
 
         return [
-            'name'     => ['required', 'string', 'max:255'],
+            // Last name is optional: mononyms exist, and refusing to create
+            // an account over one is worse than a display name of just
+            // "Prince". `name` is composed from these, never asked for.
+            'first_name' => ['required', 'string', 'max:120'],
+            'last_name'  => ['nullable', 'string', 'max:120'],
             'email'    => ['required', 'email:rfc', 'max:255', Rule::unique('users', 'email')->ignore($target->id)],
             'role'     => ['required', Rule::enum(UserRole::class)],
             // Password is optional on update — only set if non-empty.

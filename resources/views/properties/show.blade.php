@@ -84,10 +84,14 @@
                     </p>
                 </section>
 
-                @if ($property->host?->name)
+                @if ($property->host)
                     <section class="props-detail-section">
-                        <h2>Hosted by</h2>
-                        <p>{{ $property->host->name }}</p>
+                        <h2>Advertised by</h2>
+                        {{-- First name and last initial only. A listing already
+                             carries a location and the dates the place is empty;
+                             a full surname on top of that is what makes the set
+                             identifying, and it tells the reader nothing useful. --}}
+                        <p>{{ $property->host->publicDisplayName() }}</p>
                     </section>
                 @endif
             </div>

@@ -77,7 +77,12 @@ class UserController extends Controller
         $data  = $request->validated();
 
         $user = User::create([
-            'name'                => $data['name'],
+            'first_name'          => $data['first_name'],
+            'last_name'           => $data['last_name'] ?? null,
+            // `name` is composed, never asked for. Plenty of the app still
+            // reads it, and letting it drift from the parts would give one
+            // person two different names depending on the screen.
+            'name'                => User::composeName($data['first_name'], $data['last_name'] ?? null),
             'email'               => $data['email'],
             'password'            => $data['password'],   // hashed by cast
             'role'                => UserRole::from($data['role']),
@@ -121,7 +126,9 @@ class UserController extends Controller
         $data   = $request->validated();
         $before = ['email' => $user->email, 'name' => $user->name, 'role' => $user->role->value];
 
-        $user->name  = $data['name'];
+        $user->first_name = $data['first_name'];
+        $user->last_name  = $data['last_name'] ?? null;
+        $user->name       = User::composeName($data['first_name'], $data['last_name'] ?? null);
         $user->email = $data['email'];
         $user->role  = UserRole::from($data['role']);
         if (! empty($data['password'])) {

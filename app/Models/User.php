@@ -96,6 +96,43 @@ class User extends Authenticatable
         return $this->first_name ?: $this->name;
     }
 
+    /**
+     * How an owner is named on a public listing: "John S.".
+     *
+     * A listing is an advertisement for a property that in many cases somebody
+     * still lives in or holidays at, and it already carries a location, dates
+     * the place is empty, and a way to contact whoever holds it. A full surname
+     * on top of that is the piece that makes the set identifying, and it buys
+     * the reader nothing — the point is to feel dealt with by a person, not to
+     * know which person.
+     *
+     * Falls back rather than exposing more: a record with only a full name in
+     * one field is split on whitespace, and one with nothing usable returns a
+     * neutral label instead of an empty line or an email address.
+     */
+    public function publicDisplayName(): string
+    {
+        $first = trim((string) $this->first_name);
+        $last  = trim((string) $this->last_name);
+
+        if ($first === '' && $last === '') {
+            // Legacy rows kept a single `name`. Split it rather than printing
+            // the whole thing, which is what this method exists to avoid.
+            $parts = preg_split('/\s+/', trim((string) $this->name)) ?: [];
+            $first = $parts[0] ?? '';
+            $last  = count($parts) > 1 ? (string) end($parts) : '';
+        }
+
+        if ($first === '') {
+            return 'Property owner';
+        }
+
+        // mb_substr, not substr: a name beginning with a multi-byte character
+        // would otherwise be cut mid-character and render as a replacement box.
+        $initial = $last !== '' ? ' '.mb_strtoupper(mb_substr($last, 0, 1)).'.' : '';
+
+        return $first.$initial;
+    }
     /** Returns true if the user has any role at or above admin. */
     public function isStaff(): bool
     {

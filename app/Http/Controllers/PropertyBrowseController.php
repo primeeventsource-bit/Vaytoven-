@@ -139,7 +139,7 @@ class PropertyBrowseController extends Controller
             abort(404);
         }
 
-        $property->load(['amenities', 'photos' => fn ($q) => $q->orderBy('sort_order'), 'host:id,name']);
+        $property->load(['amenities', 'photos' => fn ($q) => $q->orderBy('sort_order'), 'host:id,name,first_name,last_name']);
 
         $this->recordView($property, $request, $geoIp);
 

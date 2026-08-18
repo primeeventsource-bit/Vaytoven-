@@ -29,13 +29,33 @@
                autocomplete="off">
     </div>
 
-    <div>
-        <label style="display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">
-            Full name <span style="color:var(--magenta);">*</span>
-        </label>
-        <input type="text" name="name" required maxlength="255"
-               value="{{ old('name', $user?->name) }}"
-               style="width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:#fff;outline:none;">
+    {{-- Captured as two fields, not one.
+
+         A listing shows its owner as "John S.", which needs the surname to be
+         a separate value. Splitting a combined name afterwards guesses: it gets
+         "Ada Marie Lovelace" right by luck and "van der Berg" wrong. Ask once,
+         correctly, and the display name stops being a guess. --}}
+    <div style="display:grid;gap:12px;grid-template-columns:1fr 1fr;">
+        <div>
+            <label style="display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">
+                First name <span style="color:var(--magenta);">*</span>
+            </label>
+            <input type="text" name="first_name" required maxlength="120"
+                   value="{{ old('first_name', $user?->first_name) }}"
+                   style="width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:#fff;outline:none;">
+            @error('first_name') <div style="color:#b91c1c;font-size:12.5px;margin-top:4px;">{{ $message }}</div> @enderror
+        </div>
+        <div>
+            <label style="display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">
+                Last name
+            </label>
+            <input type="text" name="last_name" maxlength="120"
+                   value="{{ old('last_name', $user?->last_name) }}"
+                   style="width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:#fff;outline:none;">
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">
+                Listings show the initial only, e.g. <strong>John S.</strong>
+            </div>
+        </div>
     </div>
 
     <div>
