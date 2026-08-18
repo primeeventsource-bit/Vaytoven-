@@ -20,8 +20,12 @@
                         <td class="vyt-faint">{{ $contract->sent_at?->format('M j, Y') ?? '—' }}</td>
                         <td class="vyt-faint">{{ $contract->completed_at?->format('M j, Y') ?? '—' }}</td>
                         <td>
-                            @if ($contract->status === 'completed')
+                            @if ($contract->signedPdfExists())
                                 <a href="{{ route('admin.contracts.download.signed', $contract) }}">Signed PDF</a>
+                            @elseif ($contract->signed_pdf_path)
+                                <span style="color:#b91c1c;">file missing</span>
+                            @endif
+                            @if ($contract->certificatePdfExists())
                                 ·
                                 <a href="{{ route('admin.contracts.download.certificate', $contract) }}">Certificate</a>
                             @endif

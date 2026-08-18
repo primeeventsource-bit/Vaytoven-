@@ -26,8 +26,15 @@
         <div class="card">
             <h2 style="margin-top:0;">Signed</h2>
             <p style="color:var(--muted);">Signed on {{ $contract->signed_at?->format('F j, Y \a\t H:i') }}.</p>
-            @if ($contract->signed_pdf_path)
+            @if ($contract->signedPdfExists())
                 <a class="btn btn-primary" href="{{ route('client.contracts.download', $contract) }}">Download signed PDF</a>
+            @elseif ($contract->signed_pdf_path)
+                {{-- The row has a path but the file is gone. Not the member's
+                     problem to diagnose, and not something to blame on them. --}}
+                <p style="color:var(--muted);font-size:13px;">
+                    The signed copy is temporarily unavailable. Email
+                    <a href="mailto:Contact@Vaytoven.com">Contact@Vaytoven.com</a> and we will send it to you.
+                </p>
             @else
                 <p style="color:var(--muted);font-size:13px;">The signed copy is being processed; refresh in a few seconds.</p>
             @endif

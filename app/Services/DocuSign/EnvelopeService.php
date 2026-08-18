@@ -3,6 +3,7 @@
 namespace App\Services\DocuSign;
 
 use App\Models\Contract;
+use App\Support\Storage\DocumentStorage;
 use DocuSign\eSign\Api\EnvelopesApi;
 use DocuSign\eSign\Model\Document;
 use DocuSign\eSign\Model\EnvelopeDefinition;
@@ -11,6 +12,7 @@ use DocuSign\eSign\Model\Signer;
 use DocuSign\eSign\Model\SignHere;
 use DocuSign\eSign\Model\Tabs;
 use DocuSign\eSign\Model\TemplateRole;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use Throwable;
@@ -139,13 +141,34 @@ class EnvelopeService
 
     /**
      * Download the signed combined PDF and the Certificate of Completion,
-     * persist them to the configured filesystem disk, and write the paths
-     * back onto the Contract.
+     * persist them, and write the paths and the disk back onto the Contract.
+     *
+     * The disk defaults to the configured one rather than a hardcoded `local`.
+     * On Laravel Cloud `local` is inside the container, so a signed contract
+     * written there is gone at the next deploy — and gone silently, because the
+     * row keeps its path and the download only fails the day somebody needs
+     * the document to settle a dispute.
+     *
+     * Nothing is refused here the way a document upload is. This runs from a
+     * DocuSign webhook, so refusing would mean dropping the only copy of a
+     * signed agreement rather than deferring it. Writing it to a disk that may
+     * not survive is strictly better than not writing it, so it is written and
+     * the problem is reported loudly instead.
      */
-    public function pullCompletedDocuments(Contract $contract, string $disk = 'local'): void
+    public function pullCompletedDocuments(Contract $contract, ?string $disk = null): void
     {
         if (! $contract->envelope_id) {
             return;
+        }
+
+        $disk ??= DocumentStorage::disk();
+
+        if (! DocumentStorage::isDurable()) {
+            Log::error('docusign: storing a signed contract on non-durable storage.', [
+                'contract_id' => $contract->id,
+                'disk'        => $disk,
+                'reason'      => DocumentStorage::reason(),
+            ]);
         }
 
         $api = new EnvelopesApi($this->client->api());
@@ -163,6 +186,7 @@ class EnvelopeService
         $contract->forceFill([
             'signed_pdf_path'      => $signedKey,
             'certificate_pdf_path' => $certKey,
+            'documents_disk'       => $disk,
         ])->save();
     }
 

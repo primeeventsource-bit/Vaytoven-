@@ -207,14 +207,14 @@ The `contracts` row is updated with the latest status and the most recent signer
 | Website or app source | `contracts.source` (`web` / `app` / `admin`) |
 | Terms accepted timestamp | `contracts.terms_accepted_at` |
 | Payment / invoice ID | `contracts.payment_id` |
-| Signed PDF | `contracts.signed_pdf_path` (Storage::disk('local')) |
-| Certificate of signing | `contracts.certificate_pdf_path` |
+| Signed PDF | `contracts.signed_pdf_path`, on the disk named in `contracts.documents_disk` |
+| Certificate of signing | `contracts.certificate_pdf_path`, same disk |
 
 ---
 
 ## Open questions to confirm before going live
 
-1. **Document storage:** PDFs currently land on the `local` filesystem disk. For production, switch to Azure Blob / S3 (`config/filesystems.php`) so PDFs survive container redeploys.
+1. **Document storage:** PDFs now go to the configured default disk, and the disk used is recorded on the row so old paths keep resolving. On an environment with no object storage attached, that default is still `local` — which is inside the container and lost on the next deploy. `EnvelopeService` logs an error when it writes to a non-durable disk, the admin contract screen says the file is missing rather than offering a download that fails, and *Re-fetch from DocuSign* pulls the authoritative copy back. The real fix is attaching a Cloud disk and setting `FILESYSTEM_DISK`.
 2. **Email notifications:** Do you want a Vaytoven-branded "your contract is ready" email separate from DocuSign's default? If yes, dispatch a Mailable from `Admin\ContractController::store()` after `$envelope->send()`.
 3. **Multi-signer:** Current schema supports one primary signer. If contracts will be countersigned by Vaytoven staff (host listing agreements typically are), add a `contract_signers` table with `recipient_id`, `name`, `email`, `routing_order`.
 4. **Retention policy:** How long do signed PDFs and certificates stay accessible to clients? Add a scheduled job to soft-delete or archive after N years.

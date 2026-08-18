@@ -16,11 +16,17 @@
             <div style="color:var(--muted);font-size:14px;">Contract #{{ $contract->id }} &middot; <span class="pill pill-{{ $contract->status }}">{{ ucfirst($contract->status) }}</span></div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            @if ($contract->signed_pdf_path)
+            @if ($contract->signedPdfExists())
                 <a class="btn btn-primary" href="{{ route('admin.contracts.download.signed', $contract) }}">Download signed PDF</a>
             @endif
-            @if ($contract->certificate_pdf_path)
+            @if ($contract->certificatePdfExists())
                 <a class="btn btn-secondary" href="{{ route('admin.contracts.download.certificate', $contract) }}">Certificate of completion</a>
+            @endif
+            @if ($contract->envelope_id && ! $contract->signedPdfExists())
+                <form method="post" action="{{ route('admin.contracts.refetch', $contract) }}" style="margin:0;">
+                    @csrf
+                    <button type="submit" class="btn btn-secondary">Re-fetch from DocuSign</button>
+                </form>
             @endif
             @if (! $contract->isTerminal())
                 <form method="post" action="{{ route('admin.contracts.void', $contract) }}" onsubmit="return confirm('Void this contract?');" style="margin:0;">
@@ -30,6 +36,17 @@
             @endif
         </div>
     </div>
+
+    @if ($contract->signed_pdf_path && ! $contract->signedPdfExists())
+        {{-- A path with no file behind it. Said here rather than discovered on
+             click, because the click usually happens during a dispute. --}}
+        <div class="card" style="border-color:#fecaca;background:#fef2f2;color:#991b1b;">
+            <strong>The stored signed PDF is missing.</strong>
+            It was written to the <code>{{ $contract->documentsDisk() }}</code> disk, which does not
+            survive a deploy on this environment. DocuSign still holds the authoritative copy —
+            use <em>Re-fetch from DocuSign</em> above, and attach durable storage so it stops happening.
+        </div>
+    @endif
 
     <div class="card">
         <h2 style="margin-top:0;">Client</h2>

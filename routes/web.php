@@ -329,6 +329,10 @@ Route::middleware(['auth'])
         Route::get('contracts/{contract}', [AdminContractController::class, 'show'])->middleware('permission:contracts.view')->name('contracts.show');
         Route::get('contracts/{contract}/signed.pdf', [AdminContractController::class, 'downloadSigned'])->middleware('permission:contracts.view')->name('contracts.download.signed');
         Route::get('contracts/{contract}/certificate.pdf', [AdminContractController::class, 'downloadCertificate'])->middleware('permission:contracts.view')->name('contracts.download.certificate');
+        // Recovery for contracts whose PDFs were written to a disk that did not
+        // survive a deploy. DocuSign keeps the authoritative copy, so the file
+        // is re-pullable — the local one was only ever a convenience copy.
+        Route::post('contracts/{contract}/refetch', [AdminContractController::class, 'refetchDocuments'])->middleware('permission:contracts.send')->name('contracts.refetch');
         Route::post('contracts/{contract}/void', [AdminContractController::class, 'void'])->middleware('permission:contracts.void')->name('contracts.void');
 
         // FR-10.13: per-user login history + Service Usage Confirmation Certificate.

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Contract extends Model
 {
@@ -52,6 +53,7 @@ class Contract extends Model
         'expires_at',
         'signed_pdf_path',
         'certificate_pdf_path',
+        'documents_disk',
         'last_signer_ip',
         'last_signer_user_agent',
     ];
@@ -70,6 +72,37 @@ class Contract extends Model
     public function events(): HasMany
     {
         return $this->hasMany(ContractEvent::class)->orderBy('occurred_at');
+    }
+
+    /**
+     * The disk this contract's PDFs live on.
+     *
+     * Falls back to `local` for rows written before the disk was recorded,
+     * which is where those files genuinely went. Never falls back to the
+     * current default — that would point old paths at a bucket that has never
+     * held them and turn a missing file into a confusing one.
+     */
+    public function documentsDisk(): string
+    {
+        return $this->documents_disk ?: 'local';
+    }
+
+    /**
+     * Is the signed PDF still where the row says it is?
+     *
+     * Worth asking separately from "is there a path": every contract signed on
+     * an environment with no durable storage has a path and no file.
+     */
+    public function signedPdfExists(): bool
+    {
+        return $this->signed_pdf_path
+            && Storage::disk($this->documentsDisk())->exists($this->signed_pdf_path);
+    }
+
+    public function certificatePdfExists(): bool
+    {
+        return $this->certificate_pdf_path
+            && Storage::disk($this->documentsDisk())->exists($this->certificate_pdf_path);
     }
 
     public function user()

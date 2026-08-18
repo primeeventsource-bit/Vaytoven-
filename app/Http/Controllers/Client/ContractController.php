@@ -74,7 +74,11 @@ class ContractController extends Controller
     {
         $this->authorizeOwnership($request, $contract);
         abort_unless($contract->signed_pdf_path, 404, 'Signed PDF not available yet.');
-        return Storage::disk('local')->download(
+
+        // Read from the disk recorded on the row, not the current default.
+        abort_unless($contract->signedPdfExists(), 404, 'Signed PDF not available yet.');
+
+        return Storage::disk($contract->documentsDisk())->download(
             $contract->signed_pdf_path,
             "vaytoven-contract-{$contract->id}-signed.pdf"
         );

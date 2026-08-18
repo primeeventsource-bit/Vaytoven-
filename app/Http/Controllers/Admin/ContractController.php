@@ -19,6 +19,14 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class ContractController extends Controller
 {
+    /**
+     * Said plainly rather than as a bare 404. A staff member looking for a
+     * signed agreement needs to know the file is gone, not wonder whether they
+     * clicked the wrong row.
+     */
+    private const MISSING_FILE = 'The stored PDF is missing. It was written to a disk that did not survive a deploy; '
+        .'re-pull it from DocuSign.';
+
     public function __construct(private readonly EnvelopeService $envelopes) {}
 
     public function index(Request $request)
@@ -78,6 +86,10 @@ class ContractController extends Controller
 
         $pdfPath = null;
         if ($request->hasFile('pdf')) {
+            // Deliberately still `local`. This copy exists only to hand DocuSign
+            // a real filesystem path to upload from; object storage has no
+            // ->path(). The record that matters is the signed PDF that comes
+            // back from DocuSign, and that one goes to durable storage.
             $stored  = $request->file('pdf')->store("contracts/{$contract->id}", 'local');
             $pdfPath = Storage::disk('local')->path($stored);
         }
@@ -105,7 +117,14 @@ class ContractController extends Controller
     public function downloadSigned(Contract $contract): StreamedResponse
     {
         abort_unless($contract->signed_pdf_path, 404, 'Signed PDF not available yet.');
-        return Storage::disk('local')->download(
+
+        // Read from the disk the row was written to, not the current default.
+        // A contract signed before object storage was attached still lives on
+        // the old disk, and pointing its path at a bucket that never held it
+        // turns a missing file into a confusing one.
+        abort_unless($contract->signedPdfExists(), 404, self::MISSING_FILE);
+
+        return Storage::disk($contract->documentsDisk())->download(
             $contract->signed_pdf_path,
             "vaytoven-contract-{$contract->id}-signed.pdf"
         );
@@ -114,10 +133,33 @@ class ContractController extends Controller
     public function downloadCertificate(Contract $contract): StreamedResponse
     {
         abort_unless($contract->certificate_pdf_path, 404, 'Certificate not available yet.');
-        return Storage::disk('local')->download(
+        abort_unless($contract->certificatePdfExists(), 404, self::MISSING_FILE);
+
+        return Storage::disk($contract->documentsDisk())->download(
             $contract->certificate_pdf_path,
             "vaytoven-contract-{$contract->id}-certificate.pdf"
         );
+    }
+
+    /**
+     * Re-download the signed PDF and certificate from DocuSign.
+     *
+     * DocuSign holds the authoritative copy; what Vaytoven stores is a
+     * convenience copy. So a contract whose file was lost to an ephemeral disk
+     * is recoverable, and this is how — otherwise the only route back is a
+     * support ticket to DocuSign.
+     */
+    public function refetchDocuments(Contract $contract)
+    {
+        abort_unless($contract->envelope_id, 404, 'This contract was never sent to DocuSign.');
+
+        try {
+            $this->envelopes->pullCompletedDocuments($contract);
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Could not fetch the documents from DocuSign: '.$e->getMessage());
+        }
+
+        return back()->with('success', 'Documents re-fetched from DocuSign.');
     }
 
     public function void(Request $request, Contract $contract)
