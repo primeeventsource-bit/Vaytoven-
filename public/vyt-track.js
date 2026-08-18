@@ -157,3 +157,41 @@
         send('page_view', { path: window.location.pathname });
     }
 })(window, document);
+
+/**
+ * Declarative events.
+ *
+ * Any element carrying data-vyt-event fires that activity when clicked, with
+ * data-vyt-subject as the thing it happened to. One delegated listener rather
+ * than a handler per feature: the alternative is a script block on every page
+ * that has a gallery, and one of them always gets forgotten.
+ *
+ * Only meaningful application events belong here. Not scroll depth, not mouse
+ * movement — those make the audit trail unreadable and collect far more about
+ * a person than answering "what happened" requires.
+ */
+(function () {
+    if (!window.Vaytoven || typeof window.Vaytoven.track !== 'function') { return; }
+
+    var fired = {};
+
+    document.addEventListener('click', function (e) {
+        var el = e.target.closest('[data-vyt-event]');
+        if (!el) { return; }
+
+        var type = el.getAttribute('data-vyt-event');
+        var subject = el.getAttribute('data-vyt-subject') || null;
+
+        // Once per element per page. Opening the same gallery four times is
+        // one fact about this visit, not four, and a log that records every
+        // re-click is a log nobody reads.
+        var key = type + '|' + (subject || '') + '|' + (el.id || el.className || '');
+        if (fired[key]) { return; }
+        fired[key] = true;
+
+        window.Vaytoven.track(type, {
+            subject: subject,
+            subject_type: el.getAttribute('data-vyt-subject-type') || 'property',
+        });
+    }, true);
+})();

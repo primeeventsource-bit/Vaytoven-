@@ -13,12 +13,14 @@
         </div>
 
         @if ($property->photos->isNotEmpty())
+            <div data-vyt-event="gallery.opened" data-vyt-subject="{{ $property->reference }}">
             @include('partials.photo-carousel', [
                 'photos'  => $property->photos,
                 'alt'     => $property->title,
                 'hero'    => true,
                 'loading' => 'eager',
             ])
+            </div>
         @endif
 
         <div class="props-detail-grid">
@@ -54,7 +56,10 @@
                 @endif
 
                 @if ($property->amenities->isNotEmpty())
-                    <section class="props-detail-section">
+                    {{-- Declarative activity events: see the delegated listener
+                         at the bottom of vyt-track.js. --}}
+                    <section class="props-detail-section"
+                             data-vyt-event="amenity.viewed" data-vyt-subject="{{ $property->reference }}">
                         <h2>What's included</h2>
                         <ul class="props-amenity-list">
                             @foreach ($property->amenities as $amenity)
@@ -128,7 +133,9 @@
                             <p class="props-book-fineprint" style="margin-top:18px;">This is your listing. Offers from visitors appear on
                                 <a href="{{ route('offers.index') }}">your offers dashboard</a>.</p>
                         @else
-                            @include('properties._offer-form', ['property' => $property])
+                            <div data-vyt-event="offer.started" data-vyt-subject="{{ $property->reference }}">
+                                @include('properties._offer-form', ['property' => $property])
+                            </div>
                         @endif
                     @endauth
 
