@@ -235,6 +235,33 @@ class EvidenceBundleService
                 ->all()
             : [];
 
+        // The service trail: the evidence-grade sequence, in order, with the
+        // audit context each step carried. Queried separately from the
+        // browse events above rather than filtered out of them, so adding a
+        // new consumption type later cannot quietly widen what goes to an
+        // issuer.
+        $serviceTrail = TrackingEvent::query()
+            ->when($userId, fn ($q) => $q->where('actor_user_id', $userId))
+            ->whereIn('event_type', \App\Enums\ActivityType::evidenceTrail())
+            ->whereBetween('occurred_at', [$from, $to])
+            ->orderBy('occurred_at')
+            ->get()
+            ->map(fn ($e) => [
+                'event_uuid'   => $e->event_uuid,
+                'activity'     => \App\Enums\ActivityType::tryFrom($e->event_type)?->label() ?? $e->event_type,
+                'occurred_at'  => $e->occurred_at?->toIso8601String(),
+                'result'       => $e->result,
+                'subject'      => $e->subject_reference,
+                'ip_address'   => $e->ip_address,
+                // Described as approximate everywhere it is shown, because
+                // that is what a GeoIP lookup is.
+                'approx_location' => trim(collect([$e->city, $e->region, $e->country])->filter()->implode(', ')) ?: null,
+                'device'       => $e->device_type,
+                'browser'      => $e->browser,
+                'session_id'   => $e->session_id,
+            ])
+            ->all();
+
         return new EvidenceBundle(
             booking_id: $booking?->id,
             user_id: $userId,
@@ -251,6 +278,7 @@ class EvidenceBundleService
             member_service_orders: $orders,
             advertising_periods: $periods,
             ad_snapshots: $snapshots,
+            service_trail: $serviceTrail,
         );
     }
 }

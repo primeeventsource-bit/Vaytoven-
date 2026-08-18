@@ -7,7 +7,9 @@ use App\Enums\MemberServiceOrderStatus;
 use App\Models\AdvertisingPeriod;
 use App\Models\MemberServiceOrder;
 use App\Models\Property;
+use App\Enums\ActivityType;
 use App\Models\User;
+use App\Services\Tracking\ActivityRecorder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -83,6 +85,16 @@ class AdvertisingActivator
                     $actor,
                 );
 
+                // Recorded after the snapshot, so the activity row and the frozen
+                // copy of the advertisement describe the same moment.
+                app(ActivityRecorder::class)->record(
+                    ActivityType::AdvertisementActivated,
+                    subjectType: 'property',
+                    subjectReference: $property->reference,
+                    result: 'completed',
+                    metadata: ['order' => $order->reference],
+                );
+
                 return $period;
             });
         });
@@ -112,6 +124,13 @@ class AdvertisingActivator
 
     public function pause(AdvertisingPeriod $period, User $actor): AdvertisingPeriod
     {
+        app(ActivityRecorder::class)->record(
+            ActivityType::AdvertisementPaused,
+            subjectType: 'property',
+            subjectReference: $period->property?->reference,
+            result: 'completed',
+        );
+
         $period->update([
             'status'      => AdvertisingPeriodStatus::Paused,
             'paused_at'   => now(),

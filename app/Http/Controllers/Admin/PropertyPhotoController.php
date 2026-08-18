@@ -95,6 +95,17 @@ class PropertyPhotoController extends Controller
                 ->withErrors(['photos' => implode(' · ', $failures)]);
         }
 
+        if ($stored > 0) {
+            app(\App\Services\Tracking\ActivityRecorder::class)->record(
+                \App\Enums\ActivityType::ImagesUploaded,
+                $request,
+                subjectType: 'property',
+                subjectReference: $property->reference,
+                result: 'completed',
+                metadata: ['count' => $stored],
+            );
+        }
+
         return back()->with('success', "{$stored} photo(s) uploaded.");
     }
 

@@ -306,6 +306,15 @@ class PropertyController extends Controller
             ipAddress: $request->ip(),
         );
 
+        app(\App\Services\Tracking\ActivityRecorder::class)->record(
+            \App\Enums\ActivityType::PropertyEdited,
+            $request,
+            subjectType: 'property',
+            subjectReference: $property->reference,
+            result: 'completed',
+            metadata: ['changed' => $changed],
+        );
+
         return redirect()->route('admin.properties.edit', $property)
             ->with('success', 'Listing saved.');
     }

@@ -36,6 +36,19 @@ final readonly class EvidenceBundle
         // What the advertisement actually said while it ran. The current
         // listing may share nothing with the version the member paid for.
         public array $ad_snapshots = [],
+
+        /**
+         * The narrow sequence that answers "did this person agree to this
+         * and pay for it": account created, terms accepted, contract signed,
+         * payment approved, advertising activated, later logins.
+         *
+         * Kept separate from consumption/passive events on purpose.
+         * Browsing history pads a dispute file with unrelated visitor
+         * records and proves nothing about consent; a card issuer reading
+         * forty page views to find one payment is a worse outcome than
+         * handing them the six rows that matter.
+         */
+        public array $service_trail = [],
     ) {
     }
 
@@ -58,6 +71,10 @@ final readonly class EvidenceBundle
             'member_service_orders' => $this->member_service_orders,
             'advertising_periods' => $this->advertising_periods,
             'ad_snapshots' => $this->ad_snapshots,
+            // Listed before the browse events in the exported file: it is
+            // what an issuer reads first, and burying it under page views
+            // is how a good bundle gets skimmed past.
+            'service_trail' => $this->service_trail,
             'generated_at' => $this->generated_at,
         ];
     }
