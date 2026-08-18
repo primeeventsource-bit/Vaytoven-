@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Listeners\RecordMailWasDelivered;
 use App\Models\User;
 use App\Services\DocuSign\DocuSignClient;
 use App\Services\DocuSign\WebhookVerifier;
@@ -25,6 +26,8 @@ use App\Services\SupportChat\SupportChatService;
 use App\Support\PermissionCatalog;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Http\Client\Factory as HttpFactory;
+use Illuminate\Mail\Events\MessageSent;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -134,6 +137,17 @@ $this->app->singleton(GeoIpService::class, function ($app) {
         // event auto-discovery (any class in app/Listeners/ with a subscribe()
         // method gets registered). Don't call Event::subscribe() here — that
         // causes the listener to fire twice for each auth event.
+
+        // Records that the provider accepted a message, which is what
+        // distinguishes "mail is configured" from "mail works".
+        //
+        // Registered EXPLICITLY. Event auto-discovery is NOT enabled on this
+        // application, so a listener dropped into app/Listeners with a typed
+        // handle() is never wired up - it simply never runs, silently. That
+        // is exactly what happened here and a test now asserts this
+        // registration exists. Different mechanism from the TrackAuthEvents
+        // subscriber, which has a subscribe() method and is found on its own.
+        Event::listen(MessageSent::class, RecordMailWasDelivered::class);
 
         // Vacation Club Exchange Detection — fires on every new member
         // enquiry, and on managed-listing property creates. Observer is

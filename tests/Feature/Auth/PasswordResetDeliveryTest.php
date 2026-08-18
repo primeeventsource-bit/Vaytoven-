@@ -24,6 +24,16 @@ class PasswordResetDeliveryTest extends TestCase
     use RefreshDatabase;
 
     /** Point the app at a transport that genuinely delivers. */
+    /**
+     * Working means configured AND proven, not configured alone.
+     *
+     * The proof step is not ceremony. On the live site a full set of SMTP
+     * settings was present and every send was refused with 535 because the
+     * password was wrong, and /health called that "ok" because it only looked
+     * at configuration. MailDeliverability::isVerified() now requires that a
+     * message has actually been accepted, so a fixture claiming working mail
+     * has to say so.
+     */
     private function withWorkingMail(): void
     {
         config([
@@ -32,6 +42,8 @@ class PasswordResetDeliveryTest extends TestCase
             'mail.mailers.smtp.username' => 'apikey',
             'mail.mailers.smtp.password' => 'secret',
         ]);
+
+        MailDeliverability::recordSuccessfulSend();
     }
 
     /**

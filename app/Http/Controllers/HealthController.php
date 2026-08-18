@@ -66,14 +66,31 @@ class HealthController extends Controller
      */
     private function checkMail(): array
     {
-        if (MailDeliverability::isDeliverable()) {
-            return ['ok' => true, 'transport' => config('mail.default')];
+        $transport = config('mail.default');
+
+        if (! MailDeliverability::isDeliverable()) {
+            return ['ok' => false, 'transport' => $transport, 'error' => MailDeliverability::reason()];
+        }
+
+        // Configured is not delivering. Reporting "ok" purely on configuration
+        // is how this endpoint came to show mail as healthy while every send
+        // was being refused with SMTP 535 — a host, a username and a password
+        // were all present and the password was simply wrong. A false green is
+        // worse than a known-bad state, because nobody investigates green.
+        if (! MailDeliverability::isVerified()) {
+            return [
+                'ok'        => false,
+                'transport' => $transport,
+                'verified'  => false,
+                'error'     => MailDeliverability::unverifiedReason(),
+            ];
         }
 
         return [
-            'ok'        => false,
-            'transport' => config('mail.default'),
-            'error'     => MailDeliverability::reason(),
+            'ok'          => true,
+            'transport'   => $transport,
+            'verified'    => true,
+            'last_sent_at' => MailDeliverability::lastSuccessfulSendAt(),
         ];
     }
 
