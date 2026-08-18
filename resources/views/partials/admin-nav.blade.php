@@ -22,6 +22,7 @@
         ['label' => 'Contracts', 'route' => 'admin.contracts.index',        'permission' => 'contracts.view'],
         ['label' => 'Inbox',     'route' => 'admin.inbox.index',            'permission' => 'inbox.view'],
         ['label' => 'Activity',  'route' => 'admin.activity.index',         'permission' => 'audit.view'],
+        ['label' => 'Activity & IP logs', 'route' => 'admin.activity.log', 'permission' => 'audit.view'],
         ['label' => 'Settings',  'route' => 'admin.settings.index',         'permission' => 'settings.view'],
     ])->filter(fn ($tab) =>
         // A route that has not been defined must not take the page down with

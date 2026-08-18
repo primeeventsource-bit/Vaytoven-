@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\TrackingEvent;
+use App\Enums\ActivityType;
+use App\Services\Activity\ActivityLogQuery;
 use App\Services\Analytics\ListingAnalytics;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -101,5 +103,49 @@ class ActivityController extends Controller
             'total_30d'   => $rows->count(),
             'total_7d'    => $total7d,
         ];
+    }
+
+    /**
+     * The activity and IP log.
+     *
+     * Separate from index(), which is listing analytics - "how is this
+     * advertisement performing" is a different question from "what happened on
+     * this site, and from where".
+     */
+    public function log(Request $request, ActivityLogQuery $log): View
+    {
+        $filters = $request->only([
+            'group', 'type', 'ip', 'session', 'subject', 'user',
+            'country', 'city', 'result', 'device', 'from', 'to',
+        ]);
+
+        return view('admin.activity.log', [
+            'events'      => $log->paginate($filters),
+            'filters'     => $filters,
+            'group'       => $filters['group'] ?? 'all',
+            'groups'      => ActivityType::groups(),
+            'groupCounts' => $log->groupCounts($filters),
+            'types'       => ActivityType::cases(),
+        ]);
+    }
+
+    /**
+     * One visit, start to finish.
+     *
+     * The thing a dispute actually needs: entered site, searched, opened a
+     * property, saved it, created an account, submitted an offer - in order,
+     * with the IP and device that did each step.
+     */
+    public function session(string $session, ActivityLogQuery $log): View
+    {
+        $events = $log->session($session);
+
+        abort_if($events->isEmpty(), 404, 'No activity recorded for that session.');
+
+        return view('admin.activity.session', [
+            'sessionId' => $session,
+            'events'    => $events,
+            'first'     => $events->first(),
+        ]);
     }
 }

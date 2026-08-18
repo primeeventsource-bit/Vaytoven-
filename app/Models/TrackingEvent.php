@@ -30,6 +30,17 @@ class TrackingEvent extends Model
         'city',
         'latitude',
         'longitude',
+        // Audit context. See the migration for why these are columns
+        // rather than parsed out of user_agent on every read.
+        'session_id',
+        'device_type',
+        'browser',
+        'platform',
+        'referrer_host',
+        'path',
+        'subject_type',
+        'subject_reference',
+        'result',
         'user_agent',
         'metadata',
         'parent_hash',

@@ -308,6 +308,13 @@ Route::middleware(['auth'])
         Route::get('activity', [ActivityController::class, 'index'])
             ->middleware('permission:reports.view')->name('activity.index');
 
+        // The activity and IP audit log. Same permission as the analytics
+        // screen: both are staff-only views of visitor behaviour.
+        Route::get('activity/log', [ActivityController::class, 'log'])
+            ->middleware('permission:audit.view')->name('activity.log');
+        Route::get('activity/session/{session}', [ActivityController::class, 'session'])
+            ->middleware('permission:audit.view')->name('activity.session');
+
         // Staff-created listings. An admin builds the listing for an existing
         // account or for an owner who has none yet; the owner is emailed
         // either way.

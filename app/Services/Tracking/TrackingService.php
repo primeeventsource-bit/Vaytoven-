@@ -37,6 +37,17 @@ class TrackingService
         ?string $ipAddress = null,
         ?string $userAgent = null,
         ?array $metadata = null,
+        /**
+         * Audit columns: session, device, browser, platform, referrer host,
+         * path, subject and result.
+         *
+         * Passed at INSERT rather than set afterwards, because tracking_events
+         * is append-only: a MySQL BEFORE UPDATE trigger rejects any later
+         * write and the SQLite observer does the same.
+         *
+         * @var array<string, mixed>
+         */
+        array $context = [],
     ): TrackingEvent {
         // Strip anything from metadata that we don't want stored.
         $metadata = $this->filterMetadata($metadata ?? []);
@@ -77,9 +88,39 @@ class TrackingService
             'metadata' => $metadata,
             // event_uuid, occurred_at, parent_hash, current_hash are filled by
             // the model's creating hook (Phase 2E).
-        ] + $geoColumns);
+        ] + $geoColumns + $this->auditColumns($context));
     }
 
+    /**
+     * Keeps caller-supplied context to the known columns.
+     *
+     * An allow-list rather than a merge: a stray key becomes an "Unknown
+     * column" on insert, and this runs on the path that records a payment.
+     *
+     * @param  array<string, mixed>  $context
+     * @return array<string, mixed>
+     */
+    private function auditColumns(array $context): array
+    {
+        $allowed = [
+            'session_id', 'device_type', 'browser', 'platform',
+            'referrer_host', 'path', 'subject_type', 'subject_reference', 'result',
+        ];
+
+        $columns = [];
+
+        foreach ($allowed as $key) {
+            $value = $context[$key] ?? null;
+
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $columns[$key] = is_string($value) ? mb_substr($value, 0, 512) : $value;
+        }
+
+        return $columns;
+    }
     /**
      * Convenience wrapper: extract everything from a Request, then record.
      *
