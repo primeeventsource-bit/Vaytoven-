@@ -104,12 +104,16 @@ class PropertyPhotoTest extends TestCase
     }
 
     /**
-     * Keys are namespaced per environment. main and production number their
-     * properties independently, so a bare properties/{id}/ key would have both
-     * environments' property 42 overwriting each other in one bucket.
+     * Keys are namespaced per environment, derived from the app HOST.
+     *
+     * Not from app()->environment(): every Laravel Cloud environment on this
+     * app runs APP_ENV=production, main included, so environment() gives the
+     * same answer everywhere and the namespacing would be imaginary. A live
+     * probe caught photos uploaded from main landing under "production/".
      */
-    public function test_stored_keys_are_namespaced_by_environment(): void
+    public function test_stored_keys_are_namespaced_by_host(): void
     {
+        config(['app.url' => 'https://vaytoven.com']);
         $property = $this->property();
 
         $this->actingAs($this->staff())
@@ -117,8 +121,26 @@ class PropertyPhotoTest extends TestCase
 
         $photo = PropertyPhoto::sole();
 
-        $this->assertStringStartsWith(app()->environment().'/properties/'.$property->id.'/', $photo->path);
+        $this->assertStringStartsWith('vaytoven-com/properties/'.$property->id.'/', $photo->path);
         $this->assertStringNotContainsString('room.jpg', $photo->path, 'the uploaded name must not build the key');
+    }
+
+    /** Two environments must not share a key space. */
+    public function test_two_hosts_produce_different_key_spaces(): void
+    {
+        config(['app.url' => 'https://vaytoven.com']);
+        $first = $this->property();
+        $this->actingAs($this->staff())
+            ->post(route('admin.properties.photos.store', $first), ['photos' => [$this->image()]]);
+        $a = PropertyPhoto::sole()->path;
+
+        config(['app.url' => 'https://v-app-dev-production-iddl1a.laravel.cloud']);
+        $second = $this->property();
+        $this->actingAs($this->staff())
+            ->post(route('admin.properties.photos.store', $second), ['photos' => [$this->image()]]);
+        $b = PropertyPhoto::orderByDesc('id')->first()->path;
+
+        $this->assertNotSame(explode('/', $a)[0], explode('/', $b)[0]);
     }
 
     public function test_several_photos_upload_in_one_go(): void

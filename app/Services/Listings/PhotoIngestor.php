@@ -131,38 +131,34 @@ class PhotoIngestor
             throw new RuntimeException('That image format cannot be processed. Use JPG, PNG or WebP.');
         }
 
-        try {
-            $width  = imagesx($image);
-            $height = imagesy($image);
-            $longest = max($width, $height);
+        $width  = imagesx($image);
+        $height  = imagesy($image);
+        $longest = max($width, $height);
 
-            if ($longest > self::MAX_EDGE) {
-                $scale     = self::MAX_EDGE / $longest;
-                $newWidth  = max(1, (int) round($width * $scale));
-                $newHeight = max(1, (int) round($height * $scale));
+        if ($longest > self::MAX_EDGE) {
+            $scale     = self::MAX_EDGE / $longest;
+            $newWidth  = max(1, (int) round($width * $scale));
+            $newHeight = max(1, (int) round($height * $scale));
 
-                $resized = imagescale($image, $newWidth, $newHeight);
+            $resized = imagescale($image, $newWidth, $newHeight);
 
-                if ($resized === false) {
-                    throw new RuntimeException('That image could not be resized.');
-                }
-
-                imagedestroy($image);
-                $image  = $resized;
-                $width  = $newWidth;
-                $height = $newHeight;
+            if ($resized === false) {
+                throw new RuntimeException('That image could not be resized.');
             }
 
-            ob_start();
-            imagewebp($image, null, self::QUALITY);
-            $bytes = (string) ob_get_clean();
-
-            return [$bytes, $width, $height];
-        } finally {
-            if (is_resource($image) || $image instanceof \GdImage) {
-                imagedestroy($image);
-            }
+            // No imagedestroy(): a no-op since PHP 8.0 and deprecated in 8.5,
+            // which the server runs. It wrote three deprecation lines per
+            // upload and freed nothing.
+            $image  = $resized;
+            $width  = $newWidth;
+            $height = $newHeight;
         }
+
+        ob_start();
+        imagewebp($image, null, self::QUALITY);
+        $bytes = (string) ob_get_clean();
+
+        return [$bytes, $width, $height];
     }
 
     /**
@@ -175,6 +171,23 @@ class PhotoIngestor
      */
     private function prefix(): string
     {
-        return $this->environmentPrefix ?: app()->environment();
+        if ($this->environmentPrefix) {
+            return $this->environmentPrefix;
+        }
+
+        // NOT app()->environment(). Every Laravel Cloud environment on this
+        // app runs APP_ENV=production - main included - so environment() gives
+        // the same answer everywhere and the namespacing it was supposed to
+        // provide would be imaginary. A live probe caught that: photos uploaded
+        // from main were landing under "production/".
+        //
+        // The host is the one value that genuinely differs per environment.
+        $host = parse_url((string) config('app.url'), PHP_URL_HOST);
+
+        if (! $host) {
+            return app()->environment();
+        }
+
+        return preg_replace('/[^a-z0-9]+/', '-', strtolower($host)) ?: app()->environment();
     }
 }
