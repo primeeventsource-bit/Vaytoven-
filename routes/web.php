@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\OfferController as AdminOfferController;
 use App\Http\Controllers\Admin\PaymentProcessorController;
 use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
 use App\Http\Controllers\Admin\PropertyAvailabilityController;
+use App\Http\Controllers\Admin\PropertyDocumentController;
 use App\Http\Controllers\Admin\PropertyPhotoController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SearchController;
@@ -361,6 +362,15 @@ Route::middleware(['auth'])
             ->middleware('permission:properties.availability')->name('properties.availability.update');
         Route::delete('properties/{property}/availability/{week}', [PropertyAvailabilityController::class, 'destroy'])
             ->middleware('permission:properties.availability')->name('properties.availability.destroy');
+
+        // Documents filed against one property. Same store as member
+        // documents, with a property attached.
+        Route::post('properties/{property}/documents', [PropertyDocumentController::class, 'store'])
+            ->middleware('permission:properties.edit')->name('properties.documents.store');
+        Route::get('properties/{property}/documents/{document}', [PropertyDocumentController::class, 'download'])
+            ->middleware('permission:properties.view')->name('properties.documents.download');
+        Route::delete('properties/{property}/documents/{document}', [PropertyDocumentController::class, 'destroy'])
+            ->middleware('permission:properties.edit')->name('properties.documents.destroy');
 
         // Member Services activations — what was ordered and whether it paid.
         Route::get('member-services', [AdminMemberServiceOrderController::class, 'index'])

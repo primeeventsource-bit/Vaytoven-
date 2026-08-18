@@ -388,6 +388,9 @@ class PropertyController extends Controller
             ],
             'recentOffers' => (clone $offers)->with('buyer:id,name,email')
                 ->latest()->limit(10)->get(),
+            'documents' => \App\Models\MemberDocument::forProperty($property->id)
+                ->with('uploadedBy:id,email')->latest()->get(),
+            'storageDurable' => \App\Support\Storage\DocumentStorage::isDurable(),
             'snapshots' => PropertySnapshot::where('property_id', $property->id)
                 ->latest()->limit(20)->get(),
         ]);

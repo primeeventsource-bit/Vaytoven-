@@ -91,6 +91,92 @@
         @endif
     </div>
 
+    <div class="vyt-card" style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;">
+        <h3 style="margin:0 0 4px;font-size:15px;">Documents</h3>
+        <p class="vyt-faint" style="margin:0 0 12px;font-size:13px;">
+            Filed against this property. They also appear on the member's file, because
+            a document about a listing is still a document about the person who owns it.
+        </p>
+
+        @if ($documents->isEmpty())
+            <p class="vyt-faint" style="margin:0 0 14px;">Nothing filed against this property yet.</p>
+        @else
+            <table class="vyt-table" style="width:100%;">
+                <thead><tr><th>Document</th><th>Type</th><th>Size</th><th>Uploaded by</th><th>When</th><th></th></tr></thead>
+                <tbody>
+                    @foreach ($documents as $document)
+                        <tr>
+                            <td>
+                                {{ $document->title }}
+                                <span class="vyt-faint" style="display:block;font-size:11.5px;">
+                                    {{ $document->original_name }}
+                                    @unless ($document->fileExists())
+                                        {{-- A row whose file has gone looks available and
+                                             fails on click, which is discovered at the worst
+                                             possible moment. --}}
+                                        <strong style="color:#b91c1c;">· file missing from storage</strong>
+                                    @endunless
+                                </span>
+                            </td>
+                            <td class="vyt-faint">{{ $document->categoryLabel() }}</td>
+                            <td class="vyt-faint">{{ $document->sizeForHumans() }}</td>
+                            <td class="vyt-faint">{{ $document->uploadedBy?->email ?? '—' }}</td>
+                            <td class="vyt-faint">{{ $document->created_at?->format('M j, Y') }}</td>
+                            <td style="white-space:nowrap;">
+                                @if ($document->fileExists())
+                                    <a href="{{ route('admin.properties.documents.download', [$property, $document]) }}">Download</a>
+                                @endif
+                                <form method="POST" action="{{ route('admin.properties.documents.destroy', [$property, $document]) }}"
+                                      style="display:inline;margin-left:8px;"
+                                      onsubmit="return confirm('Delete {{ $document->title }}? This cannot be undone.');">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" style="font-size:12.5px;color:#b91c1c;">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
+
+        <div style="border-top:1px solid var(--line);padding-top:16px;margin-top:14px;">
+            @if (! $storageDurable)
+                <div class="site-alert" style="background:#fef2f2;border-color:#fecaca;color:#991b1b;margin:0;">
+                    <strong>Uploads are disabled on this environment.</strong>
+                    There is no durable storage attached, so a document would be lost at
+                    the next deploy.
+                </div>
+            @else
+                @error('file')
+                    <div class="site-alert" style="background:#fef2f2;border-color:#fecaca;color:#991b1b;">{{ $message }}</div>
+                @enderror
+
+                <form method="POST" action="{{ route('admin.properties.documents.store', $property) }}"
+                      enctype="multipart/form-data">
+                    @csrf
+                    <div style="display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr auto;align-items:end;">
+                        <div class="vyt-field">
+                            <label for="doc-file">File</label>
+                            <input id="doc-file" type="file" name="file" required>
+                        </div>
+                        <div class="vyt-field">
+                            <label for="doc-category">Type</label>
+                            <select id="doc-category" name="category">
+                                @foreach (\App\Models\MemberDocument::CATEGORIES as $value => $label)
+                                    <option value="{{ $value }}" @selected($value === 'property_document')>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="vyt-field">
+                            <label for="doc-title">Title <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+                            <input id="doc-title" type="text" name="title" placeholder="Defaults to the filename">
+                        </div>
+                        <button type="submit" class="vyt-save" style="padding:9px 20px;font-size:14px;">Upload</button>
+                    </div>
+                </form>
+            @endif
+        </div>
+    </div>
     <div class="vyt-card" style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;">
         <h3 style="margin:0 0 4px;font-size:15px;">Version history</h3>
         <p class="vyt-faint" style="margin:0 0 12px;font-size:13px;">

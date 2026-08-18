@@ -13,6 +13,8 @@ class MemberDocument extends Model
         'advertising_agreement' => 'Advertising agreement',
         'member_agreement'      => 'Member services agreement',
         'property_document'     => 'Property document',
+        'information_sheet'    => 'Property information sheet',
+        'activation_certificate' => 'Activation certificate',
         'invoice'               => 'Invoice',
         'receipt'               => 'Receipt',
         'identification'        => 'Supporting document',
@@ -20,7 +22,7 @@ class MemberDocument extends Model
     ];
 
     protected $fillable = [
-        'user_id', 'category', 'title', 'disk', 'path',
+        'user_id', 'property_id', 'category', 'title', 'disk', 'path',
         'original_name', 'mime_type', 'size_bytes', 'sha256',
         'uploaded_by_user_id', 'notes',
     ];
@@ -35,6 +37,28 @@ class MemberDocument extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * The property this document is about, when it is about one.
+     *
+     * Null means it belongs to the member rather than to any single listing —
+     * a member agreement is not a property document, and pretending otherwise
+     * would misfile it.
+     */
+    public function property(): BelongsTo
+    {
+        return $this->belongsTo(Property::class);
+    }
+
+    public function scopeForProperty($query, int $propertyId)
+    {
+        return $query->where('property_id', $propertyId);
+    }
+
+    /** Member-level documents only: everything not filed against a listing. */
+    public function scopeMemberLevel($query)
+    {
+        return $query->whereNull('property_id');
+    }
     public function uploadedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by_user_id');
