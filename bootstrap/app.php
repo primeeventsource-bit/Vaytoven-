@@ -6,6 +6,7 @@ use App\Http\Middleware\EnsureAdminOrMemberSpecialist;
 use App\Http\Middleware\EnsureCurrentTermsAccepted;
 use App\Http\Middleware\EnsurePasswordChanged;
 use App\Http\Middleware\EnsurePermission;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetVaytovenSurface;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -59,6 +60,13 @@ return Application::configure(basePath: dirname(__DIR__))
             CheckMaintenanceMode::class,
             EnsurePasswordChanged::class,
         ]);
+
+        // Response headers on every route, web and API alike. Prepended so the
+        // headers are still attached to responses that short-circuit later
+        // middleware — a 302 to the login page or a 423 from
+        // EnsurePasswordChanged is a response a browser acts on too.
+        $middleware->web(prepend: [SecurityHeaders::class]);
+        $middleware->api(prepend: [SecurityHeaders::class]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

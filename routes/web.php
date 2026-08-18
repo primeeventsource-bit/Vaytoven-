@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CareersController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Client\ContractController as ClientContractController;
+use App\Http\Controllers\CspReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HelpController;
@@ -384,6 +385,13 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Where browsers post CSP violations. Posted by the browser, so it cannot
+// carry a CSRF token and cannot be authenticated; rate limited instead, and
+// the payload is treated as hostile input by the controller.
+Route::post('/security/csp-report', CspReportController::class)
+    ->middleware('throttle:60,1')
+    ->name('security.csp-report');
 
 // Inbound DocuSign Connect webhook. CSRF-excluded via bootstrap/app.php;
 // authenticated via HMAC signature (WebhookVerifier).
