@@ -637,7 +637,7 @@
 <section class="section">
     <div class="section-header">
         <div class="eyebrow">Featured stays</div>
-        <h2 class="display">Stays our team <em class="grad-text">booked themselves.</em></h2>
+        <h2 class="display">Locations our team have <em class="grad-text">visited themselves.</em></h2>
         <p>If we wouldn't sleep there, we don't list it.</p>
     </div>
 
