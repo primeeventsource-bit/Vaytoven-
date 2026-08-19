@@ -73,11 +73,6 @@
         .ec-btn-secondary { border: 1px solid var(--line); color: var(--ink); background: #fff; }
         .ec-btn-secondary:hover { border-color: var(--purple); color: var(--purple); }
 
-        .ec-note {
-            margin-top: 44px; padding: 20px 24px; border-radius: 14px;
-            background: #faf7ff; border: 1px solid var(--line);
-            font-size: 13.5px; color: var(--muted); line-height: 1.6;
-        }
     </style>
 </head>
 <body>
@@ -140,13 +135,6 @@
             @endforeach
         </div>
 
-        <p class="ec-note">
-            Event calendars are published and maintained by each convention center.
-            Vaytoven links to them for convenience and is not affiliated with, endorsed by,
-            or responsible for the accuracy of those schedules — confirm dates with the venue
-            before making plans. Vaytoven advertises vacation properties; it does not sell
-            event tickets, and it does not take reservations for the properties advertised here.
-        </p>
     </main>
 
     @include('partials.site-footer')

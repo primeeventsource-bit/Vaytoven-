@@ -132,10 +132,6 @@
                         <div id="ms-pay-status" class="site-note" style="margin-top:14px;"></div>
                     </form>
 
-                    <p class="site-note">
-                        Card details go directly to our payment processor over an encrypted
-                        connection. Vaytoven never receives or stores your card number.
-                    </p>
                 @endif
             </div>
         </div>

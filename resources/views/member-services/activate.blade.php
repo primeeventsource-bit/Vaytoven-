@@ -135,12 +135,6 @@
                 Continue to secure payment
             </button>
 
-            <p class="site-note" style="margin-top:22px;">
-                Nothing is charged on this page. On the next step your card details are entered
-                on a secure form hosted by our payment processor — Vaytoven never sees or stores
-                your card number. This is a one-time activation fee for advertising and listing
-                services, not a recurring subscription.
-            </p>
         </form>
     </section>
 </div>
