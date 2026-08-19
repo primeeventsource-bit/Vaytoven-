@@ -127,9 +127,14 @@ class TrackingEventApiTest extends TestCase
 
     public function test_consecutive_events_chain_to_each_other(): void
     {
-        $this->postJson('/api/v1/tracking/events', ['event_type' => 'a'])->assertCreated();
-        $this->postJson('/api/v1/tracking/events', ['event_type' => 'b'])->assertCreated();
-        $this->postJson('/api/v1/tracking/events', ['event_type' => 'c'])->assertCreated();
+        // Real event types rather than 'a', 'b', 'c'. The endpoint only accepts
+        // the browsing events a browser is allowed to report about itself
+        // (ActivityType::clientReportable), so that anyone cannot post a login
+        // or a payment into the log by hand. This test is about the hash chain,
+        // not the vocabulary — it just has to speak it.
+        $this->postJson('/api/v1/tracking/events', ['event_type' => 'page_view'])->assertCreated();
+        $this->postJson('/api/v1/tracking/events', ['event_type' => 'gallery.opened'])->assertCreated();
+        $this->postJson('/api/v1/tracking/events', ['event_type' => 'map.opened'])->assertCreated();
 
         $rows = TrackingEvent::orderBy('id')->get();
         $this->assertCount(3, $rows);

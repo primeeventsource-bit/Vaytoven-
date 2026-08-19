@@ -83,6 +83,7 @@
         <a href="{{ route('properties.index') }}" class="{{ $current === 'stay' ? 'is-current' : '' }}" data-track-audience="traveler" data-track-cta="topnav_stay">Stay</a>
         <a href="{{ route('hosts.show') }}" class="{{ $current === 'become-a-host' ? 'is-current' : '' }}" data-track-audience="host" data-track-cta="topnav_become_host">Become a Host</a>
         <a href="{{ route('members.show') }}" class="{{ $current === 'members' ? 'is-current' : '' }}" data-track-audience="member" data-track-cta="topnav_members">Members</a>
+        <a href="{{ route('event-centers.index') }}" class="{{ $current === 'event-centers' ? 'is-current' : '' }}" data-track-audience="traveler" data-track-cta="topnav_event_centers">Event Centers</a>
         <a href="{{ route('member-services.show') }}" class="{{ $current === 'pricing' ? 'is-current' : '' }}" data-track-audience="member" data-track-cta="topnav_pricing">Pricing</a>
         <a href="{{ route('terms') }}" class="{{ $current === 'terms' ? 'is-current' : '' }}" data-track-cta="topnav_terms">Terms</a>
     </div>

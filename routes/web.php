@@ -26,6 +26,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Client\ContractController as ClientContractController;
 use App\Http\Controllers\CspReportController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EventCenterController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\MemberPaymentController;
@@ -40,6 +41,7 @@ use App\Http\Controllers\PressController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyBrowseController;
 use App\Http\Controllers\PropertyPhotoStreamController;
+use App\Http\Controllers\SavedPropertyController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SitePageController;
 use App\Http\Controllers\TripSupportController;
@@ -59,6 +61,11 @@ Route::post('/members/enquiry', [MemberEnquiryController::class, 'store'])
 // ---------------------------------------------------------------------------
 Route::view('/become-a-host', 'hosts.show')->name('hosts.show');
 Route::view('/members', 'members.show')->name('members.show');
+
+// Event Centers — five major convention destinations, each linking to the
+// venue's own calendar and to Vaytoven advertisements in that city. Public,
+// because the visitor arriving from a convention has no account yet.
+Route::get('/event-centers', [EventCenterController::class, 'index'])->name('event-centers.index');
 
 // Member Services activation and payment.
 //
@@ -159,6 +166,10 @@ Route::get('/property-photo/{photo}', PropertyPhotoStreamController::class)->nam
 // The bookings tables are retained as records of what happened before the
 // model changed. Nothing on the site reads them.
 Route::middleware(['auth', 'terms.current'])->group(function () {
+    // Saving an advertisement to come back to.
+    Route::get('/account/saved', [SavedPropertyController::class, 'index'])->name('saved.index');
+    Route::post('/properties/{property}/save', [SavedPropertyController::class, 'toggle'])->name('saved.toggle');
+
     // Member offers — accept/decline from the member dashboard. Controller
     // verifies the offer's member_user_id matches the current user and that
     // status is still Pending.

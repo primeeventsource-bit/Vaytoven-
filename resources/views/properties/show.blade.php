@@ -15,9 +15,35 @@
     <a href="{{ route('properties.index') }}" class="props-detail-back">← Back to all stays</a>
 
     <article class="props-detail">
-        <h1>{{ $property->title }}</h1>
-        <div class="props-detail-loc">
-            {{ $property->city }}{{ $property->region ? ', '.$property->region : '' }}{{ $property->country ? ' · '.$property->country : '' }}
+        <div style="display:flex;gap:18px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;">
+            <div style="flex:1 1 auto;min-width:0;">
+                <h1>{{ $property->title }}</h1>
+                <div class="props-detail-loc">
+                    {{ $property->city }}{{ $property->region ? ', '.$property->region : '' }}{{ $property->country ? ' · '.$property->country : '' }}
+                </div>
+            </div>
+
+            {{-- Saving is a real form post, not a fetch, so it works with no
+                 JavaScript and the saved/unsaved state comes back from the
+                 server rather than being guessed at in the browser. --}}
+            @if ($property->status === \App\Enums\PropertyStatus::Active)
+                @auth
+                    <form method="POST" action="{{ route('saved.toggle', $property) }}" style="flex:0 0 auto;">
+                        @csrf
+                        <button type="submit" class="props-save-btn @if($isSaved ?? false) is-saved @endif"
+                                aria-pressed="{{ ($isSaved ?? false) ? 'true' : 'false' }}">
+                            <span aria-hidden="true">{{ ($isSaved ?? false) ? '♥' : '♡' }}</span>
+                            {{ ($isSaved ?? false) ? 'Saved' : 'Save' }}
+                        </button>
+                    </form>
+                @else
+                    {{-- Sent to sign in and returned here, rather than shown a
+                         button that silently does nothing. --}}
+                    <a href="{{ route('login', ['redirect' => request()->path()]) }}" class="props-save-btn" style="flex:0 0 auto;">
+                        <span aria-hidden="true">♡</span> Save
+                    </a>
+                @endauth
+            @endif
         </div>
 
         @if ($property->photos->isNotEmpty())

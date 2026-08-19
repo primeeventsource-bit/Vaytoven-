@@ -22,10 +22,17 @@
 
     {{-- Active filter chips ------------------------------------------------- --}}
     @php
-        $hasFilters = $destination || $q || $minCapacity || $minPrice || $maxPrice || count($selectedAmenities ?? []) > 0;
+        $hasFilters = $destination || $q || $minCapacity || $minPrice || $maxPrice
+            || ($selectedEventCenter ?? '') || count($selectedAmenities ?? []) > 0;
+        $activeCenter = ($eventCenters ?? collect())->firstWhere('slug', $selectedEventCenter ?? '');
     @endphp
     @if ($hasFilters)
         <div class="props-active-filters">
+            @if ($activeCenter)
+                <span class="props-chip">{{ $activeCenter['label'] }}
+                    <a href="{{ route('properties.index', request()->except(['event_center', 'page'])) }}">×</a>
+                </span>
+            @endif
             @if ($destination)
                 <span class="props-chip">Destination: {{ ucwords(str_replace('-', ' ', $destination)) }} <a href="{{ route('properties.index') }}">×</a></span>
             @endif
@@ -77,6 +84,29 @@
                     <input type="hidden" name="{{ $passthrough }}" value="{{ request($passthrough) }}">
                 @endif
             @endforeach
+
+            {{-- Convention center areas.
+                 A select rather than chips: these are mutually exclusive — a
+                 property is not near McCormick Place AND the Javits Center —
+                 and a row of checkboxes would invite a combination that can
+                 only ever return nothing. --}}
+            @if (($eventCenters ?? collect())->isNotEmpty())
+                <div class="props-filter-section">
+                    <h4>Event center area</h4>
+                    <select name="event_center" class="props-filter-select" style="width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;">
+                        <option value="">Anywhere</option>
+                        @foreach ($eventCenters as $center)
+                            <option value="{{ $center['slug'] }}" @selected(($selectedEventCenter ?? '') === $center['slug'])>
+                                {{ $center['label'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p style="font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.5;">
+                        Shows advertisements in that convention center's city.
+                        <a href="{{ route('event-centers.index') }}">See upcoming events →</a>
+                    </p>
+                </div>
+            @endif
 
             <div class="props-filter-section">
                 <h4>Price per night</h4>
@@ -167,7 +197,16 @@
         {{-- Map column — sticky on desktop, toggleable on mobile.
              Property pin data ships as a JSON island the map module reads. --}}
         @if ($properties->isNotEmpty())
-            <aside class="props-map-col" data-vyt-map-col>
+            {{-- map.opened fires on the first click anywhere in this column.
+
+                 On desktop the map is simply there, so "opened" can only mean
+                 the visitor did something with it — dragged it, or clicked a
+                 pin. On mobile the toggle below is inside the same element, so
+                 tapping Show map counts too. The delegated listener in
+                 vyt-track.js fires each element once per page, which is what
+                 keeps a minute of panning from writing a hundred rows. --}}
+            <aside class="props-map-col" data-vyt-map-col
+                   data-vyt-event="map.opened" data-vyt-subject-type="search">
                 <div class="props-map-sticky">
                     <div id="vyt-properties-map" class="vyt-leaflet-map" aria-label="Map of available properties"></div>
                 </div>

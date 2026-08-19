@@ -39,6 +39,7 @@ class ActivityRecorder
         ?string $subjectReference = null,
         ?string $result = null,
         array $metadata = [],
+        ?string $path = null,
     ): ?TrackingEvent {
         $request ??= request();
 
@@ -58,7 +59,15 @@ class ActivityRecorder
                     'browser'           => self::browser($userAgent),
                     'platform'          => self::platform($userAgent),
                     'referrer_host'     => self::referrerHost($request?->headers->get('referer')),
-                    'path'              => $request?->path(),
+                    // Where the person WAS, not where the request landed.
+                    //
+                    // Events reported by the browser all post to one ingest
+                    // endpoint, so the request path is the same for every one
+                    // of them. Recorded as-is, the activity log's page column
+                    // read "api/v1/tracking/events" for the entire browsing
+                    // group, which tells nobody anything and makes a session
+                    // journey unreadable.
+                    'path'              => $path ?: $request?->path(),
                     'subject_type'      => $subjectType,
                     'subject_reference' => $subjectReference,
                     'result'            => $result,

@@ -196,4 +196,64 @@ enum ActivityType: string
             self::AdvertisementActivated,
         ]);
     }
+
+    /**
+     * Events a browser is allowed to report about itself.
+     *
+     * The ingest endpoint is public and unauthenticated, because a marketing
+     * page has to be able to post a page view before anyone signs in. That
+     * makes anything it accepts forgeable: a request posted by hand is
+     * indistinguishable from one posted by the site's own script.
+     *
+     * So it accepts only this list — interactions that exist purely in the
+     * browser and that nothing depends on. Opening a gallery is colour on a
+     * session journey. Signing a contract, paying, logging in, uploading a
+     * document and activating an advertisement are all facts the SERVER
+     * observed while performing them, and every one of them is written by the
+     * code that did the work.
+     *
+     * Without this, a visitor could post account.login_succeeded or
+     * payment.approved into an append-only log and it would sit there next to
+     * the genuine rows looking exactly like them. Append-only guarantees no row
+     * is altered afterwards; it says nothing about whether the row was true
+     * when it arrived. Notice that every value in evidenceTrail() is absent
+     * here, and that is the property worth keeping.
+     *
+     * @return array<int, string>
+     */
+    public static function clientReportable(): array
+    {
+        return array_map(fn (self $c) => $c->value, [
+            self::WebsiteVisited,
+            self::PageViewed,
+            self::PropertyViewed,
+            self::SearchPerformed,
+            self::MapOpened,
+            self::AmenityViewed,
+            self::GalleryOpened,
+            self::AdvertisementClicked,
+            self::InquiryStarted,
+            self::OfferStarted,
+        ]);
+    }
+
+    /**
+     * Free-form types the tracking script has always sent.
+     *
+     * page_view predates this enum and is what every historical row is called.
+     * Renaming it to page.viewed now would split one fact across two spellings
+     * and quietly break every filter and count that reads the old name, so it
+     * stays permitted exactly as it is.
+     *
+     * @return array<int, string>
+     */
+    public static function legacyClientTypes(): array
+    {
+        return [
+            'page_view',         // every page, from vyt-track.js
+            'cta_click',         // data-track-cta links across the marketing pages
+            'enquiry_submitted', // landing conversion; the enquiry itself is stored server-side
+            'search_performed',  // predates search.performed
+        ];
+    }
 }

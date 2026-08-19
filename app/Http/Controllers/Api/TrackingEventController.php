@@ -8,6 +8,7 @@ use App\Services\Tracking\ActivityRecorder;
 use App\Http\Requests\Api\StoreTrackingEventRequest;
 use App\Services\Tracking\TrackingService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TrackingEventController extends Controller
 {
@@ -38,6 +39,7 @@ class TrackingEventController extends Controller
                 subjectReference: $request->input('metadata.subject'),
                 result: 'successful',
                 metadata: $request->input('metadata') ?? [],
+                path: $this->reportedPath($request),
             );
 
             // The recorder swallows its own failures, so a null here means
@@ -58,5 +60,31 @@ class TrackingEventController extends Controller
             'event_uuid' => $event->event_uuid,
             'occurred_at' => $event->occurred_at->toIso8601String(),
         ], 201);
+    }
+
+    /**
+     * The page the visitor was actually on.
+     *
+     * Every browser-reported event posts here, so $request->path() is this
+     * endpoint for all of them and the activity log's page column becomes one
+     * repeated string. The script sends metadata.path; the Referer header is
+     * the fallback when it does not.
+     *
+     * Both are client-supplied and therefore only as trustworthy as the events
+     * themselves, which is why nothing consequential is accepted on this route
+     * at all. The path is taken alone — no host, no query string — so a crafted
+     * referrer cannot smuggle a link or a tracking parameter into a screen an
+     * administrator reads.
+     */
+    private function reportedPath(Request $request): ?string
+    {
+        $candidate = $request->input('metadata.path')
+            ?: parse_url((string) $request->headers->get('referer'), PHP_URL_PATH);
+
+        if (! is_string($candidate) || $candidate === '') {
+            return null;
+        }
+
+        return mb_substr(ltrim($candidate, '/'), 0, 512) ?: '/';
     }
 }

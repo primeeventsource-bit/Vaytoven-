@@ -9,7 +9,9 @@ use App\Models\Property;
 use App\Models\PropertyView;
 use App\Services\GeoIp\GeoIpService;
 use App\Services\Tracking\ActivityRecorder;
+use App\Support\EventCenters;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Throwable;
@@ -65,6 +67,27 @@ class PropertyBrowseController extends Controller
 
         if ($city = trim((string) $request->query('city', ''))) {
             $query->where('city', $city);
+        }
+
+        // Convention center areas, from /event-centers.
+        //
+        // Matched on the center's city rather than on a radius: listings carry
+        // a city and an approximate location, not a precise one, so a distance
+        // filter would be arithmetic on numbers the member deliberately blurred.
+        // "Properties in Orlando" is the honest version of "properties near the
+        // Orange County Convention Center", and it is what the visitor coming
+        // from a convention listing actually wants.
+        $requestedCenter = trim((string) $request->query('event_center', ''));
+        $eventCenter     = EventCenters::find($requestedCenter);
+
+        if ($eventCenter) {
+            $query->whereRaw('LOWER(city) = ?', [strtolower($eventCenter['search']['city'])]);
+        } elseif ($requestedCenter !== '') {
+            // Asked for somewhere that does not exist. Dropping the filter and
+            // returning the whole catalogue would present every listing on the
+            // site as though it were near the center they typed — the same
+            // reasoning as the unresolvable-amenity case above.
+            $query->whereRaw('1=0');
         }
 
         if ($country = trim((string) $request->query('country', ''))) {
@@ -142,6 +165,8 @@ class PropertyBrowseController extends Controller
             'maxPrice'        => $request->integer('max_price'),
             'filterAmenities' => $filterAmenities,
             'selectedAmenities' => $amenitySlugs->all(),
+            'eventCenters'      => EventCenters::all(),
+            'selectedEventCenter' => $eventCenter['slug'] ?? '',
         ]);
     }
 
@@ -189,6 +214,16 @@ class PropertyBrowseController extends Controller
 
         $response = view('properties.show', [
             'property' => $property,
+            // Whether the signed-in member has already saved this. A guest gets
+            // false and is offered sign-in, so the query only runs when there
+            // is somebody to run it for.
+            'isSaved'  => $request->user()
+                ? DB::table('wishlist_properties')
+                    ->join('wishlists', 'wishlists.id', '=', 'wishlist_properties.wishlist_id')
+                    ->where('wishlists.user_id', $request->user()->id)
+                    ->where('wishlist_properties.property_id', $property->id)
+                    ->exists()
+                : false,
         ]);
 
         // Ensure the visitor_id cookie persists across visits.

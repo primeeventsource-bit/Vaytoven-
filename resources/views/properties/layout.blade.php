@@ -87,6 +87,17 @@
 
         /* Detail view */
         .props-detail-back { font-size:13px; color:var(--muted); }
+
+        /* Save button. Sits beside the title, so it stays visible without
+           following the visitor down the page. */
+        .props-save-btn {
+            display:inline-flex; align-items:center; gap:7px;
+            padding:9px 18px; border:1px solid var(--line); border-radius:999px;
+            background:#fff; font-size:14px; font-weight:600; cursor:pointer;
+            white-space:nowrap; color:inherit; text-decoration:none;
+        }
+        .props-save-btn:hover { border-color:var(--purple); color:var(--purple); }
+        .props-save-btn.is-saved { border-color:var(--purple); color:var(--purple); background:rgba(123,44,191,.06); }
         .props-detail-hero {
             display:grid; gap:8px; grid-template-columns: 1fr; margin-bottom:28px;
             border-radius:14px; overflow:hidden;
