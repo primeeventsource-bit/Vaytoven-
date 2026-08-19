@@ -28,12 +28,23 @@ class DiagnoseMail extends Command
 {
     protected $signature = 'mail:diagnose
                             {--password= : Password to test. Defaults to the configured one.}
-                            {--username= : Mailbox to authenticate as. Defaults to MAIL_USERNAME.}';
+                            {--username= : Mailbox to authenticate as. Defaults to MAIL_USERNAME.}
+                            {--host= : Test only this host, instead of the built-in list.}
+                            {--port=465 : Port to use with --host.}';
 
     protected $description = 'Test SMTP hosts and ports to find which one authenticates';
 
-    /** Every combination worth trying for a Titan or GoDaddy mailbox. */
+    /**
+     * Every combination worth trying.
+     *
+     * Transactional providers come first because that is what application
+     * mail should use: a mailbox has a few hundred sends a day, no bounce
+     * handling and no delivery log, and a spam complaint about marketing
+     * mail lands on the inbox the business is run from.
+     */
     private const CANDIDATES = [
+        ['smtp.resend.com', 465, true,  'Resend'],
+        ['smtp.resend.com', 587, false, 'Resend (STARTTLS)'],
         ['smtp.titan.email', 465, true,  'Titan, direct'],
         ['smtp.titan.email', 587, false, 'Titan, direct (STARTTLS)'],
         ['smtpout.secureserver.net', 465, true,  'GoDaddy relay'],
@@ -58,7 +69,16 @@ class DiagnoseMail extends Command
         $rows = [];
         $success = null;
 
-        foreach (self::CANDIDATES as [$host, $port, $tls, $label]) {
+        $candidates = self::CANDIDATES;
+
+        if ($host = $this->option('host')) {
+            $port = (int) $this->option('port');
+            // 465 is implicit TLS; anything else is assumed STARTTLS,
+            // which is the convention every provider follows.
+            $candidates = [[$host, $port, $port === 465, 'supplied']];
+        }
+
+        foreach ($candidates as [$host, $port, $tls, $label]) {
             $result = $this->attempt($host, $port, $tls, $username, $password);
 
             $rows[] = [$label, $host, $port, $tls ? 'SSL' : 'STARTTLS', $result];
