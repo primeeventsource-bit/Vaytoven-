@@ -13,6 +13,27 @@
 @php $fieldStyle = 'width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; background:var(--bg); outline:none; font-family:inherit;'; @endphp
 
 <form method="POST" action="{{ route('offers.store', $property) }}" style="margin-top:18px; display:grid; gap:10px;">
+    @php($openWeeks = $property->availabilityWeeks->filter(fn ($w) => $w->status->acceptsOffers() && ! $w->hasPassed()))
+
+    @if ($openWeeks->isNotEmpty())
+        {{-- Ties the offer to the week actually being advertised, rather than to
+             dates typed into a box. Without this the member has to match offers
+             to weeks by eye, and an offer can arrive for dates never on sale. --}}
+        <div>
+            <label for="o-week" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:4px;">Which week</label>
+            <select id="o-week" name="availability_week_id" required
+                    style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:9px; font-size:14px;">
+                @foreach ($openWeeks as $week)
+                    <option value="{{ $week->id }}" @selected(old('availability_week_id') == $week->id)>
+                        {{ $week->label() }} · {{ $week->nights() }} nights
+                    </option>
+                @endforeach
+            </select>
+            @error('availability_week_id')
+                <div style="color:#b91c1c;font-size:12.5px;margin-top:4px;">{{ $message }}</div>
+            @enderror
+        </div>
+    @endif
     @csrf
 
     <div>

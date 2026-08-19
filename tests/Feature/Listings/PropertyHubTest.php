@@ -128,15 +128,22 @@ class PropertyHubTest extends TestCase
         $response->assertSee(route('admin.activity.log', ['subject' => $property->reference]), false);
     }
 
-    /** An inactive listing has no public page, so there is nothing to preview. */
-    public function test_preview_is_offered_only_for_an_active_listing(): void
+    /**
+     * Preview works at ANY status, because previewing a DRAFT is the point.
+     *
+     * This test previously asserted the opposite - that a draft showed
+     * "Preview (inactive)" - which made the feature useless for the one moment
+     * it exists for: checking a listing before it goes live.
+     */
+    public function test_preview_is_offered_for_a_draft_too(): void
     {
         $draft = $this->property(['status' => PropertyStatus::Draft->value]);
 
         $this->actingAs($this->staff())
             ->get(route('admin.properties.show', $draft))
             ->assertOk()
-            ->assertSee('Preview (inactive)');
+            ->assertSee(route('properties.show', $draft), false)
+            ->assertDontSee('Preview (inactive)');
     }
 
     public function test_an_active_listing_offers_the_public_preview(): void

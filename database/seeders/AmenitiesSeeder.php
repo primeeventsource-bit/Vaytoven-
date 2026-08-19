@@ -78,7 +78,44 @@ class AmenitiesSeeder extends Seeder
             ['slug' => 'sauna',                 'label' => 'Sauna',                      'category' => 'other'],
             ['slug' => 'long-term-stays',       'label' => 'Long-term stays allowed',    'category' => 'other'],
             ['slug' => 'self-checkin',          'label' => 'Self check-in',              'category' => 'other'],
+    // --- from the listing builder spec -------------------------------
+            // Inside the property
+            ['slug' => 'washer-dryer',          'label' => 'Washer / dryer',             'category' => 'indoor'],
+            ['slug' => 'streaming-services',    'label' => 'Streaming services',         'category' => 'indoor'],
+            ['slug' => 'jacuzzi-tub',           'label' => 'Jacuzzi / soaking tub',      'category' => 'indoor'],
+            ['slug' => 'refrigerator',          'label' => 'Refrigerator',               'category' => 'indoor'],
+            ['slug' => 'microwave',             'label' => 'Microwave',                  'category' => 'indoor'],
+            ['slug' => 'oven',                  'label' => 'Oven',                       'category' => 'indoor'],
+            ['slug' => 'stove',                 'label' => 'Stove',                      'category' => 'indoor'],
+            ['slug' => 'coffee-maker',          'label' => 'Coffee maker',               'category' => 'indoor'],
+            ['slug' => 'dining-area',           'label' => 'Dining area',                'category' => 'indoor'],
+            ['slug' => 'in-room-safe',          'label' => 'Safe',                       'category' => 'indoor'],
+            ['slug' => 'balcony-patio',         'label' => 'Balcony / patio',            'category' => 'outdoor'],
+
+            // Property and resort facilities
+            ['slug' => 'heated-pool',           'label' => 'Heated pool',                'category' => 'outdoor'],
+            ['slug' => 'fitness-center',        'label' => 'Fitness center',             'category' => 'outdoor'],
+            ['slug' => 'spa',                   'label' => 'Spa',                        'category' => 'outdoor'],
+            ['slug' => 'restaurant',            'label' => 'Restaurant',                 'category' => 'outdoor'],
+            ['slug' => 'bar-lounge',            'label' => 'Bar / lounge',               'category' => 'outdoor'],
+            ['slug' => 'beach-access',          'label' => 'Beach access',               'category' => 'outdoor'],
+            ['slug' => 'golf',                  'label' => 'Golf',                       'category' => 'outdoor'],
+            ['slug' => 'tennis',                'label' => 'Tennis',                     'category' => 'outdoor'],
+            ['slug' => 'pickleball',            'label' => 'Pickleball',                 'category' => 'outdoor'],
+            ['slug' => 'kids-club',             'label' => "Kids' club",                 'category' => 'family'],
+            ['slug' => 'game-room',             'label' => 'Game room',                  'category' => 'family'],
+            ['slug' => 'business-center',       'label' => 'Business center',            'category' => 'workspace'],
+            ['slug' => 'concierge',             'label' => 'Concierge',                  'category' => 'outdoor'],
+            ['slug' => 'shuttle',               'label' => 'Shuttle service',            'category' => 'outdoor'],
+            ['slug' => 'bbq-area',              'label' => 'BBQ area',                   'category' => 'outdoor'],
+            ['slug' => 'marina',                'label' => 'Marina',                     'category' => 'outdoor'],
+            ['slug' => 'water-activities',      'label' => 'Water activities',           'category' => 'outdoor'],
+            ['slug' => 'ski-access',            'label' => 'Ski access',                 'category' => 'outdoor'],
+            ['slug' => 'front-desk',            'label' => '24-hour front desk',         'category' => 'safety'],
+            ['slug' => 'on-site-security',      'label' => 'On-site security',           'category' => 'safety'],
+            ['slug' => 'wheelchair-access',     'label' => 'Wheelchair accessible',      'category' => 'accessibility'],
         ];
+
 
         foreach ($catalogue as $row) {
             Amenity::updateOrCreate(['slug' => $row['slug']], $row);

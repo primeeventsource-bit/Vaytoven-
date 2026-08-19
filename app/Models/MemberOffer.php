@@ -70,6 +70,7 @@ class MemberOffer extends Model
         'member_user_id',
         'buyer_user_id',
         'property_id',
+        'availability_week_id',
         'sent_by_user_id',
         'proposed_check_in',
         'proposed_check_out',
@@ -113,6 +114,12 @@ class MemberOffer extends Model
     }
 
     /** Originator of an inbound submission. */
+    /** The advertised week this offer is for, when it names one. */
+    public function availabilityWeek(): BelongsTo
+    {
+        return $this->belongsTo(PropertyAvailabilityWeek::class, 'availability_week_id');
+    }
+
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buyer_user_id');

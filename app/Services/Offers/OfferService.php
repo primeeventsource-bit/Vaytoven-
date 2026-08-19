@@ -38,6 +38,7 @@ class OfferService
         ?string $checkIn = null,
         ?string $checkOut = null,
         ?int $guests = null,
+        ?int $availabilityWeekId = null,
     ): MemberOffer {
         $submittedAt = now();
 
@@ -48,6 +49,11 @@ class OfferService
             'direction' => OfferDirection::FromBuyer,
             'kind' => $kind,
             'property_id' => $property->id,
+            // Binds the offer to the advertised week rather than to a pair of
+            // dates somebody typed. Without it a member with three weeks listed
+            // has to match offers up by eye, and nothing stops an offer arriving
+            // for dates that were never on sale.
+            'availability_week_id' => $availabilityWeekId,
             'buyer_user_id' => $buyer->id,
             // The listing owner is who must respond; denormalised so the
             // owner dashboard doesn't depend on the property surviving.

@@ -3,6 +3,14 @@
 @section('title', $property->title)
 
 @section('content')
+    @if (request()->attributes->get('vyt_preview'))
+        {{-- A preview that looks identical to the live page is how somebody
+             concludes a draft is published. --}}
+        <div style="background:#fffbeb;border-bottom:1px solid #fde68a;color:#92400e;padding:10px 16px;text-align:center;font-size:14px;">
+            <strong>Preview.</strong> This listing is
+            {{ strtoupper(str_replace('_', ' ', $property->status->value)) }} and is not visible to the public.
+        </div>
+    @endif
 
     <a href="{{ route('properties.index') }}" class="props-detail-back">← Back to all stays</a>
 

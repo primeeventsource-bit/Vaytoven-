@@ -61,12 +61,9 @@
              open on this listing rather than on everything. --}}
         <a href="{{ route('admin.activity.log', ['subject' => $property->reference]) }}">Activity</a>
         <a href="{{ route('admin.offers.index', ['q' => $property->reference]) }}">Offers</a>
-        @if ($property->status->value === 'active')
-            <a href="{{ route('properties.show', $property) }}" target="_blank" rel="noopener">Preview as customer ↗</a>
-        @else
-            <span class="vyt-faint" style="padding:8px 14px;font-size:13.5px;"
-                  title="Only an active listing has a public page.">Preview (inactive)</span>
-        @endif
+        {{-- Works at any status: previewing a DRAFT is the point. Staff and
+             the owner see it; the public still gets a 404. --}}
+        <a href="{{ route('properties.show', $property) }}" target="_blank" rel="noopener">Preview as customer ↗</a>
     </nav>
 
     <div class="vyt-card" style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;">

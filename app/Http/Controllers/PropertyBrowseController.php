@@ -147,17 +147,37 @@ class PropertyBrowseController extends Controller
 
     public function show(Property $property, Request $request, GeoIpService $geoIp): View
     {
+        // A listing that is not live is invisible to the public, but visible to
+        // the people who need to check it BEFORE it goes live. Previewing a
+        // draft is the whole point of previewing: by the time it is active it
+        // is too late to find the typo.
         if ($property->status !== PropertyStatus::Active) {
-            abort(404);
+            $viewer = $request->user();
+
+            abort_unless(
+                $viewer && ($viewer->isStaff() || $property->host_id === $viewer->id),
+                404,
+            );
+
+            // Marked so the page can say so. A preview that looks identical to
+            // the live page is how someone concludes a draft is published.
+            $request->attributes->set('vyt_preview', true);
         }
 
         $property->load(['amenities', 'photos' => fn ($q) => $q->orderBy('sort_order'), 'host:id,name,first_name,last_name']);
 
-        $this->recordView($property, $request, $geoIp);
+        if (! $request->attributes->get('vyt_preview')) {
+            // Staff checking their own work is not a visitor. Counting it
+            // would inflate the member's view count and put an internal
+            // action in the visitor journey.
+            $this->recordView($property, $request, $geoIp);
+
+        }
 
         // The audit log's own record of the same moment. property_views
         // powers the member's analytics; this is the staff-side trail that
         // carries IP, session and device alongside it.
+        if (! $request->attributes->get('vyt_preview')) {
         app(ActivityRecorder::class)->record(
             ActivityType::PropertyViewed,
             $request,
@@ -165,6 +185,7 @@ class PropertyBrowseController extends Controller
             subjectReference: $property->reference,
             result: 'successful',
         );
+        }
 
         $response = view('properties.show', [
             'property' => $property,

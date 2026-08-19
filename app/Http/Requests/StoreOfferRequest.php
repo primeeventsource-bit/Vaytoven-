@@ -22,9 +22,46 @@ class StoreOfferRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /**
+     * The week has to belong to this property and still be open.
+     *
+     * Checked after the field rules rather than with an `exists` rule, because
+     * "that week is on a different listing" and "that week is already under
+     * offer" are different problems and a bare exists check reports neither.
+     */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $weekId = $this->input('availability_week_id');
+
+            if (! $weekId) {
+                return;
+            }
+
+            $week = \App\Models\PropertyAvailabilityWeek::find($weekId);
+            $property = $this->route('property');
+
+            if (! $week || ! $property || $week->property_id !== $property->id) {
+                $validator->errors()->add('availability_week_id', 'That week is not listed on this property.');
+
+                return;
+            }
+
+            if (! $week->status->acceptsOffers()) {
+                $validator->errors()->add(
+                    'availability_week_id',
+                    'That week is no longer taking offers ('.$week->status->label().').'
+                );
+            }
+        });
+    }
     public function rules(): array
     {
         return [
+            // Which advertised week this is for. Validated against THIS
+            // property below, so a week id belonging to another listing
+            // cannot be posted through this form.
+            'availability_week_id' => ['nullable', 'integer'],
             'kind' => ['required', Rule::enum(OfferKind::class)],
             // Required for an offer, optional for an inquiry.
             'amount_dollars' => [

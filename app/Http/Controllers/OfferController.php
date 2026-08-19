@@ -43,7 +43,18 @@ class OfferController extends Controller
             checkIn: $request->validated('check_in'),
             checkOut: $request->validated('check_out'),
             guests: $request->validated('guests') ? (int) $request->validated('guests') : null,
+            availabilityWeekId: $request->validated('availability_week_id')
+                ? (int) $request->validated('availability_week_id')
+                : null,
         );
+
+        // The week stops taking NEW offers while this one is considered, but
+        // stays advertised. Otherwise a member returns to three bids for the
+        // same nights that arrived while they were deciding on the first.
+        $offer->availabilityWeek?->update([
+            'status'             => \App\Enums\AvailabilityWeekStatus::OfferPending,
+            'updated_by_user_id' => $buyer->id,
+        ]);
 
         app(ActivityRecorder::class)->record(
             ActivityType::OfferSubmitted,
