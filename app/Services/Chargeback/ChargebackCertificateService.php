@@ -65,9 +65,28 @@ class ChargebackCertificateService
 
     private function renderPdf(EvidenceBundle $bundle, ?User $user): string
     {
+        return Pdf::loadView('certificates.usage-certificate', $this->viewPayload($bundle, $user))
+            ->setPaper('letter', 'portrait')
+            ->output();
+    }
+
+    /**
+     * Everything the certificate template is given.
+     *
+     * Public so it can be asserted on directly. The alternative is parsing the
+     * generated PDF, which means inflating streams and decoding text runs whose
+     * encoding changes with the fonts the document happens to subset — a check
+     * that fails for reasons having nothing to do with the evidence. This is
+     * the boundary the bug lived at: the bundle gathered the orders and the
+     * template rendered them, and the payload in between quietly dropped them.
+     *
+     * @return array<string, mixed>
+     */
+    public function viewPayload(EvidenceBundle $bundle, ?User $user): array
+    {
         $arr = $bundle->toArray();
 
-        $payload = [
+        return [
             'confirmationCode' => $bundle->confirmation_code ?: null,
             'generatedAt' => $bundle->generated_at,
             'userName' => $user?->name ?? 'Unknown',
@@ -81,10 +100,21 @@ class ChargebackCertificateService
             'consumptionCount' => $arr['consumption_events_count'],
             'passiveCount' => $arr['passive_events_count'],
             'contracts' => $arr['contracts'],
-        ];
 
-        return Pdf::loadView('certificates.usage-certificate', $payload)
-            ->setPaper('letter', 'portrait')
-            ->output();
+            // Vaytoven's own billing, and proof the advertising it paid for was
+            // delivered.
+            //
+            // The bundle has always gathered these and the template has always
+            // rendered them, but they were never handed across — so every
+            // certificate printed "No Member Services orders for this account"
+            // regardless of what the member had bought. Member Services is the
+            // ONLY thing that can be charged back here, which made the document
+            // an argument for the cardholder: a signed statement, on Vaytoven
+            // letterhead, that no order existed.
+            'member_service_orders' => $arr['member_service_orders'],
+            'advertising_periods'   => $arr['advertising_periods'],
+            'ad_snapshots'          => $arr['ad_snapshots'],
+            'service_trail'         => $arr['service_trail'],
+        ];
     }
 }

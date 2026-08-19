@@ -42,6 +42,13 @@
                    @if ($isCurrent) aria-current="page" @endif>{{ $tab['label'] }}</a>
             @endforeach
 
+            {{-- Not gated on a permission: a new starter with the narrowest
+                 role is exactly who needs it, and it contains nothing beyond
+                 the shape of the admin area. Generated fresh on each download,
+                 so it describes this environment as configured today. --}}
+            <a href="{{ route('staff-guide') }}"
+               title="Download the staff training guide as a PDF">Staff guide ↓</a>
+
             @if (auth()->user()?->hasPermission('users.create'))
                 {{-- The thing this navigation was added for. Kept visually
                      distinct because it is an action, not a section. --}}

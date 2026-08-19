@@ -248,6 +248,49 @@
 @endif
 
 {{-- ============================================================ --}}
+{{-- The service trail.
+
+     The strongest section in the pack, and the one an issuer reads first:
+     the consequential steps only — account created, terms accepted, payment
+     approved, advertising activated — in order, each with the address, device
+     and session it was performed from.
+
+     None of these can be reported by a web browser. Every one is written by
+     the server that performed the action, which is what separates this from a
+     page-view log and what makes it worth putting in front of a bank. --}}
+<h2>Service trail ({{ count($service_trail ?? []) }})</h2>
+@if(count($service_trail ?? []) > 0)
+    <table>
+        <thead>
+            <tr>
+                <th>When</th><th>Step</th><th>Result</th><th>Subject</th>
+                <th>IP address</th><th>Approx. location</th><th>Device</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach($service_trail as $s)
+            <tr>
+                <td class="mono">{{ $s['occurred_at'] }}</td>
+                <td>{{ $s['activity'] }}</td>
+                <td>{{ $s['result'] ?? '—' }}</td>
+                <td class="mono">{{ $s['subject'] ?? '—' }}</td>
+                <td class="mono">{{ $s['ip_address'] ?? '—' }}</td>
+                <td>{{ $s['approx_location'] ?? '—' }}</td>
+                <td>{{ trim(($s['device'] ?? '').' '.($s['browser'] ?? '')) ?: '—' }}</td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+    <div class="meta">
+        Locations are approximate, derived from the IP address at the time of the
+        event. They indicate a general area only and are not a street address or a
+        statement of where any person physically was.
+    </div>
+@else
+    <div class="empty">No service-trail events recorded for this account in window.</div>
+@endif
+
+{{-- ============================================================ --}}
 <h2>High-evidence engagement ({{ $consumptionCount }} of {{ $consumptionCount + $passiveCount }} events)</h2>
 @if(count($events) > 0)
     <table>

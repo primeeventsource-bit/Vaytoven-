@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\ServiceFeeController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\StaffGuideController;
 use App\Http\Controllers\Admin\UserCertificateController as AdminUserCertificateController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CareersController;
@@ -66,6 +67,17 @@ Route::view('/members', 'members.show')->name('members.show');
 // venue's own calendar and to Vaytoven advertisements in that city. Public,
 // because the visitor arriving from a convention has no account yet.
 Route::get('/event-centers', [EventCenterController::class, 'index'])->name('event-centers.index');
+
+// The staff training guide, generated from this environment on each download.
+//
+// Deliberately NOT named admin.* and not inside the admin group. Every route
+// in that group must declare a permission: middleware - a structural guard
+// stops an unguarded admin screen being added by accident - and this is a
+// document rather than a screen. Picking a permission for it would also have
+// locked out the narrowest role, which is exactly who needs to read it.
+// Staff-only is enforced in the controller.
+Route::get('/staff-guide.pdf', StaffGuideController::class)
+    ->middleware('auth')->name('staff-guide');
 
 // Member Services activation and payment.
 //

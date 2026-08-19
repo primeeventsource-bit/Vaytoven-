@@ -67,18 +67,21 @@
     <div class="vyt-card-header"><h3>Evidence</h3></div>
     <div class="vyt-card-body">
         <p style="margin:0 0 14px;">
-            A signed evidence certificate covering this member's logins, terms
-            acceptances and contracts.
+            The complete dispute evidence pack for this member, as one PDF: account
+            creation, terms accepted and when, sign-in history, the Member Services
+            order and what it was for, the payment and its processor transaction id,
+            the advertising delivered against it, the advertisement as published, and
+            the service trail with the address and device behind each step.
         </p>
+
         <a href="{{ route('admin.users.certificate', $member) }}" class="site-cta"
            style="padding:9px 20px;font-size:14px;">Download evidence certificate (PDF)</a>
 
         <p class="site-note" style="margin-top:14px;">
-            <strong>This certificate does not yet include Member Services payments.</strong>
-            It was built for the retired booking product and reads the bookings and
-            charges tables, so it shows logins, acceptances and contracts but not the
-            NMI transaction on the Payments tab. Wiring orders into it is the next
-            piece of the evidence work.
+            Send it exactly as generated. An assembled record with an unbroken chain
+            is what carries weight with an issuer; a reworded summary of one does not.
+            Locations in it are approximate and derived from IP addresses, and it
+            never contains card numbers or security codes.
         </p>
     </div>
 </div>
