@@ -20,7 +20,7 @@ Pay securely
 @endcomponent
 
 @if ($order->link_expires_at)
-This link is valid until **{{ $order->link_expires_at->format('F j, Y') }}**. If it lapses, contact us and we will issue a new one.
+This link is valid until **{{ et($order->link_expires_at, 'F j, Y') }}**. If it lapses, contact us and we will issue a new one.
 @endif
 
 Your card details are entered on a secure page hosted by our payment processor — Vaytoven never sees or stores your card number.

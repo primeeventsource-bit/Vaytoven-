@@ -66,7 +66,7 @@
     <div class="vyt-journey">
         @foreach ($events as $event)
             <div class="vyt-journey-step">
-                <div class="t">{{ $event->occurred_at?->format('g:i:s A') }}</div>
+                <div class="t">{{ et($event->occurred_at, 'g:i:s A') }}</div>
                 <div>
                     <h4>{{ \App\Enums\ActivityType::tryFrom($event->event_type)?->label() ?? $event->event_type }}</h4>
                     <div class="d">

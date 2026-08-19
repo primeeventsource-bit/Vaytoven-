@@ -74,7 +74,7 @@
                                     <li>
                                         <span class="k">Dates</span>
                                         <span class="v">
-                                            {{ $offer->proposed_check_in?->format('M j, Y') }} – {{ $offer->proposed_check_out?->format('M j, Y') }}
+                                            {{ et($offer->proposed_check_in, 'M j, Y') }} – {{ et($offer->proposed_check_out, 'M j, Y') }}
                                             <span class="vyt-faint" style="font-weight:400;">·&nbsp;{{ $offer->nights() }} {{ Str::plural('night', $offer->nights()) }}</span>
                                         </span>
                                     </li>

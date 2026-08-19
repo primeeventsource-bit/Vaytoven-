@@ -48,8 +48,8 @@
                         </td>
                         <td>{{ str_replace('_', ' ', ucfirst($c->contract_type)) }}</td>
                         <td><span class="pill pill-{{ $c->status }}">{{ ucfirst($c->status) }}</span></td>
-                        <td>{{ $c->sent_at?->format('Y-m-d H:i') ?? '—' }}</td>
-                        <td>{{ $c->signed_at?->format('Y-m-d H:i') ?? '—' }}</td>
+                        <td>{{ et($c->sent_at, 'Y-m-d H:i') ?? '—' }}</td>
+                        <td>{{ et($c->signed_at, 'Y-m-d H:i') ?? '—' }}</td>
                         <td style="color:var(--muted);">{{ $c->source }}</td>
                         <td><a href="{{ route('admin.contracts.show', $c) }}">View →</a></td>
                     </tr>

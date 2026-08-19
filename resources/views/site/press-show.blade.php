@@ -8,7 +8,7 @@
     <section class="site-hero">
         <p class="eyebrow"><a href="{{ route('press.index') }}">Press</a></p>
         <h1>{{ $release->title }}</h1>
-        <time style="font-size:13.5px; color:var(--muted);">{{ $release->published_at->format('j F Y') }}</time>
+        <time style="font-size:13.5px; color:var(--muted);">{{ et($release->published_at, 'j F Y') }}</time>
     </section>
 
     <section class="site-section" style="max-width:70ch;">

@@ -11,7 +11,7 @@
             <ul class="m360-timeline">
                 @foreach ($timeline as $event)
                     <li class="k-{{ $event['kind'] }}">
-                        <span class="at">{{ $event['at']->format('M j, Y g:ia') }}</span>
+                        <span class="at">{{ et($event['at'], 'M j, Y g:ia') }}</span>
                         <span class="dot"></span>
                         <span>
                             {{ $event['label'] }}

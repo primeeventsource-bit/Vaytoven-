@@ -24,7 +24,7 @@
                         <td style="text-align:right;font-weight:600;">${{ $order->totalDollars() }}</td>
                         <td><span class="vyt-pill">{{ $order->effectiveStatus()->label() }}</span></td>
                         <td class="vyt-mono" style="font-size:12px;">{{ $order->nmi_transaction_id ?? '—' }}</td>
-                        <td class="vyt-faint">{{ ($order->paid_at ?? $order->created_at)?->format('M j, Y') }}</td>
+                        <td class="vyt-faint">{{ et($order->paid_at ?? $order->created_at, 'M j, Y') }}</td>
                     </tr>
                 @endforeach
             </tbody>

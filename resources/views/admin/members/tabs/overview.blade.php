@@ -8,7 +8,7 @@
                 <li><span class="k">Phone</span><span class="v">{{ $member->phone ?: '—' }}</span></li>
                 <li><span class="k">Member ID</span><span class="v vyt-mono">{{ $member->id }}</span></li>
                 <li><span class="k">Role</span><span class="v">{{ $member->role?->value ?? '—' }}</span></li>
-                <li><span class="k">Created</span><span class="v">{{ $member->created_at?->format('M j, Y g:ia') }}</span></li>
+                <li><span class="k">Created</span><span class="v">{{ et($member->created_at, 'M j, Y g:ia') }}</span></li>
                 <li><span class="k">Last sign-in</span><span class="v">{{ $member->last_login_at?->diffForHumans() ?? 'never' }}</span></li>
                 <li>
                     <span class="k">Password</span>
@@ -36,7 +36,7 @@
                     <li><span class="k">Rate</span><span class="v">${{ $package->pricePerWeekDollars() }}/week</span></li>
                     <li><span class="k">Paid</span><span class="v">${{ $package->totalDollars() }}</span></li>
                     <li><span class="k">Order</span><span class="v vyt-mono">{{ $package->reference }}</span></li>
-                    <li><span class="k">Paid on</span><span class="v">{{ $package->paid_at?->format('M j, Y') }}</span></li>
+                    <li><span class="k">Paid on</span><span class="v">{{ et($package->paid_at, 'M j, Y') }}</span></li>
                     <li>
                         <span class="k">Properties allowed</span>
                         <span class="v">

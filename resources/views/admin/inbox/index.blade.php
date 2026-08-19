@@ -75,8 +75,8 @@
                                 <td>{{ $m->department->label() }}</td>
                                 <td><strong>{{ $m->subject }}</strong>
                                     <div class="inbox-body">{{ Str::limit($m->message, 220) }}</div></td>
-                                <td style="white-space:nowrap;">{{ $m->created_at->format('M j, Y') }}
-                                    <span class="sub">{{ $m->created_at->format('g:i A') }}</span></td>
+                                <td style="white-space:nowrap;">{{ et($m->created_at, 'M j, Y') }}
+                                    <span class="sub">{{ et($m->created_at, 'g:i A') }}</span></td>
                                 <td>
                                     <span class="inbox-pill {{ $m->status === 'new' ? 'inbox-new' : 'inbox-done' }}">{{ $m->status }}</span>
                                 </td>
@@ -118,8 +118,8 @@
                                 <td><strong>{{ $t->subject }}</strong>
                                     <div class="inbox-body">{{ Str::limit($t->body, 220) }}</div></td>
                                 <td class="inbox-body" style="max-width:180px;">{{ $t->property_reference ?: '—' }}</td>
-                                <td style="white-space:nowrap;">{{ $t->created_at->format('M j, Y') }}
-                                    <span class="sub">{{ $t->created_at->format('g:i A') }}</span></td>
+                                <td style="white-space:nowrap;">{{ et($t->created_at, 'M j, Y') }}
+                                    <span class="sub">{{ et($t->created_at, 'g:i A') }}</span></td>
                                 <td><span class="inbox-pill {{ $t->priority === 'high' ? 'inbox-high' : 'inbox-new' }}">{{ $t->priority }}</span></td>
                                 <td><span class="inbox-pill {{ $t->status === 'open' ? 'inbox-new' : 'inbox-done' }}">{{ $t->status }}</span></td>
                             </tr>
@@ -155,8 +155,8 @@
                                     {{ $h->indicative_nightly_cents ? '$'.number_format($h->indicative_nightly_cents / 100) : '—' }}
                                 </td>
                                 <td class="inbox-body" style="max-width:150px;">{{ $h->availability ?: '—' }}</td>
-                                <td style="white-space:nowrap;">{{ $h->created_at->format('M j, Y') }}
-                                    <span class="sub">{{ $h->created_at->format('g:i A') }}</span></td>
+                                <td style="white-space:nowrap;">{{ et($h->created_at, 'M j, Y') }}
+                                    <span class="sub">{{ et($h->created_at, 'g:i A') }}</span></td>
                                 <td><span class="inbox-pill {{ $h->status === 'new' ? 'inbox-new' : 'inbox-done' }}">{{ $h->status }}</span></td>
                             </tr>
                         @endforeach
@@ -180,7 +180,7 @@
                                 <td>{{ $a->opening?->title ?? '—' }}</td>
                                 <td class="inbox-body">{{ Str::limit($a->cover_note, 200) ?: '—' }}</td>
                                 <td>{{ $a->resume_path ? 'Attached' : '—' }}</td>
-                                <td style="white-space:nowrap;">{{ $a->created_at->format('M j, Y') }}</td>
+                                <td style="white-space:nowrap;">{{ et($a->created_at, 'M j, Y') }}</td>
                             </tr>
                         @endforeach
                     </tbody>

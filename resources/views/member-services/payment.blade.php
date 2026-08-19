@@ -28,7 +28,7 @@
                 <div class="ms-summary-ref">
                     Reference {{ $order->reference }}
                     @if ($order->link_expires_at && $payable)
-                        <br>Valid until {{ $order->link_expires_at->format('M j, Y') }}
+                        <br>Valid until {{ et($order->link_expires_at, 'M j, Y') }}
                     @endif
                 </div>
             </div>
@@ -46,7 +46,7 @@
                     <div class="site-alert" style="background:#fef2f2;border-color:#fecaca;color:#991b1b;">
                         <strong>This payment link can no longer be used.</strong>
                         @if ($order->effectiveStatus() === \App\Enums\MemberServiceOrderStatus::Expired)
-                            It expired on {{ $order->link_expires_at?->format('F j, Y') }}.
+                            It expired on {{ et($order->link_expires_at, 'F j, Y') }}.
                         @endif
                         Please call {{ setting('general.support_phone', '(877) 782-9868') }} or email
                         {{ setting('general.support_email', 'contact@vaytoven.com') }} and we'll issue a new one.

@@ -13,7 +13,7 @@
         <div class="vyt-faint" style="margin-top:4px;">
             {{ $offer->kind->value === 'offer' ? 'Offer' : 'Inquiry' }}
             on {{ $offer->property?->title ?? 'a listing' }}
-            · submitted {{ ($offer->sent_at ?? $offer->created_at)?->format('M j, Y \a\t g:ia') }}
+            · submitted {{ et($offer->sent_at ?? $offer->created_at, 'M j, Y \a\t g:ia') }}
         </div>
     </div>
     <div>
@@ -33,8 +33,8 @@
                 <li>
                     <span class="k">Dates</span>
                     <span class="v">
-                        {{ $offer->proposed_check_in?->format('M j, Y') ?? '—' }}
-                        – {{ $offer->proposed_check_out?->format('M j, Y') ?? '—' }}
+                        {{ et($offer->proposed_check_in, 'M j, Y') ?? '—' }}
+                        – {{ et($offer->proposed_check_out, 'M j, Y') ?? '—' }}
                         @if ($offer->nights())
                             <span class="vyt-faint">· {{ $offer->nights() }} {{ Str::plural('night', $offer->nights()) }}</span>
                         @endif
@@ -51,7 +51,7 @@
                         @endif
                     </span>
                 </li>
-                <li><span class="k">Expires</span><span class="v">{{ $offer->expires_at?->format('M j, Y g:ia') ?? '—' }}</span></li>
+                <li><span class="k">Expires</span><span class="v">{{ et($offer->expires_at, 'M j, Y g:ia') ?? '—' }}</span></li>
             </ul>
 
             @if ($offer->buyer_message)
@@ -106,7 +106,7 @@
             <ul class="m360-timeline">
                 @foreach ($timeline as $event)
                     <li>
-                        <span class="at">{{ $event['at']->format('M j, Y g:ia') }}</span>
+                        <span class="at">{{ et($event['at'], 'M j, Y g:ia') }}</span>
                         <span class="dot"></span>
                         <span>
                             {{ $event['label'] }}

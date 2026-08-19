@@ -17,8 +17,8 @@
                         <td>{{ $contract->title }}</td>
                         <td class="vyt-faint">{{ $contract->contract_type }}</td>
                         <td><span class="vyt-pill">{{ ucfirst(str_replace('_', ' ', $contract->status)) }}</span></td>
-                        <td class="vyt-faint">{{ $contract->sent_at?->format('M j, Y') ?? '—' }}</td>
-                        <td class="vyt-faint">{{ $contract->completed_at?->format('M j, Y') ?? '—' }}</td>
+                        <td class="vyt-faint">{{ et($contract->sent_at, 'M j, Y') ?? '—' }}</td>
+                        <td class="vyt-faint">{{ et($contract->completed_at, 'M j, Y') ?? '—' }}</td>
                         <td>
                             @if ($contract->signedPdfExists())
                                 <a href="{{ route('admin.contracts.download.signed', $contract) }}">Signed PDF</a>
@@ -54,7 +54,7 @@
                                 {{ Str::limit($acceptance->version?->content_hash, 12, '') }}
                             </span>
                         </td>
-                        <td class="vyt-faint">{{ $acceptance->accepted_at?->format('M j, Y g:ia') }}</td>
+                        <td class="vyt-faint">{{ et($acceptance->accepted_at, 'M j, Y g:ia') }}</td>
                         <td class="vyt-mono" style="font-size:12px;">{{ $acceptance->ip_address ?? '—' }}</td>
                     </tr>
                 @endforeach
@@ -114,7 +114,7 @@
                         <td class="vyt-faint">{{ $document->categoryLabel() }}</td>
                         <td class="vyt-faint">{{ $document->sizeForHumans() }}</td>
                         <td class="vyt-faint">{{ $document->uploadedBy?->email ?? '—' }}</td>
-                        <td class="vyt-faint">{{ $document->created_at?->format('M j, Y') }}</td>
+                        <td class="vyt-faint">{{ et($document->created_at, 'M j, Y') }}</td>
                         <td style="white-space:nowrap;">
                             @if ($document->fileExists())
                                 <a href="{{ route('admin.members.documents.download', [$member, $document]) }}">Download</a>

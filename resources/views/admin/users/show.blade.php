@@ -27,7 +27,7 @@
                     <li><span class="k">Role</span><span class="v">{{ str_replace('_', ' ', $user->role?->value) }}</span></li>
                     <li><span class="k">Email verified</span><span class="v">{{ $user->email_verified_at ? 'yes' : 'no' }}</span></li>
                     <li><span class="k">Last login</span><span class="v">{{ $user->last_login_at?->diffForHumans() ?? '—' }}</span></li>
-                    <li><span class="k">Joined</span><span class="v">{{ $user->created_at?->format('M j, Y') }}</span></li>
+                    <li><span class="k">Joined</span><span class="v">{{ et($user->created_at, 'M j, Y') }}</span></li>
                     @if ($user->created_by_user_id)
                         <li><span class="k">Created by admin</span><span class="v vyt-faint">ID {{ $user->created_by_user_id }}</span></li>
                     @endif

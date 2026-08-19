@@ -15,7 +15,7 @@ Reference: {{ $order->reference }}
 Transaction: {{ $order->nmi_transaction_id }}
 @endif
 @if ($order->paid_at)
-Date: {{ $order->paid_at->format('F j, Y \a\t g:ia T') }}
+Date: {{ et($order->paid_at, 'F j, Y \a\t g:ia T') }}
 @endif
 @endcomponent
 

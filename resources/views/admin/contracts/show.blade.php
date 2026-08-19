@@ -66,11 +66,11 @@
             <tr><th>Template ID</th><td>{{ $contract->template_id ?: '—' }}</td></tr>
             <tr><th>Envelope ID</th><td><code>{{ $contract->envelope_id ?: '—' }}</code></td></tr>
             <tr><th>Payment / invoice</th><td>{{ $contract->payment_id ?: '—' }}</td></tr>
-            <tr><th>Created</th><td>{{ $contract->created_at?->format('Y-m-d H:i:s') }}</td></tr>
-            <tr><th>Sent</th><td>{{ $contract->sent_at?->format('Y-m-d H:i:s') ?: '—' }}</td></tr>
-            <tr><th>Viewed</th><td>{{ $contract->viewed_at?->format('Y-m-d H:i:s') ?: '—' }}</td></tr>
-            <tr><th>Signed</th><td>{{ $contract->signed_at?->format('Y-m-d H:i:s') ?: '—' }}</td></tr>
-            <tr><th>Completed</th><td>{{ $contract->completed_at?->format('Y-m-d H:i:s') ?: '—' }}</td></tr>
+            <tr><th>Created</th><td>{{ et($contract->created_at, 'Y-m-d H:i:s') }}</td></tr>
+            <tr><th>Sent</th><td>{{ et($contract->sent_at, 'Y-m-d H:i:s') ?: '—' }}</td></tr>
+            <tr><th>Viewed</th><td>{{ et($contract->viewed_at, 'Y-m-d H:i:s') ?: '—' }}</td></tr>
+            <tr><th>Signed</th><td>{{ et($contract->signed_at, 'Y-m-d H:i:s') ?: '—' }}</td></tr>
+            <tr><th>Completed</th><td>{{ et($contract->completed_at, 'Y-m-d H:i:s') ?: '—' }}</td></tr>
             <tr><th>Last signer IP</th><td>{{ $contract->last_signer_ip ?: '—' }}</td></tr>
             <tr><th>Last signer device</th><td style="font-family:monospace;font-size:12px;">{{ $contract->last_signer_user_agent ?: '—' }}</td></tr>
         </table>
@@ -94,7 +94,7 @@
                 <tbody>
                     @foreach ($contract->events as $event)
                         <tr>
-                            <td>{{ $event->occurred_at?->format('Y-m-d H:i:s') }}</td>
+                            <td>{{ et($event->occurred_at, 'Y-m-d H:i:s') }}</td>
                             <td><span class="pill">{{ $event->event_type }}</span></td>
                             <td>{{ $event->recipient_email ?: '—' }}</td>
                             <td>{{ $event->ip_address ?: '—' }}</td>

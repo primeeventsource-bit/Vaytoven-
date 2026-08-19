@@ -27,7 +27,7 @@
                     <li><span>Transaction</span><span class="mono">{{ $order->nmi_transaction_id }}</span></li>
                 @endif
                 @if ($order->paid_at)
-                    <li><span>Paid</span><span>{{ $order->paid_at->format('F j, Y \a\t g:ia') }}</span></li>
+                    <li><span>Paid</span><span>{{ et($order->paid_at, 'F j, Y \a\t g:ia') }}</span></li>
                 @endif
             </ul>
 

@@ -31,8 +31,8 @@
                         <tr>
                             <td><strong>{{ $c->title }}</strong><br><span style="color:var(--muted);font-size:13px;">{{ str_replace('_', ' ', ucfirst($c->contract_type)) }}</span></td>
                             <td><span class="pill pill-{{ $c->status }}">{{ ucfirst($c->status) }}</span></td>
-                            <td>{{ $c->sent_at?->format('M j, Y') ?: '—' }}</td>
-                            <td>{{ $c->signed_at?->format('M j, Y') ?: '—' }}</td>
+                            <td>{{ et($c->sent_at, 'M j, Y') ?: '—' }}</td>
+                            <td>{{ et($c->signed_at, 'M j, Y') ?: '—' }}</td>
                             <td>
                                 @if ($c->isSignable())
                                     <a class="btn btn-primary" href="{{ route('client.contracts.show', $c) }}">Review &amp; sign</a>

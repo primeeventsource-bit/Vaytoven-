@@ -66,12 +66,12 @@
     <div class="fee-field">
         <label for="from-{{ $config?->id ?? 'new' }}">Effective from</label>
         <input id="from-{{ $config?->id ?? 'new' }}" name="effective_from" type="datetime-local"
-               value="{{ old('effective_from', $config?->effective_from?->format('Y-m-d\TH:i')) }}">
+               value="{{ old('effective_from', et($config?->effective_from, 'Y-m-d\TH:i')) }}">
     </div>
     <div class="fee-field">
         <label for="to-{{ $config?->id ?? 'new' }}">Effective to</label>
         <input id="to-{{ $config?->id ?? 'new' }}" name="effective_to" type="datetime-local"
-               value="{{ old('effective_to', $config?->effective_to?->format('Y-m-d\TH:i')) }}">
+               value="{{ old('effective_to', et($config?->effective_to, 'Y-m-d\TH:i')) }}">
         <div class="fee-hint">Blank = open-ended.</div>
     </div>
     <div class="fee-field">

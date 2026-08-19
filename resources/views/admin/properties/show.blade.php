@@ -83,7 +83,7 @@
                             <td>{{ $offer->buyer?->name ?? 'Removed account' }}</td>
                             <td>{{ $offer->offer_amount_cents ? '$'.number_format($offer->offer_amount_cents / 100, 2) : '—' }}</td>
                             <td><span class="vyt-pill">{{ ucfirst(str_replace('_', ' ', (string) ($offer->status?->value ?? $offer->status))) }}</span></td>
-                            <td class="vyt-faint">{{ $offer->created_at?->format('M j, Y') }}</td>
+                            <td class="vyt-faint">{{ et($offer->created_at, 'M j, Y') }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -121,7 +121,7 @@
                             <td class="vyt-faint">{{ $document->categoryLabel() }}</td>
                             <td class="vyt-faint">{{ $document->sizeForHumans() }}</td>
                             <td class="vyt-faint">{{ $document->uploadedBy?->email ?? '—' }}</td>
-                            <td class="vyt-faint">{{ $document->created_at?->format('M j, Y') }}</td>
+                            <td class="vyt-faint">{{ et($document->created_at, 'M j, Y') }}</td>
                             <td style="white-space:nowrap;">
                                 @if ($document->fileExists())
                                     <a href="{{ route('admin.properties.documents.download', [$property, $document]) }}">Download</a>
@@ -196,7 +196,7 @@
                         <tr>
                             <td>Version {{ $snapshots->count() - $i }}</td>
                             <td class="vyt-faint">{{ $snapshot->reasonLabel() }}</td>
-                            <td class="vyt-faint">{{ $snapshot->created_at?->format('M j, Y g:ia') }}</td>
+                            <td class="vyt-faint">{{ et($snapshot->created_at, 'M j, Y g:ia') }}</td>
                             <td>
                                 @if ($snapshot->isIntact())
                                     <span class="vyt-pill is-active">Intact</span>

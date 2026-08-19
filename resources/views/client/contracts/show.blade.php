@@ -25,7 +25,7 @@
     @if ($contract->status === \App\Models\Contract::STATUS_COMPLETED)
         <div class="card">
             <h2 style="margin-top:0;">Signed</h2>
-            <p style="color:var(--muted);">Signed on {{ $contract->signed_at?->format('F j, Y \a\t H:i') }}.</p>
+            <p style="color:var(--muted);">Signed on {{ et($contract->signed_at, 'F j, Y \a\t H:i') }}.</p>
             @if ($contract->signedPdfExists())
                 <a class="btn btn-primary" href="{{ route('client.contracts.download', $contract) }}">Download signed PDF</a>
             @elseif ($contract->signed_pdf_path)
@@ -44,7 +44,7 @@
     @if ($contract->status === \App\Models\Contract::STATUS_DECLINED)
         <div class="card">
             <h2 style="margin-top:0;">Declined</h2>
-            <p>You declined this contract on {{ $contract->declined_at?->format('F j, Y \a\t H:i') }}. If this was a mistake, contact Vaytoven and we can resend.</p>
+            <p>You declined this contract on {{ et($contract->declined_at, 'F j, Y \a\t H:i') }}. If this was a mistake, contact Vaytoven and we can resend.</p>
         </div>
     @endif
 
@@ -53,9 +53,9 @@
         <table>
             <tr><th>Type</th><td>{{ str_replace('_', ' ', ucfirst($contract->contract_type)) }}</td></tr>
             <tr><th>Sent to</th><td>{{ $contract->client_email }}</td></tr>
-            <tr><th>Sent</th><td>{{ $contract->sent_at?->format('F j, Y H:i') ?: '—' }}</td></tr>
-            <tr><th>Viewed</th><td>{{ $contract->viewed_at?->format('F j, Y H:i') ?: '—' }}</td></tr>
-            <tr><th>Signed</th><td>{{ $contract->signed_at?->format('F j, Y H:i') ?: '—' }}</td></tr>
+            <tr><th>Sent</th><td>{{ et($contract->sent_at, 'F j, Y H:i') ?: '—' }}</td></tr>
+            <tr><th>Viewed</th><td>{{ et($contract->viewed_at, 'F j, Y H:i') ?: '—' }}</td></tr>
+            <tr><th>Signed</th><td>{{ et($contract->signed_at, 'F j, Y H:i') ?: '—' }}</td></tr>
         </table>
     </div>
 @endsection

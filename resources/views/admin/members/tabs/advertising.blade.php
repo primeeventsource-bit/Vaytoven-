@@ -28,8 +28,8 @@
                 @foreach ($periods as $period)
                     <tr>
                         <td>{{ $period->property?->title ?? '—' }}</td>
-                        <td class="vyt-faint">{{ $period->starts_at?->format('M j, Y') }}</td>
-                        <td class="vyt-faint">{{ $period->ends_at?->format('M j, Y') }}</td>
+                        <td class="vyt-faint">{{ et($period->starts_at, 'M j, Y') }}</td>
+                        <td class="vyt-faint">{{ et($period->ends_at, 'M j, Y') }}</td>
                         <td style="text-align:right;font-weight:600;">
                             {{-- daysRemaining() floors at zero: "-6 days left"
                                  is a number nobody can act on, and the expired
@@ -40,7 +40,7 @@
                         <td class="vyt-faint">
                             {{ $period->activatedBy?->email ?? '—' }}
                             @if ($period->activated_at)
-                                <span style="display:block;font-size:11.5px;">{{ $period->activated_at->format('M j, g:ia') }}</span>
+                                <span style="display:block;font-size:11.5px;">{{ et($period->activated_at, 'M j, g:ia') }}</span>
                             @endif
                         </td>
                     </tr>

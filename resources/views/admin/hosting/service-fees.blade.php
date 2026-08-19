@@ -71,7 +71,7 @@
                 <div><span>Guest pays</span>
                     <strong>{{ \App\Services\Fees\ResolvedServiceFee::formatBps($config->guestBps()) }}</strong></div>
                 <div><span>Effective</span>
-                    <strong style="font-size:14px;">{{ $config->effective_from?->format('j M Y') ?? 'Always' }}{{ $config->effective_to ? ' → '.$config->effective_to->format('j M Y') : '' }}</strong></div>
+                    <strong style="font-size:14px;">{{ et($config->effective_from, 'j M Y') ?? 'Always' }}{{ $config->effective_to ? ' → '.et($config->effective_to, 'j M Y') : '' }}</strong></div>
             </div>
 
             <hr style="border:0; border-top:1px solid var(--line); margin:18px 0;">

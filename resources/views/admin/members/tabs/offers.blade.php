@@ -22,7 +22,7 @@
                         </td>
                         <td>{{ $offer->property?->title ?? '—' }}</td>
                         <td class="vyt-faint">
-                            {{ $offer->proposed_check_in?->format('M j') }} – {{ $offer->proposed_check_out?->format('M j, Y') }}
+                            {{ et($offer->proposed_check_in, 'M j') }} – {{ et($offer->proposed_check_out, 'M j, Y') }}
                         </td>
                         <td style="text-align:right;">
                             @if ($offer->offer_amount_cents !== null)

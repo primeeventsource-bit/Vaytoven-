@@ -52,7 +52,7 @@
                                     @endif
                                 </td>
                                 <td class="vyt-faint">
-                                    {{ $offer->proposed_check_in?->format('M j') }} – {{ $offer->proposed_check_out?->format('M j, Y') }}
+                                    {{ et($offer->proposed_check_in, 'M j') }} – {{ et($offer->proposed_check_out, 'M j, Y') }}
                                 </td>
                                 {{-- Nullable: an inquiry carries dates and a
                                      message but no figure. --}}

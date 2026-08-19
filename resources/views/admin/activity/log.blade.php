@@ -137,7 +137,7 @@
             <tbody>
                 @foreach ($events as $event)
                     <tr>
-                        <td class="vyt-mono">{{ $event->occurred_at?->format('m/d/Y g:i:s A') }}</td>
+                        <td class="vyt-mono">{{ et($event->occurred_at, 'm/d/Y g:i:s A') }}</td>
                         <td>
                             @if ($event->actor)
                                 {{ $event->actor->name }}

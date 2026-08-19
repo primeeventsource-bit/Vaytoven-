@@ -29,7 +29,7 @@
                 @foreach ($releases as $release)
                     <article class="site-card">
                         <time style="font-size:12.5px; color:var(--muted); letter-spacing:.04em;">
-                            {{ $release->published_at->format('j F Y') }}
+                            {{ et($release->published_at, 'j F Y') }}
                         </time>
                         <h3 style="margin:8px 0 6px;">
                             <a href="{{ route('press.show', $release) }}">{{ $release->title }}</a>

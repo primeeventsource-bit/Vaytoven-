@@ -58,7 +58,7 @@
                                     </td>
                                     <td class="num">
                                         @if ($offer->proposed_check_in && $offer->proposed_check_out)
-                                            {{ $offer->proposed_check_in->format('M j') }} – {{ $offer->proposed_check_out->format('M j, Y') }}
+                                            {{ et($offer->proposed_check_in, 'M j') }} – {{ et($offer->proposed_check_out, 'M j, Y') }}
                                             <span class="sub">{{ $offer->nights() }} {{ Str::plural('night', $offer->nights()) }}</span>
                                         @else
                                             <span style="color:var(--muted);">—</span>
@@ -72,14 +72,14 @@
                                             <span style="color:var(--muted);">—</span>
                                         @endif
                                     </td>
-                                    <td class="num">{{ $offer->sent_at?->format('M j, Y') }}</td>
-                                    <td class="num">{{ $offer->sent_at?->format('g:i A') }}</td>
+                                    <td class="num">{{ et($offer->sent_at, 'M j, Y') }}</td>
+                                    <td class="num">{{ et($offer->sent_at, 'g:i A') }}</td>
                                     <td class="ip">{{ $offer->submitted_ip ?? '—' }}</td>
                                     <td>
                                         <span class="vyt-ostatus vyt-ostatus-{{ $status->value }}">{{ $status->label() }}</span>
                                     </td>
                                     <td class="num">
-                                        {{ $offer->expires_at?->format('M j, Y g:i A') ?? '—' }}
+                                        {{ et($offer->expires_at, 'M j, Y g:i A') ?? '—' }}
                                     </td>
                                     <td>
                                         @if ($offer->isAwaitingOwner())

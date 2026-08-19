@@ -13,7 +13,7 @@
             {{ $member->email }}
             @if ($member->phone) · {{ $member->phone }} @endif
             · Member #{{ $member->id }}
-            · joined {{ $member->created_at?->format('M j, Y') }}
+            · joined {{ et($member->created_at, 'M j, Y') }}
         </div>
     </div>
     <div style="text-align:right;">
