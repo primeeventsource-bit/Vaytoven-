@@ -35,7 +35,12 @@ return [
             'host'         => env('MAIL_HOST', '127.0.0.1'),
             'port'         => env('MAIL_PORT', 587),
             'username'     => env('MAIL_USERNAME'),
-            'password'     => env('MAIL_PASSWORD'),
+            // Resend authenticates with the API key AS the SMTP password. Read
+            // from the key variable when no explicit MAIL_PASSWORD is set, so the
+            // secret lives in exactly one place - copying it into a second
+            // variable means the two drift the first time it is rotated, and the
+            // one that is wrong fails silently as an auth error.
+            'password'     => env('MAIL_PASSWORD') ?: env('RESEND_API_KEY', env('resend_api')),
             'timeout'      => 15,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
