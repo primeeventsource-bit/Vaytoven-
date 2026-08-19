@@ -42,6 +42,11 @@ class PropertyPhoto extends Model
         'width',
         'height',
         'sha256',
+        'rotation',
+        'crop_x',
+        'crop_y',
+        'crop_w',
+        'crop_h',
         'uploaded_by_user_id',
     ];
 
@@ -58,7 +63,54 @@ class PropertyPhoto extends Model
             'size_bytes' => 'integer',
             'width'      => 'integer',
             'height'     => 'integer',
+            'rotation'   => 'integer',
+            'crop_x'     => 'float',
+            'crop_y'     => 'float',
+            'crop_w'     => 'float',
+            'crop_h'     => 'float',
         ];
+    }
+
+    /** Whether any edit has been applied, i.e. whether "Reset" has anything to undo. */
+    public function isEdited(): bool
+    {
+        return (int) $this->rotation !== 0 || $this->crop_w !== null;
+    }
+
+    /**
+     * The crop box as the editor wants it: four fractions, or null.
+     *
+     * Returned all-or-nothing because a half-stored box (a width with no left
+     * edge) would have the editor draw a rectangle in the wrong place, which
+     * looks like the saved crop moved on its own.
+     *
+     * @return array{x: float, y: float, w: float, h: float}|null
+     */
+    public function cropBox(): ?array
+    {
+        if ($this->crop_w === null || $this->crop_h === null) {
+            return null;
+        }
+
+        return [
+            'x' => (float) $this->crop_x,
+            'y' => (float) $this->crop_y,
+            'w' => (float) $this->crop_w,
+            'h' => (float) $this->crop_h,
+        ];
+    }
+
+    /**
+     * Whether the pristine upload is still on the disk.
+     *
+     * Rotation and crop replay against the original, so a photo whose original
+     * has gone can still be shown but can no longer be edited. The editor asks
+     * this so it can say that up front instead of failing on save.
+     */
+    public function originalExists(): bool
+    {
+        return $this->original_path !== null
+            && Storage::disk($this->disk)->exists($this->original_path);
     }
 
     public function property(): BelongsTo

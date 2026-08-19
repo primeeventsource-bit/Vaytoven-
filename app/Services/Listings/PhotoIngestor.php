@@ -6,6 +6,7 @@ use App\Models\Property;
 use App\Models\PropertyPhoto;
 use App\Models\User;
 use App\Support\Storage\DocumentStorage;
+use GdImage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -19,6 +20,12 @@ use RuntimeException;
  * advertisement actually show" has to be answerable years later. The derivative
  * is what visitors get: bounded, stripped of metadata, and usually a fraction
  * of the size.
+ *
+ * Rotation and cropping go through the same path: the stored numbers are
+ * replayed against the pristine original, never against the last derivative.
+ * Turning an image four times therefore returns it to exactly where it started,
+ * and an over-tight crop is widened by dragging the box back out rather than by
+ * re-uploading.
  *
  * Resizing happens inline rather than on a queue. That is not the textbook
  * answer, but the environment serving the public site runs QUEUE_CONNECTION=sync
@@ -42,6 +49,15 @@ class PhotoIngestor
      * file, not what it becomes.
      */
     private const MAX_PIXELS = 50_000_000;
+
+    /**
+     * Smallest crop worth honouring, as a fraction of the edge.
+     *
+     * A box a few pixels wide is a misdrag, not an intention, and blowing it
+     * back up to gallery size produces a blurred mess that reads as a broken
+     * upload rather than as a mistake someone can undo.
+     */
+    private const MIN_CROP = 0.05;
 
     private const QUALITY = 82;
 
@@ -84,9 +100,11 @@ class PhotoIngestor
         $originalPath = "{$prefix}/properties/{$property->id}/originals/{$stem}.".
             strtolower($file->getClientOriginalExtension() ?: 'bin');
 
-        Storage::disk($disk)->put($originalPath, file_get_contents($realPath));
+        $bytes = (string) file_get_contents($realPath);
 
-        [$derivative, $servedWidth, $servedHeight] = $this->derive($realPath, $info[2]);
+        Storage::disk($disk)->put($originalPath, $bytes);
+
+        [$derivative, $servedWidth, $servedHeight] = $this->render($bytes);
 
         $servedPath = "{$prefix}/properties/{$property->id}/web/{$stem}.webp";
         Storage::disk($disk)->put($servedPath, $derivative);
@@ -109,29 +127,108 @@ class PhotoIngestor
     }
 
     /**
-     * Scale down and re-encode as WebP.
+     * Re-derive a photo with a new rotation and crop.
+     *
+     * The rotation is absolute, not a delta, so replaying the same request
+     * twice — a double-click, a refresh of the POST — leaves the image where it
+     * already was instead of turning it twice.
+     *
+     * The new derivative gets a fresh key rather than overwriting the old one.
+     * Overwriting is tidier on the bucket and wrong everywhere else: the gallery
+     * URL would be unchanged, so browsers, any cache in front of the site and
+     * anyone holding an open tab would keep showing the pre-crop image with no
+     * way to tell it was stale. The old object is deleted only once the new one
+     * is safely written.
+     *
+     * @param  array{x: float, y: float, w: float, h: float}|null  $crop  fractions of the rotated image
+     *
+     * @throws RuntimeException when the original is gone, so nothing can be re-derived
+     */
+    public function retransform(PropertyPhoto $photo, int $rotation, ?array $crop): PropertyPhoto
+    {
+        if (! $photo->original_path || ! Storage::disk($photo->disk)->exists($photo->original_path)) {
+            // Without the original there is nothing to replay against. Editing
+            // the derivative instead would compound the crop already applied,
+            // and would do it silently, which is worse than refusing.
+            throw new RuntimeException(
+                'The original upload for this photo is no longer in storage, so it cannot be rotated or cropped. Upload it again.'
+            );
+        }
+
+        $bytes = (string) Storage::disk($photo->disk)->get($photo->original_path);
+
+        [$derivative, $width, $height] = $this->render($bytes, $rotation, $crop);
+
+        $previous   = (string) $photo->path;
+        $servedPath = preg_replace('/[^\/]+$/', Str::uuid()->toString().'.webp', $previous);
+
+        Storage::disk($photo->disk)->put($servedPath, $derivative);
+
+        $photo->forceFill([
+            'path'       => $servedPath,
+            'width'      => $width,
+            'height'     => $height,
+            'size_bytes' => strlen($derivative),
+            'sha256'     => hash('sha256', $derivative),
+            'rotation'   => $this->normaliseRotation($rotation),
+            'crop_x'     => $crop['x'] ?? null,
+            'crop_y'     => $crop['y'] ?? null,
+            'crop_w'     => $crop['w'] ?? null,
+            'crop_h'     => $crop['h'] ?? null,
+        ])->save();
+
+        if ($previous !== '' && $previous !== $servedPath) {
+            Storage::disk($photo->disk)->delete($previous);
+        }
+
+        return $photo;
+    }
+
+    /**
+     * Turn original bytes into the image the site serves.
+     *
+     * Rotation is applied before the crop because that is the order the person
+     * doing it experiences: they straighten the photo, then draw a box on what
+     * they can now see. Storing the box against the rotated image means the
+     * editor paints it straight back over the thumbnail with no arithmetic and
+     * nothing to un-rotate.
      *
      * Re-encoding rather than copying is also what strips EXIF, which routinely
      * carries the GPS coordinates of the property and the photographer's device
      * — neither of which belongs on a public listing whose whole point is that
      * the member controls how precisely they are located.
      *
+     * @param  array{x: float, y: float, w: float, h: float}|null  $crop
      * @return array{0: string, 1: int, 2: int}
      */
-    private function derive(string $path, int $type): array
+    private function render(string $bytes, int $rotation = 0, ?array $crop = null): array
     {
-        $image = match ($type) {
-            IMAGETYPE_JPEG => @imagecreatefromjpeg($path),
-            IMAGETYPE_PNG  => @imagecreatefrompng($path),
-            IMAGETYPE_WEBP => @imagecreatefromwebp($path),
-            default        => null,
-        };
+        $image = @imagecreatefromstring($bytes);
 
         if (! $image) {
             throw new RuntimeException('That image format cannot be processed. Use JPG, PNG or WebP.');
         }
 
-        $width  = imagesx($image);
+        $this->keepTransparency($image);
+
+        if ($degrees = $this->normaliseRotation($rotation)) {
+            // GD turns anticlockwise for a positive angle; the button says
+            // "rotate right", so the sign is flipped here rather than at every
+            // call site.
+            $rotated = imagerotate($image, -$degrees, imagecolorallocatealpha($image, 0, 0, 0, 127));
+
+            if ($rotated === false) {
+                throw new RuntimeException('That image could not be rotated.');
+            }
+
+            $image = $this->keepTransparency($rotated);
+        }
+
+        if ($crop) {
+            $image = $this->applyCrop($image, $crop);
+        }
+
+        $width   = imagesx($image);
         $height  = imagesy($image);
         $longest = max($width, $height);
 
@@ -156,9 +253,64 @@ class PhotoIngestor
 
         ob_start();
         imagewebp($image, null, self::QUALITY);
-        $bytes = (string) ob_get_clean();
+        $encoded = (string) ob_get_clean();
 
-        return [$bytes, $width, $height];
+        return [$encoded, $width, $height];
+    }
+
+    /**
+     * Cut the requested box out of the image.
+     *
+     * The fractions arrive from a form, so they are clamped rather than
+     * trusted: a box starting past the right edge, or one taller than what is
+     * left below it, is pulled back inside instead of handed to GD, which
+     * answers a nonsensical rectangle with a blank canvas and no error.
+     *
+     * @param  array{x: float, y: float, w: float, h: float}  $crop
+     */
+    private function applyCrop(GdImage $image, array $crop): GdImage
+    {
+        $width  = imagesx($image);
+        $height = imagesy($image);
+
+        $x = min(max((float) $crop['x'], 0.0), 1.0 - self::MIN_CROP);
+        $y = min(max((float) $crop['y'], 0.0), 1.0 - self::MIN_CROP);
+        $w = min(max((float) $crop['w'], self::MIN_CROP), 1.0 - $x);
+        $h = min(max((float) $crop['h'], self::MIN_CROP), 1.0 - $y);
+
+        $cropped = imagecrop($image, [
+            'x'      => (int) floor($x * $width),
+            'y'      => (int) floor($y * $height),
+            'width'  => max(1, (int) round($w * $width)),
+            'height' => max(1, (int) round($h * $height)),
+        ]);
+
+        if ($cropped === false) {
+            throw new RuntimeException('That crop could not be applied.');
+        }
+
+        return $this->keepTransparency($cropped);
+    }
+
+    /**
+     * Stop GD flattening a PNG's transparency onto black.
+     *
+     * Every operation here returns a fresh canvas with blending back on and
+     * alpha saving off, so this has to be re-applied after each one rather than
+     * set once at the top.
+     */
+    private function keepTransparency(GdImage $image): GdImage
+    {
+        imagealphablending($image, false);
+        imagesavealpha($image, true);
+
+        return $image;
+    }
+
+    /** Quarter turns only, always 0-270, so 360 and -90 both land somewhere sane. */
+    private function normaliseRotation(int $degrees): int
+    {
+        return ((int) round($degrees / 90) % 4 + 4) % 4 * 90;
     }
 
     /**

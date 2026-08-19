@@ -352,6 +352,8 @@ Route::middleware(['auth'])
             ->middleware('permission:properties.edit')->name('properties.photos.update');
         Route::post('properties/{property}/photos/{photo}/cover', [PropertyPhotoController::class, 'cover'])
             ->middleware('permission:properties.edit')->name('properties.photos.cover');
+        Route::post('properties/{property}/photos/{photo}/transform', [PropertyPhotoController::class, 'transform'])
+            ->middleware('permission:properties.edit')->name('properties.photos.transform');
         Route::post('properties/{property}/photos/reorder', [PropertyPhotoController::class, 'reorder'])
             ->middleware('permission:properties.edit')->name('properties.photos.reorder');
         Route::delete('properties/{property}/photos/{photo}', [PropertyPhotoController::class, 'destroy'])

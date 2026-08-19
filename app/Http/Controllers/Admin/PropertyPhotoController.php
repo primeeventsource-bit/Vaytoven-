@@ -123,6 +123,72 @@ class PropertyPhotoController extends Controller
         return back()->with('success', 'Photo details saved.');
     }
 
+    /**
+     * Rotate and crop.
+     *
+     * Both arrive together because they are one edit as far as the person is
+     * concerned, and because the crop box is expressed against the rotated
+     * image — sending them separately would mean a box drawn before a turn
+     * lands somewhere else after it.
+     *
+     * The rotation posted is absolute. The buttons do the addition client-side
+     * and send where the image should end up, so a double-submitted form is a
+     * no-op rather than a second quarter turn.
+     */
+    public function transform(Request $request, Property $property, PropertyPhoto $photo): RedirectResponse
+    {
+        $this->authorizeListing($request, $property);
+        abort_unless($photo->property_id === $property->id, 404);
+
+        $validated = $request->validate([
+            'rotation' => ['required', 'integer', Rule::in([0, 90, 180, 270])],
+            // All four or none: a partial box cannot be drawn, and guessing the
+            // missing side would crop somewhere the person never chose.
+            'crop_x'   => ['nullable', 'required_with:crop_w', 'numeric', 'between:0,1'],
+            'crop_y'   => ['nullable', 'required_with:crop_h', 'numeric', 'between:0,1'],
+            'crop_w'   => ['nullable', 'required_with:crop_x', 'numeric', 'between:0.05,1'],
+            'crop_h'   => ['nullable', 'required_with:crop_y', 'numeric', 'between:0.05,1'],
+        ], [
+            'crop_w.between' => 'That crop is too small — drag a larger area.',
+            'crop_h.between' => 'That crop is too small — drag a larger area.',
+        ]);
+
+        $crop = isset($validated['crop_w'], $validated['crop_h'])
+            ? [
+                'x' => (float) ($validated['crop_x'] ?? 0),
+                'y' => (float) ($validated['crop_y'] ?? 0),
+                'w' => (float) $validated['crop_w'],
+                'h' => (float) $validated['crop_h'],
+            ]
+            : null;
+
+        $before = ['rotation' => (int) $photo->rotation, 'crop' => $photo->cropBox()];
+
+        try {
+            $this->ingestor->retransform($photo, (int) $validated['rotation'], $crop);
+        } catch (Throwable $e) {
+            return back()->withErrors(['photo_transform' => $e->getMessage()]);
+        }
+
+        // Logged because the served image changed while the listing was live:
+        // a dispute about what an advertisement showed needs the edit, not just
+        // the upload that preceded it.
+        AdminAuditLogService::log(
+            actor:     $request->user(),
+            action:    'property_photo.transformed',
+            subject:   $property,
+            payload:   [
+                'photo_id' => $photo->id,
+                'from'     => $before,
+                'to'       => ['rotation' => (int) $photo->rotation, 'crop' => $photo->cropBox()],
+                'sha256'   => $photo->sha256,
+            ],
+            ipAddress: $request->ip(),
+        );
+
+        return back()->with('success', $photo->isEdited() ? 'Photo updated.' : 'Photo reset to the original.');
+    }
+
     public function cover(Request $request, Property $property, PropertyPhoto $photo): RedirectResponse
     {
         $this->authorizeListing($request, $property);
