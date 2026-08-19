@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Support\Mail\MailDeliverability;
+use App\Support\Storage\DocumentStorage;
 use App\Support\Queue\QueueProcessing;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class HealthController extends Controller
@@ -25,8 +27,9 @@ class HealthController extends Controller
         ];
 
         $advisory = [
-            'mail'  => $this->checkMail(),
-            'queue' => $this->checkQueue(),
+            'mail'    => $this->checkMail(),
+            'queue'   => $this->checkQueue(),
+            'storage' => $this->checkStorage(),
         ];
 
         $serving = collect($critical)->every(fn (array $check) => $check['ok'] === true);
@@ -111,6 +114,60 @@ class HealthController extends Controller
             'driver'  => QueueProcessing::driver(),
             'pending' => QueueProcessing::pendingCount(),
             'error'   => QueueProcessing::reason(),
+        ];
+    }
+
+    /**
+     * Can a photo actually be written to the bucket?
+     *
+     * DocumentStorage::isDurable() answers a different question — it reads the
+     * driver name and says whether a file written there WOULD survive a deploy.
+     * It never touches the bucket. So a listing photo upload is offered to
+     * staff on the strength of the string "s3", and if the bucket is
+     * unreachable the request hangs until it times out with the image lost and
+     * nothing written anywhere. That is the same shape of failure as the mailer
+     * that was configured, green, and refusing every send.
+     *
+     * This one makes the round trip: write a few bytes, read them back, delete
+     * them. Advisory, never critical — a bucket outage must not pull the
+     * container out of rotation, because a site that serves listings without
+     * accepting new photos is far better than no site.
+     *
+     * The probe key is fixed rather than unique so repeated polls cannot litter
+     * the bucket if the delete is what is failing.
+     */
+    private function checkStorage(): array
+    {
+        $disk = DocumentStorage::disk();
+
+        if (! DocumentStorage::isDurable()) {
+            return ['ok' => false, 'disk' => $disk, 'error' => DocumentStorage::reason()];
+        }
+
+        $key      = '_health/probe.txt';
+        $expected = 'vaytoven-health';
+        $started  = microtime(true);
+
+        try {
+            Storage::disk($disk)->put($key, $expected);
+            $readBack = Storage::disk($disk)->get($key);
+            Storage::disk($disk)->delete($key);
+        } catch (Throwable $e) {
+            return [
+                'ok'     => false,
+                'disk'   => $disk,
+                'driver' => DocumentStorage::driver(),
+                // Class name only: the message can carry the endpoint and
+                // signed query parameters, and this endpoint is public.
+                'error'  => 'write failed: '.class_basename($e),
+            ];
+        }
+
+        return [
+            'ok'          => $readBack === $expected,
+            'disk'        => $disk,
+            'driver'      => DocumentStorage::driver(),
+            'round_trip_ms' => (int) round((microtime(true) - $started) * 1000),
         ];
     }
 
