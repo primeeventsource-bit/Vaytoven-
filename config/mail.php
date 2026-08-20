@@ -85,6 +85,12 @@ return [
     |
     */
 
+    /*
+    | The office inbox. Internal notifications go here and only here -
+    | never to the member the notification is about.
+    */
+    'office_address' => env('MAIL_OFFICE_ADDRESS', 'contact@vaytoven.com'),
+
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'contact@vaytoven.com'),
         'name'    => env('MAIL_FROM_NAME', 'Vaytoven'),

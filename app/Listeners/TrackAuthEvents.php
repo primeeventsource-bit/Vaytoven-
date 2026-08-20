@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Mail\MemberFirstSignIn;
 use App\Models\User;
 use App\Enums\ActivityType;
 use App\Services\Tracking\ActivityRecorder;
@@ -10,7 +11,9 @@ use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
+use App\Support\Mail\MailDeliverability;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 /**
@@ -53,8 +56,46 @@ class TrackAuthEvents
         // can sort + display without joining login_sessions. login_sessions
         // remains the audit source of truth; this is a fast-query view.
         if ($event->user instanceof User) {
+            // Read BEFORE last_login_at is written: a null there is the only
+            // signal that this is the first time the account has been used.
+            $isFirstSignIn = $event->user->last_login_at === null;
+
             $this->safe(fn () => $event->user->forceFill(['last_login_at' => now()])->saveQuietly());
+
+            if ($isFirstSignIn) {
+                $this->safe(fn () => $this->notifyOfficeOfFirstSignIn($event->user));
+            }
         }
+    }
+
+    /**
+     * Tell the office the member has used the account for the first time.
+     *
+     * That sign-in is the moment fulfilment completes: the member paid, an
+     * account was issued, and it has now reached them. Until it happens nobody
+     * knows whether the credentials ever arrived, and that gap is where a
+     * member goes quiet and later disputes the charge.
+     *
+     * Sent to the office address ONLY. The member gets nothing: a "you signed
+     * in" email tells them nothing they do not already know, and an alert about
+     * an action they just performed reads as a warning that somebody else did
+     * it.
+     *
+     * Sends only when mail is actually deliverable, so a misconfigured
+     * environment does not throw inside a login. The whole call is wrapped in
+     * safe() by the caller regardless — nothing here may block signing in.
+     */
+    private function notifyOfficeOfFirstSignIn(User $user): void
+    {
+        if (! MailDeliverability::isDeliverable()) {
+            return;
+        }
+
+        Mail::send(new MemberFirstSignIn(
+            member: $user,
+            ipAddress: $this->request->ip(),
+            signedInAt: et(now(), 'F j, Y \a\t g:ia'),
+        ));
     }
 
     public function handleLogout(Logout $event): void
