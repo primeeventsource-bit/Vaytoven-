@@ -275,6 +275,11 @@ Route::middleware(['auth'])
         Route::get('users/{user}', [UserController::class, 'show'])->middleware('permission:users.view')->name('users.show');
         Route::get('users/{user}/edit', [UserController::class, 'edit'])->middleware('permission:users.edit')->name('users.edit');
         Route::patch('users/{user}', [UserController::class, 'update'])->middleware('permission:users.edit')->name('users.update');
+        // Permanently remove an account. Distinct from deactivate, which is
+        // reversible and keeps the record; refused when the account carries
+        // payment, contract or acceptance records.
+        Route::delete('users/{user}', [UserController::class, 'destroy'])
+            ->middleware('permission:users.delete')->name('users.destroy');
         Route::post('users/{user}/deactivate', [UserController::class, 'deactivate'])->middleware('permission:users.deactivate')->name('users.deactivate');
         Route::post('users/{user}/reactivate', [UserController::class, 'reactivate'])->middleware('permission:users.deactivate')->name('users.reactivate');
 
@@ -395,6 +400,10 @@ Route::middleware(['auth'])
             ->middleware('permission:properties.edit')->name('properties.update');
         // Publishing is a separate permission from editing: a specialist may
         // maintain a listing without deciding when it goes live.
+        // Deleting a listing is separate from publishing it. Refused once the
+        // listing has been advertised under a paid order - see the controller.
+        Route::delete('properties/{property}', [AdminPropertyController::class, 'destroy'])
+            ->middleware('permission:properties.delete')->name('properties.destroy');
         Route::post('properties/{property}/status', [AdminPropertyController::class, 'transition'])
             ->middleware('permission:properties.publish')->name('properties.transition');
 

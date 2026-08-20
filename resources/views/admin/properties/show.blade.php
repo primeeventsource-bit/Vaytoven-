@@ -66,6 +66,39 @@
         <a href="{{ route('properties.show', $property) }}" target="_blank" rel="noopener">Preview as customer ↗</a>
     </nav>
 
+    @error('delete')
+        <div class="site-alert" style="background:#fef2f2;border-color:#fecaca;color:#991b1b;">{{ $message }}</div>
+    @enderror
+
+    @if (auth()->user()?->hasPermission('properties.delete'))
+        {{-- Deliberately at the bottom of the actions rather than in the tab
+             row. Archiving is the right answer for a listing that finished;
+             this is for duplicates, test listings and drafts built against the
+             wrong member. The server refuses it once the listing has been
+             advertised under a paid order, because the advertising periods and
+             snapshots are what prove delivery in a dispute. --}}
+        <details style="margin-bottom:16px;">
+            <summary style="font-size:13px;cursor:pointer;color:#b91c1c;font-weight:600;">Delete this listing</summary>
+            <div class="vyt-card" style="background:#fff;border:1px solid #fecaca;border-radius:14px;padding:18px;margin-top:10px;">
+                <p class="vyt-faint" style="margin:0 0 12px;font-size:13.5px;">
+                    Permanent, and cannot be undone. Photos and property documents are removed from
+                    storage with it. A listing that has been advertised under a paid order cannot be
+                    deleted &mdash; archive it instead.
+                </p>
+                <form method="POST" action="{{ route('admin.properties.destroy', $property) }}" style="margin:0;">
+                    @csrf @method('DELETE')
+                    <input type="text" name="reason" maxlength="200" placeholder="Reason (optional)"
+                           style="padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;width:55%;margin-right:10px;">
+                    <button type="submit"
+                            style="background:#b91c1c;color:#fff;border:0;padding:9px 18px;border-radius:999px;font-weight:600;font-size:14px;cursor:pointer;"
+                            onclick="return confirm('Permanently delete {{ $property->reference }}? This cannot be undone.');">
+                        Delete permanently
+                    </button>
+                </form>
+            </div>
+        </details>
+    @endif
+
     <div class="vyt-card" style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;">
         <h3 style="margin:0 0 12px;font-size:15px;">Recent offers</h3>
         @if ($recentOffers->isEmpty())

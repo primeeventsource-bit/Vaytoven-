@@ -418,6 +418,90 @@ class PropertyController extends Controller
      * dates, which spends part of a paid advertising period on an
      * advertisement nobody can act on.
      */
+    /**
+     * Permanently remove a listing.
+     *
+     * Archiving is the right answer for a listing that simply finished: it
+     * stops being advertised and the record stays. Deletion is for the ones
+     * that should never have existed — a duplicate, a test listing, a draft
+     * built against the wrong member.
+     *
+     * It is refused once the listing has been advertised under a paid order.
+     * The advertising periods and the snapshots of what was published are how
+     * "the service was delivered" is proved if the member disputes the charge,
+     * and they are anchored to this row. Deleting it removes the proof of the
+     * thing the money was for, and nobody discovers that until the dispute
+     * arrives. Those listings archive instead.
+     *
+     * Storage is cleared as part of the delete, so the bucket does not
+     * accumulate photos belonging to a listing that no longer exists.
+     */
+    public function destroy(Request $request, Property $property): RedirectResponse
+    {
+        $advertised = \App\Models\AdvertisingPeriod::where('property_id', $property->id)->count();
+        $snapshots  = PropertySnapshot::where('property_id', $property->id)->count();
+
+        if ($advertised > 0 || $snapshots > 0) {
+            return back()->withErrors([
+                'delete' => 'This listing cannot be deleted because it has been advertised under a paid order ('
+                    .$advertised.' advertising period(s), '.$snapshots.' published snapshot(s)). '
+                    .'Those records are what prove the advertising was delivered if the charge is ever disputed. '
+                    .'Archive it instead — it stops being advertised and the record is kept.',
+            ]);
+        }
+
+        // Logged before anything is removed, so the record of what was deleted
+        // outlives the thing it describes.
+        AdminAuditLogService::log(
+            actor:     $request->user(),
+            action:    'property.deleted',
+            subject:   $property,
+            payload:   [
+                'property_id' => $property->id,
+                'reference'   => $property->reference,
+                'title'       => $property->title,
+                'host_id'     => $property->host_id,
+                'status'      => $property->status->value,
+                'photos'      => $property->photos()->count(),
+                'reason'      => $request->string('reason')->toString() ?: null,
+            ],
+            ipAddress: $request->ip(),
+        );
+
+        $reference = $property->reference;
+
+        DB::transaction(function () use ($property) {
+            // Stored objects first. A row removed while its file stays behind
+            // leaves an orphan nobody will ever find to clean up.
+            foreach ($property->photos as $photo) {
+                if ($photo->isUploaded()) {
+                    \Illuminate\Support\Facades\Storage::disk($photo->disk)
+                        ->delete(array_filter([$photo->path, $photo->original_path]));
+                }
+            }
+
+            foreach (\App\Models\MemberDocument::forProperty($property->id)->get() as $document) {
+                \Illuminate\Support\Facades\Storage::disk($document->disk)->delete($document->path);
+                $document->delete();
+            }
+
+            $property->photos()->delete();
+            $property->availabilityWeeks()->delete();
+            $property->amenities()->detach();
+
+            // Offers are correspondence between two people and outlive the
+            // advertisement they were made against; the listing reference is
+            // already recorded on them.
+            MemberOffer::where('property_id', $property->id)->update(['property_id' => null]);
+
+            $property->delete();
+        });
+
+        return redirect()
+            ->route('admin.properties.index')
+            ->with('success', "Deleted listing {$reference}.");
+    }
+
     public function transition(Request $request, Property $property): RedirectResponse
     {
         $this->authorizeListing($request, $property);

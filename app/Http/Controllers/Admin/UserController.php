@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
+use App\Models\Property;
 use App\Models\User;
 use App\Services\AdminAuditLogService;
 use Illuminate\Http\RedirectResponse;
@@ -224,6 +225,103 @@ class UserController extends Controller
         );
 
         return back()->with('success', "Deactivated {$user->email}. Their bookings and history are preserved.");
+    }
+
+    /**
+     * Permanently remove an account.
+     *
+     * Distinct from deactivation, which is the right answer almost every time:
+     * it revokes access, is reversible, and keeps the record. This is for the
+     * cases deactivation does not cover — a duplicate account, a test account,
+     * a signup made in error, someone exercising a deletion request.
+     *
+     * It refuses when the account carries records the business would need
+     * later. A member who paid for advertising and disputes the charge is
+     * answered from their order, the terms version they accepted, the contract
+     * they signed and the sign-in history behind it; deleting the account
+     * removes the thread those hang from, and the first time anybody notices is
+     * the moment it is needed and gone. Those accounts deactivate instead, and
+     * the refusal says which records are holding it.
+     */
+    public function destroy(Request $request, User $user): RedirectResponse
+    {
+        $actor = $request->user();
+
+        // Same guards as deactivation, for the same reasons: locking yourself
+        // out is worse when it is irreversible, and a lower-privileged admin
+        // must not be able to remove a super admin.
+        abort_if($actor->id === $user->id, 422, 'You cannot delete your own account.');
+        abort_if($user->isSuperAdmin() && ! $actor->isSuperAdmin(), 403);
+
+        if ($blockers = $this->deletionBlockers($user)) {
+            return back()->withErrors([
+                'delete' => 'This account cannot be deleted because it holds records the business may need: '
+                    .implode(', ', $blockers)
+                    .'. Deactivate it instead — that revokes access immediately and keeps the record.',
+            ]);
+        }
+
+        // Logged BEFORE the delete, so the record of what was removed outlives
+        // the thing it describes.
+        AdminAuditLogService::log(
+            actor:     $actor,
+            action:    'user.deleted',
+            subject:   $user,
+            payload:   [
+                'user_id' => $user->id,
+                'email'   => $user->email,
+                'role'    => $user->role?->value,
+                'reason'  => $request->string('reason')->toString() ?: null,
+            ],
+            ipAddress: $request->ip(),
+        );
+
+        $email = $user->email;
+
+        $user->delete();
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', "Deleted {$email}.");
+    }
+
+    /**
+     * What is standing in the way of deleting this account.
+     *
+     * Named individually rather than as one refusal, because "you cannot delete
+     * this" with no reason invites someone to go looking for a way around it.
+     *
+     * Member Services orders match on email rather than user id: activation is
+     * a public flow that does not require an account, so the order and the
+     * person are linked by the address they typed.
+     *
+     * @return array<int, string>
+     */
+    private function deletionBlockers(User $user): array
+    {
+        $blockers = [];
+
+        $orders = \App\Models\MemberServiceOrder::where('email', $user->email)->count();
+        if ($orders) {
+            $blockers[] = "{$orders} Member Services order(s)";
+        }
+
+        $contracts = \App\Models\Contract::where('user_id', $user->id)->count();
+        if ($contracts) {
+            $blockers[] = "{$contracts} contract(s)";
+        }
+
+        $acceptances = \App\Models\TermsAcceptance::where('user_id', $user->id)->count();
+        if ($acceptances) {
+            $blockers[] = "{$acceptances} terms acceptance(s)";
+        }
+
+        $properties = Property::where('host_id', $user->id)->count();
+        if ($properties) {
+            $blockers[] = "{$properties} listing(s) still attached";
+        }
+
+        return $blockers;
     }
 
     public function reactivate(Request $request, User $user): RedirectResponse

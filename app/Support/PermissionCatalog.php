@@ -55,6 +55,10 @@ final class PermissionCatalog
         'users.create' => ['users', 'Create Users', 'Create new backend and customer accounts.'],
         'users.edit' => ['users', 'Edit Users', 'Change a user\'s name, email, and profile details.'],
         'users.deactivate' => ['users', 'Activate / Deactivate Users', 'Disable or restore account access.'],
+        // Separate from deactivate on purpose: deactivation is reversible and
+        // keeps the record, deletion is neither. Only roles that hold every
+        // permission get this one.
+        'users.delete' => ['users', 'Delete Users', 'Permanently remove an account. Refused when the account carries payment, contract or acceptance records.'],
         'users.reset_password' => ['users', 'Reset Passwords', 'Set a new password on another user\'s account.'],
         'users.assign_roles' => ['users', 'Assign Roles', 'Attach or detach roles on a user. Privileged.'],
 

@@ -74,6 +74,40 @@
                     @endif
                 </div>
             </div>
+
+            @if (auth()->user()?->hasPermission('users.delete'))
+                {{-- Deletion sits below deactivation and looks less inviting on
+                     purpose. Deactivation is the right answer nearly every
+                     time; this is for duplicates, test accounts and signups
+                     made in error. The server refuses it for any account
+                     carrying payment, contract or acceptance records, and says
+                     which ones are holding it. --}}
+                <div class="vyt-card" style="margin-top:18px;border-color:#fecaca;">
+                    <div class="vyt-card-header"><h3>Delete this user</h3></div>
+                    <div class="vyt-card-body">
+                        @error('delete')
+                            <div class="site-alert" style="background:#fef2f2;border-color:#fecaca;color:#991b1b;">{{ $message }}</div>
+                        @enderror
+
+                        <p style="color:var(--muted);font-size:14px;margin:0 0 14px;">
+                            Permanent, and cannot be undone. An account with Member Services orders,
+                            contracts, terms acceptances or listings attached cannot be deleted &mdash;
+                            those records answer a dispute later. Deactivate instead.
+                        </p>
+
+                        <form method="POST" action="{{ route('admin.users.destroy', $user) }}" style="margin:0;">
+                            @csrf @method('DELETE')
+                            <input type="text" name="reason" maxlength="200" placeholder="Reason (optional)"
+                                   style="padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;width:60%;margin-right:10px;">
+                            <button type="submit"
+                                    style="background:#b91c1c;color:#fff;border:0;padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;cursor:pointer;"
+                                    onclick="return confirm('Permanently delete {{ $user->email }}? This cannot be undone.');">
+                                Delete permanently
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endif
         @endif
     </div>
 
