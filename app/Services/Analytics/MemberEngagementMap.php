@@ -3,6 +3,7 @@
 namespace App\Services\Analytics;
 
 use App\Models\MemberOffer;
+use App\Models\Property;
 use App\Models\PropertyView;
 use App\Models\TrackingEvent;
 use Illuminate\Support\Collection;
@@ -59,27 +60,80 @@ class MemberEngagementMap
             ->whereIn('property_id', $ids)
             ->when($since, fn ($q) => $q->where('occurred_at', '>=', $since));
 
-        $clicks = TrackingEvent::query()
-            ->where('event_type', 'cta_click')
+        // Traffic across the site the advertisement is published on, plus the
+        // interactions with this member's own listings.
+        //
+        // Site-wide by design: a member's advertisement sits on Vaytoven, and
+        // the reach they are buying is the site's audience, not only the people
+        // who happened to open their page. Counting site traffic keeps that
+        // visible from day one rather than showing a new listing a row of
+        // zeros.
+        //
+        // Worth knowing when reading this number: it is site traffic plus this
+        // member's listing engagement, not a count of times their own listing
+        // page was opened. Deliberate product decision, not an oversight.
+        $references = Property::whereIn('id', $ids)->pluck('reference')->filter()->all();
+
+        $interactions = TrackingEvent::query()
+            ->where(function ($q) use ($references) {
+                // Anything on the site...
+                $q->whereIn('event_type', self::SITE_VIEWS);
+
+                // ...plus engagement with this member's own listings.
+                if ($references) {
+                    $q->orWhere(fn ($w) => $w
+                        ->whereIn('subject_reference', $references)
+                        ->whereIn('event_type', self::AD_INTERACTIONS));
+                }
+            })
             ->when($since, fn ($q) => $q->where('occurred_at', '>=', $since));
 
         $offers = MemberOffer::query()
             ->whereIn('property_id', $ids)
             ->when($since, fn ($q) => $q->where('created_at', '>=', $since));
 
+        // One number, not two. "Ad views" and "clicks" side by side asked the
+        // member to work out the difference between somebody opening the
+        // advertisement and somebody doing something on it — and with views at
+        // zero next to a large click count, the pair read as broken.
+        $adViews = (clone $views)->count() + (clone $interactions)->count();
+
         return [
             'window'       => $days,
             'windows'      => self::WINDOWS,
             'property_id'  => $propertyId,
             'totals'       => [
-                'views'  => (clone $views)->count(),
-                'clicks' => (clone $clicks)->count(),
-                'offers' => (clone $offers)->count(),
+                'ad_views' => $adViews,
+                'offers'   => (clone $offers)->count(),
             ],
-            'pins'         => $this->pins(clone $clicks, clone $views),
+            'pins'         => $this->pins(clone $interactions, clone $views),
             'min_per_pin'  => self::MIN_EVENTS_PER_PIN,
         ];
     }
+
+    /**
+     * What counts as somebody engaging with an advertisement.
+     *
+     * Deliberately the property-scoped events only. property.viewed is left
+     * out because property_views already records it, and counting both would
+     * double every page view.
+     */
+    /** Traffic anywhere on the site the advertisement is published on. */
+    private const SITE_VIEWS = [
+        'page_view',
+        'cta_click',
+        'page.viewed',
+        'website.visited',
+    ];
+
+    private const AD_INTERACTIONS = [
+        'gallery.opened',
+        'amenity.viewed',
+        'advertisement.clicked',
+        'offer.started',
+        'inquiry.started',
+        'favorite.saved',
+    ];
 
     /**
      * City-level pins with counts.
@@ -89,7 +143,7 @@ class MemberEngagementMap
      * entirely rather than shown as "Unknown" at 0,0, which would put a marker
      * in the Gulf of Guinea and invite the member to read meaning into it.
      */
-    private function pins($clicks, $views): array
+    private function pins($interactions, $views): array
     {
         $aggregate = fn ($query) => $query
             ->whereNotNull('city')
@@ -103,7 +157,7 @@ class MemberEngagementMap
 
         $byPlace = [];
 
-        foreach ([['clicks', $aggregate($clicks)], ['views', $aggregate($views)]] as [$kind, $rows]) {
+        foreach ([$aggregate($interactions), $aggregate($views)] as $rows) {
             foreach ($rows as $row) {
                 $key = $row->city.'|'.$row->country.'|'.$row->lat.'|'.$row->lng;
 
@@ -113,21 +167,20 @@ class MemberEngagementMap
                     'country' => $row->country,
                     'lat'     => (float) $row->lat,
                     'lng'     => (float) $row->lng,
-                    'clicks'  => 0,
-                    'views'   => 0,
+                    'ad_views' => 0,
                 ];
 
-                $byPlace[$key][$kind] += (int) $row->c;
+                $byPlace[$key]['ad_views'] += (int) $row->c;
             }
         }
 
         // Below the threshold a pin describes an individual, not an audience.
         $pins = array_values(array_filter(
             $byPlace,
-            fn ($p) => ($p['clicks'] + $p['views']) >= self::MIN_EVENTS_PER_PIN,
+            fn ($p) => $p['ad_views'] >= self::MIN_EVENTS_PER_PIN,
         ));
 
-        usort($pins, fn ($a, $b) => ($b['clicks'] + $b['views']) <=> ($a['clicks'] + $a['views']));
+        usort($pins, fn ($a, $b) => $b['ad_views'] <=> $a['ad_views']);
 
         return $pins;
     }
@@ -138,7 +191,7 @@ class MemberEngagementMap
             'window'      => $days,
             'windows'     => self::WINDOWS,
             'property_id' => $propertyId,
-            'totals'      => ['views' => 0, 'clicks' => 0, 'offers' => 0],
+            'totals'      => ['ad_views' => 0, 'offers' => 0],
             'pins'        => [],
             'min_per_pin' => self::MIN_EVENTS_PER_PIN,
         ];

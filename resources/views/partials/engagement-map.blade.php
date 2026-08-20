@@ -23,8 +23,10 @@
 
         <div class="vyt-card-body">
             <div class="eng-totals">
-                <div><span class="eng-num">{{ number_format($engagement['totals']['views']) }}</span><span class="eng-lbl">Ad views</span></div>
-                <div><span class="eng-num">{{ number_format($engagement['totals']['clicks']) }}</span><span class="eng-lbl">Clicks</span></div>
+                {{-- One figure. Ad views and clicks side by side asked the member
+                     to work out the difference, and with views at zero next to a
+                     large click count the pair read as broken. --}}
+                <div><span class="eng-num">{{ number_format($engagement['totals']['ad_views']) }}</span><span class="eng-lbl">Ad Views</span></div>
                 <div><span class="eng-num">{{ number_format($engagement['totals']['offers']) }}</span><span class="eng-lbl">Offers &amp; inquiries</span></div>
             </div>
 
@@ -50,7 +52,7 @@
             @if (empty($engagement['pins']))
                 <div class="vyt-card-empty" style="margin:0;">
                     No mapped activity yet for this period.
-                    @if ($engagement['totals']['clicks'] > 0 || $engagement['totals']['views'] > 0)
+                    @if ($engagement['totals']['ad_views'] > 0)
                         {{-- Honest about why the totals and the map disagree. --}}
                         Areas appear once at least {{ $engagement['min_per_pin'] }} visits come from the
                         same place — below that, a marker would point at a person rather than an audience.
@@ -63,7 +65,7 @@
                      data-mapbox-style="{{ $mapboxStyle ?? '' }}"></div>
 
                 <table class="vyt-table" style="margin-top:16px;">
-                    <thead><tr><th>Area</th><th style="text-align:right;">Clicks</th><th style="text-align:right;">Views</th></tr></thead>
+                    <thead><tr><th>Area</th><th style="text-align:right;">Ad Views</th></tr></thead>
                     <tbody>
                         @foreach (array_slice($engagement['pins'], 0, 10) as $pin)
                             <tr>
@@ -71,8 +73,7 @@
                                     {{ $pin['city'] }}@if ($pin['region']), {{ $pin['region'] }}@endif
                                     <span class="vyt-faint">{{ $pin['country'] }}</span>
                                 </td>
-                                <td style="text-align:right;font-weight:600;">{{ number_format($pin['clicks']) }}</td>
-                                <td style="text-align:right;">{{ number_format($pin['views']) }}</td>
+                                <td style="text-align:right;font-weight:600;">{{ number_format($pin['ad_views']) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -149,7 +150,7 @@
     var bounds = [];
 
     pins.forEach(function (pin) {
-        var total = (pin.clicks || 0) + (pin.views || 0);
+        var total = pin.ad_views || 0;
         // Area scales with engagement, capped so one busy city does not cover
         // the map.
         var radius = Math.min(28, 8 + Math.sqrt(total) * 2.5);
@@ -161,8 +162,7 @@
         .bindPopup(
             '<strong>' + (pin.city || 'Unknown') +
             (pin.region ? ', ' + pin.region : '') + '</strong><br>' +
-            (pin.clicks || 0) + ' advertisement clicks<br>' +
-            (pin.views || 0) + ' views'
+            (pin.ad_views || 0) + ' ad views'
         )
         .addTo(map);
 

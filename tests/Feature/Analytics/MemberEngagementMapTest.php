@@ -68,9 +68,9 @@ class MemberEngagementMapTest extends TestCase
 
         $map = app(MemberEngagementMap::class)->build(collect([$property]), 30);
 
-        $this->assertSame(8, $map['totals']['clicks']);
+        $this->assertSame(8, $map['totals']['ad_views']);
 
-        $cities = collect($map['pins'])->pluck('clicks', 'city');
+        $cities = collect($map['pins'])->pluck('ad_views', 'city');
         $this->assertSame(5, $cities['Orlando']);
         $this->assertSame(3, $cities['Tampa']);
     }
@@ -148,7 +148,7 @@ class MemberEngagementMapTest extends TestCase
 
         // The click still counts toward the total — it is real engagement,
         // just not something to put a marker on.
-        $this->assertSame(5, $map['totals']['clicks']);
+        $this->assertSame(5, $map['totals']['ad_views']);
     }
 
     /** Unresolved locations are dropped, not pinned at 0,0. */
@@ -165,7 +165,7 @@ class MemberEngagementMapTest extends TestCase
 
         $map = app(MemberEngagementMap::class)->build(collect([$property]), 30);
 
-        $this->assertSame(5, $map['totals']['clicks']);
+        $this->assertSame(5, $map['totals']['ad_views']);
         $this->assertSame([], $map['pins']);
     }
 
@@ -184,11 +184,12 @@ class MemberEngagementMapTest extends TestCase
             'occurred_at' => now()->subDays(60),
         ]);
 
-        $this->assertSame(4, app(MemberEngagementMap::class)->build(collect([$property]), 7)['totals']['clicks']);
-        $this->assertSame(5, app(MemberEngagementMap::class)->build(collect([$property]), 0)['totals']['clicks']);
+        $this->assertSame(4, app(MemberEngagementMap::class)->build(collect([$property]), 7)['totals']['ad_views']);
+        $this->assertSame(5, app(MemberEngagementMap::class)->build(collect([$property]), 0)['totals']['ad_views']);
     }
 
-    public function test_views_are_counted_alongside_clicks(): void
+    /** Views and interactions are one figure now, so a view alone is an ad view. */
+    public function test_views_count_towards_ad_views(): void
     {
         $property = Property::factory()->create();
 
@@ -196,7 +197,7 @@ class MemberEngagementMapTest extends TestCase
 
         $map = app(MemberEngagementMap::class)->build(collect([$property]), 30);
 
-        $this->assertSame(6, $map['totals']['views']);
+        $this->assertSame(6, $map['totals']['ad_views']);
         $this->assertSame('Miami', $map['pins'][0]['city']);
     }
 
@@ -204,7 +205,7 @@ class MemberEngagementMapTest extends TestCase
     {
         $map = app(MemberEngagementMap::class)->build(collect(), 30);
 
-        $this->assertSame(0, $map['totals']['clicks']);
+        $this->assertSame(0, $map['totals']['ad_views']);
         $this->assertSame([], $map['pins']);
     }
 
@@ -219,7 +220,7 @@ class MemberEngagementMapTest extends TestCase
 
         $map = app(MemberEngagementMap::class)->build(collect([$a, $b]), 30, $a->id);
 
-        $this->assertSame(4, $map['totals']['views']);
+        $this->assertSame(4, $map['totals']['ad_views']);
         $this->assertSame('Austin', $map['pins'][0]['city']);
     }
 }
