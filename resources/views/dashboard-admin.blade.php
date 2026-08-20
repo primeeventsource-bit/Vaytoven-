@@ -9,8 +9,8 @@
     {{-- Top tile row — funnel + risk at a glance ----------------------------- --}}
     <section class="vyt-section">
         <div class="vyt-tiles">
-            <a class="vyt-tile" href="#enquiries">
-                <div class="vyt-tile-label">New enquiries</div>
+            <a class="vyt-tile" href="#inquiries">
+                <div class="vyt-tile-label">New inquiries</div>
                 <span class="vyt-tile-value t-pink">{{ $enquiriesNew }}</span>
             </a>
             <div class="vyt-tile">
@@ -86,14 +86,14 @@
     </section>
 
     {{-- Recent member enquiries ------------------------------------------ --}}
-    <section class="vyt-section" id="enquiries">
+    <section class="vyt-section" id="inquiries">
         <div class="vyt-card">
             <div class="vyt-card-header">
-                <h3>Recent member enquiries</h3>
+                <h3>Recent member inquiries</h3>
                 <span class="vyt-section-meta">Latest 5</span>
             </div>
             @if ($enquiriesRecent->isEmpty())
-                <div class="vyt-card-empty">No enquiries yet — the form on the landing posts here.</div>
+                <div class="vyt-card-empty">No inquiries yet — the form on the landing posts here.</div>
             @else
                 <table class="vyt-table">
                     <thead>

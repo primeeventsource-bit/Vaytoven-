@@ -9,7 +9,7 @@
         <section class="vyt-section">
             <div class="vyt-card">
                 <div class="vyt-card-header">
-                    <h3>Your Managed Listing Program enquiry</h3>
+                    <h3>Your Managed Listing Program inquiry</h3>
                     <span class="vyt-section-meta">Reference {{ $myEnquiry->reference ?? '—' }}</span>
                 </div>
                 <div class="vyt-card-body">

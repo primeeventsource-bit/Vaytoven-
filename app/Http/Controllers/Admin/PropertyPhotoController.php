@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\MediaAsset;
 use App\Models\Property;
 use App\Models\PropertyPhoto;
 use App\Services\AdminAuditLogService;
@@ -107,6 +108,78 @@ class PropertyPhotoController extends Controller
         }
 
         return back()->with('success', "{$stored} photo(s) uploaded.");
+    }
+
+    /**
+     * Add photos to this listing from the shared library.
+     *
+     * The point of the library: a new member's listing gets its stock set in
+     * one action instead of a re-upload per image. Each selected asset is
+     * copied into the property's own storage keys, so the listing owns its
+     * photos outright and nothing on a live advertisement can change because
+     * somebody reorganized the library later.
+     */
+    public function fromLibrary(Request $request, Property $property): RedirectResponse
+    {
+        $this->authorizeListing($request, $property);
+
+        if (! DocumentStorage::isDurable()) {
+            return back()->withErrors(['photos' => 'Photo uploads are disabled: '.DocumentStorage::reason()]);
+        }
+
+        $validated = $request->validate([
+            'assets'   => ['required', 'array', 'max:40'],
+            'assets.*' => ['integer', 'exists:media_assets,id'],
+            'category' => ['nullable', Rule::in(array_keys(PropertyPhoto::CATEGORIES))],
+        ], [
+            'assets.required' => 'Select at least one image to add.',
+        ]);
+
+        $category = $validated['category'] ?? 'other';
+        $added    = 0;
+        $failures = [];
+
+        // Ordered by the ids given, so the selection order in the picker is the
+        // order they land in the gallery.
+        foreach ($validated['assets'] as $assetId) {
+            $asset = MediaAsset::find($assetId);
+
+            if (! $asset) {
+                continue;
+            }
+
+            try {
+                $photo = $this->ingestor->copyAssetToProperty($asset, $property, $request->user(), $category);
+                $added++;
+
+                AdminAuditLogService::log(
+                    actor:     $request->user(),
+                    action:    'property_photo.added_from_library',
+                    subject:   $property,
+                    payload:   [
+                        'photo_id' => $photo->id,
+                        'asset_id' => $asset->id,
+                        'filename' => $asset->original_name,
+                        'sha256'   => $asset->sha256,
+                    ],
+                    ipAddress: $request->ip(),
+                );
+            } catch (Throwable $e) {
+                $failures[] = ($asset->label ?: $asset->original_name).': '.$e->getMessage();
+            }
+        }
+
+        if ($added > 0 && ! PropertyPhoto::where('property_id', $property->id)->where('is_cover', true)->exists()) {
+            PropertyPhoto::where('property_id', $property->id)->orderBy('sort_order')->first()?->makeCover();
+        }
+
+        if ($failures) {
+            return back()
+                ->with('success', $added ? "{$added} photo(s) added from the library." : null)
+                ->withErrors(['photos' => implode(' · ', $failures)]);
+        }
+
+        return back()->with('success', "{$added} photo(s) added from the library.");
     }
 
     public function update(Request $request, Property $property, PropertyPhoto $photo): RedirectResponse

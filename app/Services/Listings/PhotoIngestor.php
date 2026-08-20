@@ -2,6 +2,8 @@
 
 namespace App\Services\Listings;
 
+use App\Models\MediaAsset;
+use App\Models\MediaCollection;
 use App\Models\Property;
 use App\Models\PropertyPhoto;
 use App\Models\User;
@@ -121,6 +123,143 @@ class PhotoIngestor
             'width'               => $servedWidth,
             'height'              => $servedHeight,
             'sha256'              => hash('sha256', $derivative),
+            'uploaded_by_user_id' => $actor?->id,
+            'sort_order'          => (int) PropertyPhoto::where('property_id', $property->id)->max('sort_order') + 1,
+        ]);
+    }
+
+    /**
+     * Take an upload into the shared library rather than onto a listing.
+     *
+     * Same pipeline as ingest() on purpose: same decompression-bomb ceiling,
+     * same resize, same WebP re-encode that strips the EXIF block — which on a
+     * stock photo still carries the GPS coordinates of wherever it was taken.
+     * A second, gentler path for library images would mean the protections
+     * depend on which button somebody pressed.
+     *
+     * @param  MediaCollection|null  $collection  null files it as unsorted
+     *
+     * @throws RuntimeException when storage would lose the file, or the image
+     *                          cannot be safely decoded
+     */
+    public function ingestAsset(UploadedFile $file, ?User $actor = null, ?MediaCollection $collection = null): MediaAsset
+    {
+        if (! DocumentStorage::isDurable()) {
+            throw new RuntimeException(
+                'Photo uploads are disabled: '.DocumentStorage::reason()
+            );
+        }
+
+        $realPath = $file->getRealPath();
+        $info     = @getimagesize($realPath);
+
+        if ($info === false) {
+            throw new RuntimeException('That file is not an image the server can read.');
+        }
+
+        [$width, $height] = $info;
+
+        if (($width * $height) > self::MAX_PIXELS) {
+            throw new RuntimeException(
+                'That image is too large to process ('.$width.'x'.$height.' pixels).'
+            );
+        }
+
+        $bytes  = (string) file_get_contents($realPath);
+        $sha    = hash('sha256', $bytes);
+        $folder = $collection?->slug ?: 'unsorted';
+
+        // The same stock photo uploaded twice is the normal case for a library
+        // that gets topped up in batches. Returning the existing row keeps one
+        // object in the bucket and one tile on screen, instead of a wall of
+        // duplicates nobody can tell apart.
+        $existing = MediaAsset::where('sha256', $sha)
+            ->where('media_collection_id', $collection?->id)
+            ->first();
+
+        if ($existing && $existing->fileExists()) {
+            return $existing;
+        }
+
+        $disk   = DocumentStorage::disk();
+        $prefix = $this->prefix();
+        $stem   = Str::uuid()->toString();
+
+        $originalPath = "{$prefix}/library/{$folder}/originals/{$stem}.".
+            strtolower($file->getClientOriginalExtension() ?: 'bin');
+
+        Storage::disk($disk)->put($originalPath, $bytes);
+
+        [$derivative, $servedWidth, $servedHeight] = $this->render($bytes);
+
+        $servedPath = "{$prefix}/library/{$folder}/web/{$stem}.webp";
+        Storage::disk($disk)->put($servedPath, $derivative);
+
+        return MediaAsset::create([
+            'media_collection_id' => $collection?->id,
+            'disk'                => $disk,
+            'path'                => $servedPath,
+            'original_path'       => $originalPath,
+            'original_name'       => $file->getClientOriginalName(),
+            'mime_type'           => 'image/webp',
+            'size_bytes'          => strlen($derivative),
+            'width'               => $servedWidth,
+            'height'              => $servedHeight,
+            'sha256'              => $sha,
+            'uploaded_by_user_id' => $actor?->id,
+        ]);
+    }
+
+    /**
+     * Put a library asset onto a listing.
+     *
+     * The stored objects are COPIED into the property's own keys rather than
+     * shared. Sharing would be cheaper and wrong: deleting a library asset, or
+     * tidying a collection, would silently blank a photo on a live
+     * advertisement, and every listing needs its own caption, alt text,
+     * ordering and cover flag for the same underlying image.
+     *
+     * Copying happens on the storage side, so the original upload quality
+     * carries across and nothing is re-encoded a second time.
+     *
+     * @throws RuntimeException when the asset's file has gone
+     */
+    public function copyAssetToProperty(MediaAsset $asset, Property $property, ?User $actor = null, string $category = 'other'): PropertyPhoto
+    {
+        if (! $asset->fileExists()) {
+            throw new RuntimeException(
+                'That library image is no longer in storage, so it cannot be added to a listing.'
+            );
+        }
+
+        $disk   = $asset->disk;
+        $prefix = $this->prefix();
+        $stem   = Str::uuid()->toString();
+
+        $servedPath = "{$prefix}/properties/{$property->id}/web/{$stem}.webp";
+        Storage::disk($disk)->copy($asset->path, $servedPath);
+
+        $originalPath = null;
+
+        if ($asset->original_path && Storage::disk($disk)->exists($asset->original_path)) {
+            $extension    = pathinfo($asset->original_path, PATHINFO_EXTENSION) ?: 'bin';
+            $originalPath = "{$prefix}/properties/{$property->id}/originals/{$stem}.{$extension}";
+            Storage::disk($disk)->copy($asset->original_path, $originalPath);
+        }
+
+        return PropertyPhoto::create([
+            'property_id'         => $property->id,
+            'disk'                => $disk,
+            'path'                => $servedPath,
+            'original_path'       => $originalPath,
+            'category'            => $category,
+            'original_name'       => $asset->original_name,
+            'mime_type'           => 'image/webp',
+            'size_bytes'          => $asset->size_bytes,
+            'width'               => $asset->width,
+            'height'              => $asset->height,
+            'sha256'              => $asset->sha256,
+            'alt_text'            => $asset->alt_text,
             'uploaded_by_user_id' => $actor?->id,
             'sort_order'          => (int) PropertyPhoto::where('property_id', $property->id)->max('sort_order') + 1,
         ]);

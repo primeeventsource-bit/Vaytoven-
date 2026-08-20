@@ -255,6 +255,12 @@ class PropertyController extends Controller
             'statuses'  => PropertyStatus::cases(),
             'blockers'  => ListingReadiness::blockers($property),
             'storageDurable' => \App\Support\Storage\DocumentStorage::isDurable(),
+            // The shared library, for the "add from photo library" picker.
+            // Capped rather than paginated: the picker is a shortcut for the
+            // stock set, and a builder page that loads two thousand thumbnails
+            // helps nobody. The full library has its own screen.
+            'libraryAssets' => \App\Models\MediaAsset::with('collection:id,name')
+                ->latest('id')->limit(120)->get(),
         ]);
     }
 

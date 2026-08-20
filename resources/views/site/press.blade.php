@@ -21,7 +21,7 @@
             {{-- No fabricated coverage, awards or partnerships. The page ships
                  empty until there is something real to announce. --}}
             <div class="site-empty" style="margin-top:18px;">
-                No announcements have been published yet. Media enquiries are always welcome —
+                No announcements have been published yet. Media inquiries are always welcome —
                 see the contact below.
             </div>
         @else
@@ -60,7 +60,7 @@
                 <h3>Brand assets</h3>
                 <p style="margin:0 0 14px;">
                     The Vaytoven mark is the V-pin in the site header. Please use it on a light
-                    background with clear space around it, and don't recolour or stretch it.
+                    background with clear space around it, and don't recolor or stretch it.
                 </p>
                 <div style="display:flex; align-items:center; gap:14px; padding:16px; background:var(--bg); border-radius:10px;">
                     <svg viewBox="0 0 64 64" width="44" height="44" aria-label="Vaytoven logo">

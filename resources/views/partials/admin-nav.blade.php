@@ -17,6 +17,7 @@
         ['label' => 'Users',     'route' => 'admin.users.index',            'permission' => 'users.view'],
         ['label' => 'Roles',     'route' => 'admin.roles.index',            'permission' => 'roles.view'],
         ['label' => 'Listings',  'route' => 'admin.properties.index',       'permission' => 'properties.view'],
+        ['label' => 'Media',     'route' => 'admin.media.index',            'permission' => 'media.view'],
         ['label' => 'Offers',    'route' => 'admin.offers.index',           'permission' => 'offers.view'],
         ['label' => 'Orders',    'route' => 'admin.member-services.index',  'permission' => 'billing.view'],
         ['label' => 'Contracts', 'route' => 'admin.contracts.index',        'permission' => 'contracts.view'],

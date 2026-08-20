@@ -75,13 +75,13 @@
 
 <p>
     Vaytoven is an <strong>advertising platform for vacation properties</strong>. Owners pay
-    Vaytoven to advertise a property. Travellers browse those advertisements and contact the
+    Vaytoven to advertise a property. Travelers browse those advertisements and contact the
     owner about weeks they are interested in.
 </p>
 
 <div class="warn">
     <strong>Vaytoven is not a booking site.</strong> We do not take reservations, hold dates,
-    collect rental money, or pass funds between travellers and owners. There is no checkout for
+    collect rental money, or pass funds between travelers and owners. There is no checkout for
     a stay and no payout to an owner — not hidden, not disabled, not anywhere. The only money
     Vaytoven ever collects is its own advertising fee, from the owner.
     <br><br>
@@ -95,8 +95,8 @@
 <table>
     <tr><th style="width:22%;">Who</th><th>What they do</th></tr>
     <tr><td><strong>Owners / hosts</strong></td><td>Pay for a Member Services package and have their property advertised.</td></tr>
-    <tr><td><strong>Travellers</strong></td><td>Browse advertisements, save the ones they like, and submit offers on weeks.</td></tr>
-    <tr><td><strong>Staff</strong></td><td>Build and publish listings, answer enquiries, take Member Services payments, and keep the records straight.</td></tr>
+    <tr><td><strong>Travelers</strong></td><td>Browse advertisements, save the ones they like, and submit offers on weeks.</td></tr>
+    <tr><td><strong>Staff</strong></td><td>Build and publish listings, answer inquiries, take Member Services payments, and keep the records straight.</td></tr>
 </table>
 
 <h2>2. Getting in, and what you can see</h2>
@@ -214,7 +214,7 @@
 <p>
     Weeks are added to the calendar and each carries a state. A listing cannot go live without at
     least one upcoming available week — an advertisement with nothing on offer wastes the
-    traveller's time and the owner's money.
+    traveler's time and the owner's money.
 </p>
 <table>
     <tr><th style="width:18%;">State</th><th>Meaning</th></tr>
@@ -232,7 +232,7 @@
 <h2 class="break">5. Offers</h2>
 
 <p>
-    A traveller submits an offer against a specific advertised week. It is a message and a
+    A traveler submits an offer against a specific advertised week. It is a message and a
     number, not a reservation. When one arrives the week moves to <em>Offer pending</em> and
     stops accepting new offers, so the member is not left comparing several bids for the same
     nights that arrived while they were deciding. It stays advertised.
@@ -364,7 +364,7 @@
 <h2>10. Things that are easy to get wrong</h2>
 
 <ul>
-    <li><strong>Saying "booking".</strong> We advertise. Travellers submit offers. Getting this wrong in writing creates the exact expectation that becomes a dispute.</li>
+    <li><strong>Saying "booking".</strong> We advertise. Travelers submit offers. Getting this wrong in writing creates the exact expectation that becomes a dispute.</li>
     <li><strong>Entering a customer's card.</strong> Never, under any circumstances, including when they ask you to.</li>
     <li><strong>Reading IP locations as fact.</strong> They are approximate. Say so every time.</li>
     <li><strong>Sharing visitor details with a member.</strong> Members get counts and rough areas, never identities.</li>

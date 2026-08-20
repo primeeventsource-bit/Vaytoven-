@@ -86,7 +86,7 @@
 
 <p><strong>Host 30-Day Subscription.</strong> Hosts pay a <strong>recurring 30-day subscription</strong> for access to Vaytoven's SaaS platform and dashboard. Under this option the host is responsible for creating and managing their own listings. Vaytoven provides the software platform, listing functionality, exposure, and communication tools.</p>
 
-<p>The Host subscription renews every thirty (30) days from the date it begins, and continues until cancelled. It is a 30-day billing cycle rather than a calendar month, so the renewal date does not track the first of the month.</p>
+<p>The Host subscription renews every thirty (30) days from the date it begins, and continues until canceled. It is a 30-day billing cycle rather than a calendar month, so the renewal date does not track the first of the month.</p>
 
 <p>Unless Vaytoven expressly states otherwise in a separate written agreement, Vaytoven is not a real estate broker, travel agency, escrow provider, or property manager.</p>
 <p>Vaytoven does not own, control, inspect, or independently verify every property displayed on the Platform.</p>
@@ -117,7 +117,7 @@
 <p>Charges fall under one of the two service options described in section 2.1:</p>
 <ul>
     <li><strong>180-Day Member Managed Listing Program:</strong> a one-time fee for managed listing and advertising services across the 180-day program. It is not a recurring subscription and does not bill again.</li>
-    <li><strong>Host 30-Day Subscription:</strong> a recurring 30-day subscription for access to the SaaS platform and dashboard. It renews every 30 days until cancelled in accordance with these Terms or the applicable agreement.</li>
+    <li><strong>Host 30-Day Subscription:</strong> a recurring 30-day subscription for access to the SaaS platform and dashboard. It renews every 30 days until canceled in accordance with these Terms or the applicable agreement.</li>
 </ul>
 
 <p>Depending on the option and any separate agreement, charges may also include setup or activation fees, content and marketing fees, placement fees, and other fees disclosed before purchase.</p>
@@ -220,7 +220,7 @@
 <p>An offer expires twenty-four (24) hours after submission unless the listing member responds sooner.</p>
 <p>If a listing member accepts an offer, any resulting arrangement is made <strong>directly between the traveler and the listing member</strong>. The two of them agree the dates, the amount, the payment method and timing, any deposit, the cancellation and refund terms, and the rules of the stay. Vaytoven is not a party to that arrangement, sets none of those terms, and cannot enforce, vary, cancel or refund them.</p>
 <p>Travelers should agree those terms in writing with the listing member, and satisfy themselves as to the property and the counterparty, before paying any money. Vaytoven does not verify that a listing member is able to deliver the stay they advertise.</p>
-<p>Listing members are responsible for maintaining accurate property, pricing and availability information, and for honouring the arrangements they enter into.</p>
+<p>Listing members are responsible for maintaining accurate property, pricing and availability information, and for honoring the arrangements they enter into.</p>
 
 <h2 id="trust">22. Trust &amp; Safety Policy</h2>
 <p>Users must provide truthful information and refrain from fraudulent, deceptive, threatening, abusive, or unlawful conduct.</p>

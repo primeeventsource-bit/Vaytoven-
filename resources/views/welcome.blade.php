@@ -90,7 +90,7 @@
             margin: 0 0 24px;
             max-width: 12ch;
         }
-        .hero h1 em { font-style: italic; font-weight: 500; }
+        .hero h1 em { font-style: normal; font-weight: 500; }
         .hero p { font-size: clamp(17px, 1.5vw, 21px); max-width: 56ch; color: var(--muted); margin: 0 0 40px; }
 
         /* Search */
@@ -128,7 +128,7 @@
         /* Section header */
         .section-header { margin-bottom: 3.5rem; max-width: 760px; }
         .section-header h2 { margin: 14px 0 16px; font-size: clamp(34px, 4.5vw, 56px); }
-        .section-header h2 em { font-style: italic; font-weight: 500; }
+        .section-header h2 em { font-style: normal; font-weight: 500; }
         .section-header p { margin: 0; color: var(--muted); font-size: 17px; }
 
         /* Destinations */
@@ -988,7 +988,7 @@
         </div>
         <div class="testimonial">
             <div class="testimonial-quote">"</div>
-            <p>I had time sitting unused every year and no idea what to do with it. Vaytoven advertised it, the enquiries came straight to me, and I agreed the stays myself.</p>
+            <p>I had time sitting unused every year and no idea what to do with it. Vaytoven advertised it, the inquiries came straight to me, and I agreed the stays myself.</p>
             <div class="testimonial-who">
                 <div class="testimonial-avatar" style="background: linear-gradient(135deg, #D63384, #4A2C5A);"></div>
                 <div>
@@ -1210,7 +1210,7 @@
             submit.textContent = 'Sending…';
 
             try {
-                const res = await fetch('/members/enquiry', {
+                const res = await fetch('/members/inquiry', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

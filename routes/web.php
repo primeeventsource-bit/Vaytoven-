@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\ContractController as AdminContractController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\FeatureFlagController;
 use App\Http\Controllers\Admin\InboxController;
+use App\Http\Controllers\Admin\MediaCollectionController;
+use App\Http\Controllers\Admin\MediaLibraryController;
 use App\Http\Controllers\Admin\MemberDocumentController;
 use App\Http\Controllers\Admin\MemberProfileController;
 use App\Http\Controllers\Admin\MemberServiceOrderController as AdminMemberServiceOrderController;
@@ -353,6 +355,35 @@ Route::middleware(['auth'])
         Route::post('properties', [AdminPropertyController::class, 'store'])
             ->middleware('permission:properties.create')->name('properties.store');
 
+        // ── Shared photo library ──────────────────────────────────────────
+        //
+        // Stock photography kept once and reused, rather than re-uploaded for
+        // every new member. The media.* permissions have existed in the RBAC
+        // seeder since it was written; this is what finally uses them.
+        //
+        // The folder routes are declared BEFORE the {asset} routes on purpose:
+        // "folders" would otherwise be matched as an asset id and 404.
+        Route::get('media', [MediaLibraryController::class, 'index'])
+            ->middleware('permission:media.view')->name('media.index');
+        Route::post('media', [MediaLibraryController::class, 'store'])
+            ->middleware('permission:media.upload')->name('media.store');
+
+        Route::post('media/folders', [MediaCollectionController::class, 'store'])
+            ->middleware('permission:media.upload')->name('media.folders.store');
+        Route::patch('media/folders/{collection}', [MediaCollectionController::class, 'update'])
+            ->middleware('permission:media.edit')->name('media.folders.update');
+        Route::delete('media/folders/{collection}', [MediaCollectionController::class, 'destroy'])
+            ->middleware('permission:media.delete')->name('media.folders.destroy');
+
+        // Streamed through the app because the bucket is private, and gated on
+        // media.view because stock photography is internal until it is used.
+        Route::get('media/{asset}/file', [MediaLibraryController::class, 'show'])
+            ->middleware('permission:media.view')->name('media.show');
+        Route::patch('media/{asset}', [MediaLibraryController::class, 'update'])
+            ->middleware('permission:media.edit')->name('media.update');
+        Route::delete('media/{asset}', [MediaLibraryController::class, 'destroy'])
+            ->middleware('permission:media.delete')->name('media.destroy');
+
         // The listing builder. Editing is a separate permission from creating:
         // a specialist may maintain listings without being able to add new ones
         // against a package allowance.
@@ -375,6 +406,9 @@ Route::middleware(['auth'])
             ->middleware('permission:properties.edit')->name('properties.photos.update');
         Route::post('properties/{property}/photos/{photo}/cover', [PropertyPhotoController::class, 'cover'])
             ->middleware('permission:properties.edit')->name('properties.photos.cover');
+        // Pull photos in from the shared library instead of uploading.
+        Route::post('properties/{property}/photos/from-library', [PropertyPhotoController::class, 'fromLibrary'])
+            ->middleware('permission:properties.edit')->name('properties.photos.from-library');
         Route::post('properties/{property}/photos/{photo}/transform', [PropertyPhotoController::class, 'transform'])
             ->middleware('permission:properties.edit')->name('properties.photos.transform');
         Route::post('properties/{property}/photos/reorder', [PropertyPhotoController::class, 'reorder'])

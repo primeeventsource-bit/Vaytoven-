@@ -52,6 +52,53 @@
                 <span class="vyt-faint" id="vyt-photo-count" style="font-size:13px;"></span>
             </div>
         </form>
+
+        {{-- Add from the shared library.
+
+             The reason the library exists: a new member's listing gets its
+             stock set in one action rather than the same images being uploaded
+             again per property. Selected images are COPIED onto this listing,
+             so the listing owns them and nothing here changes if somebody
+             reorganizes the library later. --}}
+        @if (($libraryAssets ?? collect())->isNotEmpty())
+            <details class="vyt-library-picker" style="margin-top:18px;">
+                <summary style="font-size:13px;cursor:pointer;color:var(--purple);font-weight:600;">
+                    Add from photo library ({{ $libraryAssets->count() }} available)
+                </summary>
+
+                <form method="POST" action="{{ route('admin.properties.photos.from-library', $property) }}"
+                      style="margin-top:12px;">
+                    @csrf
+
+                    <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;">
+                        <div class="vyt-field" style="max-width:220px;">
+                            <label for="library-category">Add to section</label>
+                            <select id="library-category" name="category">
+                                @foreach (\App\Models\PropertyPhoto::CATEGORIES as $value => $label)
+                                    <option value="{{ $value }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <button type="submit" class="vyt-save" style="padding:9px 20px;font-size:14px;">
+                            Add selected
+                        </button>
+                        <a href="{{ route('admin.media.index') }}" style="font-size:13px;padding-bottom:10px;">
+                            Manage library &rarr;
+                        </a>
+                    </div>
+
+                    <div class="vyt-lib-grid">
+                        @foreach ($libraryAssets as $asset)
+                            <label class="vyt-lib-tile">
+                                <input type="checkbox" name="assets[]" value="{{ $asset->id }}">
+                                <img src="{{ $asset->displayUrl() }}" alt="{{ $asset->altText() }}" loading="lazy">
+                                <span>{{ $asset->label ?: ($asset->collection?->name ?? 'Unsorted') }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </form>
+            </details>
+        @endif
     @endif
 
     @if ($property->photos->isNotEmpty())
@@ -291,6 +338,17 @@
         </div>
     @endif
 </div>
+
+@push('styles')
+<style>
+    .vyt-lib-grid { display:grid; gap:10px; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); max-height:420px; overflow-y:auto; padding:4px; }
+    .vyt-lib-tile { position:relative; border:2px solid var(--line); border-radius:10px; overflow:hidden; cursor:pointer; background:#fff; display:block; }
+    .vyt-lib-tile img { width:100%; height:96px; object-fit:cover; display:block; }
+    .vyt-lib-tile span { display:block; padding:6px 8px; font-size:11.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .vyt-lib-tile input { position:absolute; top:8px; left:8px; z-index:2; width:18px; height:18px; }
+    .vyt-lib-tile:has(input:checked) { border-color:var(--purple); box-shadow:0 0 0 3px rgba(123,44,191,.15); }
+</style>
+@endpush
 
 @push('scripts')
 <script>

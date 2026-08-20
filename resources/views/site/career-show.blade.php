@@ -90,7 +90,7 @@
 
                 <p class="site-note">
                     Vaytoven Technologies LLC is an equal opportunity employer. We consider all
-                    applicants without regard to race, colour, religion, sex, sexual orientation,
+                    applicants without regard to race, color, religion, sex, sexual orientation,
                     gender identity, national origin, age, disability or veteran status.
                 </p>
             </div>

@@ -28,7 +28,7 @@
             line-height: 1.1;
         }
         .host-hero h1 em {
-            font-style: italic;
+            font-style: normal;
             background: linear-gradient(135deg,#FF3D8A,#7B2CBF);
             -webkit-background-clip: text; background-clip: text; color: transparent;
         }

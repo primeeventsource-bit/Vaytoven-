@@ -87,7 +87,7 @@
 
             <div>
                 <div class="site-card">
-                    <h3>Already travelling?</h3>
+                    <h3>Already traveling?</h3>
                     <p style="margin:0 0 14px;">
                         If something is wrong with a stay that is happening now, use Trip Support
                         instead — those requests are prioritised.

@@ -28,7 +28,7 @@
             margin: 14px auto 18px; max-width: 780px;
         }
         .ec-hero h1 em {
-            font-style: italic;
+            font-style: normal;
             background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent;
         }
         .ec-hero p {

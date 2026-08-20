@@ -40,7 +40,7 @@ class DashboardTest extends TestCase
 
         $resp->assertOk();
         $resp->assertSee('Operations dashboard');
-        $resp->assertSee('New enquiries');
+        $resp->assertSee('New inquiries');
         $resp->assertSee('Open tickets');
         $resp->assertSee('Open disputes');
         $resp->assertSee('Manage users');
@@ -113,7 +113,7 @@ class DashboardTest extends TestCase
         $resp = $this->actingAs($admin)->get('/dashboard');
 
         $resp->assertOk();
-        $resp->assertSee('Recent member enquiries');
+        $resp->assertSee('Recent member inquiries');
         // Reference must surface so ops can quote it back to the prospect.
         $resp->assertSee(MemberEnquiry::first()->reference);
     }
@@ -127,7 +127,7 @@ class DashboardTest extends TestCase
 
         $resp->assertOk();
         $resp->assertSee('No offers yet.');
-        $resp->assertSee('No enquiries yet');
+        $resp->assertSee('No inquiries yet');
     }
 
     public function test_dashboard_honours_terms_current_middleware(): void

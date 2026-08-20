@@ -65,7 +65,7 @@
                        href="{{ route('properties.index', ['destination' => Str::slug($destination->city)]) }}"
                        data-track-audience="traveler" data-track-cta="destination_card">
                         <div class="dest-card-img"
-                             @if ($photoUrl) style="background-image:url('{{ $photoUrl }}');" @endif></div>
+                             @if ($photoUrl) style="background-image:url('MASK5');" @endif></div>
                         <div class="dest-card-body">
                             <h3>{{ $destination->city }}</h3>
                             <div class="meta">

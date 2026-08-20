@@ -24,7 +24,7 @@
             font-weight: 600; letter-spacing: -.02em; line-height: 1.1; margin: 14px 0 18px;
         }
         .members-hero h1 em {
-            font-style: italic;
+            font-style: normal;
             background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent;
         }
         .members-hero p { font-size: 17px; color: var(--ink); margin: 0 0 28px; max-width: 540px; line-height: 1.55; }
@@ -146,20 +146,20 @@
                 <li><strong>Rate-locked for the term.</strong> Whatever we quote is what applies; we won't raise it mid-term without your written consent.</li>
                 <li><strong>No separate percentage cut.</strong> Once those costs are covered on each booking, the rest is yours.</li>
                 <li><strong>You stay in control.</strong> Keep, gift, or advertise whichever time you want each year. Withdrawing time from the program doesn't affect arrangements already confirmed against it.</li>
-                <li><strong>Real human onboarding.</strong> A specialist contacts you within one business day of your enquiry. No bots until your portfolio is live.</li>
-                <li><strong>You deal with the guest directly.</strong> Vaytoven advertises the listing and passes the enquiry to you. The reservation, the payment and the terms are yours to agree — we don't sit in the middle of the money.</li>
+                <li><strong>Real human onboarding.</strong> A specialist contacts you within one business day of your inquiry. No bots until your portfolio is live.</li>
+                <li><strong>You deal with the guest directly.</strong> Vaytoven advertises the listing and passes the inquiry to you. The reservation, the payment and the terms are yours to agree — we don't sit in the middle of the money.</li>
             </ul>
         </section>
 
         <section class="members-section">
             <div class="members-section-eyebrow">How it works</div>
-            <h2>From enquiry to live listing.</h2>
+            <h2>From inquiry to live listing.</h2>
 
             <div class="members-flow" style="margin-top: 32px;">
                 <div class="members-flow-step">
                     <div class="members-flow-step-number"></div>
                     <div>
-                        <h3>You submit an enquiry</h3>
+                        <h3>You submit an inquiry</h3>
                         <p>Drop your name, contact details and property details via the form on our home page. Takes about 90 seconds. You get an automated confirmation email with a reference code (format <code style="font-family:'SFMono-Regular',Consolas,monospace; font-size: 12.5px; background: #f5f3ff; padding: 2px 6px; border-radius: 4px;">VYT-XXXXXXXX</code>) you can quote in any reply.</p>
                     </div>
                 </div>

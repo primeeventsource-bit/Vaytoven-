@@ -24,7 +24,7 @@
             -webkit-font-smoothing:antialiased;
         }
 
-        /* Brand-coloured gradient blobs in the corners — soft, behind the card. */
+        /* Brand-colored gradient blobs in the corners — soft, behind the card. */
         .vyt-bg-blob {
             position:fixed; width:520px; height:520px; border-radius:50%;
             filter:blur(120px); opacity:0.35; pointer-events:none; z-index:0;
