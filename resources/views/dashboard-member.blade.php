@@ -5,6 +5,17 @@
 
 @section('content')
 
+    {{-- The map leads the page.
+
+         It is the thing a member signs in to check: where the advertising
+         they paid for is actually being seen. Sitting at the foot of the
+         page, below the inquiry panel and the offers, it was under a
+         scroll and most members never reached it.
+
+         Approximate cities and counts only - no IP address, device or
+         visitor identity. That detail is evidence and stays admin-side. --}}
+    @include('partials.engagement-map')
+
     @if ($myEnquiry)
         <section class="vyt-section">
             <div class="vyt-card">
@@ -179,8 +190,5 @@
         'mapboxStyle'     => $mapboxStyle,
     ])
 
-    {{-- Where the advertisement is getting attention. Approximate cities and
-         counts only — the identifying detail stays on the admin side. --}}
-    @include('partials.engagement-map')
 
 @endsection

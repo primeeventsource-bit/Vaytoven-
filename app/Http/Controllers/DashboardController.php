@@ -89,8 +89,27 @@ class DashboardController extends Controller
     {
         $enquiryIds = MemberEnquiry::where('email', $user->email)->pluck('id');
 
+        // A member's listings arrive by two routes, and this only looked for
+        // one of them.
+        //
+        // Converting an enquiry stamps converted_from_enquiry_id. Building a
+        // listing in the admin builder does not — it sets host_id, the owner —
+        // so every listing staff created for a member was invisible on that
+        // member's own dashboard: no title, no view counts, no engagement map.
+        // The host dashboard had always queried host_id, which is why the same
+        // listing appeared there and not here.
+        //
+        // Both routes now count. Ownership is the primary claim; the enquiry
+        // link stays so listings converted before host_id was being set are
+        // not dropped.
         $listings = Property::query()
-            ->whereIn('converted_from_enquiry_id', $enquiryIds)
+            ->where(function ($q) use ($user, $enquiryIds) {
+                $q->where('host_id', $user->id);
+
+                if ($enquiryIds->isNotEmpty()) {
+                    $q->orWhereIn('converted_from_enquiry_id', $enquiryIds);
+                }
+            })
             ->orderBy('title')
             ->get();
 

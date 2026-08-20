@@ -115,6 +115,29 @@
                                 <a href="{{ route('properties.show', $listing) }}"
                                    onclick="event.stopPropagation();">{{ $listing->title }}</a>
                                 <div class="vyt-faint">{{ $listing->city }}@if($listing->country), {{ $listing->country }}@endif</div>
+
+                                {{-- The advertisement's own address, shown in full
+                                     rather than hidden behind the title link, so a
+                                     member can read it, copy it and send it to
+                                     somebody. The copy button is additive: the text
+                                     is selectable with or without JavaScript. --}}
+                                <div class="vyt-ad-url" onclick="event.stopPropagation();">
+                                    <input type="text" readonly
+                                           value="{{ route('properties.show', $listing) }}"
+                                           aria-label="Advertisement link for {{ $listing->title }}"
+                                           onfocus="this.select();">
+                                    <button type="button" class="vyt-copy-url"
+                                            data-url="{{ route('properties.show', $listing) }}">Copy</button>
+                                </div>
+
+                                @if ($listing->status !== \App\Enums\PropertyStatus::Active)
+                                    {{-- Saying so here prevents the member sharing a
+                                         link that shows visitors nothing. --}}
+                                    <div class="vyt-faint" style="font-size:11.5px;margin-top:4px;">
+                                        Not live yet &mdash; this link works for you, but the public sees nothing
+                                        until the advertisement is active.
+                                    </div>
+                                @endif
                             </td>
                             <td style="text-align:right;">{{ number_format($s['views_7d'] ?? 0) }}</td>
                             <td style="text-align:right;">{{ number_format($s['views_30d'] ?? 0) }}</td>
@@ -359,3 +382,37 @@
         @endpush
     @endif
 </section>
+
+@push('head')
+<style>
+    .vyt-ad-url { display:flex; gap:6px; align-items:center; margin-top:6px; max-width:340px; }
+    .vyt-ad-url input {
+        flex:1 1 auto; min-width:0; font-size:11.5px; padding:5px 8px;
+        border:1px solid var(--line); border-radius:6px; background:#fbfbfd; color:var(--muted);
+    }
+    .vyt-copy-url {
+        flex:0 0 auto; font-size:11.5px; font-weight:600; color:var(--purple);
+        border:1px solid var(--line); background:#fff; border-radius:6px; padding:5px 10px; cursor:pointer;
+    }
+    .vyt-copy-url:hover { border-color:var(--purple); }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+// Copy the advertisement link. Additive - the field is selectable without it.
+document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.vyt-copy-url');
+    if (!btn) { return; }
+    e.stopPropagation();
+    var url = btn.getAttribute('data-url');
+    var done = function () { var t = btn.textContent; btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = t; }, 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done).catch(function () {});
+    } else {
+        var field = btn.parentNode.querySelector('input');
+        if (field) { field.select(); try { document.execCommand('copy'); done(); } catch (err) {} }
+    }
+});
+</script>
+@endpush
