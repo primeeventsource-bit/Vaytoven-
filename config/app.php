@@ -1,7 +1,10 @@
 <?php
 
 return [
-    'name' => env('APP_NAME', 'Vaytoven Rentals'),
+    // The consumer brand is "Vaytoven". "Vaytoven Rentals" was an early
+    // framing that was dropped, and it was still heading every email this
+    // application sent wherever APP_NAME was unset.
+    'name' => env('APP_NAME', 'Vaytoven'),
     'env' => env('APP_ENV', 'production'),
     'debug' => (bool) env('APP_DEBUG', false),
     'url' => env('APP_URL', 'https://www.vaytoven.com'),

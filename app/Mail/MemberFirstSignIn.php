@@ -18,6 +18,11 @@ use Illuminate\Queue\SerializesModels;
  * the gap between "we sent it" and "they got in" is where a member goes quiet
  * and later disputes the charge.
  *
+ * It carries where and how the sign-in happened, because "the account was used"
+ * and "the account was used from the member's own phone in their own city" are
+ * different facts, and the second is the one worth having if the charge is
+ * questioned later.
+ *
  * INTERNAL ONLY. This goes to the office address and nowhere else — no
  * recipient, cc or bcc for the member. A "you signed in" email tells the member
  * nothing they do not already know, and sending one for an event they just
@@ -27,10 +32,13 @@ class MemberFirstSignIn extends Mailable
 {
     use Queueable, SerializesModels;
 
+    /**
+     * @param  array<string, mixed>  $context  where and how — see
+     *                                         TrackAuthEvents::signInContext()
+     */
     public function __construct(
         public readonly User $member,
-        public readonly ?string $ipAddress = null,
-        public readonly ?string $signedInAt = null,
+        public readonly array $context = [],
     ) {
     }
 

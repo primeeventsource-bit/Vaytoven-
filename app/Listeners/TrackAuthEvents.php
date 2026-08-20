@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Mail\MemberFirstSignIn;
 use App\Models\User;
 use App\Enums\ActivityType;
+use App\Services\GeoIp\GeoIpService;
 use App\Services\Tracking\ActivityRecorder;
 use App\Services\Tracking\LoginTrackingService;
 use Illuminate\Auth\Events\Failed;
@@ -93,9 +94,58 @@ class TrackAuthEvents
 
         Mail::send(new MemberFirstSignIn(
             member: $user,
-            ipAddress: $this->request->ip(),
-            signedInAt: et(now(), 'F j, Y \a\t g:ia'),
+            context: $this->signInContext(),
         ));
+    }
+
+    /**
+     * Where and how the sign-in happened.
+     *
+     * "The account was used" and "the account was used from an iPhone in
+     * Orlando" are different facts, and the second is the one worth having if
+     * the charge is ever questioned. Everything here comes from the same
+     * sources the activity log and login_sessions already use, so the email and
+     * the audit trail cannot disagree.
+     *
+     * The location is a GeoIP estimate and is labelled as one wherever it is
+     * shown. It is a rough area, not where a person was.
+     *
+     * @return array<string, mixed>
+     */
+    private function signInContext(): array
+    {
+        $userAgent = $this->request->userAgent();
+        $ip        = $this->request->ip();
+
+        $geo = null;
+
+        try {
+            $geo = app(GeoIpService::class)->lookup($ip);
+        } catch (Throwable) {
+            // A geo lookup failing must not cost us the notification: knowing
+            // the member signed in matters more than knowing roughly where.
+        }
+
+        $place = collect([$geo?->city, $geo?->region, $geo?->country])
+            ->filter()
+            ->implode(', ');
+
+        return [
+            'ip_address'   => $ip,
+            'location'     => $place ?: null,
+            'coordinates'  => $geo?->latitude && $geo?->longitude
+                ? round($geo->latitude, 2).', '.round($geo->longitude, 2)
+                : null,
+            'network'      => $geo?->asn_organization,
+            'is_vpn'       => (bool) ($geo?->is_vpn ?? false),
+            'is_datacenter' => (bool) ($geo?->is_datacenter ?? false),
+            // desktop / mobile / tablet / unknown
+            'device_type'  => ActivityRecorder::deviceType($userAgent),
+            'browser'      => ActivityRecorder::browser($userAgent),
+            'platform'     => ActivityRecorder::platform($userAgent),
+            'user_agent'   => $userAgent,
+            'signed_in_at' => et(now(), 'F j, Y \a\t g:ia'),
+        ];
     }
 
     public function handleLogout(Logout $event): void

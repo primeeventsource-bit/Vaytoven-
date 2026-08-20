@@ -39,10 +39,13 @@ class FirstSignInNotificationTest extends TestCase
         // The real event, not a manual dispatch: the notification hangs off
         // Laravel's Login event via the TrackAuthEvents subscriber, and firing
         // it by hand would pass even if that wiring were broken.
-        $this->post(route('login'), [
-            'email'    => $user->email,
-            'password' => 'password',
-        ]);
+        // A real iPhone user-agent, so the device/platform/browser
+        // assertions below are reading parsed values rather than nulls.
+        $this->withHeader('User-Agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1')
+            ->post(route('login'), [
+                'email'    => $user->email,
+                'password' => 'password',
+            ]);
     }
 
     public function test_the_office_is_told_on_a_members_first_sign_in(): void
@@ -145,6 +148,49 @@ class FirstSignInNotificationTest extends TestCase
 
         Mail::assertSent(MemberFirstSignIn::class, function (MemberFirstSignIn $mail) use ($member) {
             return str_contains($mail->envelope()->subject, $member->email);
+        });
+    }
+
+    /**
+     * The office needs to know where and on what, not just that it
+     * happened. A sign-in from an unexpected country or a data centre is
+     * the one worth a second look.
+     */
+    public function test_it_carries_the_ip_device_and_location(): void
+    {
+        Mail::fake();
+
+        $this->signIn($this->member());
+
+        Mail::assertSent(MemberFirstSignIn::class, function (MemberFirstSignIn $mail) {
+            $c = $mail->context;
+
+            $this->assertArrayHasKey('ip_address', $c);
+            $this->assertArrayHasKey('location', $c);
+            $this->assertSame('mobile', $c['device_type'], 'an iPhone is a mobile');
+            $this->assertSame('iOS', $c['platform']);
+            $this->assertSame('Safari', $c['browser']);
+            $this->assertNotEmpty($c['user_agent']);
+
+            return true;
+        });
+    }
+
+    /** GeoIP is an estimate and the email has to say so - it gets forwarded. */
+    public function test_the_email_calls_the_location_approximate(): void
+    {
+        Mail::fake();
+
+        $member = $this->member();
+        $this->signIn($member);
+
+        Mail::assertSent(MemberFirstSignIn::class, function (MemberFirstSignIn $mail) {
+            $body = $mail->render();
+
+            $this->assertStringContainsStringIgnoringCase('approximate', $body);
+            $this->assertStringContainsStringIgnoringCase('GeoIP', $body);
+
+            return true;
         });
     }
 
