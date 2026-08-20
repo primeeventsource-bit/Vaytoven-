@@ -71,8 +71,6 @@ Full device string, for the record:
 Open in admin
 @endcomponent
 
-This is an internal notification. The member was not sent a copy.
-
 Thanks,<br>
 {{ config('app.name') }}
 @endcomponent
