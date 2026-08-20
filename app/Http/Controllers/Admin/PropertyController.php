@@ -111,7 +111,8 @@ class PropertyController extends Controller
                 'bathrooms'          => $data['bathrooms'],
                 // Dollars in, integer cents stored. round() before cast, or
                 // 149.99 lands as 14998 through float truncation.
-                'base_nightly_cents' => (int) round(((float) $data['nightly_dollars']) * 100),
+                'price_cents'  => (int) round(((float) $data['price_dollars']) * 100),
+                'listing_type' => $data['listing_type'],
                 'minimum_nights'     => $data['minimum_nights'] ?? 1,
                 'status'             => $data['status'],
             ]);
@@ -277,6 +278,17 @@ class PropertyController extends Controller
                 ? (int) round(((float) $data['minimum_offer_dollars']) * 100)
                 : null;
         unset($data['minimum_offer_dollars']);
+
+        // Same treatment for the listing price. Left absent rather than
+        // zeroed when the field is blank, so saving another section of the
+        // builder cannot wipe a price nobody touched.
+        if (array_key_exists('price_dollars', $data)) {
+            if ($data['price_dollars'] !== null && $data['price_dollars'] !== '') {
+                $data['price_cents'] = (int) round(((float) $data['price_dollars']) * 100);
+            }
+
+            unset($data['price_dollars']);
+        }
 
         // Empty rows are how a repeating field reports "nothing here"; storing
         // them would print blank bullets on the listing.

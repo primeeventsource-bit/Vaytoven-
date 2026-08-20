@@ -124,7 +124,7 @@ class DemoUsersSeeder extends Seeder
                 'bedrooms'           => 3,
                 'beds'               => 4,
                 'bathrooms'          => 3.0,
-                'base_nightly_cents' => 32500,
+                'price_cents' => 32500,
                 'cleaning_fee_cents' => 7500,
             ],
             [
@@ -139,7 +139,7 @@ class DemoUsersSeeder extends Seeder
                 'bedrooms'           => 4,
                 'beds'               => 5,
                 'bathrooms'          => 3.0,
-                'base_nightly_cents' => 28000,
+                'price_cents' => 28000,
                 'cleaning_fee_cents' => 9500,
             ],
             [
@@ -154,7 +154,7 @@ class DemoUsersSeeder extends Seeder
                 'bedrooms'           => 1,
                 'beds'               => 1,
                 'bathrooms'          => 1.0,
-                'base_nightly_cents' => 41000,
+                'price_cents' => 41000,
                 'cleaning_fee_cents' => 6500,
             ],
         ];
@@ -243,7 +243,7 @@ class DemoUsersSeeder extends Seeder
             'bedrooms'                  => 3,
             'beds'                      => 4,
             'bathrooms'                 => 2.5,
-            'base_nightly_cents'        => 24500,
+            'price_cents'        => 24500,
             'cleaning_fee_cents'        => 8500,
             'cancellation_policy'       => 'moderate',
             'minimum_nights'            => 3,
@@ -517,7 +517,7 @@ class DemoUsersSeeder extends Seeder
             }
 
             $checkOut      = $s['check_in']->copy()->addDays($s['nights']);
-            $subtotalCents = (int) $listing->base_nightly_cents * $s['nights'];
+            $subtotalCents = (int) $listing->price_cents * $s['nights'];
             $cleaningCents = (int) $listing->cleaning_fee_cents;
             $serviceCents  = (int) round($subtotalCents * 0.12);
             $taxCents      = (int) round(($subtotalCents + $cleaningCents) * 0.085);
@@ -529,7 +529,7 @@ class DemoUsersSeeder extends Seeder
                 'check_in_date'       => $s['check_in']->toDateString(),
                 'check_out_date'      => $checkOut->toDateString(),
                 'guests'              => $s['guests'],
-                'nightly_rate_cents'  => $listing->base_nightly_cents,
+                'nightly_rate_cents'  => $listing->price_cents,
                 'nights'              => $s['nights'],
                 'subtotal_cents'      => $subtotalCents,
                 'cleaning_fee_cents'  => $cleaningCents,

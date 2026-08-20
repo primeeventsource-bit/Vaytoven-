@@ -69,7 +69,7 @@
         <label for="o-amount" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:4px;">Your offer (USD)</label>
         <input id="o-amount" type="number" name="amount_dollars" min="1" step="1"
                value="{{ old('amount_dollars') }}"
-               placeholder="{{ number_format($property->base_nightly_cents / 100) }} / night advertised"
+               placeholder="{{ number_format($property->price_cents / 100) }} advertised"
                style="{{ $fieldStyle }}">
         @error('amount_dollars') <span style="font-size:12px; color:#b91c1c;">{{ $message }}</span> @enderror
     </div>

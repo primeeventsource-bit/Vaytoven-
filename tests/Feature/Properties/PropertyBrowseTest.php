@@ -117,12 +117,12 @@ class PropertyBrowseTest extends TestCase
     {
         Property::factory()->create([
             'title'              => 'Budget',
-            'base_nightly_cents' => 8000,
+            'price_cents' => 8000,
             'status'             => PropertyStatus::Active->value,
         ]);
         Property::factory()->create([
             'title'              => 'Luxury',
-            'base_nightly_cents' => 50000,
+            'price_cents' => 50000,
             'status'             => PropertyStatus::Active->value,
         ]);
 

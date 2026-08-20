@@ -34,7 +34,8 @@ class Property extends Model
         'bedrooms',
         'beds',
         'bathrooms',
-        'base_nightly_cents',
+        'price_cents',
+        'listing_type',
         'cleaning_fee_cents',
         'cancellation_policy',
         'minimum_nights',
@@ -89,7 +90,8 @@ class Property extends Model
             'latitude' => 'decimal:7',
             'longitude' => 'decimal:7',
             'bathrooms' => 'decimal:1',
-            'base_nightly_cents' => 'integer',
+            'price_cents' => 'integer',
+            'listing_type' => \App\Enums\ListingType::class,
             'cleaning_fee_cents' => 'integer',
             'capacity' => 'integer',
             'bedrooms' => 'integer',
@@ -163,6 +165,30 @@ class Property extends Model
     public function memberServiceOrder(): BelongsTo
     {
         return $this->belongsTo(MemberServiceOrder::class, 'member_service_order_id');
+    }
+
+    /**
+     * The price, written the way a visitor should read it.
+     *
+     * Every member program stay is seven days and six nights, so a rental
+     * price is the price of that stay. Labelling it "per night" next to a
+     * figure that covers the whole week is the ambiguity that ends in an
+     * argument about what was advertised.
+     */
+    public function priceLabel(): string
+    {
+        return '$'.number_format((int) $this->price_cents / 100);
+    }
+
+    /** "7 days / 6 nights" for a rental, "Asking price" for a sale. */
+    public function priceCaption(): string
+    {
+        return ($this->listing_type ?? \App\Enums\ListingType::Rent)->priceCaption();
+    }
+
+    public function isForSale(): bool
+    {
+        return ($this->listing_type ?? \App\Enums\ListingType::Rent)->isForSale();
     }
 
     /** "Property 2 of 3", or null when the listing is not tied to an order. */

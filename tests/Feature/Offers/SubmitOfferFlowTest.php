@@ -27,7 +27,7 @@ class SubmitOfferFlowTest extends TestCase
     {
         return Property::factory()->create($attributes + [
             'status' => PropertyStatus::Active->value,
-            'base_nightly_cents' => 40000,
+            'price_cents' => 40000,
             'capacity' => 6,
             'minimum_nights' => 1,
         ]);

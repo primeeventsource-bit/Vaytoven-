@@ -136,10 +136,14 @@
 
         <div class="site-row-2">
             <div class="site-field">
-                <label for="nightly_dollars">Nightly rate (USD)</label>
-                <input id="nightly_dollars" name="nightly_dollars" type="number" step="0.01" min="0"
-                       value="{{ old('nightly_dollars') }}" required>
-                @error('nightly_dollars') <div class="err">{{ $message }}</div> @enderror
+                <label for="price_dollars">Price (USD)</label>
+                <input id="price_dollars" name="price_dollars" type="number" step="0.01" min="0"
+                       value="{{ old('price_dollars') }}" required>
+                {{-- Every member program stay is 7 days / 6 nights, so a rental
+                     price is the price of that stay rather than a nightly rate
+                     the visitor has to multiply out. --}}
+                <small class="hint">For rent, the price of the 7 day / 6 night stay. For sale, the asking price.</small>
+                @error('price_dollars') <div class="err">{{ $message }}</div> @enderror
             </div>
             <div class="site-field">
                 <label for="minimum_nights">Minimum nights</label>
@@ -154,6 +158,23 @@
         <h4 style="margin:0 0 14px;font-size:16px;">Publication</h4>
 
         <div class="site-row-2">
+            {{-- Listing type is what the advertisement offers; status is where
+                 it sits in the workflow. A For Sale listing still has to be
+                 drafted, reviewed and published, so the two stay separate. --}}
+            <div class="site-field">
+                <label>Listing type</label>
+                <div style="display:flex;gap:18px;margin-top:6px;">
+                    @foreach (\App\Enums\ListingType::cases() as $type)
+                        <label style="display:inline-flex;align-items:center;gap:7px;font-weight:400;">
+                            <input type="radio" name="listing_type" value="{{ $type->value }}"
+                                   @checked(old('listing_type', 'rent') === $type->value)>
+                            {{ $type->label() }}
+                        </label>
+                    @endforeach
+                </div>
+                @error('listing_type') <div class="err">{{ $message }}</div> @enderror
+            </div>
+
             <div class="site-field">
                 <label for="status">Status</label>
                 <select id="status" name="status">

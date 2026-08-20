@@ -57,6 +57,11 @@ class UpdateListingRequest extends FormRequest
             // Accepted but ignored by the controller: status changes go
             // through the publishing actions, which check readiness first.
             'status'              => ['nullable', Rule::enum(PropertyStatus::class)],
+            // What the advertisement is offering. Separate from status,
+            // which is where the listing sits in the workflow.
+            'listing_type'        => ['nullable', Rule::enum(\App\Enums\ListingType::class)],
+            // Entered in dollars; stored as integer cents.
+            'price_dollars'       => ['nullable', 'numeric', 'min:0', 'max:100000000'],
             'host_id'             => ['required', 'exists:users,id'],
             'position_in_package' => ['nullable', 'integer', 'min:1', 'max:20'],
 

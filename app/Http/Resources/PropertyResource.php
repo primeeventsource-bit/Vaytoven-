@@ -30,7 +30,7 @@ class PropertyResource extends JsonResource
             'beds' => $this->beds,
             'bathrooms' => (float) $this->bathrooms,
             // Money is integer cents (NFR / hard rule).
-            'base_nightly_cents' => $this->base_nightly_cents,
+            'price_cents' => $this->price_cents,
             'cleaning_fee_cents' => $this->cleaning_fee_cents,
             'cancellation_policy' => $this->cancellation_policy?->value,
             'minimum_nights' => $this->minimum_nights,

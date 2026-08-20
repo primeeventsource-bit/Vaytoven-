@@ -45,19 +45,19 @@ class PropertyApiTest extends TestCase
     public function test_index_filters_by_country_min_capacity_max_price(): void
     {
         Property::factory()->create([
-            'country' => 'US', 'capacity' => 6, 'base_nightly_cents' => 12000,
+            'country' => 'US', 'capacity' => 6, 'price_cents' => 12000,
             'status' => PropertyStatus::Active->value,
         ]);
         Property::factory()->create([
-            'country' => 'CA', 'capacity' => 6, 'base_nightly_cents' => 12000,
+            'country' => 'CA', 'capacity' => 6, 'price_cents' => 12000,
             'status' => PropertyStatus::Active->value,
         ]);
         Property::factory()->create([
-            'country' => 'US', 'capacity' => 2, 'base_nightly_cents' => 12000,
+            'country' => 'US', 'capacity' => 2, 'price_cents' => 12000,
             'status' => PropertyStatus::Active->value,
         ]);
         Property::factory()->create([
-            'country' => 'US', 'capacity' => 6, 'base_nightly_cents' => 50000,
+            'country' => 'US', 'capacity' => 6, 'price_cents' => 50000,
             'status' => PropertyStatus::Active->value,
         ]);
 
@@ -123,7 +123,7 @@ class PropertyApiTest extends TestCase
     public function test_money_fields_serialise_as_integer_cents(): void
     {
         $property = Property::factory()->create([
-            'base_nightly_cents' => 12500,
+            'price_cents' => 12500,
             'cleaning_fee_cents' => 5000,
             'status' => PropertyStatus::Active->value,
         ]);
@@ -131,8 +131,8 @@ class PropertyApiTest extends TestCase
         $resp = $this->getJson("/api/v1/properties/{$property->id}");
 
         $resp->assertOk();
-        $this->assertSame(12500, $resp->json('data.base_nightly_cents'));
+        $this->assertSame(12500, $resp->json('data.price_cents'));
         $this->assertSame(5000, $resp->json('data.cleaning_fee_cents'));
-        $this->assertIsInt($resp->json('data.base_nightly_cents'));
+        $this->assertIsInt($resp->json('data.price_cents'));
     }
 }

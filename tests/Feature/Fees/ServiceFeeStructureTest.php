@@ -38,7 +38,7 @@ class ServiceFeeStructureTest extends TestCase
     {
         return Property::factory()->create($attributes + [
             'status' => PropertyStatus::Active->value,
-            'base_nightly_cents' => 100000,   // $1,000 for a one-night stay
+            'price_cents' => 100000,   // $1,000 for a one-night stay
             'cleaning_fee_cents' => 0,
             // The factory's defaults would otherwise bounce a 1-night, 2-guest
             // quote off the minimum-stay and capacity guards before it reaches

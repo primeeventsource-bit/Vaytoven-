@@ -186,7 +186,9 @@
             </thead>
             <tbody>
                 <tr><td>Location</td><td>{{ trim(($snap['content']['city'] ?? '').' '.($snap['content']['country'] ?? '')) ?: '—' }}</td></tr>
-                <tr><td>Nightly rate</td><td>${{ number_format(($snap['content']['base_nightly_cents'] ?? 0) / 100, 2) }}</td></tr>
+                {{-- Snapshots captured before the column was renamed carry the old
+                         key. Both are read so historical evidence keeps rendering. --}}
+                    <tr><td>Price</td><td>${{ number_format((($snap['content']['price_cents'] ?? $snap['content']['base_nightly_cents'] ?? 0)) / 100, 2) }}</td></tr>
                 <tr><td>Sleeps</td><td>{{ $snap['content']['capacity'] ?? '—' }}</td></tr>
                 <tr><td>Status when captured</td><td>{{ $snap['content']['status'] ?? '—' }}</td></tr>
                 <tr>

@@ -29,12 +29,12 @@ class PropertyFilterTest extends TestCase
         Property::factory()->create([
             'status' => PropertyStatus::Active->value,
             'title'  => 'Budget Studio',
-            'base_nightly_cents' => 5000,
+            'price_cents' => 5000,
         ]);
         Property::factory()->create([
             'status' => PropertyStatus::Active->value,
             'title'  => 'Premium Suite',
-            'base_nightly_cents' => 25000,
+            'price_cents' => 25000,
         ]);
 
         $body = $this->get('/properties?min_price=200')->assertOk()->getContent();
@@ -45,9 +45,9 @@ class PropertyFilterTest extends TestCase
 
     public function test_combined_min_and_max_price_filter_narrows_to_band(): void
     {
-        Property::factory()->create(['status' => PropertyStatus::Active->value, 'title' => 'Cheap',  'base_nightly_cents' => 5000]);
-        Property::factory()->create(['status' => PropertyStatus::Active->value, 'title' => 'In Band','base_nightly_cents' => 18000]);
-        Property::factory()->create(['status' => PropertyStatus::Active->value, 'title' => 'Spendy', 'base_nightly_cents' => 50000]);
+        Property::factory()->create(['status' => PropertyStatus::Active->value, 'title' => 'Cheap',  'price_cents' => 5000]);
+        Property::factory()->create(['status' => PropertyStatus::Active->value, 'title' => 'In Band','price_cents' => 18000]);
+        Property::factory()->create(['status' => PropertyStatus::Active->value, 'title' => 'Spendy', 'price_cents' => 50000]);
 
         $body = $this->get('/properties?min_price=100&max_price=300')->assertOk()->getContent();
 

@@ -11,7 +11,7 @@ Our team has set up a listing for you on Vaytoven.
 @if ($property->city)MASK2@if ($property->country), {{ $property->country }}@endif<br>@endif
 {{ $property->capacity }} {{ Str::plural('guest', $property->capacity) }} ·
 {{ $property->bedrooms }} {{ Str::plural('bedroom', $property->bedrooms) }} ·
-${{ number_format($property->base_nightly_cents / 100, 2) }} per night
+{{ $property->priceLabel() }} &middot; {{ $property->priceCaption() }}
 
 Status: **{{ ucfirst(str_replace('_', ' ', $property->status->value ?? $property->status)) }}**
 @endcomponent

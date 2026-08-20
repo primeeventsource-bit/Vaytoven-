@@ -67,19 +67,19 @@ class PropertySnapshotTest extends TestCase
     public function test_the_snapshot_survives_the_listing_being_rewritten(): void
     {
         $property = Property::factory()->create([
-            'title' => 'Seafront Villa', 'base_nightly_cents' => 40000,
+            'title' => 'Seafront Villa', 'price_cents' => 40000,
         ]);
 
         app(AdvertisingActivator::class)->activate(
             $this->paidOrder(), collect([$property]), User::factory()->create(),
         );
 
-        $property->update(['title' => 'Completely Different', 'base_nightly_cents' => 9900]);
+        $property->update(['title' => 'Completely Different', 'price_cents' => 9900]);
 
         $activation = PropertySnapshot::where('reason', PropertySnapshot::REASON_ACTIVATED)->sole();
 
         $this->assertSame('Seafront Villa', $activation->content['title']);
-        $this->assertSame(40000, $activation->content['base_nightly_cents']);
+        $this->assertSame(40000, $activation->content['price_cents']);
         $this->assertSame('Completely Different', $property->refresh()->title);
     }
 
@@ -139,7 +139,7 @@ class PropertySnapshotTest extends TestCase
 
         // Tamper with the stored content, leaving the recorded hash alone.
         $content = $snapshot->content;
-        $content['base_nightly_cents'] = 1;
+        $content['price_cents'] = 1;
         $snapshot->forceFill(['content' => $content])->save();
 
         $this->assertFalse($snapshot->refresh()->isIntact());

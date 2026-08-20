@@ -45,7 +45,7 @@ class PropertyController extends Controller
         }
 
         if ($request->filled('max_price_cents')) {
-            $query->where('base_nightly_cents', '<=', (int) $request->integer('max_price_cents'));
+            $query->where('price_cents', '<=', (int) $request->integer('max_price_cents'));
         }
 
         // Bounding-box geo prefilter — exact distance ranking happens in app code

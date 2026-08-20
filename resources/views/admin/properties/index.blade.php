@@ -79,7 +79,7 @@
                         <span class="vyt-faint" style="display:block;font-size:11.5px;">not geocoded</span>
                     @endif
                 </td>
-                <td style="text-align:right;">${{ number_format($property->base_nightly_cents / 100, 2) }}</td>
+                <td style="text-align:right;">${{ number_format($property->price_cents / 100, 2) }}</td>
                 <td><span class="vyt-pill">{{ ucfirst(str_replace('_', ' ', $property->status->value ?? $property->status)) }}</span></td>
                 <td class="vyt-faint">{{ $property->created_at?->diffForHumans() }}</td>
             </tr>

@@ -73,7 +73,7 @@
                                 <span class="count">{{ $destination->listing_count }}</span>
                                 {{ Str::plural('stay', $destination->listing_count) }}
                                 @if ($destination->from_cents)
-                                    · from ${{ number_format($destination->from_cents / 100) }}/night
+                                    · from ${{ number_format($destination->from_cents / 100) }}
                                 @endif
                             </div>
                         </div>

@@ -26,7 +26,7 @@ class PropertySnapshotter
     public const MATERIAL_FIELDS = [
         'title', 'description', 'city', 'region', 'country', 'address_line',
         'capacity', 'bedrooms', 'beds', 'bathrooms',
-        'base_nightly_cents', 'cleaning_fee_cents', 'minimum_nights',
+        'price_cents', 'cleaning_fee_cents', 'minimum_nights',
         'status', 'listing_source',
     ];
 
@@ -86,7 +86,7 @@ class PropertySnapshotter
             'bedrooms'           => $property->bedrooms,
             'beds'               => $property->beds,
             'bathrooms'          => (string) $property->bathrooms,
-            'base_nightly_cents' => $property->base_nightly_cents,
+            'price_cents' => $property->price_cents,
             'cleaning_fee_cents' => $property->cleaning_fee_cents,
             'minimum_nights'     => $property->minimum_nights,
             'status'             => $property->status->value ?? (string) $property->status,

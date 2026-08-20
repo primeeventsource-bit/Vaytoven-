@@ -54,7 +54,7 @@
                                 </td>
                                 <td><span class="vyt-pill">{{ $listing->status->value }}</span></td>
                                 <td style="text-align:right;">
-                                    ${{ number_format($listing->base_nightly_cents / 100, 2) }}
+                                    ${{ number_format($listing->price_cents / 100, 2) }}
                                 </td>
                             </tr>
                         @endforeach

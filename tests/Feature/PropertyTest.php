@@ -52,13 +52,13 @@ class PropertyTest extends TestCase
     public function test_money_fields_are_integer_cents(): void
     {
         $property = Property::factory()->create([
-            'base_nightly_cents' => 12500,    // $125.00
+            'price_cents' => 12500,    // $125.00
             'cleaning_fee_cents' => 5000,     // $50.00
         ]);
 
-        $this->assertSame(12500, $property->base_nightly_cents);
+        $this->assertSame(12500, $property->price_cents);
         $this->assertSame(5000, $property->cleaning_fee_cents);
-        $this->assertIsInt($property->base_nightly_cents);
+        $this->assertIsInt($property->price_cents);
     }
 
     public function test_status_and_policy_cast_to_enums(): void
@@ -81,7 +81,7 @@ class PropertyTest extends TestCase
             'title' => 'Untitled cabin',
             'latitude' => 40.7,
             'longitude' => -74.0,
-            'base_nightly_cents' => 10000,
+            'price_cents' => 10000,
         ]);
 
         $this->assertSame(PropertyStatus::Draft, $property->fresh()->status);

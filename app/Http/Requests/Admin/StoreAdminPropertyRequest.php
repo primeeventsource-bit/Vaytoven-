@@ -44,7 +44,8 @@ class StoreAdminPropertyRequest extends FormRequest
             'bathrooms'       => ['required', 'numeric', 'min:0', 'max:99'],
 
             // Dollars in the form, converted to integer cents before storage.
-            'nightly_dollars' => ['required', 'numeric', 'min:0', 'max:100000'],
+            'price_dollars'   => ['required', 'numeric', 'min:0', 'max:100000000'],
+            'listing_type'    => ['required', Rule::enum(\App\Enums\ListingType::class)],
 
             'minimum_nights'  => ['nullable', 'integer', 'min:1', 'max:365'],
 

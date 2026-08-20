@@ -31,7 +31,7 @@
                     <tr>
                         <td><a href="{{ route('properties.show', $property) }}">{{ $property->title }}</a></td>
                         <td class="vyt-faint">{{ $property->city ?: '—' }}@if ($property->country), {{ $property->country }}@endif</td>
-                        <td style="text-align:right;">${{ number_format($property->base_nightly_cents / 100, 2) }}</td>
+                        <td style="text-align:right;">${{ number_format($property->price_cents / 100, 2) }}</td>
                         <td><span class="vyt-pill">{{ ucfirst(str_replace('_', ' ', $property->status->value ?? $property->status)) }}</span></td>
                         <td style="text-align:right;">{{ number_format($perListingStats[$property->id]['views_30d'] ?? 0) }}</td>
                     </tr>

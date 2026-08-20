@@ -31,7 +31,7 @@ class SitePageController extends Controller
 
         $query = Property::query()
             ->where('status', PropertyStatus::Active->value)
-            ->selectRaw('city, country, COUNT(*) as listing_count, MIN(base_nightly_cents) as from_cents')
+            ->selectRaw('city, country, COUNT(*) as listing_count, MIN(price_cents) as from_cents')
             ->groupBy('city', 'country')
             ->orderByDesc('listing_count')
             ->orderBy('city');

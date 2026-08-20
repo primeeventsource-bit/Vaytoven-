@@ -49,7 +49,8 @@ class AdminCreatesListingTest extends TestCase
             'bedrooms'        => 2,
             'beds'            => 3,
             'bathrooms'       => 1.5,
-            'nightly_dollars' => '249.99',
+            'price_dollars' => '249.99',
+            'listing_type'    => 'rent',
             'minimum_nights'  => 2,
             'status'          => 'draft',
             'listing_source'  => 'host',
@@ -112,9 +113,9 @@ class AdminCreatesListingTest extends TestCase
         Mail::fake();
 
         $this->actingAs($this->staff())
-            ->post(route('admin.properties.store'), $this->payload(['nightly_dollars' => '249.99']));
+            ->post(route('admin.properties.store'), $this->payload(['price_dollars' => '249.99']));
 
-        $this->assertSame(24999, Property::sole()->base_nightly_cents);
+        $this->assertSame(24999, Property::sole()->price_cents);
     }
 
     /** The staff-issued password must not survive the owner's first sign-in. */
@@ -249,9 +250,9 @@ class AdminCreatesListingTest extends TestCase
     {
         $this->actingAs($this->staff())
             ->post(route('admin.properties.store'), $this->payload([
-                'title' => '', 'nightly_dollars' => '',
+                'title' => '', 'price_dollars' => '',
             ]))
-            ->assertSessionHasErrors(['title', 'nightly_dollars']);
+            ->assertSessionHasErrors(['title', 'price_dollars']);
     }
 
     /** Nothing is written if any part fails — no orphan account. */

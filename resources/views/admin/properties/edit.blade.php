@@ -321,6 +321,40 @@
                 </div>
             </div>
 
+            {{-- Price and listing type. The price was previously only settable
+                 when the listing was first created, which meant correcting one
+                 meant rebuilding the listing. --}}
+            <div class="vyt-grid cols-3" style="margin-top:14px;">
+                <div class="vyt-field">
+                    <label for="price_dollars">Price (USD)</label>
+                    <input id="price_dollars" name="price_dollars" type="number" step="0.01" min="0"
+                           value="{{ old('price_dollars', number_format($property->price_cents / 100, 2, '.', '')) }}">
+                    <span class="hint">
+                        For rent, the price of the 7 day / 6 night stay. For sale, the asking price.
+                    </span>
+                </div>
+
+                <div class="vyt-field">
+                    <label>Listing type</label>
+                    <div style="display:flex;gap:16px;margin-top:8px;">
+                        @foreach (\App\Enums\ListingType::cases() as $type)
+                            <label style="display:inline-flex;align-items:center;gap:7px;font-weight:400;">
+                                <input type="radio" name="listing_type" value="{{ $type->value }}"
+                                       @checked(old('listing_type', ($property->listing_type ?? \App\Enums\ListingType::Rent)->value) === $type->value)>
+                                {{ $type->label() }}
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="vyt-field">
+                    <label>Shown to visitors as</label>
+                    <p class="hint" style="margin-top:8px;">
+                        {{ $property->priceLabel() }} &middot; {{ $property->priceCaption() }}
+                    </p>
+                </div>
+            </div>
+
             <div class="vyt-grid cols-3" style="margin-top:14px;">
                 <div class="vyt-field">
                     <label for="pet_policy">Pet policy</label>

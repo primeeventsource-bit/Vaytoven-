@@ -65,7 +65,7 @@ class DestinationSuggestController extends Controller
             ->where('status', PropertyStatus::Active->value)
             ->where('title', 'like', $like)
             ->select('id', 'title', 'city', 'country', 'latitude', 'longitude')
-            ->orderBy('base_nightly_cents')
+            ->orderBy('price_cents')
             ->limit(3)
             ->get();
 

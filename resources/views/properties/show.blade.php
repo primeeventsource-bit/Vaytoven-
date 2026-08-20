@@ -138,7 +138,7 @@
             <aside>
                 <div class="props-book-card">
                     <div class="props-book-price">
-                        ${{ number_format($property->base_nightly_cents / 100) }} <small>/ night</small>
+                        {{ $property->priceLabel() }} <small>{{ $property->priceCaption() }}</small>
                     </div>
                     @if ($property->cleaning_fee_cents > 0)
                         <div class="props-meta" style="margin-top:6px;">+ ${{ number_format($property->cleaning_fee_cents / 100) }} cleaning fee</div>

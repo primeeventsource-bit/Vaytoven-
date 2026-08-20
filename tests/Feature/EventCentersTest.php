@@ -194,10 +194,10 @@ class EventCentersTest extends TestCase
     public function test_the_filter_survives_alongside_another_filter(): void
     {
         $cheap = $this->listing('Orlando');
-        $cheap->update(['base_nightly_cents' => 20000]);
+        $cheap->update(['price_cents' => 20000]);
 
         $dear = $this->listing('Orlando');
-        $dear->update(['base_nightly_cents' => 90000]);
+        $dear->update(['price_cents' => 90000]);
 
         $this->get(route('properties.index', ['event_center' => 'orange-county-convention-center', 'max_price' => 500]))
             ->assertOk()

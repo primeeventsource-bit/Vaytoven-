@@ -45,11 +45,11 @@
             @if ($minPrice || $maxPrice)
                 <span class="props-chip">
                     @if ($minPrice && $maxPrice)
-                        ${{ $minPrice }}–${{ $maxPrice }}/night
+                        ${{ $minPrice }}–${{ $maxPrice }}
                     @elseif ($maxPrice)
-                        Up to ${{ $maxPrice }}/night
+                        Up to ${{ $maxPrice }}
                     @else
-                        From ${{ $minPrice }}/night
+                        From ${{ $minPrice }}
                     @endif
                     <a href="{{ route('properties.index', request()->except(['min_price', 'max_price', 'page'])) }}">×</a>
                 </span>
@@ -109,7 +109,7 @@
             @endif
 
             <div class="props-filter-section">
-                <h4>Price per night</h4>
+                <h4>Price</h4>
                 <div class="props-filter-price">
                     <label>
                         <span>Min $</span>
@@ -183,7 +183,7 @@
                                     {{ $property->capacity }} guests · {{ $property->bedrooms }} bed{{ $property->bedrooms === 1 ? '' : 's' }} · {{ rtrim(rtrim(number_format($property->bathrooms, 1), '0'), '.') }} bath
                                 </div>
                                 <div class="props-card-price">
-                                    <span class="num">${{ number_format($property->base_nightly_cents / 100) }}</span> / night
+                                    <span class="num">{{ $property->priceLabel() }}</span> {{ $property->priceCaption() }}
                                 </div>
                             </div>
                         </a>
@@ -226,7 +226,7 @@
                     'country' => $p->country,
                     'lat'     => (float) $p->latitude,
                     'lng'     => (float) $p->longitude,
-                    'price'   => (int) $p->base_nightly_cents,
+                    'price'   => (int) $p->price_cents,
                     'photo'   => $p->photos->first()?->url,
                     'url'     => route('properties.show', $p),
                 ])->values();

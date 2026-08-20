@@ -652,7 +652,7 @@
                 <span>Sleeps 4 · 2 bed</span>
                 <span class="feature-rating">★ 4.96</span>
             </div>
-            <div class="feature-price">$310 <span>/ night · May 12–17</span></div>
+            <div class="feature-price">$310 <span>7 days / 6 nights · May 12–17</span></div>
         </article>
 
         <article class="feature-card">
@@ -665,7 +665,7 @@
                 <span>Sleeps 6 · 3 bed</span>
                 <span class="feature-rating">★ 4.98</span>
             </div>
-            <div class="feature-price">$245 <span>/ night · Jun 04–11</span></div>
+            <div class="feature-price">$245 <span>7 days / 6 nights · Jun 04–11</span></div>
         </article>
 
         <article class="feature-card">
@@ -678,7 +678,7 @@
                 <span>Sleeps 4 · 2 bed</span>
                 <span class="feature-rating">★ 4.92</span>
             </div>
-            <div class="feature-price">$198 <span>/ night · Jul 22–27</span></div>
+            <div class="feature-price">$198 <span>7 days / 6 nights · Jul 22–27</span></div>
         </article>
 
         <article class="feature-card">
@@ -691,7 +691,7 @@
                 <span>Sleeps 5 · 3 bed</span>
                 <span class="feature-rating">★ 4.95</span>
             </div>
-            <div class="feature-price">$156 <span>/ night · Sep 08–14</span></div>
+            <div class="feature-price">$156 <span>7 days / 6 nights · Sep 08–14</span></div>
         </article>
     </div>
 </section>
@@ -922,14 +922,14 @@
                     <div class="phone-card-img"></div>
                     <div class="phone-card-body">
                         <strong>Cliffside cottage, Big Sur</strong>
-                        <span>★ 4.96 · $310 / night</span>
+                        <span>★ 4.96 · $310</span>
                     </div>
                 </div>
                 <div class="phone-card">
                     <div class="phone-card-img" style="background: linear-gradient(135deg, #4A2C5A, #7B2CBF);"></div>
                     <div class="phone-card-body">
                         <strong>Olive grove villa, Puglia</strong>
-                        <span>★ 4.98 · $245 / night</span>
+                        <span>★ 4.98 · $245</span>
                     </div>
                 </div>
             </div>

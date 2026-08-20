@@ -42,7 +42,7 @@ class PropertyMapTest extends TestCase
             'country'            => 'PT',
             'latitude'           => 38.7223,
             'longitude'          => -9.1393,
-            'base_nightly_cents' => 18000,
+            'price_cents' => 18000,
         ]);
         PropertyPhoto::create([
             'property_id' => $property->id,

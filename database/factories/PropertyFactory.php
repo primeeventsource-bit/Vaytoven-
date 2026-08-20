@@ -31,7 +31,7 @@ class PropertyFactory extends Factory
             'bedrooms' => fake()->numberBetween(1, 5),
             'beds' => fake()->numberBetween(1, 6),
             'bathrooms' => fake()->randomElement([1.0, 1.5, 2.0, 2.5, 3.0]),
-            'base_nightly_cents' => fake()->numberBetween(8000, 80000), // $80–$800
+            'price_cents' => fake()->numberBetween(8000, 80000), // $80–$800
             'cleaning_fee_cents' => fake()->numberBetween(0, 15000),
             'cancellation_policy' => fake()->randomElement(CancellationPolicy::cases())->value,
             'minimum_nights' => fake()->numberBetween(1, 7),

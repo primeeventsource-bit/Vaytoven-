@@ -107,11 +107,11 @@ class PropertyBrowseController extends Controller
         }
 
         if ($request->filled('min_price')) {
-            $query->where('base_nightly_cents', '>=', (int) $request->integer('min_price') * 100);
+            $query->where('price_cents', '>=', (int) $request->integer('min_price') * 100);
         }
         if ($request->filled('max_price')) {
             // UI passes whole dollars; storage is integer cents.
-            $query->where('base_nightly_cents', '<=', (int) $request->integer('max_price') * 100);
+            $query->where('price_cents', '<=', (int) $request->integer('max_price') * 100);
         }
 
         // Amenity multi-select. Vrbo-style: every checked amenity must be
@@ -141,7 +141,7 @@ class PropertyBrowseController extends Controller
         }
 
         $properties = $query
-            ->orderBy('base_nightly_cents')
+            ->orderBy('price_cents')
             ->paginate(12)
             ->withQueryString();
 
