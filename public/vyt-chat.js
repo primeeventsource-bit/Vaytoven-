@@ -124,7 +124,14 @@
 
     function build() {
         var msgs = el('div', { class: 'vyt-msgs' });
-        var input = el('input', { type: 'text', placeholder: 'Ask about a booking, refund, or hosting…', maxlength: 4000 });
+        // No booking language here. Vaytoven advertises listings and does not
+        // take reservations, so inviting the question sets up an expectation
+        // the assistant then has to walk back — and the visitor reads that as
+        // the product being broken rather than as it never having existed.
+        // The system prompt has said so since the booking product was removed;
+        // this placeholder and the greeting below were the last two places
+        // still offering it.
+        var input = el('input', { type: 'text', placeholder: 'Ask about advertising, offers, or your account…', maxlength: 4000 });
         var sendBtn = el('button', { text: 'Send', type: 'button' });
         var inputRow = el('div', { class: 'vyt-input' }, [input, sendBtn]);
 
@@ -173,7 +180,7 @@
             try { localStorage.setItem(STATE_KEY, '1'); } catch (e) {}
             setTimeout(function () { input.focus(); }, 50);
             if (msgs.children.length === 0) {
-                appendMsg('assistant', "Hi! I can help with bookings, payments, and hosting questions. What's on your mind?");
+                appendMsg('assistant', "Hi — I can help with property advertising, offers, and account questions. What's on your mind?");
             }
         }
         function close() {
