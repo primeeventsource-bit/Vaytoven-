@@ -12,6 +12,13 @@
     @include('partials.brand-styles')
     @include('partials.footer-styles')
     <style>
+        /* Fraunces is a variable font with an optical-size axis. On auto the
+           browser picks a more decorative cut as type gets larger — flared
+           serifs and exaggerated curves — which is what reads as wavy on
+           headings. Pinned here; the property inherits, so this one
+           declaration reaches every heading below it. */
+        html { font-optical-sizing: none; }
+
         .members-hero {
             background: linear-gradient(135deg, #fdf2f8 0%, #f5f3ff 100%);
             padding: 64px 24px clamp(48px, 6vw, 80px);

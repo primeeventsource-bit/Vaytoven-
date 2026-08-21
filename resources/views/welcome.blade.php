@@ -14,6 +14,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Fraunces is a variable font with an optical-size axis. On auto the
+           browser picks a more decorative cut as type gets larger — flared
+           serifs and exaggerated curves — which is what reads as wavy on
+           headings. Pinned here; the property inherits, so this one
+           declaration reaches every heading below it. */
+        html { font-optical-sizing: none; }
+
         :root {
             --pink: #FF3D8A;
             --magenta: #D63384;

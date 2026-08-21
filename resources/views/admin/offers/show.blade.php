@@ -138,6 +138,13 @@
 
 @push('head')
 <style>
+        /* Fraunces is a variable font with an optical-size axis. On auto the
+           browser picks a more decorative cut as type gets larger — flared
+           serifs and exaggerated curves — which is what reads as wavy on
+           headings. Pinned here; the property inherits, so this one
+           declaration reaches every heading below it. */
+        html { font-optical-sizing: none; }
+
     .m360-timeline { list-style:none; margin:0; padding:0; }
     .m360-timeline li {
         display:grid; grid-template-columns:150px 14px 1fr; gap:14px;

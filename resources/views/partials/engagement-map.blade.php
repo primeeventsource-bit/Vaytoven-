@@ -92,6 +92,13 @@
 
 @push('head')
 <style>
+        /* Fraunces is a variable font with an optical-size axis. On auto the
+           browser picks a more decorative cut as type gets larger — flared
+           serifs and exaggerated curves — which is what reads as wavy on
+           headings. Pinned here; the property inherits, so this one
+           declaration reaches every heading below it. */
+        html { font-optical-sizing: none; }
+
     .eng-totals { display:flex; gap:36px; flex-wrap:wrap; margin-bottom:18px; }
     .eng-num {
         display:block; font-family:'Fraunces',serif; font-size:30px; font-weight:600;

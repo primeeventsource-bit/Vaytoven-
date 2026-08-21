@@ -5,6 +5,13 @@
 
 @push('head')
     <style>
+        /* Fraunces is a variable font with an optical-size axis. On auto the
+           browser picks a more decorative cut as type gets larger — flared
+           serifs and exaggerated curves — which is what reads as wavy on
+           headings. Pinned here; the property inherits, so this one
+           declaration reaches every heading below it. */
+        html { font-optical-sizing: none; }
+
         .vyt-prop-head { background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px; margin-bottom:16px; }
         .vyt-prop-head .ref { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; color:var(--muted); }
         .vyt-prop-head h2 { margin:4px 0 8px; font-size:21px; font-family:'Fraunces',serif; }

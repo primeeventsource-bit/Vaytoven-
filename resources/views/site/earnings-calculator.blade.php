@@ -5,6 +5,13 @@
 
 @push('head')
     <style>
+        /* Fraunces is a variable font with an optical-size axis. On auto the
+           browser picks a more decorative cut as type gets larger — flared
+           serifs and exaggerated curves — which is what reads as wavy on
+           headings. Pinned here; the property inherits, so this one
+           declaration reaches every heading below it. */
+        html { font-optical-sizing: none; }
+
         .calc-wrap { display:grid; gap:28px; grid-template-columns:1fr; align-items:start; }
         @media (min-width:900px) { .calc-wrap { grid-template-columns:1.1fr .9fr; } }
         .calc-out {

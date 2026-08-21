@@ -53,6 +53,13 @@
 
 @push('head')
 <style>
+        /* Fraunces is a variable font with an optical-size axis. On auto the
+           browser picks a more decorative cut as type gets larger — flared
+           serifs and exaggerated curves — which is what reads as wavy on
+           headings. Pinned here; the property inherits, so this one
+           declaration reaches every heading below it. */
+        html { font-optical-sizing: none; }
+
     .ms-receipt { list-style:none; margin:0; padding:0; display:grid; gap:0; }
     .ms-receipt li {
         display:flex; justify-content:space-between; gap:16px;

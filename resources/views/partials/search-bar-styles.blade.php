@@ -1,4 +1,11 @@
 <style>
+        /* Fraunces is a variable font with an optical-size axis. On auto the
+           browser picks a more decorative cut as type gets larger — flared
+           serifs and exaggerated curves — which is what reads as wavy on
+           headings. Pinned here; the property inherits, so this one
+           declaration reaches every heading below it. */
+        html { font-optical-sizing: none; }
+
     /* ── Vrbo-style search bar ────────────────────────────────────────────── */
     .vyt-search {
         background: #fff; border-radius: 18px;

@@ -143,6 +143,13 @@
 @push('head')
 @include('partials.package-styles')
 <style>
+        /* Fraunces is a variable font with an optical-size axis. On auto the
+           browser picks a more decorative cut as type gets larger — flared
+           serifs and exaggerated curves — which is what reads as wavy on
+           headings. Pinned here; the property inherits, so this one
+           declaration reaches every heading below it. */
+        html { font-optical-sizing: none; }
+
     /* Selectable variant of the shared card. */
     .pkg-selectable { cursor:pointer; }
     .pkg-selectable input { position:absolute; opacity:0; pointer-events:none; }

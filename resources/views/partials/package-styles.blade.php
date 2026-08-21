@@ -1,6 +1,13 @@
 {{-- Styles for partials/package-cards. Shared so the homepage and the
      activation page render the tiers identically. --}}
 <style>
+        /* Fraunces is a variable font with an optical-size axis. On auto the
+           browser picks a more decorative cut as type gets larger — flared
+           serifs and exaggerated curves — which is what reads as wavy on
+           headings. Pinned here; the property inherits, so this one
+           declaration reaches every heading below it. */
+        html { font-optical-sizing: none; }
+
     .pkg-grid { display:grid; gap:20px; grid-template-columns:1fr; max-width:1100px; margin:0 auto; }
     @media (min-width:900px) { .pkg-grid { grid-template-columns:repeat(3,1fr); align-items:start; } }
 
