@@ -46,7 +46,7 @@ class PropertyResource extends JsonResource
             'photos' => $this->whenLoaded(
                 'photos',
                 fn () => $this->photos->map(fn ($p) => [
-                    'url' => $p->url,
+                    'url' => $p->displayUrl(),
                     'sort_order' => $p->sort_order,
                     'caption' => $p->caption,
                 ])

@@ -25,7 +25,19 @@
         <div class="vyt-carousel-track">
             @foreach ($photos as $photo)
                 @php
-                    $url = is_array($photo) ? ($photo['url'] ?? null) : ($photo->url ?? null);
+                    // displayUrl(), not ->url.
+                    //
+                    // `url` only holds the address of a photo that lives on
+                    // somebody else's server. Anything uploaded here — through
+                    // the listing builder or copied in from the photo library —
+                    // has a `path` in the private bucket and a null `url`, and
+                    // is served through the app. Reading `url` directly gave
+                    // those photos an empty src, so every uploaded image
+                    // rendered as a broken tile on the public site while the
+                    // seeded external ones kept working.
+                    $url = is_array($photo)
+                        ? ($photo['url'] ?? null)
+                        : (method_exists($photo, 'displayUrl') ? $photo->displayUrl() : ($photo->url ?? null));
                     $caption = is_array($photo) ? ($photo['caption'] ?? null) : ($photo->caption ?? null);
                 @endphp
                 <div class="vyt-carousel-slide">

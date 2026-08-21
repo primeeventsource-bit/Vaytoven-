@@ -59,7 +59,7 @@
                     @php
                         $cover = ($covers[$destination->city] ?? collect())
                             ->first(fn ($p) => $p->photos->isNotEmpty());
-                        $photoUrl = $cover?->photos->first()?->url;
+                        $photoUrl = $cover?->photos->first()?->displayUrl();
                     @endphp
                     <a class="dest-card"
                        href="{{ route('properties.index', ['destination' => Str::slug($destination->city)]) }}"

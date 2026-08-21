@@ -227,7 +227,8 @@
                     'lat'     => (float) $p->latitude,
                     'lng'     => (float) $p->longitude,
                     'price'   => (int) $p->price_cents,
-                    'photo'   => $p->photos->first()?->url,
+                    // displayUrl(): an uploaded photo has a path and a null url.
+                    'photo'   => $p->photos->first()?->displayUrl(),
                     'url'     => route('properties.show', $p),
                 ])->values();
             @endphp
