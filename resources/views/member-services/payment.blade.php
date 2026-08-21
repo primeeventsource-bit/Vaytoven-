@@ -141,18 +141,22 @@
 
 @push('head')
 <style>
-        /* Fraunces is a variable font with an optical-size axis. On auto the
-           browser picks a more decorative cut as type gets larger — flared
-           serifs and exaggerated curves — which is what reads as wavy on
-           headings. Pinned here; the property inherits, so this one
-           declaration reaches every heading below it. */
+        /* Source Serif 4 is a variable font with an optical-size axis.
+           Pinned so the browser holds one cut at every size rather than
+           selecting a more display-like one as type grows. The property
+           inherits, so this single declaration reaches every heading below it.
+
+           Fraunces was here until its letterforms — the curled g, the flared
+           C and V — kept reading as wavy at heading sizes. No axis removed
+           that: WONK and SOFT were already at 0 and rendering with them
+           pinned was pixel-identical, so the face itself had to change. */
         html { font-optical-sizing: none; }
 
     .ms-summary {
         background:var(--ink); color:#fff; border-radius:18px; padding:26px 28px;
         position:sticky; top:24px;
     }
-    .ms-summary-head { font-family:'Fraunces',serif; font-size:20px; font-weight:600; }
+    .ms-summary-head { font-family:'Source Serif 4', serif; font-size:20px; font-weight:600; }
     .ms-summary-line { color:rgba(255,255,255,.7); font-size:14px; margin-top:8px; }
     .ms-summary-total {
         display:flex; justify-content:space-between; align-items:baseline;
@@ -160,7 +164,7 @@
     }
     .ms-summary-total span { font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.65); }
     .ms-summary-total strong {
-        font-family:'Fraunces',serif; font-size:32px; font-weight:600;
+        font-family:'Source Serif 4', serif; font-size:32px; font-weight:600;
         background:var(--gradient); -webkit-background-clip:text; background-clip:text; color:transparent;
     }
     .ms-summary-ref { margin-top:16px; font-size:12.5px; color:rgba(255,255,255,.55); }

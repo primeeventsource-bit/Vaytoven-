@@ -8,13 +8,17 @@
     @include('partials.favicon')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Fraunces is a variable font with an optical-size axis. On auto the
-           browser picks a more decorative cut as type gets larger — flared
-           serifs and exaggerated curves — which is what reads as wavy on
-           headings. Pinned here; the property inherits, so this one
-           declaration reaches every heading below it. */
+        /* Source Serif 4 is a variable font with an optical-size axis.
+           Pinned so the browser holds one cut at every size rather than
+           selecting a more display-like one as type grows. The property
+           inherits, so this single declaration reaches every heading below it.
+
+           Fraunces was here until its letterforms — the curled g, the flared
+           C and V — kept reading as wavy at heading sizes. No axis removed
+           that: WONK and SOFT were already at 0 and rendering with them
+           pinned was pixel-identical, so the face itself had to change. */
         html { font-optical-sizing: none; }
 
         :root {
@@ -32,7 +36,7 @@
         .help-nav .home-link { margin-left: auto; font-size: 13px; }
         .help-shell { max-width: 920px; margin: 0 auto; padding: 40px 24px 80px; }
         .help-eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-        .help-title { font-family: 'Fraunces', serif; font-size: clamp(34px, 5vw, 52px); font-weight: 600; letter-spacing: -.02em; margin: 12px 0 24px; }
+        .help-title { font-family: 'Source Serif 4', serif; font-size: clamp(34px, 5vw, 52px); font-weight: 600; letter-spacing: -.02em; margin: 12px 0 24px; }
         .help-search { position: relative; margin-bottom: 36px; }
         .help-search input { width: 100%; padding: 14px 18px 14px 44px; font-size: 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; outline: none; }
         .help-search input:focus { border-color: var(--magenta); box-shadow: 0 0 0 3px rgba(214,51,132,.12); }
@@ -47,7 +51,7 @@
         .help-audience-chip { padding: 6px 14px; border-radius: 999px; background:#fff; border:1px solid var(--line); font-size: 13px; font-weight: 500; color: var(--ink); }
         .help-audience-chip.is-active { background: var(--gradient); color: #fff; border-color: transparent; }
         .help-category { margin-bottom: 32px; }
-        .help-category h2 { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; margin: 0 0 14px; }
+        .help-category h2 { font-family: 'Source Serif 4', serif; font-size: 22px; font-weight: 600; margin: 0 0 14px; }
         .help-category ul { list-style:none; padding:0; margin:0; background:#fff; border:1px solid var(--line); border-radius: 12px; overflow: hidden; }
         .help-category li { border-top: 1px solid var(--line); }
         .help-category li:first-child { border-top: 0; }
@@ -56,7 +60,7 @@
         .help-category li .summary { display:block; font-size: 13px; color: var(--muted); margin-top: 4px; }
         .help-article { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 32px; }
         .help-article-back { font-size: 13px; color: var(--muted); }
-        .help-article h1 { font-family: 'Fraunces', serif; font-size: clamp(28px, 3vw, 36px); font-weight: 600; margin: 16px 0 16px; line-height: 1.2; }
+        .help-article h1 { font-family: 'Source Serif 4', serif; font-size: clamp(28px, 3vw, 36px); font-weight: 600; margin: 16px 0 16px; line-height: 1.2; }
         .help-article-summary { font-size: 17px; color: var(--ink); margin: 0 0 24px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
         .help-article-body { font-size: 15.5px; }
         .help-article-body p { margin: 0 0 16px; }

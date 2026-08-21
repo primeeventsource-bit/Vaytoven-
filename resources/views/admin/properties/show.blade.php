@@ -5,16 +5,20 @@
 
 @push('head')
     <style>
-        /* Fraunces is a variable font with an optical-size axis. On auto the
-           browser picks a more decorative cut as type gets larger — flared
-           serifs and exaggerated curves — which is what reads as wavy on
-           headings. Pinned here; the property inherits, so this one
-           declaration reaches every heading below it. */
+        /* Source Serif 4 is a variable font with an optical-size axis.
+           Pinned so the browser holds one cut at every size rather than
+           selecting a more display-like one as type grows. The property
+           inherits, so this single declaration reaches every heading below it.
+
+           Fraunces was here until its letterforms — the curled g, the flared
+           C and V — kept reading as wavy at heading sizes. No axis removed
+           that: WONK and SOFT were already at 0 and rendering with them
+           pinned was pixel-identical, so the face itself had to change. */
         html { font-optical-sizing: none; }
 
         .vyt-prop-head { background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px; margin-bottom:16px; }
         .vyt-prop-head .ref { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; color:var(--muted); }
-        .vyt-prop-head h2 { margin:4px 0 8px; font-size:21px; font-family:'Fraunces',serif; }
+        .vyt-prop-head h2 { margin:4px 0 8px; font-size:21px; font-family:'Source Serif 4', serif; }
         .vyt-prop-head .meta { color:var(--muted); font-size:13.5px; display:grid; gap:2px; }
         .vyt-pill { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:600; background:#f3f4f6; color:#374151; }
         .vyt-pill.is-active { background:#ecfdf5; color:#047857; }
@@ -23,7 +27,7 @@
 
         .vyt-stats { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); margin-bottom:16px; }
         .vyt-stat { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
-        .vyt-stat .n { font-size:26px; font-weight:600; font-family:'Fraunces',serif; }
+        .vyt-stat .n { font-size:26px; font-weight:600; font-family:'Source Serif 4', serif; }
         .vyt-stat .k { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
 
         .vyt-proptabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px; }

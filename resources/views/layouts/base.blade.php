@@ -8,13 +8,17 @@
     @include('partials.favicon')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,500;0,600;1,500&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* Fraunces is a variable font with an optical-size axis. On auto the
-           browser picks a more decorative cut as type gets larger — flared
-           serifs and exaggerated curves — which is what reads as wavy on
-           headings. Pinned here; the property inherits, so this one
-           declaration reaches every heading below it. */
+        /* Source Serif 4 is a variable font with an optical-size axis.
+           Pinned so the browser holds one cut at every size rather than
+           selecting a more display-like one as type grows. The property
+           inherits, so this single declaration reaches every heading below it.
+
+           Fraunces was here until its letterforms — the curled g, the flared
+           C and V — kept reading as wavy at heading sizes. No axis removed
+           that: WONK and SOFT were already at 0 and rendering with them
+           pinned was pixel-identical, so the face itself had to change. */
         html { font-optical-sizing: none; }
 
         :root {
@@ -25,17 +29,17 @@
         * { box-sizing: border-box; }
         html, body { margin: 0; padding: 0; }
         body { font-family: 'Geist', system-ui, sans-serif; background: var(--paper); color: var(--ink); line-height: 1.55; }
-        .display { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-height: 1.1; }
+        .display { font-family: 'Source Serif 4', Georgia, serif; font-weight: 600; line-height: 1.1; }
         a { color: var(--magenta); }
         .topbar { background: #fff; border-bottom: 1px solid var(--line); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
-        .topbar .brand { font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; }
+        .topbar .brand { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 20px; }
         .topbar .brand span { background: var(--gradient); -webkit-background-clip: text; color: transparent; }
         .topbar nav { display: flex; gap: 22px; font-size: 14px; }
         .topbar nav a { color: var(--muted); text-decoration: none; }
         .topbar nav a:hover, .topbar nav a.active { color: var(--ink); }
         .container { max-width: 1180px; margin: 0 auto; padding: 32px; }
-        h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 36px; margin: 0 0 24px; }
-        h2 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 22px; margin: 24px 0 12px; }
+        h1 { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 36px; margin: 0 0 24px; }
+        h2 { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 22px; margin: 24px 0 12px; }
         .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); }

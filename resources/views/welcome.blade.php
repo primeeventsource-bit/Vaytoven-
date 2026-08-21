@@ -12,13 +12,17 @@
     <meta name="description" content="{{ setting('seo.meta_description_default', 'Curated vacation homes for travelers, hosts and property owners.') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Fraunces is a variable font with an optical-size axis. On auto the
-           browser picks a more decorative cut as type gets larger — flared
-           serifs and exaggerated curves — which is what reads as wavy on
-           headings. Pinned here; the property inherits, so this one
-           declaration reaches every heading below it. */
+        /* Source Serif 4 is a variable font with an optical-size axis.
+           Pinned so the browser holds one cut at every size rather than
+           selecting a more display-like one as type grows. The property
+           inherits, so this single declaration reaches every heading below it.
+
+           Fraunces was here until its letterforms — the curled g, the flared
+           C and V — kept reading as wavy at heading sizes. No axis removed
+           that: WONK and SOFT were already at 0 and rendering with them
+           pinned was pixel-identical, so the face itself had to change. */
         html { font-optical-sizing: none; }
 
         :root {
@@ -45,7 +49,7 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        .display { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
+        .display { font-family: 'Source Serif 4', Georgia, serif; font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
         .grad-text {
             background: var(--gradient);
             -webkit-background-clip: text;
@@ -68,7 +72,7 @@
         /* Brand mark */
         .brand-mark { display: inline-flex; align-items: center; gap: 10px; }
         .brand-mark svg { width: 32px; height: 32px; }
-        .brand-mark-text { font-family: 'Fraunces', serif; font-weight: 600; font-size: 22px; letter-spacing: -0.01em; }
+        .brand-mark-text { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 22px; letter-spacing: -0.01em; }
 
         /* Nav */
         .nav {
@@ -129,7 +133,7 @@
 
         /* Stats */
         .hero-stats { display: flex; gap: clamp(28px, 5vw, 64px); margin-top: 56px; flex-wrap: wrap; }
-        .hero-stat-num { font-family: 'Fraunces', serif; font-size: clamp(28px, 3vw, 36px); font-weight: 600; }
+        .hero-stat-num { font-family: 'Source Serif 4', serif; font-size: clamp(28px, 3vw, 36px); font-weight: 600; }
         .hero-stat-label { font-size: 13px; color: var(--muted); }
 
         /* Section header */
@@ -163,7 +167,7 @@
             position: absolute; left: 24px; right: 24px; bottom: 22px; z-index: 2;
             display: flex; justify-content: space-between; align-items: end; gap: 12px;
         }
-        .dest-card h3 { font-family: 'Fraunces', serif; font-size: 26px; margin: 0; font-weight: 600; }
+        .dest-card h3 { font-family: 'Source Serif 4', serif; font-size: 26px; margin: 0; font-weight: 600; }
         .dest-card-meta { font-size: 13px; opacity: .85; }
         .dest-card-price {
             background: rgba(255,255,255,.95); color: var(--ink);
@@ -219,7 +223,7 @@
         .trust-list li { counter-increment: trust; display: grid; grid-template-columns: 36px 1fr; gap: 18px; align-items: start; }
         .trust-list li::before {
             content: counter(trust, decimal-leading-zero);
-            font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600;
+            font-family: 'Source Serif 4', serif; font-size: 22px; font-weight: 600;
             background: var(--gradient); -webkit-background-clip: text; color: transparent;
         }
         .trust-list h4 { margin: 0 0 4px; font-size: 17px; font-weight: 600; }
@@ -242,7 +246,7 @@
         .trust-shield {
             width: 96px; height: 110px; position: relative; z-index: 1;
         }
-        .trust-panel h3 { font-family: 'Fraunces', serif; font-size: clamp(28px, 3vw, 36px); margin: 24px 0 8px; max-width: 18ch; line-height: 1.05; }
+        .trust-panel h3 { font-family: 'Source Serif 4', serif; font-size: clamp(28px, 3vw, 36px); margin: 24px 0 8px; max-width: 18ch; line-height: 1.05; }
         .trust-panel p { color: rgba(255,255,255,.75); margin: 0; max-width: 38ch; }
         @media (max-width: 900px) { .trust-grid { grid-template-columns: 1fr; } }
 
@@ -266,9 +270,9 @@
             padding: clamp(1.75rem, 3vw, 2.25rem);
             backdrop-filter: blur(12px);
         }
-        .calc-card h4 { font-family: 'Fraunces', serif; font-size: 17px; margin: 0 0 4px; font-weight: 500; color: rgba(255,255,255,.7); }
+        .calc-card h4 { font-family: 'Source Serif 4', serif; font-size: 17px; margin: 0 0 4px; font-weight: 500; color: rgba(255,255,255,.7); }
         .calc-earnings {
-            font-family: 'Fraunces', serif; font-size: clamp(48px, 6vw, 72px); font-weight: 600;
+            font-family: 'Source Serif 4', serif; font-size: clamp(48px, 6vw, 72px); font-weight: 600;
             background: var(--gradient); -webkit-background-clip: text; color: transparent;
             line-height: 1;
             margin: 6px 0 8px;
@@ -320,9 +324,9 @@
         .earnings-row:first-of-type { border-top: 0; }
         .earnings-row strong { font-weight: 500; }
         .earnings-row em { font-style: normal; color: var(--muted); font-size: 13px; display: block; margin-top: 2px; }
-        .earnings-amt { font-family: 'Fraunces', serif; font-weight: 600; font-size: 17px; }
+        .earnings-amt { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 17px; }
         .earnings-total { padding-top: 22px; margin-top: 14px; border-top: 2px solid var(--ink); display: flex; justify-content: space-between; align-items: baseline; }
-        .earnings-total-num { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 600; background: var(--gradient); -webkit-background-clip: text; color: transparent; line-height: 1; }
+        .earnings-total-num { font-family: 'Source Serif 4', serif; font-size: 36px; font-weight: 600; background: var(--gradient); -webkit-background-clip: text; color: transparent; line-height: 1; }
         .earnings-disclaimer { font-style: italic; font-size: 12px; color: var(--muted); margin-top: 18px; line-height: 1.5; }
         @media (max-width: 900px) { .members-grid { grid-template-columns: 1fr; } }
 
@@ -374,7 +378,7 @@
             position: relative;
         }
         .testimonial-quote {
-            font-family: 'Fraunces', serif; font-size: 64px; line-height: 1;
+            font-family: 'Source Serif 4', serif; font-size: 64px; line-height: 1;
             color: var(--pink); position: absolute; top: 16px; right: 24px;
         }
         .testimonial p { margin: 8px 0 24px; font-size: 16px; line-height: 1.55; }
@@ -394,7 +398,7 @@
             padding: 4px 0;
         }
         .faq-item summary {
-            font-family: 'Fraunces', serif; font-size: clamp(18px, 2vw, 22px); font-weight: 500;
+            font-family: 'Source Serif 4', serif; font-size: clamp(18px, 2vw, 22px); font-weight: 500;
             padding: 22px 0; cursor: pointer; list-style: none;
             display: flex; justify-content: space-between; gap: 16px; align-items: start;
         }
@@ -446,7 +450,7 @@
             font-size: 22px; line-height: 1; color: var(--ink);
         }
         .modal-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--magenta); }
-        .modal h3 { font-family: 'Fraunces', serif; font-size: clamp(24px, 3vw, 32px); font-weight: 600; margin: 8px 0 24px; line-height: 1.1; }
+        .modal h3 { font-family: 'Source Serif 4', serif; font-size: clamp(24px, 3vw, 32px); font-weight: 600; margin: 8px 0 24px; line-height: 1.1; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
         .form-field { display: block; }
         .form-field label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }

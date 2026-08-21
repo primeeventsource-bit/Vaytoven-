@@ -8,13 +8,17 @@
     @include('partials.favicon')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Fraunces is a variable font with an optical-size axis. On auto the
-           browser picks a more decorative cut as type gets larger — flared
-           serifs and exaggerated curves — which is what reads as wavy on
-           headings. Pinned here; the property inherits, so this one
-           declaration reaches every heading below it. */
+        /* Source Serif 4 is a variable font with an optical-size axis.
+           Pinned so the browser holds one cut at every size rather than
+           selecting a more display-like one as type grows. The property
+           inherits, so this single declaration reaches every heading below it.
+
+           Fraunces was here until its letterforms — the curled g, the flared
+           C and V — kept reading as wavy at heading sizes. No axis removed
+           that: WONK and SOFT were already at 0 and rendering with them
+           pinned was pixel-identical, so the face itself had to change. */
         html { font-optical-sizing: none; }
 
         :root {
@@ -37,7 +41,7 @@
 
         .props-shell { max-width:1200px; margin:0 auto; padding: 32px 24px 80px; }
         .props-eyebrow { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-weight:600; }
-        .props-title { font-family:'Fraunces',serif; font-size:clamp(28px,3.5vw,42px); font-weight:600; letter-spacing:-.02em; margin:8px 0 18px; }
+        .props-title { font-family:'Source Serif 4', serif; font-size:clamp(28px,3.5vw,42px); font-weight:600; letter-spacing:-.02em; margin:8px 0 18px; }
         .props-meta { font-size:13px; color:var(--muted); }
 
         /* Filter bar */
@@ -71,18 +75,18 @@
         .props-card:hover { transform:translateY(-3px); box-shadow:0 12px 32px -12px rgba(123,44,191,.18); text-decoration:none; }
         .props-card-img { aspect-ratio: 4/3; width:100%; object-fit:cover; background:#f5f3ff; }
         .props-card-body { padding:14px 16px; flex:1; display:flex; flex-direction:column; gap:6px; }
-        .props-card h3 { font-family:'Fraunces',serif; font-size:17px; font-weight:600; margin:0; letter-spacing:-.005em; }
+        .props-card h3 { font-family:'Source Serif 4', serif; font-size:17px; font-weight:600; margin:0; letter-spacing:-.005em; }
         .props-card-loc { font-size:13px; color:var(--muted); }
         .props-card-meta { font-size:12px; color:var(--muted); margin-top:auto; }
         .props-card-price { font-weight:600; font-size:14px; color:var(--ink); }
-        .props-card-price .num { font-family:'Fraunces',serif; font-size:18px; font-weight:600; }
+        .props-card-price .num { font-family:'Source Serif 4', serif; font-size:18px; font-weight:600; }
 
         /* Empty state */
         .props-empty {
             background:#fff; border:1px solid var(--line); border-radius:14px;
             padding:60px 24px; text-align:center; color:var(--muted);
         }
-        .props-empty h3 { font-family:'Fraunces',serif; font-size:22px; color:var(--ink); margin:0 0 8px; font-weight:600; }
+        .props-empty h3 { font-family:'Source Serif 4', serif; font-size:22px; color:var(--ink); margin:0 0 8px; font-weight:600; }
 
         /* Pagination */
         /* Laravel's default paginator markup carries Tailwind utility classes
@@ -134,13 +138,13 @@
         .props-detail-grid { display:grid; gap:32px; grid-template-columns: 1fr; }
         @media (min-width:900px) { .props-detail-grid { grid-template-columns: 2fr 1fr; } }
 
-        .props-detail h1 { font-family:'Fraunces',serif; font-size:clamp(28px,3vw,38px); font-weight:600; letter-spacing:-.02em; margin: 12px 0 6px; }
+        .props-detail h1 { font-family:'Source Serif 4', serif; font-size:clamp(28px,3vw,38px); font-weight:600; letter-spacing:-.02em; margin: 12px 0 6px; }
         .props-detail-loc { font-size:14px; color:var(--muted); margin-bottom:18px; }
         .props-detail-stats { display:flex; gap:24px; padding:18px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:24px; flex-wrap:wrap; }
-        .props-detail-stat strong { font-family:'Fraunces',serif; font-size:18px; font-weight:600; display:block; }
+        .props-detail-stat strong { font-family:'Source Serif 4', serif; font-size:18px; font-weight:600; display:block; }
         .props-detail-stat span { font-size:12px; color:var(--muted); }
         .props-detail-section { margin: 28px 0; }
-        .props-detail-section h2 { font-family:'Fraunces',serif; font-size:20px; font-weight:600; margin:0 0 12px; }
+        .props-detail-section h2 { font-family:'Source Serif 4', serif; font-size:20px; font-weight:600; margin:0 0 12px; }
         .props-detail-section p { font-size:15px; line-height:1.7; }
 
         .props-amenity-list { display:grid; grid-template-columns: 1fr 1fr; gap:8px 18px; padding:0; margin:0; list-style:none; }
@@ -152,7 +156,7 @@
             background:#fff; border:1px solid var(--line); border-radius:14px;
             padding:22px; position:sticky; top:80px;
         }
-        .props-book-price { font-family:'Fraunces',serif; font-size:28px; font-weight:600; }
+        .props-book-price { font-family:'Source Serif 4', serif; font-size:28px; font-weight:600; }
         .props-book-price small { font-size:14px; color:var(--muted); font-weight:400; }
         .props-book-cta {
             display:block; text-align:center; margin-top:18px; padding:13px 22px;
@@ -317,9 +321,9 @@
         .vyt-leaflet-map .leaflet-popup-content { margin: 0; width: 220px; font-family: 'Geist', sans-serif; }
         .vyt-popup-img { width: 100%; height: 120px; object-fit: cover; display: block; background: #f5f3ff; }
         .vyt-popup-body { padding: 10px 14px 14px; }
-        .vyt-popup-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 14px; margin: 0 0 4px; line-height: 1.25; color: var(--ink); }
+        .vyt-popup-title { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 14px; margin: 0 0 4px; line-height: 1.25; color: var(--ink); }
         .vyt-popup-loc { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
-        .vyt-popup-price { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; }
+        .vyt-popup-price { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 15px; }
         .vyt-popup-price small { color: var(--muted); font-weight: 400; font-size: 12px; }
         .vyt-price-pin {
             background: #fff; border: 2px solid var(--ink);

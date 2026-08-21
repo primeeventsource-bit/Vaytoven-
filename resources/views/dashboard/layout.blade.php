@@ -8,13 +8,17 @@
     @include('partials.favicon')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Fraunces is a variable font with an optical-size axis. On auto the
-           browser picks a more decorative cut as type gets larger — flared
-           serifs and exaggerated curves — which is what reads as wavy on
-           headings. Pinned here; the property inherits, so this one
-           declaration reaches every heading below it. */
+        /* Source Serif 4 is a variable font with an optical-size axis.
+           Pinned so the browser holds one cut at every size rather than
+           selecting a more display-like one as type grows. The property
+           inherits, so this single declaration reaches every heading below it.
+
+           Fraunces was here until its letterforms — the curled g, the flared
+           C and V — kept reading as wavy at heading sizes. No axis removed
+           that: WONK and SOFT were already at 0 and rendering with them
+           pinned was pixel-identical, so the face itself had to change. */
         html { font-optical-sizing: none; }
 
         :root {
@@ -86,7 +90,7 @@
         }
         .vyt-pageheader-inner { max-width: 1200px; margin: 0 auto; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; }
         .vyt-pageheader h1 {
-            font-family:'Fraunces',serif; font-size: clamp(28px, 3vw, 36px);
+            font-family:'Source Serif 4', serif; font-size: clamp(28px, 3vw, 36px);
             font-weight:600; letter-spacing:-.02em; margin: 4px 0 0;
         }
         .vyt-eyebrow { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-weight:600; }
@@ -108,7 +112,7 @@
         .vyt-section { margin-bottom: 32px; }
         .vyt-section-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:14px; }
         .vyt-section-header h2 {
-            font-family:'Fraunces',serif; font-size: 20px; font-weight:600;
+            font-family:'Source Serif 4', serif; font-size: 20px; font-weight:600;
             margin: 0; letter-spacing: -.005em;
         }
         .vyt-section-meta { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
@@ -124,7 +128,7 @@
         .vyt-tile-label { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600; }
         .vyt-tile-value {
             display:inline-block; margin-top:10px;
-            font-family:'Fraunces', serif; font-size: 28px; font-weight:600;
+            font-family:'Source Serif 4', serif; font-size: 28px; font-weight:600;
             line-height: 1; letter-spacing: -.01em;
             padding: 4px 12px; border-radius: 8px;
         }
@@ -146,7 +150,7 @@
             padding: 16px 22px; border-bottom: 1px solid var(--line);
             display:flex; justify-content:space-between; align-items:center;
         }
-        .vyt-card-header h3 { font-family:'Fraunces',serif; font-size:17px; font-weight:600; margin:0; }
+        .vyt-card-header h3 { font-family:'Source Serif 4', serif; font-size:17px; font-weight:600; margin:0; }
         .vyt-card-body { padding: 18px 22px; }
         .vyt-card-empty { padding: 32px 22px; color: var(--muted); font-size: 14px; text-align:center; }
 

@@ -15,7 +15,7 @@
 
     <section class="site-section">
         <div class="site-card" style="max-width:620px;">
-            <h3 style="font-family:'Fraunces',serif;font-size:20px;margin:0 0 16px;">
+            <h3 style="font-family:'Source Serif 4', serif;font-size:20px;margin:0 0 16px;">
                 {{ $order->package->label() }} Member Services Package
             </h3>
 
@@ -53,11 +53,15 @@
 
 @push('head')
 <style>
-        /* Fraunces is a variable font with an optical-size axis. On auto the
-           browser picks a more decorative cut as type gets larger — flared
-           serifs and exaggerated curves — which is what reads as wavy on
-           headings. Pinned here; the property inherits, so this one
-           declaration reaches every heading below it. */
+        /* Source Serif 4 is a variable font with an optical-size axis.
+           Pinned so the browser holds one cut at every size rather than
+           selecting a more display-like one as type grows. The property
+           inherits, so this single declaration reaches every heading below it.
+
+           Fraunces was here until its letterforms — the curled g, the flared
+           C and V — kept reading as wavy at heading sizes. No axis removed
+           that: WONK and SOFT were already at 0 and rendering with them
+           pinned was pixel-identical, so the face itself had to change. */
         html { font-optical-sizing: none; }
 
     .ms-receipt { list-style:none; margin:0; padding:0; display:grid; gap:0; }

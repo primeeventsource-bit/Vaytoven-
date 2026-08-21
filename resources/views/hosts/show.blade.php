@@ -8,15 +8,19 @@
     @include('partials.favicon')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @include('partials.brand-styles')
     @include('partials.footer-styles')
     <style>
-        /* Fraunces is a variable font with an optical-size axis. On auto the
-           browser picks a more decorative cut as type gets larger — flared
-           serifs and exaggerated curves — which is what reads as wavy on
-           headings. Pinned here; the property inherits, so this one
-           declaration reaches every heading below it. */
+        /* Source Serif 4 is a variable font with an optical-size axis.
+           Pinned so the browser holds one cut at every size rather than
+           selecting a more display-like one as type grows. The property
+           inherits, so this single declaration reaches every heading below it.
+
+           Fraunces was here until its letterforms — the curled g, the flared
+           C and V — kept reading as wavy at heading sizes. No axis removed
+           that: WONK and SOFT were already at 0 and rendering with them
+           pinned was pixel-identical, so the face itself had to change. */
         html { font-optical-sizing: none; }
 
         .host-hero {
@@ -30,7 +34,7 @@
             color: #ff9bc3; font-weight: 600;
         }
         .host-hero h1 {
-            font-family:'Fraunces',serif; font-size: clamp(36px, 6vw, 60px);
+            font-family:'Source Serif 4', serif; font-size: clamp(36px, 6vw, 60px);
             font-weight: 600; letter-spacing: -.02em; margin: 14px 0 18px;
             line-height: 1.1;
         }
@@ -60,7 +64,7 @@
         .host-section { margin-bottom: 72px; }
         .host-section-eyebrow { font-size: 12px; letter-spacing:.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
         .host-section h2 {
-            font-family:'Fraunces',serif; font-size: clamp(28px, 3.5vw, 40px);
+            font-family:'Source Serif 4', serif; font-size: clamp(28px, 3.5vw, 40px);
             font-weight: 600; letter-spacing: -.02em; margin: 8px 0 18px;
         }
         .host-section .lede { color: var(--muted); font-size: 16px; max-width: 620px; line-height: 1.6; }
@@ -79,10 +83,10 @@
             display: inline-flex; align-items: center; justify-content: center;
             width: 38px; height: 38px; border-radius: 10px;
             background: #f5f3ff; color: var(--purple);
-            font-family:'Fraunces',serif; font-size: 18px; font-weight: 600;
+            font-family:'Source Serif 4', serif; font-size: 18px; font-weight: 600;
             margin-bottom: 14px;
         }
-        .host-benefit h3 { font-family:'Fraunces',serif; font-size: 18px; font-weight: 600; margin: 0 0 8px; }
+        .host-benefit h3 { font-family:'Source Serif 4', serif; font-size: 18px; font-weight: 600; margin: 0 0 8px; }
         .host-benefit p { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 0; }
 
         .host-steps { counter-reset: step; }
@@ -94,11 +98,11 @@
         .host-step:first-of-type { border-top: 0; }
         .host-step-number::before {
             content: counter(step, decimal-leading-zero);
-            font-family:'Fraunces',serif; font-size: 32px; font-weight: 600;
+            font-family:'Source Serif 4', serif; font-size: 32px; font-weight: 600;
             background: var(--gradient); -webkit-background-clip: text;
             background-clip: text; color: transparent;
         }
-        .host-step h3 { font-family:'Fraunces',serif; font-size: 20px; font-weight: 600; margin: 0 0 8px; }
+        .host-step h3 { font-family:'Source Serif 4', serif; font-size: 20px; font-weight: 600; margin: 0 0 8px; }
         .host-step p { color: var(--muted); font-size: 15px; line-height: 1.65; margin: 0; }
 
         .host-stats {
@@ -109,7 +113,7 @@
         }
         @media (min-width: 700px) { .host-stats { grid-template-columns: 1fr 1fr 1fr; } }
         .host-stat strong {
-            display: block; font-family:'Fraunces',serif;
+            display: block; font-family:'Source Serif 4', serif;
             font-size: clamp(28px, 4vw, 42px); font-weight: 600; line-height: 1;
             background: var(--gradient); -webkit-background-clip: text;
             background-clip: text; color: transparent;
@@ -124,7 +128,7 @@
             padding: clamp(36px, 5vw, 56px); text-align: center;
         }
         .host-final-cta h2 {
-            font-family:'Fraunces',serif; font-size: clamp(26px, 3.5vw, 36px);
+            font-family:'Source Serif 4', serif; font-size: clamp(26px, 3.5vw, 36px);
             font-weight: 600; letter-spacing: -.02em; margin: 0 0 14px; color: #fff;
         }
         .host-final-cta p { color: #d6d3d1; max-width: 540px; margin: 0 auto 24px; font-size: 16px; }

@@ -8,13 +8,17 @@
     @include('partials.favicon')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Fraunces is a variable font with an optical-size axis. On auto the
-           browser picks a more decorative cut as type gets larger — flared
-           serifs and exaggerated curves — which is what reads as wavy on
-           headings. Pinned here; the property inherits, so this one
-           declaration reaches every heading below it. */
+        /* Source Serif 4 is a variable font with an optical-size axis.
+           Pinned so the browser holds one cut at every size rather than
+           selecting a more display-like one as type grows. The property
+           inherits, so this single declaration reaches every heading below it.
+
+           Fraunces was here until its letterforms — the curled g, the flared
+           C and V — kept reading as wavy at heading sizes. No axis removed
+           that: WONK and SOFT were already at 0 and rendering with them
+           pinned was pixel-identical, so the face itself had to change. */
         html { font-optical-sizing: none; }
 
         :root {
@@ -66,7 +70,7 @@
         }
         .vyt-auth-brand svg { width:32px; height:32px; flex-shrink:0; }
         .vyt-auth-brand .wordmark {
-            font-family:'Fraunces',serif; font-weight:600; font-size:22px;
+            font-family:'Source Serif 4', serif; font-weight:600; font-size:22px;
             letter-spacing:-0.01em;
         }
         .vyt-auth-brand .tag {
@@ -75,7 +79,7 @@
         }
 
         .vyt-auth-h1 {
-            font-family:'Fraunces',serif; font-weight:600; font-size:28px;
+            font-family:'Source Serif 4', serif; font-weight:600; font-size:28px;
             line-height:1.15; letter-spacing:-0.02em; margin:0 0 6px;
         }
         .vyt-auth-sub { color:var(--muted); font-size:14.5px; margin:0 0 26px; }

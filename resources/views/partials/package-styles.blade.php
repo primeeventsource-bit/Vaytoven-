@@ -1,11 +1,15 @@
 {{-- Styles for partials/package-cards. Shared so the homepage and the
      activation page render the tiers identically. --}}
 <style>
-        /* Fraunces is a variable font with an optical-size axis. On auto the
-           browser picks a more decorative cut as type gets larger — flared
-           serifs and exaggerated curves — which is what reads as wavy on
-           headings. Pinned here; the property inherits, so this one
-           declaration reaches every heading below it. */
+        /* Source Serif 4 is a variable font with an optical-size axis.
+           Pinned so the browser holds one cut at every size rather than
+           selecting a more display-like one as type grows. The property
+           inherits, so this single declaration reaches every heading below it.
+
+           Fraunces was here until its letterforms — the curled g, the flared
+           C and V — kept reading as wavy at heading sizes. No axis removed
+           that: WONK and SOFT were already at 0 and rendering with them
+           pinned was pixel-identical, so the face itself had to change. */
         html { font-optical-sizing: none; }
 
     .pkg-grid { display:grid; gap:20px; grid-template-columns:1fr; max-width:1100px; margin:0 auto; }
@@ -44,7 +48,7 @@
         color:var(--muted); margin-top:4px;
     }
     .pkg-price {
-        font-family:'Fraunces',serif; font-size:46px; font-weight:600;
+        font-family:'Source Serif 4', serif; font-size:46px; font-weight:600;
         letter-spacing:-.03em; margin:14px 0 2px;
     }
     .pkg-price span { font-family:'Geist',sans-serif; font-size:15px; font-weight:500; color:var(--muted); }
@@ -52,7 +56,7 @@
         font-size:11.5px; font-weight:700; letter-spacing:.1em; color:var(--magenta);
     }
     .pkg-tagline {
-        font-family:'Fraunces',serif; font-size:16px; font-weight:600;
+        font-family:'Source Serif 4', serif; font-size:16px; font-weight:600;
         line-height:1.35; margin:16px 0 0; text-wrap:balance;
     }
     .pkg-desc {

@@ -75,7 +75,7 @@
                     <div style="padding:18px 22px;border-top:1px solid var(--line);">
                         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
                             <div style="flex:1;min-width:280px;">
-                                <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:600;">
+                                <div style="font-family:'Source Serif 4', serif;font-size:17px;font-weight:600;">
                                     {{ $offer->property?->title ?? 'Managed listing' }}
                                     @if ($offer->property?->city)
                                         <span class="vyt-faint" style="font-family:inherit;">·&nbsp;{{ $offer->property->city }}@if($offer->property->country), {{ $offer->property->country }}@endif</span>

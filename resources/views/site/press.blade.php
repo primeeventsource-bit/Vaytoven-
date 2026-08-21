@@ -77,7 +77,7 @@
                     </svg>
                     <div style="font-size:13px; color:var(--muted);">
                         Gradient <code style="font-family:'SFMono-Regular',Consolas,monospace;">#FF3D8A → #D63384 → #7B2CBF</code><br>
-                        Wordmark: Fraunces · Body: Geist
+                        Wordmark: Source Serif 4 · Body: Geist
                     </div>
                 </div>
             </div>
