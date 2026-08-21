@@ -195,8 +195,8 @@ class DemoUsersSeeder extends Seeder
             'last_name'      => 'Mitchell',
             'email'          => $member->email,
             'phone'          => '+1-555-010-0004',
-            'club'           => 'Marriott Vacation Club',
-            'property'       => 'Marriott Grande Vista (Orlando, FL)',
+            'club'           => 'Independent owner',
+            'property'       => 'Grande Vista Villas (Orlando, FL)',
             'points'         => '250000',
             'contact_window' => 'Afternoons (1–5pm ET)',
             'status'         => 'new',
@@ -232,8 +232,8 @@ class DemoUsersSeeder extends Seeder
             'host_id'                   => $admin->id,
             'listing_source'            => 'managed',
             'converted_from_enquiry_id' => $enquiryId,
-            'title'                     => 'Marriott Grande Vista Villa Suite',
-            'description'               => 'Three-bedroom villa suite at Marriott Grande Vista. Two pools on-site, full kitchen, washer/dryer, 12 minutes to Disney Springs. Vaytoven manages the listing and guest experience end-to-end.',
+            'title'                     => 'Grande Vista Three-Bedroom Villa Suite',
+            'description'               => 'Three-bedroom villa suite in the Grande Vista area. Two pools on-site, full kitchen, washer/dryer, 12 minutes to the Orlando theme park district. Advertised on Vaytoven; the owner handles enquiries and arrangements directly.',
             'latitude'                  => 28.4196,
             'longitude'                 => -81.5812,
             'city'                      => 'Orlando',
@@ -252,7 +252,7 @@ class DemoUsersSeeder extends Seeder
             'updated_at'                => now(),
         ]);
 
-        $this->command->info('  ✓ managed listing  Marriott Grande Vista → member dashboard');
+        $this->command->info('  ✓ managed listing  Grande Vista → member dashboard');
     }
 
     /**
@@ -565,7 +565,7 @@ class DemoUsersSeeder extends Seeder
             return;
         }
 
-        // ~mid of month, 6 months out — typical Marriott Vacation Club
+        // ~mid of month, 6 months out — typical owner reservation
         // reservation-window timing.
         $checkIn = now()->addMonths(6)->startOfMonth()->addDays(14);
 
@@ -588,7 +588,7 @@ class DemoUsersSeeder extends Seeder
             'proposed_guests'        => 6,
             'payout_to_member_cents' => 180000,  // $1,800
             'status'                 => 'pending',
-            'instructions'           => "Marriott Vacation Club's reservation window opens 12 months from check-in for owners. We've confirmed the resort has open inventory for these dates. Once you accept, log into your Marriott Vacation Club account, reserve the unit using your points, and reply with the confirmation number. We'll send the final guest names ~7 days before check-in so you can add them to the guest pass list.",
+            'instructions'           => "The resort's reservation window opens 12 months from check-in for owners. We've confirmed the resort has open inventory for these dates. Once you accept, log into your ownership account, reserve the unit using your points, and reply with the confirmation number. We'll send the final guest names ~7 days before check-in so you can add them to the guest pass list.",
             'sent_at'                => now()->subDays(1),
             'expires_at'             => now()->addDays(13),
         ]);

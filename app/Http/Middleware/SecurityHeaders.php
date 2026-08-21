@@ -60,8 +60,19 @@ class SecurityHeaders
 
         $response->headers->set('X-Permitted-Cross-Domain-Policies', 'none');
 
+        // Enforcing, not report-only.
+        //
+        // It ran in report-only while the policy was being shaped, which is the
+        // right way round — a policy that blocks something the site needs takes
+        // the site down. Every public page was then loaded and checked for
+        // securitypolicyviolation events and none of them reported one, so the
+        // policy already describes what the site actually loads. Left in
+        // report-only it documents an intention and stops nothing: an injected
+        // script would be reported and would still run.
+        //
+        // report-uri is kept, so anything a real visitor trips still arrives.
         if (! $response->headers->has('Content-Security-Policy')) {
-            $response->headers->set('Content-Security-Policy-Report-Only', $this->policy());
+            $response->headers->set('Content-Security-Policy', $this->policy());
         }
 
         return $response;

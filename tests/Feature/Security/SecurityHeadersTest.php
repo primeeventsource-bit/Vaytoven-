@@ -64,17 +64,39 @@ class SecurityHeadersTest extends TestCase
      * would eventually break the payment page, which is the one page where
      * breakage costs money directly.
      */
-    public function test_the_policy_is_report_only(): void
+    /**
+     * Enforcing, not report-only.
+     *
+     * It ran report-only while the policy was being shaped, which is the right
+     * order — a policy that blocks something the site needs takes the site
+     * down. Every public page was then loaded and checked for
+     * securitypolicyviolation events and none reported one, so the policy
+     * already describes what the site loads. Report-only would document an
+     * intention and stop nothing: an injected script gets reported and still
+     * runs.
+     */
+    public function test_the_policy_is_enforced(): void
     {
         $response = $this->get('/');
 
-        $response->assertHeaderMissing('Content-Security-Policy');
-        $this->assertNotNull($response->headers->get('Content-Security-Policy-Report-Only'));
+        $this->assertNotNull(
+            $response->headers->get('Content-Security-Policy'),
+            'the policy must be enforced, not merely reported',
+        );
+        $response->assertHeaderMissing('Content-Security-Policy-Report-Only');
+    }
+
+    /** Violations still reach us once enforcing, so breakage is visible. */
+    public function test_the_policy_still_reports_violations(): void
+    {
+        $policy = $this->get('/')->headers->get('Content-Security-Policy');
+
+        $this->assertStringContainsString('report-uri', $policy);
     }
 
     public function test_the_policy_allows_the_hosts_the_site_actually_uses(): void
     {
-        $policy = $this->get('/')->headers->get('Content-Security-Policy-Report-Only');
+        $policy = $this->get('/')->headers->get('Content-Security-Policy');
 
         // Collect.js and the iframes it injects for the card fields. Without
         // these the payment page cannot take a card at all.
@@ -88,7 +110,7 @@ class SecurityHeadersTest extends TestCase
 
     public function test_the_policy_locks_down_framing_and_form_targets(): void
     {
-        $policy = $this->get('/')->headers->get('Content-Security-Policy-Report-Only');
+        $policy = $this->get('/')->headers->get('Content-Security-Policy');
 
         $this->assertStringContainsString("frame-ancestors 'none'", $policy);
         $this->assertStringContainsString("form-action 'self'", $policy);
