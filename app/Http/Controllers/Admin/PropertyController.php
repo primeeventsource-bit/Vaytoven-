@@ -109,6 +109,10 @@ class PropertyController extends Controller
                 'bedrooms'           => $data['bedrooms'],
                 'beds'               => $data['beds'],
                 'bathrooms'          => $data['bathrooms'],
+                // Published under the owner's member number when they have one,
+                // so a new listing is addressable from the moment it exists
+                // rather than only after somebody edits it.
+                'public_ref'   => app(\App\Services\Listings\PublicPropertyRef::class)->nextFor($owner),
                 // Dollars in, integer cents stored. round() before cast, or
                 // 149.99 lands as 14998 through float truncation.
                 'price_cents'  => (int) round(((float) $data['price_dollars']) * 100),

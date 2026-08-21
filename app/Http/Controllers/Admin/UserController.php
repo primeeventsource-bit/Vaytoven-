@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\Property;
+use App\Services\Listings\PublicPropertyRef;
 use App\Models\User;
 use App\Services\AdminAuditLogService;
 use Illuminate\Http\RedirectResponse;
@@ -89,7 +90,13 @@ class UserController extends Controller
             'role'                => UserRole::from($data['role']),
             'email_verified_at'   => now(),
             'created_by_user_id'  => $actor->id,
+            // Typed by staff. Blank for anyone who is not a member.
+            'member_id'           => $data['member_id'] ?? null,
         ]);
+
+        // A brand new account has no listings yet, but assigning here means
+        // the rule lives in one place rather than only on the edit path.
+        app(PublicPropertyRef::class)->assignFor($user);
 
         AdminAuditLogService::log(
             actor:   $actor,
@@ -132,10 +139,16 @@ class UserController extends Controller
         $user->name       = User::composeName($data['first_name'], $data['last_name'] ?? null);
         $user->email = $data['email'];
         $user->role  = UserRole::from($data['role']);
+        $user->member_id = $data['member_id'] ?? null;
         if (! empty($data['password'])) {
             $user->password = $data['password'];
         }
         $user->save();
+
+        // Adding a member number to an existing account is what gives their
+        // listings a readable address. Listings that already have one keep
+        // it — renumbering would break a URL somebody has already been sent.
+        $addressed = app(PublicPropertyRef::class)->assignFor($user);
 
         AdminAuditLogService::log(
             actor:    $actor,
@@ -146,7 +159,9 @@ class UserController extends Controller
         );
 
         return redirect()->route('admin.users.show', $user)
-            ->with('success', "Updated {$user->email}.");
+            ->with('success', $addressed > 0
+                ? "Updated {$user->email}. {$addressed} listing(s) now published under member ID {$user->member_id}."
+                : "Updated {$user->email}.");
     }
 
     /**

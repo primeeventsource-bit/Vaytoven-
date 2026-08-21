@@ -10,6 +10,7 @@ use App\Models\PropertyView;
 use App\Services\GeoIp\GeoIpService;
 use App\Services\Tracking\ActivityRecorder;
 use App\Support\EventCenters;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -170,8 +171,21 @@ class PropertyBrowseController extends Controller
         ]);
     }
 
-    public function show(Property $property, Request $request, GeoIpService $geoIp): View
+    public function show(Property $property, Request $request, GeoIpService $geoIp): View|RedirectResponse
     {
+        // One canonical address per listing.
+        //
+        // Listings resolve from either their public ref or their row id, so
+        // every link ever handed out keeps working. But two live URLs for one
+        // page splits search ranking and makes the analytics read as two
+        // pages, so the id form redirects permanently to the member-numbered
+        // one once a listing has it.
+        $canonical = $property->public_ref;
+
+        if ($canonical !== null && (string) $request->segment(2) !== (string) $canonical) {
+            return redirect()->route('properties.show', $property, 301);
+        }
+
         // A listing that is not live is invisible to the public, but visible to
         // the people who need to check it BEFORE it goes live. Previewing a
         // draft is the whole point of previewing: by the time it is active it
