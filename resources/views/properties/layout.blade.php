@@ -216,12 +216,19 @@
             font-size: 11px; letter-spacing:.08em; text-transform: uppercase;
             color: var(--muted); font-weight: 600; margin: 0 0 10px;
         }
-        .props-filter-price { display: flex; gap: 12px; }
-        .props-filter-price label { flex: 1; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+        /* Grid and flex children default to min-width:auto, so a track is never
+           allowed to be narrower than its content's minimum. A number input's
+           minimum is its default character width — about 218px here — and two
+           of them plus the gap forced this rail to 448px inside a 390px screen,
+           pushing the whole page sideways. min-width:0 lets them shrink. */
+        .props-filter-form > * { min-width: 0; }
+        .props-filter-price { display: flex; gap: 12px; min-width: 0; }
+        .props-filter-price label { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
         .props-filter-price input {
             padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px;
             font-size: 14px; outline: none; background: var(--bg); font-family: 'Geist', sans-serif;
             transition: border-color .12s, background .12s;
+            width: 100%; min-width: 0;
         }
         .props-filter-price input:focus { border-color: var(--magenta); background: #fff; }
         .props-filter-amenities { display: flex; flex-wrap: wrap; gap: 8px; }

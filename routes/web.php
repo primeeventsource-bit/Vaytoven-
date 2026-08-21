@@ -54,8 +54,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 
+// Throttled like every other public form. Without it this writes a row
+// per request from anonymous input, and it is the main lead form.
 Route::post('/members/enquiry', [MemberEnquiryController::class, 'store'])
-    ->name('members.enquiry');
+    ->middleware('throttle:10,1')->name('members.enquiry');
 
 // ---------------------------------------------------------------------------
 // Three-audience marketing pages — public, anonymous-friendly. Each surfaces
@@ -155,7 +157,8 @@ Route::get('/press/{release}', [PressController::class, 'show'])->name('press.sh
 // Newsletter signup — distinct from /register (account creation). Captures
 // full_name + email + phone for marketing email.
 Route::get('/signup', [NewsletterSubscriptionController::class, 'show'])->name('signup.show');
-Route::post('/signup', [NewsletterSubscriptionController::class, 'store'])->name('signup.store');
+Route::post('/signup', [NewsletterSubscriptionController::class, 'store'])
+    ->middleware('throttle:10,1')->name('signup.store');
 
 // Property browse — public surface for visitors. Index supports ?q=, ?city=,
 // ?destination= (alias for city), ?min_capacity=, ?max_price=.

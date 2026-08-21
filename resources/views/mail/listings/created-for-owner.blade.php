@@ -8,7 +8,7 @@ Our team has set up a listing for you on Vaytoven.
 @component('mail::panel')
 **{{ $property->title }}**
 
-@if ($property->city)MASK2@if ($property->country), {{ $property->country }}@endif<br>@endif
+@if ($property->city){{ $property->city }}@if ($property->country), {{ $property->country }}@endif<br>@endif
 {{ $property->capacity }} {{ Str::plural('guest', $property->capacity) }} ·
 {{ $property->bedrooms }} {{ Str::plural('bedroom', $property->bedrooms) }} ·
 {{ $property->priceLabel() }} &middot; {{ $property->priceCaption() }}
