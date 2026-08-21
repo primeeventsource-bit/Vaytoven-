@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ActivityController;
 use App\Http\Controllers\Admin\ConfigCollectionController;
 use App\Http\Controllers\Admin\ContractController as AdminContractController;
+use App\Http\Controllers\Admin\DemoDataController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\FeatureFlagController;
 use App\Http\Controllers\Admin\InboxController;
@@ -371,6 +372,17 @@ Route::middleware(['auth'])
         //
         // The folder routes are declared BEFORE the {asset} routes on purpose:
         // "folders" would otherwise be matched as an asset id and 404.
+        // Removing the seeded demo accounts and their data.
+        //
+        // settings.view gets you to the screen; the controller then requires
+        // super admin before showing or doing anything. Every other
+        // destructive action here is scoped to one row somebody navigated to,
+        // and this one takes out a set in a single press.
+        Route::get('demo-data', [DemoDataController::class, 'index'])
+            ->middleware('permission:settings.view')->name('demo-data.index');
+        Route::delete('demo-data', [DemoDataController::class, 'destroy'])
+            ->middleware('permission:settings.edit')->name('demo-data.destroy');
+
         Route::get('media', [MediaLibraryController::class, 'index'])
             ->middleware('permission:media.view')->name('media.index');
         Route::post('media', [MediaLibraryController::class, 'store'])

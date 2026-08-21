@@ -43,6 +43,14 @@
                    @if ($isCurrent) aria-current="page" @endif>{{ $tab['label'] }}</a>
             @endforeach
 
+            {{-- Super admin only, and deliberately last. It removes a set of
+                 accounts in one press rather than a row somebody navigated to,
+                 so it does not belong beside the everyday tabs. --}}
+            @if (auth()->user()?->isSuperAdmin())
+                <a href="{{ route('admin.demo-data.index') }}"
+                   title="Remove the seeded demo accounts and their data">Demo data</a>
+            @endif
+
             {{-- Not gated on a permission: a new starter with the narrowest
                  role is exactly who needs it, and it contains nothing beyond
                  the shape of the admin area. Generated fresh on each download,
