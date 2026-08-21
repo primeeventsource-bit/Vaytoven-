@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Enums\PropertyStatus;
 use App\Models\Contract;
 use App\Models\MediaAsset;
 use App\Models\MemberDocument;
@@ -37,6 +38,14 @@ use Illuminate\Support\Facades\Storage;
  * typed the confirmation, so "delete the demo data" is never a guess about
  * what that means.
  *
+ * The two kinds of throwaway account are purged SEPARATELY. They look alike in
+ * the database and they are not alike in use: the test accounts are exhaust from
+ * the end-to-end suite and own nothing anybody sees, while the demo accounts own
+ * the listings that keep the public site from looking empty before there are
+ * enough real ones. Removing both together would empty the storefront to clean
+ * up after a test runner. So each group is its own scope with its own
+ * confirmation phrase, and neither press can reach the other's rows.
+ *
  * tracking_events is deliberately NOT purged. The table is append-only at the
  * database level and refuses DELETE by design; that guarantee is worth more
  * than tidiness, and the rows are anonymous activity records rather than
@@ -49,13 +58,50 @@ class DemoDataPurge
     public const DEFAULT_SUFFIX = '@demo.vaytoven.local';
 
     public const DEFAULT_SUFFIXES = [
-        // Seeded demonstration accounts.
         '@demo.vaytoven.local',
-        // Accounts the end-to-end suite creates on every run. They accumulate
-        // forever otherwise, and they outnumber the real accounts several times
-        // over, which makes every user count on every screen a lie.
         '@vaytoven.test',
     ];
+
+    /**
+     * The throwaway accounts, grouped by what they are for.
+     *
+     * Kept apart because they are removed at different times: the test accounts
+     * as soon as anybody notices them, the demo accounts only once the real
+     * listings can carry the site on their own.
+     */
+    public const GROUPS = [
+        'test' => [
+            'label'   => 'Automated test accounts',
+            'suffix'  => '@vaytoven.test',
+            'confirm' => 'DELETE TEST DATA',
+            'blurb'   => 'Created by the end-to-end suite on every run and never cleaned up. '
+                .'They own nothing anybody sees, they accumulate without limit, and they '
+                .'inflate every account total in the admin. Nothing depends on them.',
+        ],
+        'demo' => [
+            'label'   => 'Demo accounts and listings',
+            'suffix'  => '@demo.vaytoven.local',
+            'confirm' => 'DELETE DEMO DATA',
+            'blurb'   => 'The seeded accounts and the listings they host. These are what keep '
+                .'the public site from looking empty, so they stay until there are enough '
+                .'real listings to carry it.',
+        ],
+    ];
+
+    /** Real listings wanted before the demo listings stop being needed. */
+    public const DEMO_RETIREMENT_THRESHOLD = 30;
+
+    /** A purge scoped to one named group. */
+    public static function forGroup(string $key): self
+    {
+        return new self(self::GROUPS[$key]['suffix'] ?? '');
+    }
+
+    /** @return array<string, string> group key => the phrase that must be typed */
+    public static function confirmationPhrases(): array
+    {
+        return array_map(fn (array $g) => $g['confirm'], self::GROUPS);
+    }
 
     /** @var list<string> */
     private readonly array $suffixes;
@@ -75,6 +121,34 @@ class DemoDataPurge
         ));
     }
 
+    /**
+     * How close the real listings are to carrying the site on their own.
+     *
+     * Active only, because the question the demo listings answer is what a
+     * visitor sees on the public site — a draft answers nothing. Reported so
+     * the decision to retire the demo listings is a number on the screen
+     * rather than a guess about whether it is time yet.
+     *
+     * @return array{real: int, target: int, ready: bool}
+     */
+    public static function realListingProgress(): array
+    {
+        $throwaway = User::query();
+
+        foreach (self::GROUPS as $group) {
+            $throwaway->orWhere('email', 'like', '%'.$group['suffix']);
+        }
+
+        $real = Property::whereNotIn('host_id', $throwaway->pluck('id'))
+            ->where('status', PropertyStatus::Active->value)
+            ->count();
+
+        return [
+            'real'   => $real,
+            'target' => self::DEMO_RETIREMENT_THRESHOLD,
+            'ready'  => $real >= self::DEMO_RETIREMENT_THRESHOLD,
+        ];
+    }
     /** @return list<string> */
     public function suffixes(): array
     {

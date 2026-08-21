@@ -94,7 +94,8 @@ class DemoDataPurgeTest extends TestCase
         $this->actingAs($this->superAdmin())
             ->get(route('admin.demo-data.index'))
             ->assertOk()
-            ->assertSee('What would be removed');
+            ->assertSee('Demo accounts and listings')
+            ->assertSee('Automated test accounts');
     }
 
     // --- both kinds of throwaway account ---------------------------------------------
@@ -143,6 +144,122 @@ class DemoDataPurgeTest extends TestCase
         (new DemoDataPurge())->purge();
 
         $this->assertSame(1, User::where('id', $office->id)->count());
+    }
+
+    // --- the two groups are separate ---------------------------------------------------
+
+    /**
+     * The whole reason the groups exist. The demo listings are what keeps the
+     * public site from looking empty; clearing out the test-suite exhaust must
+     * not take them with it.
+     */
+    public function test_removing_the_test_accounts_leaves_the_demo_listings_alone(): void
+    {
+        $demoHost = $this->demoUser('host');
+        $listing  = Property::factory()->create([
+            'host_id' => $demoHost->id,
+            'status'  => PropertyStatus::Active->value,
+        ]);
+
+        $tester = User::factory()->create(['email' => 'e2e+9@vaytoven.test', 'must_change_password' => false]);
+
+        DemoDataPurge::forGroup('test')->purge();
+
+        $this->assertSame(0, User::where('id', $tester->id)->count(), 'the tester should go');
+        $this->assertSame(1, User::where('id', $demoHost->id)->count(), 'the demo host must stay');
+        $this->assertSame(1, Property::where('id', $listing->id)->count(), 'the demo listing must stay');
+    }
+
+    /** And the reverse: removing the demo accounts does not depend on the testers. */
+    public function test_removing_the_demo_accounts_leaves_the_test_accounts_alone(): void
+    {
+        $this->demoUser('host');
+        $tester = User::factory()->create(['email' => 'e2e+9@vaytoven.test', 'must_change_password' => false]);
+
+        DemoDataPurge::forGroup('demo')->purge();
+
+        $this->assertSame(1, User::where('id', $tester->id)->count());
+        $this->assertSame(0, User::where('email', 'like', '%'.DemoDataPurge::DEFAULT_SUFFIX)->count());
+    }
+
+    /**
+     * Each form has its own phrase. Typing the test phrase into the demo form
+     * must not run either purge — otherwise the separation is decorative.
+     */
+    public function test_one_groups_phrase_does_not_work_on_the_other(): void
+    {
+        $demo   = $this->demoUser();
+        $tester = User::factory()->create(['email' => 'e2e+9@vaytoven.test', 'must_change_password' => false]);
+
+        $this->actingAs($this->superAdmin())
+            ->delete(route('admin.demo-data.destroy'), [
+                'scope'        => 'demo',
+                'confirmation' => 'DELETE TEST DATA',
+            ])
+            ->assertSessionHasErrors('confirmation');
+
+        $this->assertSame(1, User::where('id', $demo->id)->count());
+        $this->assertSame(1, User::where('id', $tester->id)->count());
+    }
+
+    /** An unknown scope is rejected rather than falling back to a default. */
+    public function test_an_unknown_scope_is_rejected(): void
+    {
+        $demo = $this->demoUser();
+
+        $this->actingAs($this->superAdmin())
+            ->delete(route('admin.demo-data.destroy'), [
+                'scope'        => 'everything',
+                'confirmation' => 'DELETE DEMO DATA',
+            ])
+            ->assertSessionHasErrors('scope');
+
+        $this->assertSame(1, User::where('id', $demo->id)->count());
+    }
+
+    /** The scoped purge removes the test accounts by the route, not just the service. */
+    public function test_the_test_scope_removes_the_test_accounts(): void
+    {
+        $tester = User::factory()->create(['email' => 'e2e+9@vaytoven.test', 'must_change_password' => false]);
+
+        $this->actingAs($this->superAdmin())
+            ->delete(route('admin.demo-data.destroy'), [
+                'scope'        => 'test',
+                'confirmation' => 'DELETE TEST DATA',
+            ])
+            ->assertRedirect(route('admin.demo-data.index'));
+
+        $this->assertSame(0, User::where('id', $tester->id)->count());
+    }
+
+    // --- knowing when the demo listings can go -----------------------------------------
+
+    /** Only active listings hosted by real accounts count toward the target. */
+    public function test_the_progress_counts_only_real_active_listings(): void
+    {
+        $demoHost = $this->demoUser('host');
+        Property::factory()->create(['host_id' => $demoHost->id, 'status' => PropertyStatus::Active->value]);
+
+        $real = $this->realUser();
+        Property::factory()->create(['host_id' => $real->id, 'status' => PropertyStatus::Active->value]);
+        Property::factory()->create(['host_id' => $real->id, 'status' => PropertyStatus::Draft->value]);
+
+        $progress = DemoDataPurge::realListingProgress();
+
+        $this->assertSame(1, $progress['real'], 'the demo listing and the draft must not count');
+        $this->assertSame(30, $progress['target']);
+        $this->assertFalse($progress['ready']);
+    }
+
+    public function test_the_progress_reports_ready_once_the_target_is_met(): void
+    {
+        $real = $this->realUser();
+
+        Property::factory()
+            ->count(DemoDataPurge::DEMO_RETIREMENT_THRESHOLD)
+            ->create(['host_id' => $real->id, 'status' => PropertyStatus::Active->value]);
+
+        $this->assertTrue(DemoDataPurge::realListingProgress()['ready']);
     }
 
     // --- scope: what must never be touched -------------------------------------------
@@ -246,7 +363,7 @@ class DemoDataPurgeTest extends TestCase
         $this->demoUser();
 
         $this->actingAs($this->superAdmin())
-            ->delete(route('admin.demo-data.destroy'), ['confirmation' => 'yes please'])
+            ->delete(route('admin.demo-data.destroy'), ['scope' => 'demo', 'confirmation' => 'yes please'])
             ->assertSessionHasErrors('confirmation');
 
         $this->assertSame(1, User::where('email', 'like', '%'.DemoDataPurge::DEFAULT_SUFFIX)->count());
@@ -257,7 +374,7 @@ class DemoDataPurgeTest extends TestCase
         $this->demoUser();
 
         $this->actingAs($this->superAdmin())
-            ->delete(route('admin.demo-data.destroy'), ['confirmation' => 'DELETE DEMO DATA'])
+            ->delete(route('admin.demo-data.destroy'), ['scope' => 'demo', 'confirmation' => 'DELETE DEMO DATA'])
             ->assertRedirect(route('admin.demo-data.index'));
 
         $this->assertSame(0, User::where('email', 'like', '%'.DemoDataPurge::DEFAULT_SUFFIX)->count());
@@ -269,7 +386,7 @@ class DemoDataPurgeTest extends TestCase
         $this->demoUser('audited');
 
         $this->actingAs($this->superAdmin())
-            ->delete(route('admin.demo-data.destroy'), ['confirmation' => 'DELETE DEMO DATA']);
+            ->delete(route('admin.demo-data.destroy'), ['scope' => 'demo', 'confirmation' => 'DELETE DEMO DATA']);
 
         $log = AdminAuditLog::where('action', 'demo_data.purged')->sole();
 
@@ -297,7 +414,7 @@ class DemoDataPurgeTest extends TestCase
         $admin->roles()->sync([Role::where('key', 'admin')->firstOrFail()->id]);
 
         $this->actingAs($admin)
-            ->delete(route('admin.demo-data.destroy'), ['confirmation' => 'DELETE DEMO DATA'])
+            ->delete(route('admin.demo-data.destroy'), ['scope' => 'demo', 'confirmation' => 'DELETE DEMO DATA'])
             ->assertForbidden();
 
         $this->assertSame(1, User::where('email', 'like', '%'.DemoDataPurge::DEFAULT_SUFFIX)->count());

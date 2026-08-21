@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Removing the seeded demo accounts and their data.
+ * Removing the throwaway accounts and their data.
  *
  * Super admin only, and not by permission alone. Every other destructive action
  * in the admin is scoped to one row that somebody navigated to; this one takes
@@ -18,15 +18,19 @@ use Illuminate\View\View;
  * bypasses every permission check rather than to a permission that could be
  * granted to somebody it was not meant for.
  *
+ * There are two groups and they are removed separately. The test accounts are
+ * exhaust from the end-to-end suite and can go at any time; the demo accounts
+ * host the listings that keep the public site from looking empty and stay until
+ * the real listings can carry it. Each has its own confirmation phrase, so a
+ * press meant for one cannot reach the other — typing DELETE TEST DATA into the
+ * demo form removes nothing.
+ *
  * Nothing is destroyed without a preview and a typed confirmation. "Delete the
  * demo data" is a sentence that means different things to different people, so
  * the screen shows exactly which accounts and how many rows first.
  */
 class DemoDataController extends Controller
 {
-    /** Typed by hand before anything is removed. */
-    private const CONFIRMATION = 'DELETE DEMO DATA';
-
     private function authorizeSuperAdmin(Request $request): void
     {
         abort_unless(
@@ -40,9 +44,18 @@ class DemoDataController extends Controller
     {
         $this->authorizeSuperAdmin($request);
 
+        $groups = [];
+
+        foreach (DemoDataPurge::GROUPS as $key => $group) {
+            $groups[$key] = $group + [
+                'key'     => $key,
+                'preview' => DemoDataPurge::forGroup($key)->preview(),
+            ];
+        }
+
         return view('admin.demo-data.index', [
-            'preview'      => (new DemoDataPurge())->preview(),
-            'confirmation' => self::CONFIRMATION,
+            'groups'   => $groups,
+            'progress' => DemoDataPurge::realListingProgress(),
         ]);
     }
 
@@ -51,16 +64,23 @@ class DemoDataController extends Controller
         $this->authorizeSuperAdmin($request);
 
         $request->validate([
+            'scope'        => ['required', 'string', 'in:'.implode(',', array_keys(DemoDataPurge::GROUPS))],
             'confirmation' => ['required', 'string'],
         ]);
 
-        if ($request->string('confirmation')->toString() !== self::CONFIRMATION) {
+        $key   = $request->string('scope')->toString();
+        $group = DemoDataPurge::GROUPS[$key];
+
+        // Checked against this group's phrase alone. The other group's phrase is
+        // wrong here, which is the point: one form cannot be used to run the other.
+        if ($request->string('confirmation')->toString() !== $group['confirm']) {
             return back()->withErrors([
-                'confirmation' => 'Type '.self::CONFIRMATION.' exactly to confirm. Nothing was removed.',
+                'confirmation' => 'Type '.$group['confirm'].' exactly to remove the '
+                    .lcfirst($group['label']).'. Nothing was removed.',
             ]);
         }
 
-        $purge   = new DemoDataPurge();
+        $purge   = DemoDataPurge::forGroup($key);
         $preview = $purge->preview();
 
         // Audited before the rows go, so the record of what was removed
@@ -71,6 +91,7 @@ class DemoDataController extends Controller
             action:    'demo_data.purged',
             subject:   $request->user(),
             payload:   [
+                'scope'    => $key,
                 'suffix'   => $preview['suffix'],
                 'accounts' => array_column($preview['accounts'], 'email'),
                 'counts'   => $preview['counts'],
@@ -88,7 +109,7 @@ class DemoDataController extends Controller
         return redirect()
             ->route('admin.demo-data.index')
             ->with('success', $summary === ''
-                ? 'Nothing matched — there is no demo data left to remove.'
+                ? 'Nothing matched — there is no '.lcfirst($group['label']).' left to remove.'
                 : 'Removed '.$summary.'.');
     }
 }
