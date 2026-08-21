@@ -78,7 +78,17 @@
         .props-empty h3 { font-family:'Fraunces',serif; font-size:22px; color:var(--ink); margin:0 0 8px; font-weight:600; }
 
         /* Pagination */
-        .props-pagination { margin-top:32px; display:flex; justify-content:center; gap:6px; }
+        /* Laravel's default paginator markup carries Tailwind utility classes
+           that this theme does not load, so its inner inline-flex kept its
+           natural width and pushed /properties 25px sideways at 390px. The
+           control is allowed to wrap and is stopped from exceeding the column;
+           the deeper fix is a published paginator view, which is a bigger
+           change than the bug warrants. */
+        .props-pagination { margin-top:32px; display:flex; justify-content:center; gap:6px; flex-wrap:wrap; max-width:100%; }
+        .props-pagination * { max-width:100%; }
+        .props-pagination nav, .props-pagination [class*="inline-flex"] {
+            display:flex; flex-wrap:wrap; justify-content:center; gap:6px; max-width:100%;
+        }
         .props-pagination a, .props-pagination span {
             padding:8px 14px; border-radius:8px; font-size:13px; font-weight:500;
             background:#fff; border:1px solid var(--line); color:var(--ink);
