@@ -45,26 +45,69 @@ use Illuminate\Support\Facades\Storage;
  */
 class DemoDataPurge
 {
-    /** Accounts whose email ends with this are demo accounts. */
+    /** Accounts whose email ends with one of these are not real people. */
     public const DEFAULT_SUFFIX = '@demo.vaytoven.local';
 
-    public function __construct(private readonly string $suffix = self::DEFAULT_SUFFIX)
+    public const DEFAULT_SUFFIXES = [
+        // Seeded demonstration accounts.
+        '@demo.vaytoven.local',
+        // Accounts the end-to-end suite creates on every run. They accumulate
+        // forever otherwise, and they outnumber the real accounts several times
+        // over, which makes every user count on every screen a lie.
+        '@vaytoven.test',
+    ];
+
+    /** @var list<string> */
+    private readonly array $suffixes;
+
+    /**
+     * @param  list<string>|string|null  $suffixes
+     */
+    public function __construct(array|string|null $suffixes = null)
     {
+        $given = $suffixes ?? self::DEFAULT_SUFFIXES;
+
+        $this->suffixes = array_values(array_filter(
+            array_map(fn ($s) => trim((string) $s), (array) $given),
+            // A bare word would match nothing sensible and an empty string
+            // would match every account on the system. Neither gets through.
+            fn (string $s) => $s !== '' && str_contains($s, '@'),
+        ));
+    }
+
+    /** @return list<string> */
+    public function suffixes(): array
+    {
+        return $this->suffixes;
     }
 
     /** @return Collection<int, User> */
     public function accounts(): Collection
     {
-        // A bare suffix would match nothing sensible, and an empty one would
-        // match every account on the system. Refuse rather than proceed.
-        if (trim($this->suffix) === '' || ! str_contains($this->suffix, '@')) {
+        if ($this->suffixes === []) {
             return collect();
         }
 
         return User::query()
-            ->where('email', 'like', '%'.$this->suffix)
+            ->where(function ($q) {
+                foreach ($this->suffixes as $suffix) {
+                    $q->orWhere('email', 'like', '%'.$suffix);
+                }
+            })
             ->orderBy('email')
             ->get();
+    }
+
+    /** Whether an address genuinely ends with one of the configured suffixes. */
+    private function matches(User $user): bool
+    {
+        foreach ($this->suffixes as $suffix) {
+            if (str_ends_with($user->email, $suffix)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -81,7 +124,8 @@ class DemoDataPurge
         $propertyIds = Property::whereIn('host_id', $ids)->pluck('id');
 
         return [
-            'suffix'   => $this->suffix,
+            'suffix'   => implode(', ', $this->suffixes),
+            'suffixes' => $this->suffixes,
             'accounts' => $users->map(fn (User $u) => [
                 'id'    => $u->id,
                 'email' => $u->email,
@@ -178,10 +222,10 @@ class DemoDataPurge
             }
 
             foreach ($users as $user) {
-                // The suffix is re-checked here rather than trusted from the
-                // selection above. If anything ever widened that query, this is
-                // the line that refuses to act on it.
-                if (! str_ends_with($user->email, $this->suffix)) {
+                // Re-checked here rather than trusted from the selection above.
+                // If anything ever widened that query, this is the line that
+                // refuses to act on it.
+                if (! $this->matches($user)) {
                     continue;
                 }
 

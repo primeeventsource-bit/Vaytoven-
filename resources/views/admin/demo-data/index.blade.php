@@ -8,10 +8,10 @@
 
     <h1>Demo data</h1>
     <p style="color:var(--muted);margin-top:-12px;max-width:72ch;">
-        The seeded accounts and listings that let the site show something before real
-        members arrived. Once you have real clients they stop being a demonstration and
-        start being fiction in the same tables as the real thing &mdash; publicly listed,
-        counted in your totals, and hard to tell apart at a glance.
+        The seeded demo accounts and the accounts the automated test suite creates on
+        every run. Neither is a real person, both sit in the same tables as your real
+        members, and both are counted in every total on every screen &mdash; so once you
+        have real clients they stop being useful and start being noise.
     </p>
 
     @if (session('success'))
@@ -32,7 +32,7 @@
         <div class="vyt-card">
             <div class="vyt-card-header">
                 <h3>What would be removed</h3>
-                <span class="vyt-section-meta">accounts ending <code>{{ $preview['suffix'] }}</code></span>
+                <span class="vyt-section-meta">@foreach ($preview['suffixes'] ?? [] as $suffix)<code>{{ $suffix }}</code> @endforeach</span>
             </div>
 
             <div class="vyt-card-body">

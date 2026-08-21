@@ -97,6 +97,54 @@ class DemoDataPurgeTest extends TestCase
             ->assertSee('What would be removed');
     }
 
+    // --- both kinds of throwaway account ---------------------------------------------
+
+    /** The e2e suite mints an account per run; they outnumber real members. */
+    public function test_it_also_removes_automated_test_accounts(): void
+    {
+        $tester = User::factory()->create([
+            'email'                => 'e2e+1787321376760@vaytoven.test',
+            'must_change_password' => false,
+        ]);
+
+        (new DemoDataPurge())->purge();
+
+        $this->assertSame(0, User::where('id', $tester->id)->count());
+    }
+
+    /**
+     * The one that matters at this scale: a purge covering 169 throwaway
+     * accounts must leave every real one standing, including staff.
+     */
+    public function test_real_accounts_survive_a_mixed_purge(): void
+    {
+        $this->demoUser('a');
+        User::factory()->create(['email' => 'e2e+1@vaytoven.test', 'must_change_password' => false]);
+        User::factory()->create(['email' => 'e2e+2@vaytoven.test', 'must_change_password' => false]);
+
+        $admin  = User::factory()->create(['email' => 'boss@vaytoven.com', 'role' => UserRole::SuperAdmin, 'must_change_password' => false]);
+        $member = $this->realUser('paying@example.com');
+
+        (new DemoDataPurge())->purge();
+
+        $this->assertSame(2, User::count(), 'only the two real accounts should remain');
+        $this->assertSame(1, User::where('id', $admin->id)->count());
+        $this->assertSame(1, User::where('id', $member->id)->count());
+    }
+
+    /**
+     * vaytoven.com is not vaytoven.test. A live address that merely resembles
+     * the throwaway domain must not be swept up.
+     */
+    public function test_the_live_domain_is_not_mistaken_for_the_test_domain(): void
+    {
+        $office = User::factory()->create(['email' => 'contact@vaytoven.com', 'must_change_password' => false]);
+
+        (new DemoDataPurge())->purge();
+
+        $this->assertSame(1, User::where('id', $office->id)->count());
+    }
+
     // --- scope: what must never be touched -------------------------------------------
 
     /** The one that matters. A real member must survive intact. */
