@@ -57,13 +57,17 @@
         @error('guests') <span style="font-size:12px; color:#b91c1c;">{{ $message }}</span> @enderror
     </div>
 
-    <div>
-        <label for="o-kind" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:4px;">Request type</label>
-        <select id="o-kind" name="kind" style="{{ $fieldStyle }}">
-            <option value="offer" @selected(old('kind', 'offer') === 'offer')>Submit an offer amount</option>
-            <option value="inquiry" @selected(old('kind') === 'inquiry')>Ask about these dates</option>
-        </select>
-    </div>
+    {{-- No request-type chooser.
+
+         It offered "Ask about these dates" alongside making an offer, which
+         left the visitor picking between two things that read as the same
+         action, and produced enquiries with no number attached for the member
+         to respond to.
+
+         The form submits an offer. The message field below is where anything
+         else gets said, so nothing is lost by removing the choice — the kind
+         stays in the payload because the backend still records which it was. --}}
+    <input type="hidden" name="kind" value="offer">
 
     <div>
         <label for="o-amount" style="display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:4px;">Your offer (USD)</label>

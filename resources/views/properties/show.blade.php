@@ -103,25 +103,19 @@
                     </section>
                 @endif
 
-                <section class="props-detail-section">
-                    <h2>Cancellation</h2>
-                    <p>
-                        @switch($property->cancellation_policy?->value)
-                            @case('flexible')
-                                <strong>Flexible.</strong> Full refund if you cancel at least 24 hours before check-in.
-                                @break
-                            @case('moderate')
-                                <strong>Moderate.</strong> Full refund 5+ days before check-in. 50% between 5 days and 24 hours.
-                                @break
-                            @case('strict')
-                                <strong>Strict.</strong> 50% refund if you cancel at least 7 days before check-in.
-                                @break
-                            @default
-                                Cancellation policy details available on the booking page.
-                        @endswitch
-                        <a href="/help/cancellation-{{ $property->cancellation_policy?->value ?? 'moderate' }}">Read the policy →</a>
-                    </p>
-                </section>
+                {{-- No cancellation policy here, deliberately.
+
+                     It promised things Vaytoven cannot do: "full refund",
+                     "50% between 5 days and 24 hours", and a link to a booking
+                     page. Vaytoven advertises listings — it takes no
+                     reservation, holds no money and issues no refund, so it has
+                     nothing to cancel and nothing to refund.
+
+                     Whatever is agreed about cancelling is between the traveler
+                     and the owner, and belongs in what they settle directly.
+                     Printing a refund schedule under Vaytoven's name is how a
+                     visitor comes to believe otherwise and disputes a charge
+                     that was never taken. --}}
 
                 @if ($property->host)
                     <section class="props-detail-section">
