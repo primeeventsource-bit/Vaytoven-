@@ -179,7 +179,7 @@ class MemberIdListingUrlTest extends TestCase
     // --- on the listing page ---------------------------------------------------------
 
     /** Shown above the owner's name, so both sides have one thing to quote. */
-    public function test_the_listing_shows_the_member_id_above_the_name(): void
+    public function test_the_listing_shows_the_property_id_above_the_name(): void
     {
         $member  = $this->member('20482');
         $listing = $this->listing($member);
@@ -187,23 +187,44 @@ class MemberIdListingUrlTest extends TestCase
 
         $body = $this->get('/properties/20482')->assertOk()->getContent();
 
-        $this->assertStringContainsString('Member ID 20482', $body);
+        $this->assertStringContainsString('Property ID #20482', $body);
 
         $this->assertLessThan(
             strpos($body, $member->publicDisplayName()),
-            strpos($body, 'Member ID 20482'),
+            strpos($body, 'Property ID #20482'),
             'the number should come above the name',
         );
     }
 
-    /** A listing whose owner has no number simply omits the line. */
-    public function test_a_listing_without_a_member_id_shows_no_id_line(): void
+    /**
+     * One member, three listings, three different Property IDs.
+     *
+     * Printing the member number on each would label three separate places
+     * with the same id, which is what the wording promises not to do.
+     */
+    public function test_each_of_a_members_listings_shows_its_own_property_id(): void
+    {
+        $member = $this->member('20482');
+        $first  = $this->listing($member);
+        $second = $this->listing($member);
+        app(PublicPropertyRef::class)->assignFor($member);
+
+        $this->get('/properties/20482')->assertOk()->assertSee('Property ID #20482');
+
+        $this->get('/properties/20482-2')
+            ->assertOk()
+            ->assertSee('Property ID #20482-2')
+            ->assertDontSee('Property ID #20482<');
+    }
+
+    /** A listing with no number at all simply omits the line. */
+    public function test_a_listing_without_an_id_shows_no_id_line(): void
     {
         $listing = $this->listing($this->member());
 
         $this->get('/properties/'.$listing->id)
             ->assertOk()
-            ->assertDontSee('Member ID');
+            ->assertDontSee('Property ID');
     }
 
     // --- the admin screens -----------------------------------------------------------

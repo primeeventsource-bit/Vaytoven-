@@ -121,14 +121,22 @@
                     <section class="props-detail-section">
                         <h2>Advertised by</h2>
 
-                        {{-- The member's own number, above the name.
+                        {{-- This listing's number, above the name.
 
-                             It is already in this page's address, so showing it
-                             reveals nothing further, and it gives both sides one
-                             reference to quote — a caller can say "20482" rather
-                             than describing the property. --}}
-                        @if ($property->host->member_id)
-                            <p class="props-member-id">Member ID {{ $property->host->member_id }}</p>
+                             Shown as the PROPERTY id, not the member id, because
+                             that is what the label says and what the value has to
+                             be: a member with three listings has one member
+                             number but three properties, and printing the member
+                             number on all three would give three different
+                             places the same "Property ID".
+
+                             It is the address of this page, so showing it reveals
+                             nothing new — and it gives both sides one reference
+                             to quote instead of describing the property. --}}
+                        @php($propertyId = $property->public_ref ?: $property->host->member_id)
+
+                        @if ($propertyId)
+                            <p class="props-member-id">Property ID #{{ $propertyId }}</p>
                         @endif
 
                         {{-- First name and last initial only. A listing already
