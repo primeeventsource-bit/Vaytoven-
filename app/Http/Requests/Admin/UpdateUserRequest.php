@@ -60,6 +60,7 @@ class UpdateUserRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:120'],
             'last_name'  => ['nullable', 'string', 'max:120'],
             'email'    => ['required', 'email:rfc', 'max:255', Rule::unique('users', 'email')->ignore($target->id)],
+            'member_id' => ['nullable', 'string', 'max:40', 'regex:/^[A-Za-z0-9._-]+$/', Rule::unique('users', 'member_id')->ignore($target->id)],
             'role'     => ['required', Rule::enum(UserRole::class)],
             // Password is optional on update — only set if non-empty.
             'password' => ['nullable', 'confirmed', Password::min(10)->mixedCase()->numbers()->symbols()],

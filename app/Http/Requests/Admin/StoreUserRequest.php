@@ -41,6 +41,10 @@ class StoreUserRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:120'],
             'last_name'  => ['nullable', 'string', 'max:120'],
             'email'    => ['required', 'email:rfc', 'max:255', Rule::unique('users', 'email')],
+            // Typed by staff, so it must be unique or two members end up
+            // sharing listing addresses. Blank is allowed: not everyone
+            // with an account is a member.
+            'member_id' => ['nullable', 'string', 'max:40', 'regex:/^[A-Za-z0-9._-]+$/', Rule::unique('users', 'member_id')],
             'password' => ['required', 'confirmed', Password::min(10)->mixedCase()->numbers()->symbols()],
             'role'     => ['required', Rule::enum(UserRole::class)],
         ];

@@ -61,10 +61,46 @@
              so the listing owns them and nothing here changes if somebody
              reorganizes the library later. --}}
         @if (($libraryAssets ?? collect())->isNotEmpty())
-            <details class="vyt-library-picker" style="margin-top:18px;">
+            @php
+                // Worked out here rather than as inline @if directives inside
+                // an attribute — Blade's parser mis-counts those and the whole
+                // template stops compiling.
+                $libFolder = $libraryFolder ?? '';
+                $libShown  = $libraryAssets->count();
+                $libTotal  = $libraryTotal ?? $libShown;
+                $libLabel  = $libTotal > $libShown
+                    ? $libShown.' shown of '.$libTotal
+                    : $libShown.' available';
+            @endphp
+
+            <details class="vyt-library-picker" style="margin-top:18px;" {{ $libFolder !== '' ? 'open' : '' }}>
                 <summary style="font-size:13px;cursor:pointer;color:var(--purple);font-weight:600;">
-                    Add from photo library ({{ $libraryAssets->count() }} available)
+                    Add from photo library ({{ $libLabel }})
                 </summary>
+
+                {{-- Folder filter.
+
+                     Without it the picker showed the newest images only, which
+                     is fine with a handful and useless with a few hundred: the
+                     ones for this listing were simply not on the page. Links
+                     rather than a select so the choice is in the URL and the
+                     panel reopens on the same folder after adding. --}}
+                @if (($libraryFolders ?? collect())->isNotEmpty())
+                    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;">
+                        <a href="{{ route('admin.properties.edit', $property) }}#photos"
+                           class="vyt-lib-tab {{ $libFolder === '' ? 'is-on' : '' }}">All</a>
+
+                        @foreach ($libraryFolders as $folder)
+                            <a href="{{ route('admin.properties.edit', [$property, 'library_folder' => $folder->slug]) }}#photos"
+                               class="vyt-lib-tab {{ $libFolder === $folder->slug ? 'is-on' : '' }}">
+                                {{ $folder->name }} <span class="vyt-faint">{{ $folder->assets_count }}</span>
+                            </a>
+                        @endforeach
+
+                        <a href="{{ route('admin.properties.edit', [$property, 'library_folder' => 'unsorted']) }}#photos"
+                           class="vyt-lib-tab {{ $libFolder === 'unsorted' ? 'is-on' : '' }}">Unsorted</a>
+                    </div>
+                @endif
 
                 <form method="POST" action="{{ route('admin.properties.photos.from-library', $property) }}"
                       style="margin-top:12px;">
@@ -341,6 +377,12 @@
 
 @push('styles')
 <style>
+    .vyt-lib-tab {
+        display:inline-flex; align-items:center; gap:6px;
+        padding:6px 12px; border:1px solid var(--line); border-radius:999px;
+        font-size:12.5px; color:inherit; background:#fff; text-decoration:none;
+    }
+    .vyt-lib-tab.is-on { border-color:var(--purple); color:var(--purple); background:rgba(123,44,191,.06); font-weight:600; }
     .vyt-lib-grid { display:grid; gap:10px; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); max-height:420px; overflow-y:auto; padding:4px; }
     .vyt-lib-tile { position:relative; border:2px solid var(--line); border-radius:10px; overflow:hidden; cursor:pointer; background:#fff; display:block; }
     .vyt-lib-tile img { width:100%; height:96px; object-fit:cover; display:block; }

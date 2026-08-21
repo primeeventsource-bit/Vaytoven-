@@ -27,6 +27,37 @@
                value="{{ old('email', $user?->email) }}"
                style="width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:#fff;outline:none;"
                autocomplete="off">
+        @error('email') <div style="color:#b91c1c;font-size:12.5px;margin-top:4px;">{{ $message }}</div> @enderror
+    </div>
+
+    {{-- The member's own number.
+
+         Typed in rather than generated: the number already exists wherever
+         staff kept it before this system, and an invented one would not match.
+
+         It is also what the member's listing URLs are published at — the first
+         takes it bare, later ones get -2 and -3 — so adding it to an existing
+         member gives their listings a readable address. The old numeric URL
+         keeps working; nothing already sent to a client breaks. --}}
+    <div>
+        <label for="member_id" style="display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">
+            Member ID number
+        </label>
+        <input id="member_id" type="text" name="member_id" maxlength="40"
+               value="{{ old('member_id', $user?->member_id) }}"
+               placeholder="e.g. 20482"
+               style="width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:#fff;outline:none;"
+               autocomplete="off">
+        <div style="font-size:12.5px;color:var(--muted);margin-top:5px;">
+            Used for this member's listing addresses &mdash;
+            <code>/properties/20482</code>, then <code>-2</code> and <code>-3</code>.
+            @if ($user?->member_id)
+                Changing it does not move listings that already have an address.
+            @else
+                Leave blank if this person is not a member.
+            @endif
+        </div>
+        @error('member_id') <div style="color:#b91c1c;font-size:12.5px;margin-top:4px;">{{ $message }}</div> @enderror
     </div>
 
     {{-- Captured as two fields, not one.

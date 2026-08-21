@@ -191,6 +191,35 @@ class Property extends Model
         return ($this->listing_type ?? \App\Enums\ListingType::Rent)->isForSale();
     }
 
+    /**
+     * What goes in a URL for this listing.
+     *
+     * The owner's member number once one is set, the row id until then. Listings
+     * that predate member ids keep working on their old address, and nothing has
+     * to be backfilled before the feature is usable.
+     */
+    public function getRouteKey(): string
+    {
+        return (string) ($this->public_ref ?: $this->getKey());
+    }
+
+    /**
+     * Resolve a listing from either address.
+     *
+     * The public ref is tried first, then the row id, so every URL ever handed
+     * out keeps working — a link sent to a client last month resolves to the
+     * same listing after a member number is added.
+     */
+    public function resolveRouteBinding($value, $field = null): ?static
+    {
+        if ($field !== null) {
+            return $this->where($field, $value)->first();
+        }
+
+        return static::where('public_ref', $value)->first()
+            ?? (ctype_digit((string) $value) ? static::find($value) : null);
+    }
+
     /** "Property 2 of 3", or null when the listing is not tied to an order. */
     public function packagePosition(): ?string
     {

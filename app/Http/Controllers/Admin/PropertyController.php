@@ -257,11 +257,34 @@ class PropertyController extends Controller
             'blockers'  => ListingReadiness::blockers($property),
             'storageDurable' => \App\Support\Storage\DocumentStorage::isDurable(),
             // The shared library, for the "add from photo library" picker.
-            // Capped rather than paginated: the picker is a shortcut for the
-            // stock set, and a builder page that loads two thousand thumbnails
-            // helps nobody. The full library has its own screen.
-            'libraryAssets' => \App\Models\MediaAsset::with('collection:id,name')
-                ->latest('id')->limit(120)->get(),
+            //
+            // Filterable by folder. It used to be the newest 120 with no way to
+            // narrow, which is fine with a handful of images and useless once
+            // the library holds a couple of hundred across a dozen folders —
+            // the ones you actually wanted for this listing were simply not on
+            // the page, and the picker looked broken rather than truncated.
+            'libraryFolders' => \App\Models\MediaCollection::withCount('assets')
+                ->orderBy('name')->get(),
+            'libraryFolder'  => (string) $request->query('library_folder', ''),
+            'libraryAssets'  => \App\Models\MediaAsset::query()
+                ->with('collection:id,name')
+                ->when(
+                    $request->query('library_folder') === 'unsorted',
+                    fn ($q) => $q->whereNull('media_collection_id'),
+                )
+                ->when(
+                    $request->filled('library_folder') && $request->query('library_folder') !== 'unsorted',
+                    fn ($q) => $q->whereHas(
+                        'collection',
+                        fn ($c) => $c->where('slug', $request->query('library_folder')),
+                    ),
+                )
+                ->latest('id')
+                // Still capped, but a folder is a small enough set that the cap
+                // is now a safety net rather than the thing hiding your photos.
+                ->limit(300)
+                ->get(),
+            'libraryTotal'   => \App\Models\MediaAsset::count(),
         ]);
     }
 
