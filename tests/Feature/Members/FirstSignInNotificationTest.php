@@ -176,8 +176,12 @@ class FirstSignInNotificationTest extends TestCase
         });
     }
 
-    /** GeoIP is an estimate and the email has to say so - it gets forwarded. */
-    public function test_the_email_calls_the_location_approximate(): void
+    /**
+     * The explanatory paragraph about GeoIP was removed by request. The row
+     * label still says "Approximate area", which is what stops the figure being
+     * read as a precise position, so that is what is pinned here.
+     */
+    public function test_the_location_row_is_labelled_approximate(): void
     {
         Mail::fake();
 
@@ -187,8 +191,7 @@ class FirstSignInNotificationTest extends TestCase
         Mail::assertSent(MemberFirstSignIn::class, function (MemberFirstSignIn $mail) {
             $body = $mail->render();
 
-            $this->assertStringContainsStringIgnoringCase('approximate', $body);
-            $this->assertStringContainsStringIgnoringCase('GeoIP', $body);
+            $this->assertStringContainsStringIgnoringCase('Approximate area', $body);
 
             return true;
         });

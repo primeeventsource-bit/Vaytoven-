@@ -27,13 +27,6 @@ Fulfilment is complete for this account — the credentials reached the member a
 @endif
 @endcomponent
 
-{{-- The rule the whole activity system follows: a GeoIP lookup is an estimate
-     of an area, never a statement about where a person physically was. It is
-     said here too, because this email is the one somebody forwards. --}}
-> The location above is an **approximate GeoIP estimate** derived from the IP address.
-> It indicates a general area only. It is not a street address and it is not evidence
-> of where anyone physically was.
-
 @php
     // Built here rather than as inline @if chains inside the markdown: nested
     // conditionals between table rows are what turned this template into a
