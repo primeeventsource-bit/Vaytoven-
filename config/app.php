@@ -5,6 +5,14 @@ return [
     // framing that was dropped, and it was still heading every email this
     // application sent wherever APP_NAME was unset.
     'name' => env('APP_NAME', 'Vaytoven'),
+
+    /*
+    | The registered company, as distinct from the consumer brand above.
+    | "Vaytoven" is what marketing copy says; "VAYTOVEN Technologies LLC"
+    | is what identifies the sender on an email and what belongs on
+    | anything legal. Kept here so the two cannot drift apart.
+    */
+    'legal_entity' => env('APP_LEGAL_ENTITY', 'VAYTOVEN Technologies LLC'),
     'env' => env('APP_ENV', 'production'),
     'debug' => (bool) env('APP_DEBUG', false),
     'url' => env('APP_URL', 'https://www.vaytoven.com'),

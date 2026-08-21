@@ -197,6 +197,18 @@ class FirstSignInNotificationTest extends TestCase
         });
     }
 
+    /** The registered company identifies the sender; the brand name alone does not. */
+    public function test_the_email_carries_the_legal_entity(): void
+    {
+        Mail::fake();
+
+        $this->signIn($this->member());
+
+        Mail::assertSent(MemberFirstSignIn::class, function (MemberFirstSignIn $mail) {
+            return str_contains($mail->render(), config('app.legal_entity'));
+        });
+    }
+
     /** A mail outage must never stop somebody signing in. */
     public function test_a_mail_failure_does_not_block_the_sign_in(): void
     {

@@ -66,4 +66,8 @@ Open in admin
 
 Thanks,<br>
 {{ config('app.name') }}
+
+{{-- The registered company, not the consumer brand. It identifies the sender
+     on an email, which the brand name alone does not. --}}
+<small>{{ config('app.legal_entity') }}</small>
 @endcomponent
