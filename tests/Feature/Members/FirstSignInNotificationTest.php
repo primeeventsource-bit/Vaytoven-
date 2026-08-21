@@ -209,6 +209,85 @@ class FirstSignInNotificationTest extends TestCase
         });
     }
 
+    // --- the attached record ---------------------------------------------------------
+
+    /**
+     * The email announces the event; the PDF is what gets filed. In a dispute
+     * months later, "when did this member first use the account and from
+     * where" wants a document somebody can hand over.
+     */
+    public function test_a_pdf_record_is_attached(): void
+    {
+        Mail::fake();
+
+        $this->signIn($this->member());
+
+        Mail::assertSent(MemberFirstSignIn::class, function (MemberFirstSignIn $mail) {
+            $attachments = $mail->attachments();
+
+            $this->assertCount(1, $attachments, 'exactly one record should be attached');
+
+            return true;
+        });
+    }
+
+    /** Present is not the same as readable — assert it is genuinely a PDF. */
+    public function test_the_attachment_is_a_real_pdf(): void
+    {
+        // Built directly, so a failure points at the renderer rather than at
+        // Laravel's attachment plumbing.
+        $mail = new MemberFirstSignIn($this->member(), ['device_type' => 'mobile']);
+        $pdf  = \Barryvdh\DomPDF\Facade\Pdf::loadView('docs.first-sign-in-record', [
+            'member'  => $mail->member,
+            'context' => $mail->context,
+        ])->output();
+
+        $this->assertStringStartsWith('%PDF', $pdf);
+        $this->assertGreaterThan(1000, strlen($pdf), 'a few hundred bytes is not a rendered page');
+    }
+
+    /** Who and when, so a folder of these is navigable. */
+    public function test_the_attachment_is_named_for_the_member_and_the_date(): void
+    {
+        $mail = new MemberFirstSignIn($this->member(), []);
+
+        $this->assertMatchesRegularExpression(
+            '/^first-sign-in-newmember-\d{4}-\d{2}-\d{2}\.pdf$/',
+            $mail->filename(),
+        );
+    }
+
+    /** The record must carry the same detail the email does. */
+    public function test_the_pdf_contains_the_member_and_the_sign_in_detail(): void
+    {
+        $member = $this->member();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('docs.first-sign-in-record', [
+            'member'  => $member,
+            'context' => [
+                'ip_address'   => '203.0.113.9',
+                'location'     => 'Orlando, Florida, US',
+                'device_type'  => 'mobile',
+                'platform'     => 'iOS',
+                'browser'      => 'Safari',
+                'signed_in_at' => 'August 21, 2026 at 9:14am EDT',
+            ],
+        ])->output();
+
+        // dompdf compresses its streams, so assert on the view instead of the
+        // bytes — the same data, without decoding a PDF to prove a string.
+        $html = view('docs.first-sign-in-record', [
+            'member'  => $member,
+            'context' => ['ip_address' => '203.0.113.9', 'location' => 'Orlando, Florida, US', 'device_type' => 'mobile'],
+        ])->render();
+
+        $this->assertStringStartsWith('%PDF', $pdf);
+        $this->assertStringContainsString($member->email, $html);
+        $this->assertStringContainsString('203.0.113.9', $html);
+        $this->assertStringContainsString('Orlando, Florida, US', $html);
+        $this->assertStringContainsString(config('app.legal_entity'), $html);
+    }
+
     /** A mail outage must never stop somebody signing in. */
     public function test_a_mail_failure_does_not_block_the_sign_in(): void
     {

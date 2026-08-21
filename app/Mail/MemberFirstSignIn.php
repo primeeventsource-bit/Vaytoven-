@@ -3,9 +3,13 @@
 namespace App\Mail;
 
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
@@ -59,5 +63,47 @@ class MemberFirstSignIn extends Mailable
         return new Content(
             markdown: 'mail.members.first-sign-in',
         );
+    }
+
+    /**
+     * The same record as a PDF, attached.
+     *
+     * The email announces the event; the attachment is the thing that gets
+     * filed. Months later, in a dispute, "when did this member first use the
+     * account and from where" is answered by a document somebody can hand over
+     * — not by finding the right message in an inbox and hoping it still has
+     * its formatting.
+     *
+     * Built at send time rather than stored: it is derived entirely from data
+     * already in the email, so keeping a copy on disk would add a second place
+     * for the same facts to live and drift.
+     *
+     * @return array<int, Attachment>
+     */
+    public function attachments(): array
+    {
+        return [
+            Attachment::fromData(
+                fn () => Pdf::loadView('docs.first-sign-in-record', [
+                    'member'  => $this->member,
+                    'context' => $this->context,
+                ])->setPaper('letter', 'portrait')->output(),
+                $this->filename(),
+            )->withMime('application/pdf'),
+        ];
+    }
+
+    /**
+     * Named so it sorts and reads sensibly in a folder of them: who, then when.
+     */
+    public function filename(): string
+    {
+        $who = Str::slug(Str::before($this->member->email, '@')) ?: 'member';
+
+        $when = Carbon::now()
+            ->setTimezone(config('app.display_timezone', 'America/New_York'))
+            ->format('Y-m-d');
+
+        return "first-sign-in-{$who}-{$when}.pdf";
     }
 }
