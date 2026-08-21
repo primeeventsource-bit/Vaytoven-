@@ -176,6 +176,36 @@ class MemberIdListingUrlTest extends TestCase
         $this->get('/properties/no-such-listing')->assertNotFound();
     }
 
+    // --- on the listing page ---------------------------------------------------------
+
+    /** Shown above the owner's name, so both sides have one thing to quote. */
+    public function test_the_listing_shows_the_member_id_above_the_name(): void
+    {
+        $member  = $this->member('20482');
+        $listing = $this->listing($member);
+        app(PublicPropertyRef::class)->assignFor($member);
+
+        $body = $this->get('/properties/20482')->assertOk()->getContent();
+
+        $this->assertStringContainsString('Member ID 20482', $body);
+
+        $this->assertLessThan(
+            strpos($body, $member->publicDisplayName()),
+            strpos($body, 'Member ID 20482'),
+            'the number should come above the name',
+        );
+    }
+
+    /** A listing whose owner has no number simply omits the line. */
+    public function test_a_listing_without_a_member_id_shows_no_id_line(): void
+    {
+        $listing = $this->listing($this->member());
+
+        $this->get('/properties/'.$listing->id)
+            ->assertOk()
+            ->assertDontSee('Member ID');
+    }
+
     // --- the admin screens -----------------------------------------------------------
 
     public function test_the_create_form_offers_a_member_id_field(): void

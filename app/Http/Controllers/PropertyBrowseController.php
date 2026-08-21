@@ -203,7 +203,14 @@ class PropertyBrowseController extends Controller
             $request->attributes->set('vyt_preview', true);
         }
 
-        $property->load(['amenities', 'photos' => fn ($q) => $q->orderBy('sort_order'), 'host:id,name,first_name,last_name']);
+        // member_id is in the column list because the page prints it above the
+        // owner's name. A restricted eager load silently yields null for
+        // anything left out, so the line simply would not render.
+        $property->load([
+            'amenities',
+            'photos' => fn ($q) => $q->orderBy('sort_order'),
+            'host:id,name,first_name,last_name,member_id',
+        ]);
 
         if (! $request->attributes->get('vyt_preview')) {
             // Staff checking their own work is not a visitor. Counting it

@@ -120,6 +120,17 @@
                 @if ($property->host)
                     <section class="props-detail-section">
                         <h2>Advertised by</h2>
+
+                        {{-- The member's own number, above the name.
+
+                             It is already in this page's address, so showing it
+                             reveals nothing further, and it gives both sides one
+                             reference to quote — a caller can say "20482" rather
+                             than describing the property. --}}
+                        @if ($property->host->member_id)
+                            <p class="props-member-id">Member ID {{ $property->host->member_id }}</p>
+                        @endif
+
                         {{-- First name and last initial only. A listing already
                              carries a location and the dates the place is empty;
                              a full surname on top of that is what makes the set

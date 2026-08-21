@@ -105,6 +105,13 @@
         /* Detail view */
         .props-detail-back { font-size:13px; color:var(--muted); }
 
+        /* Sits above the name, quieter than it — the name is who you are
+           dealing with, the number is how you refer to them. */
+        .props-member-id {
+            font-size:12px; letter-spacing:.06em; text-transform:uppercase;
+            color:var(--muted); font-weight:600; margin:0 0 2px;
+        }
+
         /* Save button. Sits beside the title, so it stays visible without
            following the visitor down the page. */
         .props-save-btn {
