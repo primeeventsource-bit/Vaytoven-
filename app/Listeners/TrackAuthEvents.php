@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Mail\MemberFirstSignIn;
 use App\Models\User;
+use App\Rules\DeliverableEmailDomain;
 use App\Enums\ActivityType;
 use App\Services\GeoIp\GeoIpService;
 use App\Services\Tracking\ActivityRecorder;
@@ -89,6 +90,14 @@ class TrackAuthEvents
     private function notifyOfficeOfFirstSignIn(User $user): void
     {
         if (! MailDeliverability::isDeliverable()) {
+            return;
+        }
+
+        // Accounts on a reserved domain are test artefacts by definition —
+        // nobody paid, so there is no fulfilment to report. Registration now
+        // refuses them, but 51 arrived from another site's test suite before
+        // it did, and this stops those announcing themselves on every sign-in.
+        if (DeliverableEmailDomain::isReserved($user->email)) {
             return;
         }
 

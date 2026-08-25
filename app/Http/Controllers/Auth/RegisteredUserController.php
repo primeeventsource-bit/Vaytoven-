@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\TermsAcceptance;
 use App\Models\User;
+use App\Rules\DeliverableEmailDomain;
 use App\Services\Legal\LegalDocumentRegistry;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -45,7 +46,10 @@ class RegisteredUserController extends Controller
         $request->validate([
             'first_name' => ['required', 'string', 'max:120'],
             'last_name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            // The reserved-domain check is the last rule: a copy of this
+            // codebase pointed its test suite here and registered 51 accounts
+            // on a .test domain before anybody noticed.
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class, new DeliverableEmailDomain()],
             // Permissive on purpose: people type spaces, brackets, dots, and
             // country codes, and rejecting a valid number is a worse failure
             // than storing an untidy one. Stored as entered.
