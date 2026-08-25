@@ -60,6 +60,7 @@ class DemoDataPurge
     public const DEFAULT_SUFFIXES = [
         '@demo.vaytoven.local',
         '@vaytoven.test',
+        '@mybluebeacon.test',
     ];
 
     /**
@@ -68,21 +69,28 @@ class DemoDataPurge
      * Kept apart because they are removed at different times: the test accounts
      * as soon as anybody notices them, the demo accounts only once the real
      * listings can carry the site on their own.
+     *
+     * The test group covers more than one domain because more than one test
+     * suite has pointed at this site. A copy of this codebase kept its inherited
+     * Playwright base URL and spent weeks registering its own accounts here, so
+     * the exhaust is not all on our own test domain and cleaning up only ours
+     * would leave most of it behind.
      */
     public const GROUPS = [
         'test' => [
-            'label'   => 'Automated test accounts',
-            'suffix'  => '@vaytoven.test',
-            'confirm' => 'DELETE TEST DATA',
-            'blurb'   => 'Created by the end-to-end suite on every run and never cleaned up. '
-                .'They own nothing anybody sees, they accumulate without limit, and they '
-                .'inflate every account total in the admin. Nothing depends on them.',
+            'label'    => 'Automated test accounts',
+            'suffixes' => ['@vaytoven.test', '@mybluebeacon.test'],
+            'confirm'  => 'DELETE TEST DATA',
+            'blurb'    => 'Created by end-to-end test runs and never cleaned up — ours on '
+                .'vaytoven.test, and another site\'s on mybluebeacon.test, whose suite was '
+                .'still pointed at this one. They own nothing anybody sees, they accumulate '
+                .'without limit, and they inflate every account total in the admin.',
         ],
         'demo' => [
-            'label'   => 'Demo accounts and listings',
-            'suffix'  => '@demo.vaytoven.local',
-            'confirm' => 'DELETE DEMO DATA',
-            'blurb'   => 'The seeded accounts and the listings they host. These are what keep '
+            'label'    => 'Demo accounts and listings',
+            'suffixes' => ['@demo.vaytoven.local'],
+            'confirm'  => 'DELETE DEMO DATA',
+            'blurb'    => 'The seeded accounts and the listings they host. These are what keep '
                 .'the public site from looking empty, so they stay until there are enough '
                 .'real listings to carry it.',
         ],
@@ -94,7 +102,7 @@ class DemoDataPurge
     /** A purge scoped to one named group. */
     public static function forGroup(string $key): self
     {
-        return new self(self::GROUPS[$key]['suffix'] ?? '');
+        return new self(self::GROUPS[$key]['suffixes'] ?? []);
     }
 
     /** @return array<string, string> group key => the phrase that must be typed */
@@ -136,7 +144,9 @@ class DemoDataPurge
         $throwaway = User::query();
 
         foreach (self::GROUPS as $group) {
-            $throwaway->orWhere('email', 'like', '%'.$group['suffix']);
+            foreach ($group['suffixes'] as $suffix) {
+                $throwaway->orWhere('email', 'like', '%'.$suffix);
+            }
         }
 
         $real = Property::whereNotIn('host_id', $throwaway->pluck('id'))

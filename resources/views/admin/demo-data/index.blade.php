@@ -62,7 +62,11 @@
         <div class="vyt-card" style="margin-top:18px;border-color:{{ $edge }};">
             <div class="vyt-card-header">
                 <h3>{{ $group['label'] }}</h3>
-                <span class="vyt-section-meta"><code>{{ $group['suffix'] }}</code></span>
+                <span class="vyt-section-meta">
+                    @foreach ($group['suffixes'] as $suffix)
+                        <code>{{ $suffix }}</code>
+                    @endforeach
+                </span>
             </div>
 
             <div class="vyt-card-body">
@@ -116,7 +120,7 @@
                             @endforeach
                             <div class="vyt-faint" style="margin-top:8px;">
                                 &hellip; and {{ number_format(count($accounts) - count($sample)) }} more, all on
-                                <code>{{ $group['suffix'] }}</code>.
+                                {{ implode(' or ', $group['suffixes']) }}.
                             </div>
                         </div>
                     @endif

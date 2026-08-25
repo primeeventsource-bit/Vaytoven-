@@ -232,6 +232,31 @@ class DemoDataPurgeTest extends TestCase
         $this->assertSame(0, User::where('id', $tester->id)->count());
     }
 
+    /**
+     * A copy of this codebase kept its inherited Playwright base URL and spent
+     * weeks registering accounts here on its own domain. Those are our exhaust
+     * to clean up whether or not the domain says so.
+     */
+    public function test_the_test_group_covers_the_other_sites_test_domain(): void
+    {
+        $ours   = User::factory()->create(['email' => 'e2e+1@vaytoven.test', 'must_change_password' => false]);
+        $theirs = User::factory()->create(['email' => 'e2e+2@mybluebeacon.test', 'must_change_password' => false]);
+
+        DemoDataPurge::forGroup('test')->purge();
+
+        $this->assertSame(0, User::where('id', $ours->id)->count());
+        $this->assertSame(0, User::where('id', $theirs->id)->count(), 'the other suite\'s accounts are exhaust too');
+    }
+
+    /** The live domain of the other site is not its test domain, either. */
+    public function test_a_real_bluebeacon_address_is_not_matched(): void
+    {
+        $real = $this->realUser('someone@mybluebeacon.com');
+
+        (new DemoDataPurge())->purge();
+
+        $this->assertSame(1, User::where('id', $real->id)->count());
+    }
     // --- knowing when the demo listings can go -----------------------------------------
 
     /** Only active listings hosted by real accounts count toward the target. */
