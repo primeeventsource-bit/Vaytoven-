@@ -15,6 +15,50 @@
     <div class="site-alert">{{ session('success') }}</div>
 @endif
 
+{{-- Live advertisements that are not fit to be live.
+     A member pays for a fixed advertising window and the clock runs whether or
+     not the page has anything on it, so this sits above everything else on the
+     screen rather than in a report somebody remembers to open. --}}
+@if (! empty($brokenLive))
+    @php($n = count($brokenLive))
+    <div class="site-alert" style="background:#fef2f2;border-color:#fecaca;color:#991b1b;">
+        <strong>
+            {{ $n }} live {{ Str::plural('advertisement', $n) }}
+            {{ $n === 1 ? 'is' : 'are' }} missing something a visitor needs
+        </strong>
+        <p style="margin:6px 0 12px;font-weight:400;">
+            These are public right now and the members' advertising periods are running.
+        </p>
+
+        <table class="vyt-table" style="background:#fff;border-radius:8px;">
+            <thead><tr><th>Listing</th><th>Member</th><th>What is missing</th><th></th></tr></thead>
+            <tbody>
+                @foreach ($brokenLive as $row)
+                    @php($p = $row['property'])
+                    <tr>
+                        <td>
+                            <a href="{{ route('admin.properties.show', $p) }}">{{ $p->title ?: 'Untitled' }}</a>
+                            <span class="vyt-faint">&middot; #{{ $p->id }}</span>
+                        </td>
+                        <td class="vyt-mono" style="font-size:12.5px;">{{ $p->host?->email ?? '—' }}</td>
+                        <td style="font-weight:400;">
+                            @foreach ($row['blockers'] as $blocker)
+                                <div>{{ $blocker }}</div>
+                            @endforeach
+                        </td>
+                        <td>
+                            <a href="{{ route('admin.properties.show', $p) }}#photos"
+                               class="site-cta" style="padding:6px 14px;font-size:13px;white-space:nowrap;">
+                                Fix it
+                            </a>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+@endif
+
 @if ($creds = session('owner_credentials'))
     {{-- Shown once. Not stored anywhere retrievable, and not written to the
          audit log — if it is lost, issue a new one from the user screen. --}}

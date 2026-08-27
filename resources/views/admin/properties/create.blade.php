@@ -175,15 +175,24 @@
                 @error('listing_type') <div class="err">{{ $message }}</div> @enderror
             </div>
 
+            {{-- Active is not on this list on purpose.
+                 Photos attach to a listing only after it exists, so anything
+                 created live is live with no pictures. Publishing happens from
+                 the listing page once there is something to show. --}}
             <div class="site-field">
                 <label for="status">Status</label>
                 <select id="status" name="status">
-                    @foreach ($statuses as $status)
-                        <option value="{{ $status->value }}" @selected(old('status', 'draft') === $status->value)>
-                            {{ ucfirst(str_replace('_', ' ', $status->value)) }}
+                    @foreach (\App\Http\Requests\Admin\StoreAdminPropertyRequest::CREATABLE_STATUSES as $status)
+                        <option value="{{ $status }}" @selected(old('status', 'draft') === $status)>
+                            {{ ucfirst(str_replace('_', ' ', $status)) }}
                         </option>
                     @endforeach
                 </select>
+                <p class="site-hint" style="margin:6px 0 0;font-size:12.5px;color:var(--muted);">
+                    Add photos and availability next, then activate it from the listing page.
+                    A listing cannot go live without at least one photo.
+                </p>
+                @error('status') <div class="err">{{ $message }}</div> @enderror
             </div>
             <div class="site-field">
                 <label for="listing_source">Listing source</label>

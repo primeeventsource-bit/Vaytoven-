@@ -65,7 +65,48 @@ class PropertyController extends Controller
             'properties'   => $properties,
             'statuses'     => PropertyStatus::cases(),
             'activeStatus' => $request->query('status'),
+            'brokenLive'   => $this->liveListingsNotFitToShow(),
         ]);
+    }
+
+    /**
+     * Live advertisements that do not meet the bar for being live.
+     *
+     * Creation used to accept "active" directly, which published listings
+     * before their photos could be attached — there is nowhere to put a photo
+     * until the listing has an id. Six members' advertisements ran with no
+     * pictures at all and nothing in the admin said so; the only way to find
+     * out was to open the page.
+     *
+     * Creation can no longer do that. This is the other half: whatever the
+     * cause, a live listing that is not fit to show says so at the top of the
+     * list instead of waiting to be noticed.
+     *
+     * Scanned in full rather than paginated — this is about every live ad, not
+     * the page you happen to be on. The active set is small, and a member
+     * paying for an advertisement nobody can act on is worth the query.
+     *
+     * @return array<int, array{property: Property, blockers: array<int, string>}>
+     */
+    private function liveListingsNotFitToShow(): array
+    {
+        $live = Property::query()
+            ->where('status', PropertyStatus::Active->value)
+            ->with('host:id,name,email')
+            ->orderBy('id')
+            ->get();
+
+        $broken = [];
+
+        foreach ($live as $property) {
+            $blockers = ListingReadiness::blockers($property);
+
+            if ($blockers !== []) {
+                $broken[] = ['property' => $property, 'blockers' => $blockers];
+            }
+        }
+
+        return $broken;
     }
 
     public function create(): View

@@ -8,6 +8,13 @@ use Illuminate\Validation\Rule;
 
 class StoreAdminPropertyRequest extends FormRequest
 {
+    /**
+     * The states a listing may be created in. Deliberately excludes active.
+     *
+     * @var list<string>
+     */
+    public const CREATABLE_STATUSES = ['draft', 'pending_review'];
+
     public function authorize(): bool
     {
         return $this->user()?->hasPermission('properties.create') ?? false;
@@ -49,7 +56,18 @@ class StoreAdminPropertyRequest extends FormRequest
 
             'minimum_nights'  => ['nullable', 'integer', 'min:1', 'max:365'],
 
-            'status'          => ['required', Rule::enum(PropertyStatus::class)],
+            // A new listing cannot be created live.
+            //
+            // Photos are attached after the listing exists — there is nowhere
+            // to put them until it has an id — so "create as active" published
+            // an advertisement with no pictures every single time. Six real
+            // members' ads went out that way before anybody noticed.
+            //
+            // Going live is the transition endpoint's job, which already
+            // refuses until ListingReadiness is satisfied. This makes creation
+            // incapable of skipping that check rather than trusting nobody
+            // will pick the wrong option.
+            'status'          => ['required', Rule::in(self::CREATABLE_STATUSES)],
             'listing_source'  => ['required', 'in:host,managed'],
 
             'notify_owner'    => ['nullable', 'boolean'],
@@ -62,6 +80,9 @@ class StoreAdminPropertyRequest extends FormRequest
             'host_id.required'      => 'Choose the account this listing belongs to.',
             'owner_email.required'  => 'Enter the email address for the new account.',
             'country.size'          => 'Use the two-letter country code, e.g. US.',
+            'status.in'             => 'A new listing cannot be created as active. Create it as a draft, '
+                .'add the photos and availability, then activate it from the listing page — that check '
+                .'is what stops an advertisement going out with no pictures.',
         ];
     }
 }
