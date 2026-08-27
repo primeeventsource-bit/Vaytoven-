@@ -141,7 +141,10 @@
 
     function render() {
 
-    var map = L.map(el, { scrollWheelZoom: false });
+    // Centred on the United States before the pins are fitted, so the map does
+    // not paint the whole world for a frame first. Not a restriction — no
+    // maxBounds, default minZoom, so zooming out still reaches everywhere.
+    var map = L.map(el, { scrollWheelZoom: false, center: [39.5, -98.35], zoom: 4 });
 
     // Mapbox tiles when a PUBLIC token is configured, OSM otherwise. The token
     // is filtered server-side — a secret sk.* key never reaches this script.
@@ -180,7 +183,28 @@
         bounds.push([pin.lat, pin.lng]);
     });
 
-    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 9 });
+    // Open on the United States, not the world.
+    //
+    // Fitting to the pins meant one visitor in London pulled the frame out to
+    // the whole globe and the domestic audience — which is nearly all of it —
+    // collapsed into a smudge. The map now opens on the contiguous states, so
+    // the first thing a member sees is their own country at a readable size.
+    //
+    // Nothing is hidden: the far-flung pins are still plotted, and one scroll
+    // out reaches them. Framing is not filtering.
+    var US_BOUNDS = [[24.4, -124.85], [49.4, -66.9]];
+
+    var anyInUs = bounds.some(function (c) {
+        return c[0] >= 24.4 && c[0] <= 49.4 && c[1] >= -124.85 && c[1] <= -66.9;
+    });
+
+    if (anyInUs) {
+        map.fitBounds(US_BOUNDS, { padding: [20, 20] });
+    } else {
+        // No domestic traffic at all. Framing an empty country would be worse
+        // than showing the member where their audience actually is.
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 9 });
+    }
 
     }
 })();

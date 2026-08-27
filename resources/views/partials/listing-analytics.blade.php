@@ -198,15 +198,22 @@
                     try { byListing = JSON.parse(mapEl.dataset.pinsByListing || '{}'); } catch (e) {}
                     if (!allPins.length) return;
 
-                    // World map (no bounds restriction — reverted from Americas-only
-                    // per user request). Sensible initial view so the first
-                    // renderPins() call can fitBounds without "Set map center and
-                    // zoom first."
+                    // Opens on the United States; the rest of the world is a
+                    // scroll away.
+                    //
+                    // Note this is the starting frame, not a restriction —
+                    // minZoom stays at 1 and no maxBounds is set, so zooming out
+                    // to the globe still works. An earlier version genuinely did
+                    // restrict the map to the Americas and was reverted; this is
+                    // the other thing.
+                    //
+                    // The centre is set here as well as in renderPins so the map
+                    // does not paint the whole world for a frame before settling.
                     var map = L.map(mapEl, {
                         scrollWheelZoom: false,
                         zoomControl: true,
-                        center: [20, 0],
-                        zoom: 2,
+                        center: [39.5, -98.35],
+                        zoom: 4,
                         minZoom: 1,
                     });
 
@@ -299,11 +306,36 @@
                             bounds.push([p.lat, p.lng]);
                         });
 
+                        var animate = opts.animate !== false;
+
+                        // The opening frame is the United States.
+                        //
+                        // Fitting to the pins let a single overseas visitor pull
+                        // the view out to the whole world, leaving the domestic
+                        // audience — nearly all of it — too small to read. Only
+                        // the initial paint is framed this way; clicking a
+                        // listing still fits that listing's own footprint, which
+                        // is the question being asked at that point.
+                        //
+                        // The overseas pins are still on the map. One scroll out
+                        // reaches them.
+                        var US_BOUNDS = [[24.4, -124.85], [49.4, -66.9]];
+
+                        if (opts.frameUnitedStates && bounds.some(function (c) {
+                            return c[0] >= 24.4 && c[0] <= 49.4 && c[1] >= -124.85 && c[1] <= -66.9;
+                        })) {
+                            if (animate) {
+                                map.flyToBounds(US_BOUNDS, { padding: [20, 20], duration: 0.7 });
+                            } else {
+                                map.fitBounds(US_BOUNDS, { padding: [20, 20] });
+                            }
+                            return;
+                        }
+
                         // For a single pin, set a comfortable zoom; otherwise fit
                         // to the natural bounds. Initial paint uses setView/fitBounds
                         // (no animation; works even before the map has a view set);
                         // subsequent filter changes use the animated flyTo equivalents.
-                        var animate = opts.animate !== false;
                         if (bounds.length === 1) {
                             if (animate) {
                                 map.flyTo(bounds[0], 5, { duration: 0.7 });
@@ -319,8 +351,8 @@
                         }
                     }
 
-                    // Initial render: all listings.
-                    renderPins(allPins, { animate: false });
+                    // Initial render: all listings, framed on the United States.
+                    renderPins(allPins, { animate: false, frameUnitedStates: true });
 
                     // Per-listing row clicks filter the map. Clicking the active
                     // row again toggles back to the global view.
@@ -347,7 +379,7 @@
                         if (row === activeRow) {
                             // Toggle off — back to all.
                             setActive(null);
-                            renderPins(allPins);
+                            renderPins(allPins, { frameUnitedStates: true });
                             return;
                         }
                         var id = row.dataset.listingId;
@@ -374,7 +406,7 @@
                     if (clearBtn) {
                         clearBtn.addEventListener('click', function () {
                             setActive(null);
-                            renderPins(allPins);
+                            renderPins(allPins, { frameUnitedStates: true });
                         });
                     }
                 })();
