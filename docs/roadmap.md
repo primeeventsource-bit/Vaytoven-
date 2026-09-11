@@ -366,3 +366,10 @@ Reasoning: Foundation (0, 1) → schema (2) → API (3) → payments (5) before 
 **Phase 0** — agent briefings + docs scaffolding + `.env.example` fix. ~half a day. Zero behavior change. Sets up everything else.
 
 After Phase 0 deploys cleanly to https://v-app-dev-main-oyo1n9.laravel.cloud, kick off Phase 1 (RBAC) and Phase 2 (schema buildout) in parallel.
+
+
+## 2026-09-10 — Local setup and hybrid apps
+
+The user's hybrid-app request is implemented in a separate local checkout on `codex/local-hybrid-apps`. Laravel runs locally with MySQL 8.4, Redis, PHP 8.4, seeded listings, and a branded Capacitor client. Android compiles as a debug APK. The iOS Swift Package Manager project is generated; Xcode installation/signing and iOS runtime validation remain. No cloud or store deployment is performed.
+
+The old phase-status tables above predate much of the shipped code. Current evidence and gaps are recorded in REPOSITORY-ANALYSIS.md; operating instructions are in LOCAL-AND-MOBILE.md. PHP security advisories remain a release concern; passing functional tests is not a substitute for remediation.

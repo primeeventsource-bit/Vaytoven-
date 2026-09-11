@@ -26,3 +26,7 @@ yarn-error.log
 # Claude Code local config (worktrees, scheduled tasks, etc.)
 /.claude
 *.sqlite
+
+# Generated mobile preview and local runtime files
+/public/app/
+/.local/

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!--
+    The V-pin from the site nav, on a filled tile.
+
+    A browser tab renders this at 16px against whatever colour the user's
+    theme happens to be, so the mark is drawn in white on the brand gradient
+    rather than gradient-on-transparent: the thin strokes of the V vanish
+    against a dark tab strip otherwise.
+  -->
+  <defs>
+    <linearGradient id="vyt-favicon-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF3D8A"/>
+      <stop offset="50%" stop-color="#D63384"/>
+      <stop offset="100%" stop-color="#7B2CBF"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#vyt-favicon-grad)"/>
+  <path fill="#fff" d="M13 13h11l9 26 9-26h11L37 55h-9z"/>
+  <circle cx="47" cy="18" r="7" fill="#fff"/>
+  <circle cx="47" cy="18" r="2.6" fill="#D63384"/>
+</svg>

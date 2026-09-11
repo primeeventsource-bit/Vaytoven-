@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FBF8F3">
+  <meta name="description" content="Find your place anywhere. Explore vacation properties with Vaytoven.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https: http://127.0.0.1:8000 http://10.0.2.2:8000; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <title>Vaytoven — Find your place anywhere</title>
+  <link rel="icon" href="brand.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-512.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="capacitor.js" defer></script>
+  <script src="config.js" defer></script>
+  <script src="app.js" type="module"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar"><a href="#explore" class="brand"><img src="brand.svg" width="36" height="36" alt=""><span>Vaytoven</span></a><span class="edition">A little closer to somewhere new.</span><a class="avatar" href="#account" aria-label="Your account" id="avatar">V</a></header>
+    <div id="offline" class="offline" hidden>You’re offline. Reconnect to browse the latest listings.</div>
+    <main id="main" tabindex="-1"><div class="loading" role="status">Finding your next escape…</div></main>
+    <nav id="navigation" class="bottom-nav" aria-label="App navigation"></nav>
+  </div>
+  <dialog id="dialog"><div id="dialog-content"></div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <noscript>This app needs JavaScript. Visit the Vaytoven website to continue.</noscript>
+</body>
+</html>

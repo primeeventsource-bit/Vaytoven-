@@ -1,0 +1,11 @@
+{
+  "appId": "com.vaytoven.app",
+  "appName": "Vaytoven",
+  "webDir": "www",
+  "backgroundColor": "#FBF8F3",
+  "server": { "androidScheme": "https" },
+  "plugins": {
+    "CapacitorHttp": { "enabled": true }
+  },
+  "ios": { "contentInset": "automatic" }
+}
