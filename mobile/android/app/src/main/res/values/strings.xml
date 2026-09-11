@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Vaytoven</string>
+    <string name="title_activity_main">Vaytoven</string>
+    <string name="package_name">com.vaytoven.app</string>
+    <string name="custom_url_scheme">com.vaytoven.app</string>
+</resources>

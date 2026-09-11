@@ -40,10 +40,10 @@
                 </p>
             </div>
             <div class="site-card">
-                <h3>Browsing and booking</h3>
+                <h3>Property discovery</h3>
                 <p style="margin:0;">
-                    Search stays by destination, filter by capacity and price, view photos, and book
-                    and pay through the same secure checkout as desktop.
+                    Search vacation properties by destination, filter by capacity and price, view photos,
+                    save your favorites, and send offers or questions directly to the owner.
                 </p>
             </div>
             <div class="site-card">
@@ -64,7 +64,10 @@
     </section>
 
     <section class="site-section">
-        <h2>Native apps</h2>
+        <h2>Android and iOS apps</h2>
+        @env('local')
+            <p><a href="{{ asset('app/index.html') }}" class="site-cta">Try the local mobile app preview</a></p>
+        @endenv
         <p>
             There is no Vaytoven app in the App Store or on Google Play yet. When there is, the
             download links will appear here and nowhere else — we would rather show nothing than a
