@@ -32,3 +32,9 @@ The full project specification remains in `docs/`.
 ## Language Rule
 
 User-facing copy must use vacation property, vacation club, points-based ownership, and member.
+
+## Local website and hybrid mobile apps (2026-09-10)
+
+The hybrid Android/iOS implementation is in `mobile/`. Start with [the local/mobile runbook](docs/LOCAL-AND-MOBILE.md) and [the repository analysis](docs/REPOSITORY-ANALYSIS.md). The lockfile currently requires **PHP 8.4.1+**, despite the broader constraint above. The current payment integration is NMI; older Stripe/booking references in this README and planning documents are historical.
+
+With Laravel running, `npm --prefix mobile ci && npm --prefix mobile run build` creates the local mobile preview at `/app/`. Native synchronization requires an explicitly configured Laravel API origin.

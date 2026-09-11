@@ -166,3 +166,10 @@ Counsel review is required before any branding spend or legal entity formation. 
 - **Phased plan** — see `docs/roadmap.md`
 - **DocuSign-specific setup** — see `docs/docusign-setup.md`
 - **Cloud safety / first-deploy runbook** — see `docs/01-step1-cloud-safety.md`, `docs/02-laravel-cloud-deployment.md`
+
+
+## Hybrid mobile addition — 2026-09-10
+
+`mobile/www` is a framework-free shared mobile client, packaged into `mobile/android` and `mobile/ios` by Capacitor 8. It consumes the existing property/auth/support API and new authenticated `/api/v1/mobile/*` endpoints. New actions delegate to `MobileListingService` and the existing `OfferService`; web and mobile saves share `wishlist_properties`. No schema migration is required.
+
+The mobile client uses in-memory bearer tokens. Capacitor HTTP supplies native networking; the browser preview at `/app/` uses same-origin requests. Browser/share/app plugins provide platform integration. The local build explicitly targets loopback with Android `adb reverse`; distribution requires an HTTPS backend containing the mobile API additions. See LOCAL-AND-MOBILE.md for native build steps and the boundary between native screens and website handoffs.

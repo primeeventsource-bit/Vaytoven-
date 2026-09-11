@@ -144,3 +144,20 @@ Status legend: 🔲 not started · 🟡 in progress · 🟢 implemented + tested
 - **NFR-3 (availability):** /up returns 200 (Laravel default); /health pings DB + Redis and returns 503 if either is down.
 - **NFR-4 (auditability):** Every admin write hits `admin_audit_logs`. Every authentication hits `login_sessions`.
 - **NFR-5 (legal):** GDPR/CCPA-compliant — IP, geolocation, device fingerprint disclosed in privacy policy; user can request deletion (which redacts but doesn't break hash chain — uses `[redacted]` placeholders).
+
+
+## 14. Hybrid mobile apps — 2026-09-10
+
+Requested scope: Android and iOS hybrid apps matching the existing website. This supersedes the earlier deferral to separate SwiftUI/Compose clients for this implementation. Historical booking and Stripe requirements above are not reintroduced by this mobile work: current routes implement property advertising, owner inquiries/offers, and NMI advertising payments. The discrepancy between the older specification and the current business implementation is documented in REPOSITORY-ANALYSIS.md for owner review.
+
+| ID | Requirement | Status |
+|---|---|---|
+| FR-14.1 | Shared branded HTML/CSS/JS interface packaged with Capacitor for Android and iOS; existing Laravel Blade frontend remains. | Implemented; Android build available, iOS source generated |
+| FR-14.2 | Public property discovery, photo galleries, filters, and website-consistent price captions through `/api/v1`. | Implemented and browser-tested |
+| FR-14.3 | Sanctum sign-in/registration, explicit legal-version acceptance, password changes, deactivation enforcement, and in-memory app tokens. | Implemented; backend and browser tests |
+| FR-14.4 | Account-private saves reuse website wishlists. Idempotent PUT/DELETE endpoints record meaningful save changes. | Implemented and tested |
+| FR-14.5 | Buyers send inquiries/offers in integer cents; listing owners respond. Existing offer services/audit records are reused; expired and already-answered offers cannot be acted on. | Implemented and tested |
+| FR-14.6 | Existing support API with unavailable-provider handling; full account administration/signing/payment flows use explicit website handoff. | Implemented; browser-tested |
+| FR-14.7 | App-store distribution, remembered login via secure storage, push notifications, and complete native admin screens. | Not included in this local delivery |
+
+No tables or columns are introduced by this work. The existing property, wishlist, offer, user/token, and legal acceptance schemas are reused.
