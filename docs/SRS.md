@@ -161,3 +161,11 @@ Requested scope: Android and iOS hybrid apps matching the existing website. This
 | FR-14.7 | App-store distribution, remembered login via secure storage, push notifications, and complete native admin screens. | Not included in this local delivery |
 
 No tables or columns are introduced by this work. The existing property, wishlist, offer, user/token, and legal acceptance schemas are reused.
+
+## 15. Google Ads base tag — 2026-09-14
+
+| ID | Requirement | Status |
+|---|---|---|
+| FR-15.1 | Install the supplied Google Ads destination `AW-18384124631` on website pages and, where feasible, the hybrid mobile interface. | Implemented; browser, Android WebView and iOS simulator requests verified. See GOOGLE-TAG.md for evidence and limits. |
+
+This is base web-tag measurement. Native app attribution and custom conversion actions require additional account configuration and are not implied by this installation.

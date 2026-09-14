@@ -7,6 +7,7 @@
     <title>Event Centers · Conventions &amp; Expos · Vaytoven</title>
     <meta name="description" content="Upcoming conventions, expos, trade shows and conferences at five of America's largest convention destinations — then explore Vaytoven property advertisements in each city.">
     @include('partials.favicon')
+    @include('partials.google-tag')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">

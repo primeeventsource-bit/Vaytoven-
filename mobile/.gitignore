@@ -1,3 +1,4 @@
 node_modules/
 www/config.js
 www/capacitor.js
+www/vyt-google-tag.js

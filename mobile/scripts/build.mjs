@@ -13,6 +13,7 @@ await writeFile(path.join(root, 'www/config.js'), `window.VAYTOVEN_CONFIG = ${JS
 await cp(path.join(root, '../public/favicon.svg'), path.join(root, 'www/brand.svg'));
 await cp(path.join(root, '../public/icon-512.png'), path.join(root, 'www/icon-512.png'));
 await cp(path.join(root, 'node_modules/@capacitor/core/dist/capacitor.js'), path.join(root, 'www/capacitor.js'));
+await cp(path.join(root, '../public/vyt-google-tag.js'), path.join(root, 'www/vyt-google-tag.js'));
 const preview = path.join(root, '../public/app');
 await mkdir(preview, { recursive: true });
 await cp(path.join(root, 'www'), preview, { recursive: true });
