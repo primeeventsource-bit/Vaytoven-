@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Storage\FilePresence;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
@@ -90,6 +91,8 @@ class MemberDocument extends Model
      */
     public function fileExists(): bool
     {
-        return Storage::disk($this->disk)->exists($this->path);
+        // Document lists prime these in bulk. See FilePresence.
+        return FilePresence::known($this->disk, $this->path)
+            ?? Storage::disk($this->disk)->exists($this->path);
     }
 }

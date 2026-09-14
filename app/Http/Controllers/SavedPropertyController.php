@@ -7,6 +7,7 @@ use App\Enums\PropertyStatus;
 use App\Models\Property;
 use App\Models\Wishlist;
 use App\Services\Tracking\ActivityRecorder;
+use App\Support\Storage\FilePresence;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +40,12 @@ class SavedPropertyController extends Controller
             ->with('photos')
             ->orderByDesc('wishlist_properties.added_at')
             ->get();
+
+        // Each card asks whether its cover photo is still on the disk. One
+        // listing answers all of them; see FilePresence.
+        $photos = $properties->flatMap->photos;
+
+        FilePresence::prime($photos->first()?->disk, $photos->pluck('path'));
 
         return view('client.saved.index', [
             'properties' => $properties,

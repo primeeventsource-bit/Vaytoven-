@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreAdminPropertyRequest;
 use App\Http\Requests\Admin\UpdateListingRequest;
 use App\Support\Listings\ListingReadiness;
+use App\Support\Storage\FilePresence;
 use Illuminate\Validation\Rule;
 use App\Models\Amenity;
 use App\Mail\ListingCreatedForOwner;
@@ -107,6 +108,24 @@ class PropertyController extends Controller
         }
 
         return $broken;
+    }
+
+    /**
+     * Resolve "is this file still there?" for every photo on a listing at once.
+     *
+     * Both paths, because the editor asks about the original as well as the
+     * rendered file, and the two live in sibling folders — priming only one of
+     * them would leave the other asking the bucket per photo, which is the
+     * whole problem.
+     */
+    private function primePhotoPresence(Property $property): void
+    {
+        $photos = $property->photos;
+
+        FilePresence::prime(
+            $photos->first()?->disk,
+            $photos->pluck('path')->merge($photos->pluck('original_path')),
+        );
     }
 
     public function create(): View
@@ -292,6 +311,13 @@ class PropertyController extends Controller
 
         $property->load(['amenities', 'host', 'availabilityWeeks', 'memberServiceOrder', 'photos.uploadedBy']);
 
+        // The editor asks the bucket three times per photo — is the file there,
+        // is it there for the larger preview, is the pristine original there.
+        // At 377ms a round trip that was the whole page budget by the time a
+        // listing had a dozen photographs, and it returned a 504 rather than an
+        // editor. One listing answers all of it; see FilePresence.
+        $this->primePhotoPresence($property);
+
         return view('admin.properties.edit', [
             'property'  => $property,
             'amenities' => Amenity::query()->orderBy('category')->orderBy('label')->get()->groupBy('category'),
@@ -460,6 +486,12 @@ class PropertyController extends Controller
         $this->authorizeListing($request, $property);
 
         $property->load(['host', 'memberServiceOrder', 'photos', 'availabilityWeeks']);
+
+        // The documents panel asks the bucket per file; one listing covers all
+        // of them. See FilePresence.
+        $documents = \App\Models\MemberDocument::forProperty($property->id)->get();
+        FilePresence::prime($documents->first()?->disk, $documents->pluck('path'));
+        $this->primePhotoPresence($property);
 
         // Counted here rather than carried on the property row. A cached
         // counter that drifts is worse than a query: staff would quote it in a

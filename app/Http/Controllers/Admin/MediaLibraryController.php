@@ -8,6 +8,7 @@ use App\Models\MediaCollection;
 use App\Services\AdminAuditLogService;
 use App\Services\Listings\PhotoIngestor;
 use App\Support\Storage\DocumentStorage;
+use App\Support\Storage\FilePresence;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -48,6 +49,14 @@ class MediaLibraryController extends Controller
             ->latest('id')
             ->paginate(48)
             ->withQueryString();
+
+        // The grid asks each asset whether its file is still there. Resolved in
+        // one listing instead of 48 round trips to the bucket — see
+        // FilePresence; unprimed, this page was a gateway timeout.
+        FilePresence::prime(
+            $assets->first()?->disk,
+            $assets->getCollection()->pluck('path'),
+        );
 
         return view('admin.media.index', [
             'collections'    => $collections,

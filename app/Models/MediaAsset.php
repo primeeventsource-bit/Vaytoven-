@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Storage\FilePresence;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,7 +68,9 @@ class MediaAsset extends Model
 
     public function fileExists(): bool
     {
-        return Storage::disk($this->disk)->exists($this->path);
+        // The library index shows hundreds of these at once. See FilePresence.
+        return FilePresence::known($this->disk, $this->path)
+            ?? Storage::disk($this->disk)->exists($this->path);
     }
 
     /** What a screen reader announces once this lands on a listing. */

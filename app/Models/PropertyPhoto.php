@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Storage\FilePresence;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -109,8 +110,12 @@ class PropertyPhoto extends Model
      */
     public function originalExists(): bool
     {
-        return $this->original_path !== null
-            && Storage::disk($this->disk)->exists($this->original_path);
+        if ($this->original_path === null) {
+            return false;
+        }
+
+        return FilePresence::known($this->disk, $this->original_path)
+            ?? Storage::disk($this->disk)->exists($this->original_path);
     }
 
     public function property(): BelongsTo
@@ -152,8 +157,14 @@ class PropertyPhoto extends Model
 
     public function fileExists(): bool
     {
-        return $this->isUploaded()
-            && Storage::disk($this->disk)->exists($this->path);
+        if (! $this->isUploaded()) {
+            return false;
+        }
+
+        // A page showing many photos primes these in one listing; see
+        // FilePresence for why asking the bucket per file timed out.
+        return FilePresence::known($this->disk, $this->path)
+            ?? Storage::disk($this->disk)->exists($this->path);
     }
 
     /** What a screen reader announces. Falls back so it is never empty. */
