@@ -21,6 +21,9 @@ class EnsurePasswordChanged
         'password.first-change',
         'password.first-change.store',
         'logout',
+        'api.auth.logout',
+        'mobile.account',
+        'mobile.password.update',
         'health',
     ];
 
@@ -41,7 +44,7 @@ class EnsurePasswordChanged
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'You must set a new password before using this account.',
-                'error'   => 'password_change_required',
+                'error' => 'password_change_required',
             ], 423);   // Locked
         }
 

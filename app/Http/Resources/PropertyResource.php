@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\Property
+ * @mixin Property
  */
 class PropertyResource extends JsonResource
 {
@@ -14,6 +15,10 @@ class PropertyResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'reference' => $this->reference,
+            'listing_type' => $this->listing_type?->value,
+            'price_caption' => $this->listing_type?->priceCaption(),
+            'public_url' => route('properties.show', $this->resource),
             'title' => $this->title,
             'description' => $this->description,
             'listing_source' => $this->listing_source,

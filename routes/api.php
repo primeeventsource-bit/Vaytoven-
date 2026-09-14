@@ -4,10 +4,12 @@ use App\Http\Controllers\Api\Admin\SettingsApiController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DestinationSuggestController;
 use App\Http\Controllers\Api\LoginHistoryController;
+use App\Http\Controllers\Api\Mobile\AccountController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\PublicSettingsController;
 use App\Http\Controllers\Api\SupportChatController;
 use App\Http\Controllers\Api\TrackingEventController;
+use App\Http\Middleware\EnsureMobileAccountAccess;
 use Illuminate\Support\Facades\Route;
 
 // All routes here are mounted under /api/v1 by bootstrap/app.php.
@@ -46,7 +48,7 @@ Route::get('settings/public', PublicSettingsController::class)
     ->middleware('throttle:120,1');
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('auth/logout', [AuthController::class, 'logout']);
+    Route::post('auth/logout', [AuthController::class, 'logout'])->name('api.auth.logout');
     Route::get('auth/me', [AuthController::class, 'me']);
 
     // The bookings endpoints are gone along with the rest of the booking
@@ -69,3 +71,18 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::get('feature-flags', [SettingsApiController::class, 'flags'])->middleware('permission:settings.view');
     Route::put('feature-flags/{key}', [SettingsApiController::class, 'updateFlag'])->middleware('permission:settings.edit');
 });
+
+// Hybrid mobile app: same accounts, listings, offer service, and audit trail.
+Route::middleware(['auth:sanctum', EnsureMobileAccountAccess::class])
+    ->prefix('mobile')->name('mobile.')->group(function () {
+        $controller = AccountController::class;
+        Route::get('account', [$controller, 'account'])->name('account');
+        Route::post('terms', [$controller, 'terms'])->name('terms.store');
+        Route::post('password', [$controller, 'password'])->middleware('throttle:5,1')->name('password.update');
+        Route::get('saved', [$controller, 'saved'])->name('saved.index');
+        Route::put('saved/{property}', [$controller, 'save'])->name('saved.store');
+        Route::delete('saved/{property}', [$controller, 'save'])->name('saved.destroy');
+        Route::get('offers', [$controller, 'offers'])->name('offers.index');
+        Route::post('properties/{property}/offers', [$controller, 'submit'])->middleware('throttle:10,1')->name('offers.store');
+        Route::post('offers/{offer}/respond', [$controller, 'respond'])->middleware('throttle:20,1')->name('offers.respond');
+    });

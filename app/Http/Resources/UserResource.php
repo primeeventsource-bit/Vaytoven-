@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\User
+ * @mixin User
  */
 class UserResource extends JsonResource
 {
@@ -14,6 +15,7 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'must_change_password' => (bool) $this->must_change_password,
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role?->value,
