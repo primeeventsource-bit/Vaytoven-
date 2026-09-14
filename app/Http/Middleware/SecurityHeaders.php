@@ -84,21 +84,24 @@ class SecurityHeaders
      */
     private function policy(): string
     {
-        $nmi     = 'https://secure.nmi.com';
-        $mapbox  = 'https://api.mapbox.com https://events.mapbox.com';
-        $tiles   = 'https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com';
-        $fonts   = 'https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com';
+        $nmi = 'https://secure.nmi.com';
+        $mapbox = 'https://api.mapbox.com https://events.mapbox.com';
+        $tiles = 'https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com';
+        $fonts = 'https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com';
+
+        // Google Ads base tag: script, measurement pixels, and its helper frame.
+        $googleScripts = 'https://www.googletagmanager.com https://www.googleadservices.com https://www.google.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net';
+        $googleSignals = $googleScripts.' https://ad.doubleclick.net https://google.com https://www.google.ae';
 
         return implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com {$nmi} {$mapbox}",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com {$nmi} {$mapbox} {$googleScripts}",
             "style-src 'self' 'unsafe-inline' https://unpkg.com {$fonts}",
             "font-src 'self' data: {$fonts}",
-            "img-src 'self' data: blob: https://images.unsplash.com https://unpkg.com {$mapbox} {$tiles}",
-            "connect-src 'self' {$nmi} {$mapbox} {$tiles}",
-            // Collect.js puts the card inputs in its own iframes. Nothing else
-            // may be framed, and nothing may frame us.
-            "frame-src {$nmi}",
+            "img-src 'self' data: blob: https://images.unsplash.com https://unpkg.com {$mapbox} {$tiles} {$googleSignals}",
+            "connect-src 'self' {$nmi} {$mapbox} {$tiles} {$googleSignals}",
+            // Collect.js card fields and Google tag helper frames only.
+            "frame-src {$nmi} https://www.googletagmanager.com",
             "frame-ancestors 'none'",
             // A stolen form action is how a card page becomes a phishing page.
             "form-action 'self'",

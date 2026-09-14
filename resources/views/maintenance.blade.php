@@ -6,6 +6,7 @@
     <meta name="robots" content="noindex">
     <title>{{ setting('general.site_name', 'Vaytoven') }} — be right back</title>
     @include('partials.favicon')
+    @include('partials.google-tag')
     <style>
         :root { --gradient: linear-gradient(135deg, #ec4899, #d946ef, #a855f7); }
         * { box-sizing: border-box; margin: 0; }

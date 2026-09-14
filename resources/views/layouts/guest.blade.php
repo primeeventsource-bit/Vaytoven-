@@ -7,6 +7,7 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
         @include('partials.favicon')
+    @include('partials.google-tag')
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

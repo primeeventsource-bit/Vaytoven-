@@ -373,3 +373,7 @@ After Phase 0 deploys cleanly to https://v-app-dev-main-oyo1n9.laravel.cloud, ki
 The user's hybrid-app request is implemented in a separate local checkout on `codex/local-hybrid-apps`. Laravel runs locally with MySQL 8.4, Redis, PHP 8.4, seeded listings, and a branded Capacitor client. Android compiles as a debug APK. The iOS Swift Package Manager project is generated; Xcode installation/signing and iOS runtime validation remain. No cloud or store deployment is performed.
 
 The old phase-status tables above predate much of the shipped code. Current evidence and gaps are recorded in REPOSITORY-ANALYSIS.md; operating instructions are in LOCAL-AND-MOBILE.md. PHP security advisories remain a release concern; passing functional tests is not a substitute for remediation.
+
+## 2026-09-14 — Google Ads base tag
+
+Added `AW-18384124631` through a shared website/mobile bootstrap, with CSP allowances and duplicate-initialization protection. Browser and native emulator/simulator requests were verified; Android and iOS Simulator artifacts were rebuilt. Native install attribution, specific conversion actions and production tag diagnostics remain separate configuration/verification steps. See GOOGLE-TAG.md.
