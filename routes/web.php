@@ -44,6 +44,8 @@ use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PressController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyBrowseController;
+use App\Http\Controllers\MemberAdvertisementController;
+use App\Http\Controllers\MemberIncentiveController;
 use App\Http\Controllers\PropertyPhotoStreamController;
 use App\Http\Controllers\SavedPropertyController;
 use App\Http\Controllers\SitemapController;
@@ -203,6 +205,23 @@ Route::middleware(['auth', 'terms.current'])->group(function () {
     Route::post('/account/listing-offers/{offer}/accept', [OfferController::class, 'accept'])->name('offers.accept');
     Route::post('/account/listing-offers/{offer}/decline', [OfferController::class, 'decline'])->name('offers.decline');
 
+    // The enrollment incentive. Rendering it records "presented"; either
+    // button records "acknowledged". Neither has anything to do with
+    // accepting an advertisement.
+    Route::get('/account/welcome-reward', [MemberIncentiveController::class, 'show'])
+        ->name('member.incentive.show');
+    Route::post('/account/welcome-reward', [MemberIncentiveController::class, 'acknowledge'])
+        ->middleware('throttle:10,1')->name('member.incentive.acknowledge');
+    Route::get('/account/dining-reward', [MemberIncentiveController::class, 'reward'])
+        ->name('member.incentive.reward');
+
+    // A member's own advertisement: opening it records access, and the
+    // member accepts it here. Owner-only; see MemberAdvertisementController.
+    Route::get('/account/advertisements/{property}', [MemberAdvertisementController::class, 'show'])
+        ->name('member.advertisements.show');
+    Route::post('/account/advertisements/{property}/accept', [MemberAdvertisementController::class, 'accept'])
+        ->middleware('throttle:10,1')->name('member.advertisements.accept');
+
     // /host/onboarding now serves the public "list your property or resort"
     // form — see the public route block above.
 });
@@ -318,11 +337,20 @@ Route::middleware(['auth'])
         Route::delete('hosting/service-fees/{config}', [ServiceFeeController::class, 'destroy'])
             ->middleware('permission:billing.service_fees')->name('hosting.service-fees.destroy');
 
+        // First logins, incentives, acceptance and certificates across every
+        // Managed Listing Program client. Read-only.
+        Route::get('fulfillment', [\App\Http\Controllers\Admin\FulfillmentRegisterController::class, 'index'])
+            ->middleware('permission:members.view')->name('fulfillment.index');
+
         // Member 360 — one screen holding everything about one member.
         Route::get("members/{user}", [MemberProfileController::class, "show"])
             ->middleware("permission:members.view")->name("members.show");
         Route::post("members/{user}/notes", [MemberProfileController::class, "updateNotes"])
             ->middleware("permission:members.edit")->name("members.notes");
+        Route::post('members/{user}/incentive/delivery', [MemberProfileController::class, 'recordIncentiveDelivery'])
+            ->middleware('permission:members.edit')->name('members.incentive-delivery');
+        Route::get('members/{user}/advertisements/{property}/fulfillment-certificate.pdf', [MemberProfileController::class, 'fulfillmentCertificate'])
+            ->middleware('permission:members.view')->name('members.fulfillment-certificate');
 
         // Member document store. Downloads are audited, so they go through the
         // controller rather than a public disk URL.

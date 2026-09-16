@@ -65,60 +65,15 @@ class LoginTrackingService
             'is_vpn' => $geo->is_vpn,
             'is_tor' => $geo->is_tor,
             'is_datacenter' => $geo->is_datacenter,
-            'device_type' => $this->classifyDevice($ua),
-            'os' => $this->extractOs($ua),
-            'browser' => $this->extractBrowser($ua),
+            // One parser for every evidence surface, so login_sessions and the
+            // activity log can never describe the same sign-in differently.
+            'device_type' => ActivityRecorder::deviceType($ua),
+            'os' => $ua ? ActivityRecorder::platform($ua) : null,
+            'browser' => $ua ? ActivityRecorder::browser($ua) : null,
             'user_agent' => $ua ? mb_substr($ua, 0, 512) : null,
             'is_suspicious' => count($reasons) > 0,
             'suspicious_reasons' => $reasons ?: null,
             'occurred_at' => now(),
         ]);
-    }
-
-    private function classifyDevice(?string $ua): string
-    {
-        if (! $ua) {
-            return 'unknown';
-        }
-        $lower = strtolower($ua);
-        if (str_contains($lower, 'tablet') || str_contains($lower, 'ipad')) {
-            return 'tablet';
-        }
-        if (str_contains($lower, 'mobile') || str_contains($lower, 'android') || str_contains($lower, 'iphone')) {
-            return 'mobile';
-        }
-        return 'desktop';
-    }
-
-    private function extractOs(?string $ua): ?string
-    {
-        if (! $ua) {
-            return null;
-        }
-        return match (true) {
-            str_contains($ua, 'Windows')              => 'Windows',
-            str_contains($ua, 'Mac OS X'),
-            str_contains($ua, 'Macintosh')            => 'macOS',
-            str_contains($ua, 'iPhone'),
-            str_contains($ua, 'iPad'),
-            str_contains($ua, 'iPod')                 => 'iOS',
-            str_contains($ua, 'Android')              => 'Android',
-            str_contains($ua, 'Linux')                => 'Linux',
-            default                                   => null,
-        };
-    }
-
-    private function extractBrowser(?string $ua): ?string
-    {
-        if (! $ua) {
-            return null;
-        }
-        return match (true) {
-            str_contains($ua, 'Edg/')                 => 'Edge',
-            str_contains($ua, 'Chrome/')              => 'Chrome',
-            str_contains($ua, 'Safari/')              => 'Safari',
-            str_contains($ua, 'Firefox/')             => 'Firefox',
-            default                                   => null,
-        };
     }
 }

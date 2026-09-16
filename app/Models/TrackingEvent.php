@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\ActivityType;
 use App\Enums\Surface;
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +21,8 @@ class TrackingEvent extends Model
         'event_uuid',
         'event_type',
         'actor_user_id',
+        // Role at the time of the event. See the 2026_09_16 migration.
+        'actor_role',
         'visitor_id',
         'surface',
         'ip_address',
@@ -123,5 +127,65 @@ class TrackingEvent extends Model
     public function actor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'actor_user_id');
+    }
+
+    /** Roles whose actions are Vaytoven staff actions, never member actions. */
+    public const STAFF_ROLES = ['admin', 'super_admin', 'member_specialist'];
+
+    /**
+     * The role the actor acted in.
+     *
+     * The recorded role when the row has one. Rows written before actor_role
+     * existed fall back to the account's current role — a read-time reading,
+     * nothing stored changes.
+     */
+    public function actingRole(): ?UserRole
+    {
+        if ($this->actor_role) {
+            return UserRole::tryFrom($this->actor_role);
+        }
+
+        return $this->actor_user_id ? $this->actor?->role : null;
+    }
+
+    public function isStaffActor(): bool
+    {
+        return in_array($this->actingRole()?->value, self::STAFF_ROLES, true);
+    }
+
+    /** "Member" / "Admin" / "Super admin" / "Member specialist" / null for guests. */
+    public function actorClassLabel(): ?string
+    {
+        return match ($this->actingRole()) {
+            null                         => null,
+            UserRole::SuperAdmin         => 'Super admin',
+            UserRole::Admin              => 'Admin',
+            UserRole::MemberSpecialist   => 'Member specialist',
+            default                      => 'Member',
+        };
+    }
+
+    /**
+     * The label the activity log shows.
+     *
+     * Logins name the class of account ("Member login", "Admin login"), and a
+     * listing change made by staff says so — the same event type is written by
+     * members and by the admin listing tools.
+     */
+    public function activityLabel(): string
+    {
+        $type  = ActivityType::tryFrom($this->event_type);
+        $label = $type?->label() ?? $this->event_type;
+
+        if ($type === ActivityType::LoginSucceeded && ($class = $this->actorClassLabel())) {
+            return $class.' login';
+        }
+
+        if ($type && $this->isStaffActor() && in_array($type->value, ActivityType::staffActionable(), true)
+            && $type !== ActivityType::LoggedOut) {
+            return $label.' (by '.strtolower((string) $this->actorClassLabel()).')';
+        }
+
+        return $label;
     }
 }

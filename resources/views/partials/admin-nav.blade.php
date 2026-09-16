@@ -1,68 +1,148 @@
 {{--
-    Staff navigation.
+    Staff navigation: primary sections with dropdowns.
 
-    Every admin screen existed and was reachable only by typing its URL — there
-    was no link to any of them from anywhere in the product. "Where do I create
-    a user?" had no answer that did not involve knowing the route name.
+    The flat row of tabs ran off the screen as screens were added. Every
+    section and item comes from App\Support\AdminNavigation, which links only
+    EXISTING routes and gates each item on the same permission its route
+    enforces — nobody is shown an item that 403s.
 
-    Each entry is gated on the permission its route already enforces, so nobody
-    is shown a tab that 403s when they click it. The gate here and the
-    middleware on the route are the same key, deliberately: a tab that appears
-    when the page refuses to open is worse than no tab.
+    Desktop: hover or click a section to open it; a menu near the right edge
+    opens inward. Below 1200px: one "Admin menu" button, sections expand in place.
+    Built on <details> so the menus work without JavaScript; the script only
+    adds hover, one-open-at-a-time, edge alignment and Escape.
 
-    Renders nothing at all for a host or member, who share this layout.
+    Renders nothing for a host or member, who share this layout.
 --}}
-@php
-    $adminTabs = collect([
-        ['label' => 'Users',     'route' => 'admin.users.index',            'permission' => 'users.view'],
-        ['label' => 'Roles',     'route' => 'admin.roles.index',            'permission' => 'roles.view'],
-        ['label' => 'Listings',  'route' => 'admin.properties.index',       'permission' => 'properties.view'],
-        ['label' => 'Media',     'route' => 'admin.media.index',            'permission' => 'media.view'],
-        ['label' => 'Offers',    'route' => 'admin.offers.index',           'permission' => 'offers.view'],
-        ['label' => 'Orders',    'route' => 'admin.member-services.index',  'permission' => 'billing.view'],
-        ['label' => 'Contracts', 'route' => 'admin.contracts.index',        'permission' => 'contracts.view'],
-        ['label' => 'Inbox',     'route' => 'admin.inbox.index',            'permission' => 'inbox.view'],
-        ['label' => 'Activity',  'route' => 'admin.activity.index',         'permission' => 'audit.view'],
-        ['label' => 'Activity & IP logs', 'route' => 'admin.activity.log', 'permission' => 'audit.view'],
-        ['label' => 'Settings',  'route' => 'admin.settings.index',         'permission' => 'settings.view'],
-    ])->filter(fn ($tab) =>
-        // A route that has not been defined must not take the page down with
-        // it; this partial is on every dashboard screen.
-        \Illuminate\Support\Facades\Route::has($tab['route'])
-        && auth()->user()?->hasPermission($tab['permission'])
-    );
-@endphp
+@php($adminSections = \App\Support\AdminNavigation::for(auth()->user(), request()))
 
-@if ($adminTabs->isNotEmpty())
-    <nav class="vyt-adminnav" aria-label="Admin sections">
-        <div class="vyt-adminnav-inner">
-            @foreach ($adminTabs as $tab)
-                @php($isCurrent = request()->routeIs(str_replace('.index', '.*', $tab['route'])))
-                <a href="{{ route($tab['route']) }}"
-                   class="{{ $isCurrent ? 'is-current' : '' }}"
-                   @if ($isCurrent) aria-current="page" @endif>{{ $tab['label'] }}</a>
-            @endforeach
+@if ($adminSections !== [])
+    <style>
+        .vyt-anav { background:#fff; border-bottom:1px solid var(--line); position:relative; z-index:40; }
+        .vyt-anav-inner { max-width:1180px; margin:0 auto; padding:0 24px; display:flex; align-items:center; gap:2px; }
+        .vyt-anav a, .vyt-anav summary { color:var(--muted); font-size:14px; font-weight:500; text-decoration:none; }
+        .vyt-anav-top { padding:13px 12px; border-bottom:2px solid transparent; white-space:nowrap; display:inline-block; }
+        .vyt-anav-top.is-current, .vyt-anav-sec.is-current > summary { color:var(--ink); border-bottom-color:var(--magenta); font-weight:600; }
+        .vyt-anav-sec { position:relative; }
+        .vyt-anav-sec > summary { list-style:none; cursor:pointer; padding:13px 12px; border-bottom:2px solid transparent; white-space:nowrap; user-select:none; }
+        .vyt-anav-sec > summary::-webkit-details-marker { display:none; }
+        .vyt-anav-sec > summary::after { content:'▾'; font-size:11px; margin-left:5px; opacity:.7; }
+        .vyt-anav-sec > summary:hover, .vyt-anav a:hover { color:var(--ink); }
+        .vyt-anav-menu { position:absolute; top:100%; left:0; min-width:250px; max-width:min(340px, calc(100vw - 24px));
+            background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 12px 32px rgba(26,20,38,.12); padding:6px; }
+        .vyt-anav-menu.align-right { left:auto; right:0; }
+        .vyt-anav-menu a { display:block; padding:9px 12px; border-radius:8px; color:var(--ink); white-space:normal; }
+        .vyt-anav-menu a:hover { background:#faf5ff; }
+        .vyt-anav-menu a.is-current { background:#fdf2f8; color:var(--magenta); font-weight:600; }
+        .vyt-anav-menu a.is-current::before { content:'→ '; }
+        .vyt-anav-cta { margin-left:auto; color:var(--purple) !important; font-weight:600 !important; padding:13px 12px; white-space:nowrap; }
+        .vyt-anav-burger { display:none; }
 
-            {{-- Super admin only, and deliberately last. It removes a set of
-                 accounts in one press rather than a row somebody navigated to,
-                 so it does not belong beside the everyday tabs. --}}
-            @if (auth()->user()?->isSuperAdmin())
-                <a href="{{ route('admin.demo-data.index') }}"
-                   title="Remove the seeded demo accounts and their data">Demo data</a>
-            @endif
+        @media (hover:hover) and (min-width:1200px) {
+            .vyt-anav-sec:hover > .vyt-anav-menu { display:block; }
+        }
+        .vyt-anav-sec:not([open]) > .vyt-anav-menu { display:none; }
+        @media (hover:hover) and (min-width:1200px) {
+            .vyt-anav-sec:not([open]):hover > .vyt-anav-menu { display:block; }
+        }
 
-            {{-- Not gated on a permission: a new starter with the narrowest
-                 role is exactly who needs it, and it contains nothing beyond
-                 the shape of the admin area. Generated fresh on each download,
-                 so it describes this environment as configured today. --}}
-            <a href="{{ route('staff-guide') }}"
-               title="Download the staff training guide as a PDF">Staff guide ↓</a>
+        @media (max-width:1199px) {
+            .vyt-anav-inner { flex-direction:column; align-items:stretch; padding:0 16px; gap:0; }
+            .vyt-anav-burger { display:flex; align-items:center; gap:8px; width:100%; background:none; border:0; padding:13px 0;
+                font:inherit; font-weight:700; letter-spacing:.06em; color:var(--ink); cursor:pointer; }
+            .vyt-anav-panel { display:none; padding-bottom:10px; }
+            .vyt-anav.is-open .vyt-anav-panel { display:block; }
+            .vyt-anav-top, .vyt-anav-sec > summary, .vyt-anav-cta { display:block; padding:12px 4px; border-bottom:1px solid var(--line); margin:0; }
+            .vyt-anav-top.is-current, .vyt-anav-sec.is-current > summary { border-bottom-color:var(--line); border-left:3px solid var(--magenta); padding-left:10px; }
+            .vyt-anav-sec > summary::after { content:'›'; float:right; display:inline-block; font-size:18px; line-height:1; transition:transform .15s; }
+            .vyt-anav-sec[open] > summary::after { transform:rotate(90deg); }
+            .vyt-anav-menu { position:static; box-shadow:none; border:0; border-radius:0; padding:4px 0 8px 12px; max-width:none; min-width:0; }
+        }
+        @media (min-width:1200px) {
+            .vyt-anav-panel { display:contents; }
+        }
+    </style>
 
-            @if (auth()->user()?->hasPermission('users.create'))
-                {{-- The thing this navigation was added for. Kept visually
-                     distinct because it is an action, not a section. --}}
-                <a href="{{ route('admin.users.create') }}" class="vyt-adminnav-cta">+ New user</a>
-            @endif
+    <nav class="vyt-anav" aria-label="Admin sections" data-admin-nav>
+        <div class="vyt-anav-inner">
+            <button type="button" class="vyt-anav-burger" aria-expanded="false" data-admin-nav-toggle>
+                <span aria-hidden="true">☰</span> ADMIN MENU
+            </button>
+
+            <div class="vyt-anav-panel">
+                <a href="{{ route('dashboard') }}" class="vyt-anav-top {{ request()->routeIs('dashboard') ? 'is-current' : '' }}"
+                   @if (request()->routeIs('dashboard')) aria-current="page" @endif>Dashboard</a>
+
+                @foreach ($adminSections as $section)
+                    <details class="vyt-anav-sec {{ $section['current'] ? 'is-current' : '' }}" data-admin-nav-section>
+                        <summary>{{ $section['label'] }}</summary>
+                        <div class="vyt-anav-menu" role="menu">
+                            @foreach ($section['items'] as $item)
+                                <a role="menuitem" href="{{ route($item['route'], $item['query'] ?? []) }}"
+                                   class="{{ $item['current'] ? 'is-current' : '' }}"
+                                   @if ($item['current']) aria-current="page" @endif>{{ $item['label'] }}</a>
+                            @endforeach
+                        </div>
+                    </details>
+                @endforeach
+
+                @if (auth()->user()?->hasPermission('users.create'))
+                    <a href="{{ route('admin.users.create') }}" class="vyt-anav-cta">+ New user</a>
+                @endif
+            </div>
         </div>
     </nav>
+
+    <script>
+    (function () {
+        var nav = document.querySelector('[data-admin-nav]');
+        if (!nav) return;
+        var sections = nav.querySelectorAll('[data-admin-nav-section]');
+        var toggle = nav.querySelector('[data-admin-nav-toggle]');
+        var desktop = window.matchMedia('(min-width: 1200px)');
+
+        function align(section) {
+            var menu = section.querySelector('.vyt-anav-menu');
+            if (!menu || !desktop.matches) return;
+            menu.classList.remove('align-right');
+            var rect = menu.getBoundingClientRect();
+            if (rect.right > window.innerWidth - 8) menu.classList.add('align-right');
+        }
+
+        sections.forEach(function (section) {
+            section.addEventListener('toggle', function () {
+                if (!section.open) return;
+                if (desktop.matches) {
+                    sections.forEach(function (other) { if (other !== section) other.open = false; });
+                }
+                align(section);
+            });
+            section.addEventListener('mouseenter', function () {
+                if (desktop.matches) {
+                    var menu = section.querySelector('.vyt-anav-menu');
+                    menu.style.display = 'block'; align(section); menu.style.display = '';
+                }
+            });
+        });
+
+        if (toggle) {
+            toggle.addEventListener('click', function () {
+                var open = nav.classList.toggle('is-open');
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+        }
+
+        document.addEventListener('click', function (e) {
+            if (desktop.matches && !nav.contains(e.target)) {
+                sections.forEach(function (s) { s.open = false; });
+            }
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                sections.forEach(function (s) { s.open = false; });
+                nav.classList.remove('is-open');
+                if (toggle) toggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    })();
+    </script>
 @endif

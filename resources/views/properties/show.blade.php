@@ -12,6 +12,19 @@
         </div>
     @endif
 
+    @if (! empty($ownerAdState) && ! $ownerAdState['accepted'])
+        {{-- Shown only to the signed-in member who owns this advertisement. --}}
+        <div style="background:#faf5ff;border:1px solid #e9d5ff;color:#3b0764;padding:14px 18px;margin:12px auto;max-width:1100px;border-radius:12px;font-size:15px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+            <span style="flex:1 1 420px;">{{ \App\Services\Fulfillment\AdvertisementAcknowledgement::TEXT }}</span>
+            <form method="POST" action="{{ route('member.advertisements.accept', $property) }}" style="margin:0;">
+                @csrf
+                <button type="submit" style="background:linear-gradient(135deg,#ec4899,#a21caf,#7c3aed);color:#fff;border:0;padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;cursor:pointer;">
+                    {{ \App\Services\Fulfillment\AdvertisementAcknowledgement::BUTTON }}
+                </button>
+            </form>
+        </div>
+    @endif
+
     <a href="{{ route('properties.index') }}" class="props-detail-back">← Back to all stays</a>
 
     <article class="props-detail">

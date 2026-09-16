@@ -41,6 +41,7 @@ enum ActivityType: string
     case LoggedOut           = 'account.logged_out';
     case PasswordReset       = 'account.password_reset';
     case ProfileUpdated      = 'account.profile_updated';
+    case TermsAccepted       = 'account.terms_accepted';
 
     // --- member ------------------------------------------------------------
     case PackageSelected      = 'member.package_selected';
@@ -55,6 +56,23 @@ enum ActivityType: string
     case ContractSigned       = 'member.contract_signed';
     case DashboardAccessed    = 'member.dashboard_accessed';
 
+    // Fulfillment evidence. Written ONLY by the server, ONLY for the
+    // authenticated non-staff owner of the listing — never for staff viewing
+    // or activating it. See AdvertisementFulfillment.
+    case MemberAdvertisementFirstAccessed = 'member.advertisement_first_accessed';
+    case MemberAdvertisementAccessed      = 'member.advertisement_accessed';
+    case MemberAdvertisementReviewed      = 'member.advertisement_reviewed';
+
+    // First sign-in and the enrollment incentive. Each is its own event:
+    // signing in is not seeing the incentive, seeing it is not acknowledging
+    // it, acknowledging it is not receiving it, and none of them is accepting
+    // an advertisement.
+    case MemberFirstLogin                 = 'member.first_login';
+    case MemberIncentivePresented         = 'member.incentive_presented';
+    case MemberIncentiveAcknowledged      = 'member.incentive_acknowledged';
+    case MemberIncentiveDelivered         = 'admin.incentive_delivered';
+    case MemberAdvertisementAccepted      = 'member.advertisement_accepted';
+
     // --- payment -----------------------------------------------------------
     // Nothing in this group ever carries a card number or a CVV. See
     // TrackingService::filterMetadata().
@@ -67,6 +85,8 @@ enum ActivityType: string
 
     // --- staff -------------------------------------------------------------
     case AdminAction         = 'admin.action';
+    case AdvertisementCreated = 'admin.advertisement_created';
+    case FulfillmentCorrected = 'admin.fulfillment_corrected';
 
     /**
      * Filter tabs in the Activity Center, in display order.
@@ -97,20 +117,29 @@ enum ActivityType: string
                 self::SearchPerformed, self::MapOpened, self::AmenityViewed,
                 self::GalleryOpened, self::FavoriteSaved, self::FavoriteRemoved,
             ],
+            // Member-generated only. ActivityLogQuery also excludes any row
+            // whose actor was staff: the listing tools write these same types
+            // when an admin edits a member's listing.
             'members' => [
                 self::PackageSelected, self::PropertySubmitted, self::PropertyEdited,
                 self::ImagesUploaded, self::AvailabilityChanged, self::DashboardAccessed,
                 self::ProfileUpdated,
+                self::MemberAdvertisementFirstAccessed, self::MemberAdvertisementAccessed,
+                self::MemberAdvertisementReviewed, self::MemberAdvertisementAccepted,
+                self::MemberFirstLogin, self::MemberIncentivePresented, self::MemberIncentiveAcknowledged,
             ],
+            // Both sides of an advertisement's life, whoever the actor.
             'ads' => [
+                self::AdvertisementCreated,
                 self::AdvertisementClicked, self::AdvertisementPreviewed,
                 self::AdvertisementActivated, self::AdvertisementPaused,
+                self::MemberAdvertisementFirstAccessed, self::MemberAdvertisementAccepted,
             ],
             'offers' => [
                 self::InquiryStarted, self::OfferStarted, self::OfferSubmitted,
             ],
             'contracts' => [
-                self::ContractOpened, self::ContractSigned,
+                self::ContractOpened, self::ContractSigned, self::TermsAccepted,
             ],
             'payments' => [
                 self::CheckoutOpened, self::PaymentFormLoaded, self::PaymentSubmitted,
@@ -118,12 +147,67 @@ enum ActivityType: string
             ],
             'logins' => [
                 self::AccountCreated, self::EmailVerified, self::LoginSucceeded,
-                self::LoginFailed, self::LoggedOut, self::PasswordReset,
+                self::LoginFailed, self::LoggedOut, self::PasswordReset, self::MemberFirstLogin,
             ],
-            'admin' => [self::AdminAction],
+            // Explicitly-staff types. ActivityLogQuery adds every
+            // staffActionable() row whose actor was staff.
+            'admin' => [self::AdminAction, self::AdvertisementCreated, self::FulfillmentCorrected, self::MemberIncentiveDelivered],
         ];
 
         return array_map(fn (self $c) => $c->value, $map[$group] ?? []);
+    }
+
+    /**
+     * Types that are member activity when a member does them and admin
+     * activity when staff do them — the listing tools share one vocabulary.
+     *
+     * @return array<int, string>
+     */
+    public static function staffActionable(): array
+    {
+        return array_map(fn (self $c) => $c->value, [
+            self::PropertySubmitted, self::PropertyEdited, self::ImagesUploaded,
+            self::AvailabilityChanged, self::PackageSelected, self::ProfileUpdated,
+            self::DashboardAccessed, self::LoginSucceeded, self::LoggedOut, self::AccountCreated,
+            self::AdvertisementPreviewed, self::AdvertisementActivated, self::AdvertisementPaused,
+            self::ContractOpened, self::ContractSigned,
+        ]);
+    }
+
+    /**
+     * Types that may only ever be written for a non-staff account.
+     *
+     * @return array<int, string>
+     */
+    public static function memberOnly(): array
+    {
+        return array_map(fn (self $c) => $c->value, [
+            self::MemberAdvertisementFirstAccessed,
+            self::MemberAdvertisementAccessed,
+            self::MemberAdvertisementReviewed,
+            self::MemberAdvertisementAccepted,
+            self::MemberFirstLogin,
+            self::MemberIncentivePresented,
+            self::MemberIncentiveAcknowledged,
+        ]);
+    }
+
+    /**
+     * Events that carry full device + location evidence when a member does
+     * them: the member's identity and address on file, and a comparison of
+     * that address with the event's OWN approximate IP location.
+     *
+     * @return array<int, string>
+     */
+    public static function deviceEvidence(): array
+    {
+        return array_map(fn (self $c) => $c->value, [
+            self::LoginSucceeded, self::AccountCreated, self::ProfileUpdated, self::PasswordReset,
+            self::TermsAccepted, self::ContractOpened, self::ContractSigned,
+            self::MemberAdvertisementFirstAccessed, self::MemberAdvertisementAccessed,
+            self::MemberAdvertisementReviewed, self::MemberAdvertisementAccepted,
+            self::MemberFirstLogin, self::MemberIncentivePresented, self::MemberIncentiveAcknowledged,
+        ]);
     }
 
     public function label(): string
@@ -167,6 +251,17 @@ enum ActivityType: string
             self::PaymentDeclined       => 'Payment declined',
             self::ReceiptViewed         => 'Receipt viewed',
             self::AdminAction           => 'Admin action',
+            self::AdvertisementCreated  => 'Advertisement created',
+            self::FulfillmentCorrected  => 'Fulfillment record corrected',
+            self::MemberAdvertisementFirstAccessed => 'Member Advertisement Accessed',
+            self::MemberAdvertisementAccessed      => 'Member advertisement accessed again',
+            self::MemberAdvertisementReviewed      => 'Member advertisement reviewed',
+            self::TermsAccepted                    => 'Terms accepted',
+            self::MemberFirstLogin                 => 'Member First Login',
+            self::MemberIncentivePresented         => 'Member Incentive Presented',
+            self::MemberIncentiveAcknowledged      => 'Member Incentive Acknowledged',
+            self::MemberIncentiveDelivered         => 'Member incentive delivery recorded',
+            self::MemberAdvertisementAccepted      => 'Member Advertisement Accepted',
         };
     }
 
@@ -194,6 +289,13 @@ enum ActivityType: string
             self::LoginSucceeded,
             self::PropertySubmitted,
             self::AdvertisementActivated,
+            self::MemberAdvertisementFirstAccessed,
+            self::MemberAdvertisementAccepted,
+            self::TermsAccepted,
+            self::MemberFirstLogin,
+            self::MemberIncentivePresented,
+            self::MemberIncentiveAcknowledged,
+            self::MemberIncentiveDelivered,
         ]);
     }
 

@@ -33,6 +33,8 @@
     </div>
 </div>
 
+@include('admin.members.partials.fulfillment-summary')
+
 {{-- Headline numbers ---------------------------------------------------- --}}
 <div class="vyt-tiles" style="margin-bottom:22px;">
     <div class="vyt-tile">

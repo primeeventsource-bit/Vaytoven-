@@ -42,6 +42,16 @@ class User extends Authenticatable
         // $fillable, update() drops it and the form appears to save while
         // changing nothing.
         'staff_notes',
+        // Address on file. Never derived from GeoIP; see AddressOnFile.
+        'address_line1',
+        'address_line2',
+        'address_city',
+        'address_state',
+        'address_postal_code',
+        'address_country',
+        'address_latitude',
+        'address_longitude',
+        'address_geocoded_at',
     ];
 
     protected $hidden = [
@@ -70,7 +80,13 @@ class User extends Authenticatable
             'last_login_at' => 'datetime',
             'must_change_password' => 'boolean',
             'password_changed_at' => 'datetime',
+            'address_geocoded_at' => 'datetime',
         ];
+    }
+
+    public function addressOnFile(): \App\Support\Location\AddressOnFile
+    {
+        return \App\Support\Location\AddressOnFile::fromUser($this);
     }
 
     /** Active = `deactivated_at` is null. Deactivated users still exist as rows. */

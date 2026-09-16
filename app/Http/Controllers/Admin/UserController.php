@@ -98,6 +98,19 @@ class UserController extends Controller
         // the rule lives in one place rather than only on the edit path.
         app(PublicPropertyRef::class)->assignFor($user);
 
+        // Staff created it: admin activity, with the new account as subject.
+        app(\App\Services\Tracking\ActivityRecorder::class)->record(
+            \App\Enums\ActivityType::AccountCreated,
+            $request,
+            subjectType: 'user',
+            subjectReference: (string) $user->id,
+            result: 'completed',
+            metadata: ['created_by' => 'staff', 'member_user_id' => $user->id],
+            actor: $actor,
+        );
+
+        app(\App\Services\Members\AddressOnFileUpdater::class)->apply($user, $data, $actor, $request);
+
         AdminAuditLogService::log(
             actor:   $actor,
             action:  'user.create',
@@ -145,6 +158,8 @@ class UserController extends Controller
         }
         $user->save();
 
+        $addressChanged = app(\App\Services\Members\AddressOnFileUpdater::class)->apply($user, $data, $actor, $request);
+
         // Adding a member number to an existing account is what gives their
         // listings a readable address. Listings that already have one keep
         // it — renumbering would break a URL somebody has already been sent.
@@ -154,7 +169,7 @@ class UserController extends Controller
             actor:    $actor,
             action:   'user.update',
             subject:  $user,
-            payload:  ['before' => $before, 'after' => ['email' => $user->email, 'name' => $user->name, 'role' => $user->role->value]],
+            payload:  ['before' => $before, 'after' => ['email' => $user->email, 'name' => $user->name, 'role' => $user->role->value], 'address_fields_changed' => $addressChanged],
             ipAddress: $request->ip(),
         );
 

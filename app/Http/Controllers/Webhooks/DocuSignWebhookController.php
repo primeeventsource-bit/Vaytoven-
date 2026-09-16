@@ -100,6 +100,28 @@ class DocuSignWebhookController extends Controller
 
         $this->applyToContract($contract, $eventType, $occurredAt, $signer);
 
+        // The member's signature, on the activity log. This request comes
+        // from DocuSign, so its own IP and session are never used: the IP and
+        // user agent are the signer's as DocuSign reports them, or nothing.
+        if ($eventType === ContractEvent::EVENT_SIGNED) {
+            $member = $contract->user
+                ?? ($contract->client_email ? \App\Models\User::where('email', $contract->client_email)->first() : null);
+
+            if ($member) {
+                app(\App\Services\Tracking\ActivityRecorder::class)->record(
+                    \App\Enums\ActivityType::ContractSigned, $request, subjectType: 'contract',
+                    subjectReference: (string) $contract->id, result: 'completed',
+                    metadata: ['docusign_signed_at' => $occurredAt->toIso8601String()],
+                    actor: $member,
+                    observedElsewhere: [
+                        'ip'         => $signer['ipAddress'] ?? null,
+                        'user_agent' => $signer['userAgent'] ?? null,
+                        'source'     => 'DocuSign',
+                    ],
+                );
+            }
+        }
+
         if ($eventType === ContractEvent::EVENT_COMPLETED) {
             try {
                 $this->envelopes->pullCompletedDocuments($contract);

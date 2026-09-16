@@ -231,4 +231,26 @@ class MemberProfileTest extends TestCase
 
         $this->assertStringNotContainsString('Something private', json_encode($log->payload));
     }
+    /**
+     * Regression: the profile eager-loaded a relation TermsAcceptance did not
+     * define, so it threw for every member who had accepted terms — every
+     * member who had ever signed in.
+     */
+    public function test_a_member_who_accepted_terms_can_be_opened(): void
+    {
+        $staff  = $this->staff();
+        $member = $this->member();
+        $version = \App\Models\TermsVersion::factory()->create();
+        \App\Models\TermsAcceptance::create([
+            "user_id" => $member->id, "terms_version_id" => $version->id,
+            "accepted_at" => now(), "ip_address" => "203.0.113.5", "user_agent" => "test",
+        ]);
+
+        foreach (["overview", "documents", "advertising", "activity"] as $tab) {
+            $this->actingAs($staff)->get(route("admin.members.show", ["user" => $member, "tab" => $tab]))->assertOk();
+        }
+
+        $this->actingAs($staff)->get(route("admin.members.show", ["user" => $member, "tab" => "documents"]))
+            ->assertSee($version->version_label);
+    }
 }

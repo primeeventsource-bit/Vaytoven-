@@ -1,3 +1,9 @@
+@include('admin.members.partials.fulfillment')
+
+@include('admin.members.partials.incentive')
+
+@include('admin.members.partials.fulfillment-timeline')
+
 <div class="vyt-card">
     <div class="vyt-card-header">
         <h3>Advertising periods</h3>

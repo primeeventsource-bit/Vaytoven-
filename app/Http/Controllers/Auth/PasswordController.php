@@ -24,6 +24,12 @@ class PasswordController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        app(\App\Services\Tracking\ActivityRecorder::class)->record(
+            \App\Enums\ActivityType::PasswordReset, $request, subjectType: 'user',
+            subjectReference: (string) $request->user()->id, result: 'completed',
+            metadata: ['change' => 'password_changed'], actor: $request->user(),
+        );
+
         return back()->with('status', 'password-updated');
     }
 }

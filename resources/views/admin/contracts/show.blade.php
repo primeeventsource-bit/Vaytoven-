@@ -8,6 +8,8 @@
 @endsection
 
 @section('content')
+    @include('partials.admin-nav')
+
     <a href="{{ route('admin.contracts.index') }}" style="color:var(--muted);font-size:13px;">← Back to contracts</a>
 
     <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-top:8px;">

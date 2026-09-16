@@ -105,7 +105,7 @@
 
 @push('scripts')
 <script>
-    // Delete posts to a different action; Blade cannot emit two @method fields
+    // Delete posts to a different action; Blade cannot emit two @@method fields
     // in one form, so the DELETE verb is spoofed at submit time.
     document.querySelectorAll('button.danger[formaction]').forEach(function (btn) {
         btn.addEventListener('click', function () {

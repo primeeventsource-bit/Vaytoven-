@@ -8,6 +8,8 @@
 @endsection
 
 @section('content')
+    @include('partials.admin-nav')
+
     <h1>Send a contract</h1>
 
     <form method="post" action="{{ route('admin.contracts.store') }}" enctype="multipart/form-data" class="card" style="max-width:760px;">

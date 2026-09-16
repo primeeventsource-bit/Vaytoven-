@@ -49,6 +49,12 @@ class NewPasswordController extends Controller
                 ])->save();
 
                 event(new PasswordReset($user));
+
+                app(\App\Services\Tracking\ActivityRecorder::class)->record(
+                    \App\Enums\ActivityType::PasswordReset, $request, subjectType: 'user',
+                    subjectReference: (string) $user->id, result: 'completed',
+                    metadata: ['change' => 'password_reset_by_email_link'], actor: $user,
+                );
             }
         );
 

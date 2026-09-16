@@ -44,6 +44,10 @@
         @endif
     </div>
 
+    <div class="vyt-prof-field">
+        @include('partials.address-on-file-fields', ['user' => $user])
+    </div>
+
     <div class="vyt-prof-actions">
         <button type="submit" class="vyt-btn">Save changes</button>
         @if (session('status') === 'profile-updated')

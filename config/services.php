@@ -50,6 +50,13 @@ return [
         'style' => env('MAPBOX_STYLE', 'mapbox/light-v11'),
     ],
 
+    // Geocoding a member's address on file when it is saved, so login
+    // locations can be compared by distance. "census" (US Census Bureau,
+    // public-domain, storable, no key) or "none".
+    'address_geocoder' => [
+        'driver' => env('ADDRESS_GEOCODER_DRIVER', 'census'),
+    ],
+
     // Per-processor chargeback rebuttal portal URLs (Phase 12). Each processor
     // adapter falls back to a sane default if the env var is unset; override to
     // route ops to a sandbox/staging portal in non-production environments.

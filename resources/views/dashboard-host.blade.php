@@ -5,6 +5,8 @@
 
 @section('content')
 
+    @include('partials.member-advertisement-status')
+
     @include('partials.listing-analytics', [
         'listings'        => $listings,
         'totalViews30d'   => $totalViews30d,

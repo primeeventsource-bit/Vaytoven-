@@ -57,6 +57,13 @@ class ContractController extends Controller
                 ->with('error', 'This contract is not currently signable (status: ' . $contract->status . ').');
         }
 
+        // The member starting to sign, on OUR server: their own IP, device
+        // and session. The signature itself is reported later by DocuSign.
+        app(\App\Services\Tracking\ActivityRecorder::class)->record(
+            \App\Enums\ActivityType::ContractOpened, $request, subjectType: 'contract',
+            subjectReference: (string) $contract->id, result: 'successful', actor: $request->user(),
+        );
+
         $returnUrl = route('client.contracts.show', $contract) . '?event=signed';
 
         try {

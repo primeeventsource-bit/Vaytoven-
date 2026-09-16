@@ -103,7 +103,7 @@ class TrackingService
     private function auditColumns(array $context): array
     {
         $allowed = [
-            'session_id', 'device_type', 'browser', 'platform',
+            'actor_role', 'session_id', 'device_type', 'browser', 'platform',
             'referrer_host', 'path', 'subject_type', 'subject_reference', 'result',
         ];
 
@@ -148,16 +148,17 @@ class TrackingService
         // The route is anonymous (no auth:sanctum middleware) so $request->user()
         // is null even with a Bearer token. Try the sanctum guard explicitly so
         // an authenticated traveler's events still link back to their user_id.
-        $actorUserId = $request->user()?->id ?? Auth::guard('sanctum')->user()?->id;
+        $actor = $request->user() ?? Auth::guard('sanctum')->user();
 
         return $this->record(
             eventType: $eventType,
-            actorUserId: $actorUserId,
+            actorUserId: $actor?->id,
             visitorId: $visitorId,
             surface: $surface,
             ipAddress: $request->ip(),
             userAgent: $request->userAgent(),
             metadata: $metadata,
+            context: ['actor_role' => $actor?->role?->value],
         );
     }
 

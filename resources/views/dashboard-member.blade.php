@@ -16,6 +16,8 @@
          visitor identity. That detail is evidence and stays admin-side. --}}
     @include('partials.engagement-map')
 
+    @include('partials.member-advertisement-status')
+
     @if ($myEnquiry)
         <section class="vyt-section">
             <div class="vyt-card">

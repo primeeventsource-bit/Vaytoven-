@@ -16,7 +16,7 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        return \App\Services\Members\AddressOnFileUpdater::rules() + [
             'name' => ['required', 'string', 'max:255'],
             // Optional here, unlike registration: existing accounts predate the
             // column and must not be forced to supply one to edit their email.

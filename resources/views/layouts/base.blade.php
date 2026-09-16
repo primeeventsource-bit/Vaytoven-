@@ -77,6 +77,11 @@
             .form-row { grid-template-columns: 1fr; }
             table { font-size: 13px; }
         }
+        /* Data tables never widen the page on a phone or tablet: they scroll
+           inside their own box instead of dragging the whole screen sideways. */
+        @media (max-width: 899px) {
+            main.container table { display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+        }
     </style>
 </head>
 <body>

@@ -59,6 +59,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             CheckMaintenanceMode::class,
             EnsurePasswordChanged::class,
+            // After the forced password change, so a member holding a
+            // staff-issued password replaces it before seeing anything else.
+            \App\Http\Middleware\PresentPendingIncentive::class,
         ]);
 
         // Response headers on every route, web and API alike. Prepended so the

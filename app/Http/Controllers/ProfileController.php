@@ -26,13 +26,34 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user      = $request->user();
+        $validated = $request->validated();
+        $addressFields = \App\Services\Members\AddressOnFileUpdater::FIELDS;
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $user->fill(\Illuminate\Support\Arr::except($validated, $addressFields));
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $changed = array_keys($user->getDirty());
+        $user->save();
+
+        // An important account change, recorded with the member's own device
+        // and location. Field names only — the values are on the account.
+        if ($changed !== []) {
+            app(\App\Services\Tracking\ActivityRecorder::class)->record(
+                \App\Enums\ActivityType::ProfileUpdated,
+                $request,
+                subjectType: 'user',
+                subjectReference: (string) $user->id,
+                result: 'completed',
+                metadata: ['changed' => array_values(array_diff($changed, ['email_verified_at', 'updated_at']))],
+                actor: $user,
+            );
+        }
+
+        app(\App\Services\Members\AddressOnFileUpdater::class)->apply($user, $validated, $user, $request);
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

@@ -92,6 +92,12 @@ class MemberProfileAssembler
                 ->orderByDesc('accepted_at')
                 ->get(),
             'timeline'    => $this->timeline($user, $orders),
+            // Activated → accessed → accepted, per advertisement, from the
+            // append-only fulfillment records.
+            'fulfillment' => app(\App\Services\Fulfillment\AdvertisementFulfillment::class)->forMember($user),
+            'incentive'   => app(\App\Services\Fulfillment\MemberIncentive::class)->state($user),
+            'firstLogin'  => app(\App\Services\Fulfillment\FulfillmentTimeline::class)->firstLogin($user),
+            'fulfillmentTimeline' => app(\App\Services\Fulfillment\FulfillmentTimeline::class)->for($user),
         ] + $this->analytics->payload($properties);
     }
 

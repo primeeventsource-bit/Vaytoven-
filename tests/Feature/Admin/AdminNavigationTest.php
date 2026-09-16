@@ -52,6 +52,49 @@ class AdminNavigationTest extends TestCase
             ->assertSee('aria-current="page"', false);
     }
 
+    public function test_navigation_is_grouped_into_dropdown_sections_with_a_mobile_menu(): void
+    {
+        $body = $this->actingAs($this->staff('super_admin', UserRole::SuperAdmin))
+            ->get('/dashboard')->assertOk()->getContent();
+
+        foreach (['Members', 'Advertisements', 'Contracts', 'Payments', 'Activity &amp; Tracking', 'Marketing', 'Administration'] as $section) {
+            $this->assertStringContainsString("<summary>{$section}</summary>", $body, "Missing section {$section}");
+        }
+
+        $this->assertStringContainsString('data-admin-nav-toggle', $body);
+        $this->assertStringContainsString('ADMIN MENU', $body);
+        // Every page that existed is still reachable from the menu.
+        foreach (['admin.users.index', 'admin.roles.index', 'admin.properties.index', 'admin.media.index', 'admin.offers.index',
+                  'admin.member-services.index', 'admin.contracts.index', 'admin.inbox.index', 'admin.activity.index',
+                  'admin.activity.log', 'admin.activity.map', 'admin.settings.index', 'admin.demo-data.index',
+                  'admin.hosting.service-fees', 'admin.fulfillment.index', 'staff-guide'] as $route) {
+            $this->assertStringContainsString(route($route), $body, "{$route} is no longer reachable from the menu");
+        }
+    }
+
+    /** Inside a filtered view, its own section and item are lit — and only one item. */
+    public function test_the_current_section_and_item_are_marked_for_filtered_views(): void
+    {
+        $staff = $this->staff('super_admin', UserRole::SuperAdmin);
+
+        $body = $this->actingAs($staff)->get(route('admin.activity.log', ['group' => 'members']))->assertOk()->getContent();
+        $this->assertMatchesRegularExpression('#<details class="vyt-anav-sec is-current"[^>]*>\s*<summary>Activity &amp; Tracking</summary>#', $body);
+        $nav = substr($body, strpos($body, '<nav class="vyt-anav"'));
+        $nav = substr($nav, 0, strpos($nav, '</nav>'));
+        $this->assertSame(1, substr_count($nav, 'class="is-current"'), 'More than one menu item marked current');
+        $this->assertSame(1, substr_count($nav, 'vyt-anav-sec is-current'), 'More than one section marked current');
+        $this->assertMatchesRegularExpression('#class="is-current"\s+aria-current="page"\s*>Member activity<#', $body);
+
+        $body = $this->actingAs($staff)->get(route('admin.fulfillment.index', ['view' => 'acceptance']))->assertOk()->getContent();
+        $this->assertMatchesRegularExpression('#<details class="vyt-anav-sec is-current"[^>]*>\s*<summary>Members</summary>#', $body);
+        $this->assertMatchesRegularExpression('#aria-current="page"\s*>Advertisement acceptance<#', $body);
+
+        // A detail page with no menu item still lights its section.
+        $member = User::factory()->create(['role' => UserRole::Member]);
+        $body = $this->actingAs($staff)->get(route('admin.members.show', $member))->assertOk()->getContent();
+        $this->assertMatchesRegularExpression('#<details class="vyt-anav-sec is-current"[^>]*>\s*<summary>Members</summary>#', $body);
+    }
+
     /** A host shares this layout and must not see staff sections. */
     public function test_a_host_sees_no_admin_navigation(): void
     {
@@ -66,7 +109,7 @@ class AdminNavigationTest extends TestCase
         // stylesheet ships on every dashboard page whether the nav renders or
         // not, so matching "vyt-adminnav" alone would pass on the CSS and
         // prove nothing.
-        $this->assertStringNotContainsString('<nav class="vyt-adminnav"', $body);
+        $this->assertStringNotContainsString('<nav class="vyt-anav"', $body);
         $this->assertStringNotContainsString(route('admin.users.create'), $body);
         $this->assertStringNotContainsString(route('admin.users.index'), $body);
     }
@@ -103,12 +146,14 @@ class AdminNavigationTest extends TestCase
             $this->assertNotEmpty($links, "{$roleKey} was shown no admin links at all");
 
             foreach ($links as $link) {
-                $status = $this->actingAs($user)->get($link)->getStatusCode();
+                $status = $this->actingAs($user)->get(html_entity_decode($link))->getStatusCode();
 
                 $this->assertNotSame(
                     403, $status,
                     "{$roleKey} is shown {$link} in the nav but is forbidden from opening it"
                 );
+                $this->assertLessThan(500, $status, "{$roleKey}: {$link} errored ({$status})");
+                $this->assertNotSame(404, $status, "{$roleKey}: {$link} is a dead link");
             }
         }
     }

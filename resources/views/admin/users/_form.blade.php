@@ -60,6 +60,8 @@
         @error('member_id') <div style="color:#b91c1c;font-size:12.5px;margin-top:4px;">{{ $message }}</div> @enderror
     </div>
 
+    @include('partials.address-on-file-fields', ['user' => $user])
+
     {{-- Captured as two fields, not one.
 
          A listing shows its owner as "John S.", which needs the surname to be

@@ -90,6 +90,16 @@ class RegisteredUserController extends Controller
             return $user;
         });
 
+        // Two separate member events from the same request, each with the
+        // request's own IP, device and location.
+        $activity = app(\App\Services\Tracking\ActivityRecorder::class);
+        $activity->record(\App\Enums\ActivityType::AccountCreated, $request, subjectType: 'user',
+            subjectReference: (string) $user->id, result: 'completed', metadata: ['created_by' => 'self'], actor: $user);
+        $activity->record(\App\Enums\ActivityType::TermsAccepted, $request, subjectType: 'user',
+            subjectReference: (string) $user->id, result: 'completed',
+            metadata: ['versions' => collect($this->legal->registrationRequired())->map(fn ($v) => $v->id)->values()->all()],
+            actor: $user);
+
         event(new Registered($user));
 
         Auth::login($user);

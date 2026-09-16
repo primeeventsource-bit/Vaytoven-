@@ -78,7 +78,22 @@ class ActivityLogQuery
 
         $group = $groupOverride ?? ($filters['group'] ?? 'all');
 
-        if ($group !== 'all') {
+        if ($group === 'members') {
+            // Member-generated means a signed-in account that is not staff.
+            // The admin listing tools write the same member.* types, so the
+            // type alone filed a super admin's edits under Members.
+            $query->whereIn('event_type', ActivityType::valuesForGroup('members'))
+                ->whereNotNull('actor_user_id')
+                ->where(fn (Builder $q) => $this->whereActorIsNotStaff($q));
+        } elseif ($group === 'admin') {
+            $query->where(function (Builder $q) {
+                $q->whereIn('event_type', ActivityType::valuesForGroup('admin'))
+                    ->orWhere(function (Builder $q) {
+                        $q->whereIn('event_type', ActivityType::staffActionable())
+                            ->where(fn (Builder $q) => $this->whereActorIsStaff($q));
+                    });
+            });
+        } elseif ($group !== 'all') {
             $values = ActivityType::valuesForGroup($group);
             // An unknown group must return nothing rather than everything. A
             // typo in a URL should not quietly widen an audit view.
@@ -143,5 +158,37 @@ class ActivityLogQuery
         }
 
         return $query;
+    }
+
+    /**
+     * The role recorded on the row decides. Rows written before actor_role
+     * existed are read through the account's current role; that is a
+     * classification at read time and alters nothing stored.
+     */
+    private function whereActorIsStaff(Builder $q): void
+    {
+        $q->whereIn('actor_role', TrackingEvent::STAFF_ROLES)
+            ->orWhere(function (Builder $q) {
+                $q->whereNull('actor_role')
+                    ->whereIn('actor_user_id', $this->staffIds());
+            });
+    }
+
+    private function whereActorIsNotStaff(Builder $q): void
+    {
+        $q->where(function (Builder $q) {
+            $q->whereNotNull('actor_role')
+                ->whereNotIn('actor_role', TrackingEvent::STAFF_ROLES);
+        })->orWhere(function (Builder $q) {
+            $q->whereNull('actor_role')
+                ->whereNotIn('actor_user_id', $this->staffIds());
+        });
+    }
+
+    private function staffIds(): \Illuminate\Database\Query\Builder
+    {
+        return User::query()->toBase()
+            ->select('id')
+            ->whereIn('role', TrackingEvent::STAFF_ROLES);
     }
 }

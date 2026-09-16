@@ -85,7 +85,18 @@ class LegalController extends Controller
 
         $request->validate(['accept' => ['accepted']]);
 
-        foreach ($this->missingAcceptancesFor($user->id) as $version) {
+        $missing = $this->missingAcceptancesFor($user->id);
+
+        if ($missing !== []) {
+            app(\App\Services\Tracking\ActivityRecorder::class)->record(
+                \App\Enums\ActivityType::TermsAccepted, $request, subjectType: 'user',
+                subjectReference: (string) $user->id, result: 'completed',
+                metadata: ['versions' => collect($missing)->map(fn ($v) => $v->id)->values()->all()],
+                actor: $user,
+            );
+        }
+
+        foreach ($missing as $version) {
             TermsAcceptance::firstOrCreate(
                 ['user_id' => $user->id, 'terms_version_id' => $version->id],
                 [

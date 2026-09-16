@@ -233,8 +233,20 @@ class PropertyBrowseController extends Controller
         );
         }
 
+        // The owning member opening their own live advertisement is access to
+        // the service they paid for. Authentication decides: staff viewing
+        // the same page never reach this branch.
+        $fulfillment = app(\App\Services\Fulfillment\AdvertisementFulfillment::class);
+        $ownerAdState = null;
+
+        if ($fulfillment->isOwningMember($request->user(), $property) && $fulfillment->isRunning($property)) {
+            $fulfillment->recordAccess($request, $property, $request->user());
+            $ownerAdState = $fulfillment->state($property);
+        }
+
         $response = view('properties.show', [
             'property' => $property,
+            'ownerAdState' => $ownerAdState,
             // Whether the signed-in member has already saved this. A guest gets
             // false and is offered sign-in, so the query only runs when there
             // is somebody to run it for.

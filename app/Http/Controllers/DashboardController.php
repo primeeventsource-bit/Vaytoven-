@@ -19,6 +19,7 @@ use App\Models\TrackingEvent;
 use App\Models\User;
 use App\Services\Analytics\ListingAnalytics;
 use App\Services\Analytics\MemberEngagementMap;
+use App\Services\Fulfillment\AdvertisementFulfillment;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -76,6 +77,7 @@ class DashboardController extends Controller
             'me' => $user,
             'listings' => $listings,
             'engagement' => $this->engagementMap($listings),
+            'adStates' => app(AdvertisementFulfillment::class)->forMember($user),
         ] + $this->analyticsPayload($listings);
     }
 
@@ -144,6 +146,8 @@ class DashboardController extends Controller
             'offers' => $offers,
             'pendingOfferCount' => $pendingOfferCount,
             'engagement' => $this->engagementMap($listings),
+            // Owned advertisements only — reviewing and accepting is the owner's act.
+            'adStates' => app(AdvertisementFulfillment::class)->forMember($user),
         ] + $this->analyticsPayload($listings);
     }
 

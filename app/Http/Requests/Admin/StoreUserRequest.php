@@ -34,7 +34,7 @@ class StoreUserRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        return \App\Services\Members\AddressOnFileUpdater::rules() + [
             // Last name is optional: mononyms exist, and refusing to create
             // an account over one is worse than a display name of just
             // "Prince". `name` is composed from these, never asked for.

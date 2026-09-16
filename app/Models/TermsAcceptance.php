@@ -36,4 +36,14 @@ class TermsAcceptance extends Model
     {
         return $this->belongsTo(TermsVersion::class);
     }
+
+    /**
+     * Same relation under the name Member 360 loads. Without it the profile
+     * page threw for every member who had accepted terms — which is every
+     * member who has ever signed in.
+     */
+    public function version(): BelongsTo
+    {
+        return $this->belongsTo(TermsVersion::class, 'terms_version_id');
+    }
 }

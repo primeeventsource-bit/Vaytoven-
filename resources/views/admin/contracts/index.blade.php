@@ -8,6 +8,8 @@
 @endsection
 
 @section('content')
+    @include('partials.admin-nav')
+
     <h1>Contracts</h1>
 
     <form method="get" class="toolbar">

@@ -197,6 +197,26 @@ class PropertyController extends Controller
             ipAddress: $request->ip(),
         );
 
+        if ($data['owner_mode'] === 'new' && $temporaryPassword) {
+            app(\App\Services\Tracking\ActivityRecorder::class)->record(
+                ActivityType::AccountCreated,
+                $request,
+                subjectType: 'user',
+                subjectReference: (string) $owner->id,
+                result: 'completed',
+                metadata: ['created_by' => 'staff', 'with_listing' => $property->reference, 'member_user_id' => $owner->id],
+            );
+        }
+
+        app(\App\Services\Tracking\ActivityRecorder::class)->record(
+            ActivityType::AdvertisementCreated,
+            $request,
+            subjectType: 'property',
+            subjectReference: $property->reference,
+            result: 'completed',
+            metadata: ['owner_user_id' => $owner->id, 'status' => $property->status->value ?? (string) $property->status],
+        );
+
         $emailed = false;
         if ($data['notify_owner'] ?? true) {
             $emailed = $this->notifyOwner($property, $owner, $temporaryPassword);

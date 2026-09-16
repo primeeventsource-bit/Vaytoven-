@@ -51,6 +51,12 @@ class FirstPasswordChangeController extends Controller
             'password_changed_at'  => now(),
         ])->save();
 
+        app(\App\Services\Tracking\ActivityRecorder::class)->record(
+            \App\Enums\ActivityType::PasswordReset, $request, subjectType: 'user',
+            subjectReference: (string) $user->id, result: 'completed',
+            metadata: ['change' => 'staff_issued_password_replaced'], actor: $user,
+        );
+
         // Any other session on this account was authenticated with the old
         // shared credential.
         auth()->logoutOtherDevices($request->input('password'));

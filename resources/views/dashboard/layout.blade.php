@@ -63,27 +63,7 @@
         }
         .vyt-logout-btn:hover { color: var(--purple); }
 
-        /* Admin sections. Scrolls sideways on a phone rather than wrapping
-           into a second row that pushes the page heading off screen. */
-        .vyt-adminnav { background:#fff; border-bottom:1px solid var(--line); }
-        .vyt-adminnav-inner {
-            max-width:1180px; margin:0 auto; padding:0 24px;
-            display:flex; align-items:center; gap:4px;
-            overflow-x:auto; -webkit-overflow-scrolling:touch;
-        }
-        .vyt-adminnav-inner::-webkit-scrollbar { display:none; }
-        .vyt-adminnav a {
-            padding:13px 12px; font-size:14px; font-weight:500; color:var(--muted);
-            white-space:nowrap; border-bottom:2px solid transparent;
-        }
-        .vyt-adminnav a:hover { color:var(--ink); text-decoration:none; }
-        .vyt-adminnav a.is-current {
-            color:var(--ink); border-bottom-color:var(--magenta); font-weight:600;
-        }
-        .vyt-adminnav a.vyt-adminnav-cta {
-            margin-left:auto; color:var(--purple); font-weight:600; border-bottom-color:transparent;
-        }
-        .vyt-adminnav a.vyt-adminnav-cta:hover { color:var(--magenta); }
+        /* Admin sections: see partials/admin-nav, which carries its own styles. */
         /* Page header */
         .vyt-pageheader {
             background:#fff; border-bottom:1px solid var(--line);
@@ -188,6 +168,11 @@
         .vyt-kv .v { font-weight: 600; }
         .vyt-kv .v.danger { color:#b91c1c; }
         .vyt-kv .h { font-family:'SFMono-Regular',Consolas,monospace; font-size: 11.5px; color: var(--muted); }
+        /* Data tables never widen the page on a phone or tablet: they scroll
+           inside their own box instead of dragging the whole screen sideways. */
+        @media (max-width: 899px) {
+            main.vyt-shell table { display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+        }
     </style>
     @stack('head')
 </head>

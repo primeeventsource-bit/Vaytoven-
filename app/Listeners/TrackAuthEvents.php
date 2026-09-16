@@ -52,6 +52,10 @@ class TrackAuthEvents
             subjectType: 'user',
             subjectReference: (string) $event->user?->getAuthIdentifier(),
             result: 'successful',
+            // From the event, not the request: it names exactly who just
+            // authenticated, so a Member login and an Admin login can never
+            // be confused by whatever the request resolver returns.
+            actor: $event->user instanceof User ? $event->user : null,
         ));
 
         // Cache "last seen" on the user row so the admin user-mgmt table
@@ -67,6 +71,30 @@ class TrackAuthEvents
             if ($isFirstSignIn) {
                 $this->safe(fn () => $this->notifyOfficeOfFirstSignIn($event->user));
             }
+
+            // A MEMBER's first sign-in is its own event, separate from the
+            // login row above. Staff accounts never produce it.
+            if ($isFirstSignIn && ! $event->user->isStaff()) {
+                $this->safe(fn () => $this->activity->record(
+                    ActivityType::MemberFirstLogin,
+                    $this->request,
+                    subjectType: 'user',
+                    subjectReference: (string) $event->user->id,
+                    result: 'successful',
+                    actor: $event->user,
+                ));
+            }
+
+            // Queue the enrollment incentive for the next page. Presenting is
+            // recorded when the screen is actually rendered, not here.
+            $this->safe(function () use ($event, $isFirstSignIn) {
+                $incentive = app(\App\Services\Fulfillment\MemberIncentive::class);
+
+                if ($this->request->hasSession() && $incentive->needsPresentation($event->user)) {
+                    $this->request->session()->put(\App\Services\Fulfillment\MemberIncentive::SESSION_PENDING, true);
+                    $this->request->session()->put(\App\Services\Fulfillment\MemberIncentive::SESSION_PENDING.'_first_login', $isFirstSignIn);
+                }
+            });
         }
     }
 
@@ -166,6 +194,7 @@ class TrackAuthEvents
             ActivityType::LoggedOut,
             $this->request,
             result: 'successful',
+            actor: $event->user instanceof User ? $event->user : null,
         ));
 
         $this->safe(fn () => $this->tracker->record(
