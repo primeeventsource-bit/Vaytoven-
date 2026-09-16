@@ -138,6 +138,43 @@ class HistoricalEvidenceAndOfficeCertificatesTest extends TestCase
         $this->assertSame(1, Record::count());
     }
 
+    /** A listing created straight into "active" has its activation in the admin audit log. */
+    public function test_activation_falls_back_to_the_audited_creation_status(): void
+    {
+        $admin    = User::factory()->create(['role' => UserRole::SuperAdmin]);
+        $member   = User::factory()->create(['role' => UserRole::Member]);
+        $property = Property::factory()->create(['host_id' => $member->id]);
+        $draft    = Property::factory()->create(['host_id' => User::factory()->create(['role' => UserRole::Member])->id]);
+
+        foreach ([[$property, 'active', '2026-08-24 16:46:08'], [$draft, 'draft', '2026-08-24 16:46:08']] as [$p, $status, $at]) {
+            \App\Models\AdminAuditLog::create([
+                'actor_user_id' => $admin->id, 'action' => 'property.create',
+                'subject_type' => Property::class, 'subject_id' => $p->id,
+                'payload' => ['title' => $p->title, 'status' => $status], 'occurred_at' => $at,
+            ]);
+        }
+
+        TrackingEvent::create([
+            'event_type' => ActivityType::LoginSucceeded->value, 'actor_user_id' => $member->id,
+            'surface' => 'web', 'metadata' => [], 'occurred_at' => '2026-08-24 16:52:08', 'ip_address' => '198.51.100.20',
+        ]);
+        TrackingEvent::create([
+            'event_type' => ActivityType::LoginSucceeded->value, 'actor_user_id' => $draft->host_id,
+            'surface' => 'web', 'metadata' => [], 'occurred_at' => '2026-08-24 16:52:08',
+        ]);
+
+        $fulfillment = app(\App\Services\Fulfillment\AdvertisementFulfillment::class);
+        $this->assertSame('2026-08-24 16:46:08', $fulfillment->activatedAt($property, null)->format('Y-m-d H:i:s'));
+        $this->assertNull($fulfillment->activatedAt($draft, null), 'A draft creation was read as an activation.');
+
+        $this->artisan('vaytoven:backfill-advertisement-access', ['--from-logins' => true, '--commit' => true])->assertSuccessful();
+
+        $record = Record::sole();
+        $this->assertSame($property->id, (int) $record->property_id);
+        $this->assertSame('198.51.100.20', $record->ip_address);
+        $this->assertSame('2026-08-24 16:46:08', $record->advertisement_activated_at->format('Y-m-d H:i:s'));
+    }
+
     // --- office certificates -------------------------------------------------
 
     public function test_certificates_go_to_the_office_only_for_real_clients_once(): void

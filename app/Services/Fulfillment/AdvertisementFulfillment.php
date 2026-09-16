@@ -508,7 +508,24 @@ class AdvertisementFulfillment
             ->orderByDesc('id')
             ->value('occurred_at');
 
-        return $at ? Carbon::parse($at) : null;
+        if ($at) {
+            return Carbon::parse($at);
+        }
+
+        // Listings that went live without the Activate button — created
+        // straight into "active" before creation stopped allowing it — have no
+        // activation event. The admin audit log recorded the status they were
+        // created or switched into; that stored record is the activation.
+        $audited = \App\Models\AdminAuditLog::query()
+            ->where('subject_type', Property::class)
+            ->where('subject_id', $property->id)
+            ->whereIn('action', ['property.create', 'property.status_changed'])
+            ->orderByDesc('occurred_at')
+            ->orderByDesc('id')
+            ->get()
+            ->first(fn ($log) => ($log->payload['status'] ?? $log->payload['to'] ?? null) === PropertyStatus::Active->value);
+
+        return $audited?->occurred_at ? Carbon::parse($audited->occurred_at) : null;
     }
 
     /**
