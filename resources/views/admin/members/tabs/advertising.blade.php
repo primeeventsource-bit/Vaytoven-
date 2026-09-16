@@ -19,7 +19,7 @@
                 activate it from
                 <a href="{{ route('admin.member-services.index') }}">Member Services</a>.
             @else
-                Paid by invoice — no website order to activate here.
+                Paid by invoice.
             @endif
         </div>
     @else
