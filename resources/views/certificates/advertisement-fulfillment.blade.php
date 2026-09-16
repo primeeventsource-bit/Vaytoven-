@@ -132,7 +132,7 @@
 @if ($incentive && $incentive['eligible'])
     <h2>ENROLLMENT INCENTIVE</h2>
     <table>
-        <tr><th>Incentive</th><td>{{ \App\Services\Fulfillment\DiningRewardsIncentive::NAME }} · {{ \App\Services\Fulfillment\DiningRewardsIncentive::PROVIDER }}</td></tr>
+        <tr><th>Incentive</th><td>{{ $incentive['incentive']->name }} · {{ $incentive['incentive']->provider }}</td></tr>
         <tr><th>Presented</th><td>{!! $incentive['presented'] ? e(et($incentive['presented']->occurred_at, 'm/d/Y g:i:s A')) : '<span class="nr">'.$nr.'</span>' !!}</td></tr>
         <tr><th>Acknowledged</th><td>{!! $incentive['acknowledged'] ? e(et($incentive['acknowledged']->occurred_at, 'm/d/Y g:i:s A')) : '<span class="nr">'.$nr.'</span>' !!}</td></tr>
         <tr><th>Delivered</th><td>{!! $incentive['delivered'] ? e(et($incentive['delivered']->occurred_at, 'm/d/Y g:i:s A').' · '.$incentive['delivered']->delivery_method.' · ref '.$incentive['delivered']->delivery_reference) : '<span class="nr">No delivery evidence recorded</span>' !!}</td></tr>

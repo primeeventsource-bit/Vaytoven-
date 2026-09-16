@@ -1,20 +1,47 @@
 @php
-    $I  = \App\Services\Fulfillment\MemberIncentive::class;
-    $DR = \App\Services\Fulfillment\DiningRewardsIncentive::class;
-    $EP = \App\Services\Fulfillment\EvidencePoint::class;
+    $I     = \App\Services\Fulfillment\MemberIncentive::class;
+    $EP    = \App\Services\Fulfillment\EvidencePoint::class;
+    $offer = $incentive['incentive'];
+    $canEdit = auth()->user()?->hasPermission('members.edit');
 @endphp
 
 <div class="vyt-card" style="margin-bottom:18px;" id="incentive">
     <div class="vyt-card-header">
-        <h3>Dining Rewards incentive</h3>
+        <h3>Enrollment incentive</h3>
         <span class="vyt-pill" style="font-weight:700;">{{ $I::statusLabel($incentive['status']) }}</span>
     </div>
     <div class="vyt-card-body">
         <ul class="vyt-kv" style="margin-bottom:14px;">
-            <li><span class="k">Offer</span><span class="v">{{ $DR::NAME }}</span></li>
-            <li><span class="k">Provider</span><span class="v">{{ $DR::PROVIDER }}</span></li>
-            <li><span class="k">Version</span><span class="v vyt-mono">{{ $incentive['presented']?->incentive_version ?? $DR::VERSION }}</span></li>
+            <li><span class="k">Offer</span><span class="v">{{ $offer->name }}</span></li>
+            <li><span class="k">Provider</span><span class="v">{{ $offer->provider }}</span></li>
+            <li>
+                <span class="k">Chosen by</span>
+                <span class="v">
+                    @if ($incentive['locked']) Presented — fixed on the record
+                    @elseif ($incentive['assigned']) Assigned to this client
+                    @else Default for new clients
+                    @endif
+                </span>
+            </li>
+            <li><span class="k">Version</span><span class="v vyt-mono">{{ $incentive['presented']?->incentive_version ?? $offer->version }}</span></li>
         </ul>
+
+        @if ($incentive['eligible'] && ! $incentive['locked'] && $canEdit)
+            <form method="POST" action="{{ route('admin.members.incentive-assign', $member) }}"
+                  style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:16px;padding:12px;border:1px dashed var(--line);border-radius:10px;">
+                @csrf
+                <label style="font-size:12px;flex:1 1 240px;">Offer to send this client
+                    <select name="incentive_key" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;">
+                        @foreach (\App\Services\Fulfillment\IncentiveCatalog::all() as $key => $option)
+                            <option value="{{ $key }}" @selected($offer->key === $key)>{{ $option->name }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <button type="submit" class="vyt-save" style="padding:9px 14px;">Save offer</button>
+                <span class="vyt-faint" style="font-size:12px;flex-basis:100%;">Shown to the client the next time they sign in. It can't be changed after they have seen it.</span>
+                @error('incentive_key') <div style="flex-basis:100%;color:#b91c1c;font-size:12.5px;">{{ $message }}</div> @enderror
+            </form>
+        @endif
 
         <div style="display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));">
             @foreach (['presented' => 'Presented', 'acknowledged' => 'Acknowledged', 'delivered' => 'Delivered'] as $key => $label)
@@ -32,7 +59,7 @@
             @endforeach
         </div>
 
-        @if ($incentive['eligible'] && ! $incentive['delivered'] && auth()->user()?->hasPermission('members.edit'))
+        @if ($incentive['eligible'] && ! $incentive['delivered'] && $canEdit)
             <form method="POST" action="{{ route('admin.members.incentive-delivery', $member) }}"
                   style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line);display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));align-items:end;">
                 @csrf

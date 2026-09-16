@@ -361,7 +361,7 @@ class MemberAdvertisementFulfillmentTest extends TestCase
                 'Member First Login', '$300 Dining Rewards presented', '$300 Dining Rewards acknowledged',
                 'Advertisement first accessed', 'Member advertisement reviewed', 'Advertisement accepted',
             ], false)
-            ->assertSee('Dining Rewards incentive');
+            ->assertSee('Enrollment incentive');
 
         // Admin looking at the profile did not create evidence.
         $this->assertSame(4, Record::count());

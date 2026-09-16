@@ -4,7 +4,7 @@
 @php
     $F   = \App\Services\Fulfillment\AdvertisementFulfillment::class;
     $I   = \App\Services\Fulfillment\MemberIncentive::class;
-    $DR  = \App\Services\Fulfillment\DiningRewardsIncentive::class;
+    $offer = $incentive['incentive'];
     $EP  = \App\Services\Fulfillment\EvidencePoint::class;
     $address = $member->addressOnFile();
     $tick = fn ($ok) => $ok ? '<span style="color:#047857;font-weight:700;">✓</span>' : '<span style="color:#9ca3af;">—</span>';
@@ -38,8 +38,8 @@
 
         <div>
             <div class="vyt-faint" style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Incentive</div>
-            <div style="font-weight:700;">{{ $DR::NAME }}</div>
-            <div class="vyt-faint" style="font-size:12.5px;">{{ $DR::PROVIDER }}</div>
+            <div style="font-weight:700;">{{ $offer->name }}</div>
+            <div class="vyt-faint" style="font-size:12.5px;">{{ $offer->provider }}</div>
             <div style="font-size:13px;margin-top:6px;display:grid;gap:3px;">
                 <div>Presented: {!! $tick($incentive['presented']) !!} {{ $incentive['presented'] ? $when($incentive['presented']->occurred_at) : '' }}</div>
                 <div>Acknowledged: {!! $tick($incentive['acknowledged']) !!} {{ $incentive['acknowledged'] ? $when($incentive['acknowledged']->occurred_at) : '' }}</div>

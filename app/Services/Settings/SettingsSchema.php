@@ -189,6 +189,8 @@ final class SettingsSchema
             'users.host_requires_approval' => ['users', 'bool', true, 'New hosts require ops approval', ['boolean']],
             'users.min_password_length' => ['users', 'int', 12, 'Minimum password length', ['integer', 'between:8,128']],
             'users.allow_social_login' => ['users', 'bool', false, 'Allow social login', ['boolean']],
+            // Managed from Marketing → Incentive offers, which previews each one.
+            'users.default_incentive' => ['users', 'string', \App\Services\Fulfillment\IncentiveCatalog::DEFAULT_KEY, 'Enrollment thank-you offer sent to new clients', ['string', 'in:'.implode(',', \App\Services\Fulfillment\IncentiveCatalog::keys())]],
 
             // ---------------------------------------------------------- notifications
             'notifications.from_name' => ['notifications', 'string', 'Vaytoven Rentals', 'From name', ['string', 'max:120']],

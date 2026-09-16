@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Fulfillment\DiningRewardsIncentive;
 use App\Services\Fulfillment\MemberIncentive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -10,7 +9,7 @@ use Illuminate\View\View;
 use RuntimeException;
 
 /**
- * The $300 Dining Rewards screen a Managed Listing Program client sees after
+ * The enrollment thank-you screen a Managed Listing Program client sees after
  * signing in. Everything recorded here is taken from the authenticated
  * session and the request — the form carries only which button was pressed.
  */
@@ -33,7 +32,7 @@ class MemberIncentiveController extends Controller
         $this->incentive->present($request, $member);
 
         return view('member-incentive.show', [
-            'incentive' => DiningRewardsIncentive::class,
+            'incentive' => $this->incentive->incentiveFor($member),
             'state'     => $this->incentive->state($member),
         ]);
     }
@@ -55,7 +54,7 @@ class MemberIncentiveController extends Controller
 
         return $choice === 'view'
             ? redirect()->route('member.incentive.reward')
-            : redirect()->route('dashboard')->with('success', 'Thank you — your $300 Dining Rewards thank-you is noted on your account.');
+            : redirect()->route('dashboard')->with('success', 'Thank you — your '.$this->incentive->incentiveFor($member)->name.' thank-you is noted on your account.');
     }
 
     /** Details of the reward and where it stands. Records nothing. */
@@ -64,7 +63,7 @@ class MemberIncentiveController extends Controller
         abort_unless($this->incentive->isEligible($request->user()), 404);
 
         return view('member-incentive.reward', [
-            'incentive' => DiningRewardsIncentive::class,
+            'incentive' => $this->incentive->incentiveFor($request->user()),
             'state'     => $this->incentive->state($request->user()),
         ]);
     }

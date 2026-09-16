@@ -49,7 +49,7 @@
                 </ul>
             @else
                 <p class="vyt-faint" style="margin:0;">
-                    No paid Member Services package.
+                    Paid by invoice — no website order on file.
                     @if ($orders->isNotEmpty())
                         {{ $orders->count() }} unpaid {{ Str::plural('order', $orders->count()) }} on file — see Payments.
                     @endif

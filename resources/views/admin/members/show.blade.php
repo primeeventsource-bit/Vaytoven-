@@ -17,12 +17,12 @@
         </div>
     </div>
     <div style="text-align:right;">
+        {{-- No badge when there is no website order: clients are invoiced
+             outside the site, so its absence says nothing about payment. --}}
         @if ($package)
             <span class="vyt-pill" style="background:var(--gradient);color:#fff;">
                 {{ strtoupper($package->package->label()) }}
             </span>
-        @else
-            <span class="vyt-pill">No paid package</span>
         @endif
         @if ($member->deactivated_at)
             <span class="vyt-pill" style="background:#fef2f2;color:#991b1b;">Deactivated</span>

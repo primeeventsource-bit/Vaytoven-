@@ -81,6 +81,26 @@ class MemberProfileController extends Controller
         ]);
     }
 
+    /** Choose which enrollment offer this client will be sent. Locked once presented. */
+    public function assignIncentive(
+        Request $request,
+        User $user,
+        \App\Services\Fulfillment\MemberIncentive $incentive,
+    ): RedirectResponse {
+        $validated = $request->validate([
+            'incentive_key' => ['required', 'in:'.implode(',', \App\Services\Fulfillment\IncentiveCatalog::keys())],
+        ]);
+
+        try {
+            $incentive->assign($user, $validated['incentive_key'], $request->user(), $request);
+        } catch (\RuntimeException $e) {
+            return back()->withErrors(['incentive_key' => $e->getMessage()]);
+        }
+
+        return redirect()->route('admin.members.show', ['user' => $user, 'tab' => 'advertising'])
+            ->with('success', 'Offer set to '.\App\Services\Fulfillment\IncentiveCatalog::find($validated['incentive_key'])->name.'.');
+    }
+
     /**
      * Staff record that the incentive certificate actually reached the member,
      * against the provider's reference. Never inferred from display or clicks.

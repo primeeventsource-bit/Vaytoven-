@@ -347,6 +347,13 @@ Route::middleware(['auth'])
             ->middleware("permission:members.view")->name("members.show");
         Route::post("members/{user}/notes", [MemberProfileController::class, "updateNotes"])
             ->middleware("permission:members.edit")->name("members.notes");
+        Route::post('members/{user}/incentive', [MemberProfileController::class, 'assignIncentive'])
+            ->middleware('permission:members.edit')->name('members.incentive-assign');
+        // Which offer new clients receive, and a preview of every offer.
+        Route::get('incentives', [\App\Http\Controllers\Admin\IncentiveOfferController::class, 'index'])
+            ->middleware('permission:members.view')->name('incentives.index');
+        Route::post('incentives/default', [\App\Http\Controllers\Admin\IncentiveOfferController::class, 'setDefault'])
+            ->middleware('permission:members.edit')->name('incentives.default');
         Route::post('members/{user}/incentive/delivery', [MemberProfileController::class, 'recordIncentiveDelivery'])
             ->middleware('permission:members.edit')->name('members.incentive-delivery');
         Route::get('members/{user}/advertisements/{property}/fulfillment-certificate.pdf', [MemberProfileController::class, 'fulfillmentCertificate'])

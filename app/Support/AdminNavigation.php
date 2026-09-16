@@ -92,9 +92,10 @@ final class AdminNavigation
             ],
             [
                 'key' => 'marketing', 'label' => 'Marketing',
-                'routes' => [],
+                'routes' => ['admin.incentives.*'],
                 'items' => [
-                    ['label' => 'Incentives — $300 Dining Rewards', 'route' => 'admin.fulfillment.index', 'query' => ['view' => 'incentives'], 'permission' => 'members.view', 'mirror' => true],
+                    ['label' => 'Incentive offers', 'route' => 'admin.incentives.index', 'permission' => 'members.view'],
+                    ['label' => 'Incentive records', 'route' => 'admin.fulfillment.index', 'query' => ['view' => 'incentives'], 'permission' => 'members.view', 'mirror' => true],
                     ['label' => 'Click tracking', 'route' => 'admin.activity.index', 'permission' => 'reports.view', 'mirror' => true],
                     ['label' => 'Marketing activity (CTA clicks)', 'route' => 'admin.activity.log', 'query' => ['type' => 'cta_click'], 'permission' => 'audit.view'],
                 ],
