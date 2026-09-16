@@ -57,6 +57,22 @@
                     <ellipse cx="128" cy="96" rx="26" ry="9" fill="rgba(255,255,255,.35)"/><ellipse cx="146" cy="92" rx="18" ry="7" fill="rgba(255,255,255,.35)"/>
                 </svg>
                 @break
+            @case ('cruise')
+                <svg width="200" height="160" viewBox="0 0 200 160" fill="none" aria-hidden="true">
+                    <ellipse cx="30" cy="18" rx="20" ry="6" fill="rgba(200,210,225,.6)"/>
+                    <ellipse cx="160" cy="28" rx="24" ry="7" fill="rgba(200,210,225,.6)"/>
+                    <circle cx="168" cy="58" r="11" fill="rgba(235,240,250,.95)"/>
+                    <rect x="84" y="50" width="4" height="14" fill="#f3e8ff"/><rect x="92" y="50" width="4" height="14" fill="#f3e8ff"/>
+                    <rect x="78" y="62" width="30" height="10" rx="2" fill="#e9a8d8"/>
+                    <rect x="46" y="88" width="102" height="18" rx="2" fill="#e9a8d8"/>
+                    @for ($i = 0; $i < 9; $i++) <rect x="{{ 53 + $i * 10 }}" y="94" width="5" height="5" fill="#fff"/> @endfor
+                    @for ($i = 0; $i < 11; $i++) <rect x="{{ 44 + $i * 10 }}" y="112" width="6" height="6" fill="rgba(210,220,240,.9)"/> @endfor
+                    <path d="M28 124h140l-10 20H38z" fill="#e9a8d8"/>
+                    @for ($i = 0; $i < 11; $i++) <circle cx="{{ 50 + $i * 10 }}" cy="133" r="1.6" fill="#fff"/> @endfor
+                    <path d="M10 148c20-4 40 4 60 0s40-4 60 0 40 4 60 0v6H10z" fill="rgba(170,190,215,.8)"/>
+                    <rect x="8" y="152" width="184" height="6" rx="2" fill="rgba(150,170,200,.7)"/>
+                </svg>
+                @break
             @case ('hotel')
                 <svg width="170" height="150" viewBox="0 0 170 150" fill="none" aria-hidden="true">
                     <path d="M28 140V62" stroke="rgba(255,255,255,.85)" stroke-width="3"/>
@@ -82,7 +98,7 @@
         @endswitch
         <div>
             <div class="eyebrow">{{ $offer->eyebrow }}</div>
-            <div class="amount">{{ $offer->headline }}</div>
+            <div class="amount" @if (mb_strlen($offer->headline) > 12) style="font-size:clamp(44px, 7vw, 64px);line-height:1.05;" @endif>{{ $offer->headline }}</div>
             <div class="amount-sub">{{ $offer->subheadline }}</div>
             <div class="meals">{{ $offer->tagline }}</div>
         </div>

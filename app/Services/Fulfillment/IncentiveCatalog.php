@@ -57,6 +57,23 @@ final class IncentiveCatalog
                 finePrint: self::FINE_PRINT,
             ),
             new Incentive(
+                key: 'cruise-4-night', version: '2026-09-16.v1',
+                name: '4-Night Luxury Cruise', value: '4-night cruise for two', provider: 'Creative Marketing Incentives',
+                eyebrow: 'Our premier thank-you when you enroll', headline: '4-Night Luxury Cruise', subheadline: '5 days, 4 nights at sea',
+                tagline: 'Three departure options: Miami → Cozumel · Port Canaveral → Nassau · Los Angeles → Ensenada',
+                theme: 'ocean', icon: 'cruise', viewButton: 'VIEW MY CRUISE REWARD',
+                included: [
+                    'Full 5-day / 4-night cruise on a major cruise line',
+                    'Three itineraries to choose from — Caribbean or Pacific coast',
+                    'Interior stateroom accommodations for two guests',
+                    '60-day advance booking required · port fees and taxes apply',
+                ],
+                finePrint: 'Certificate fulfilled by Creative Marketing Incentives, an independent third-party provider. '
+                    .'Recipient responsible for all applicable taxes, port fees, gratuities, and any usage restrictions per certificate terms. '
+                    .'Certificate provided as a thank-you upon enrollment in the Vaytoven Managed Listing Program; '
+                    .'full program terms available at vaytoven.com/legal.',
+            ),
+            new Incentive(
                 key: 'hotel-savings-400', version: '2026-09-16.v1',
                 name: '$400 Hotel Savings', value: '$400', provider: 'Creative Marketing Incentives',
                 eyebrow: 'Our thank-you when you enroll', headline: '$400', subheadline: 'in Hotel Savings',

@@ -58,6 +58,7 @@ final readonly class Incentive
             'purple'      => 'linear-gradient(135deg, #b865d8 0%, #9b45cf 55%, #7b2cbf 100%)',
             'purple-deep' => 'linear-gradient(135deg, #7b2cbf 0%, #9b45cf 55%, #b865d8 100%)',
             'pink-purple' => 'linear-gradient(135deg, #FF3D8A 0%, #b43fb8 50%, #7B2CBF 100%)',
+            'ocean'       => 'linear-gradient(120deg, #2f5f8f 0%, #36598f 30%, #7b2cbf 58%, #d63384 100%)',
             default       => 'linear-gradient(135deg, #FF3D8A 0%, #e85aa0 55%, #D63384 100%)',
         };
     }

@@ -46,7 +46,7 @@ class IncentiveOffersTest extends TestCase
 
     public function test_the_catalog_has_all_four_offers_and_no_forbidden_wording(): void
     {
-        $this->assertSame(['dining-rewards-300', 'airfare-hotel-2x2', 'hotel-savings-400', 'hotel-savings-500'], IncentiveCatalog::keys());
+        $this->assertSame(['dining-rewards-300', 'airfare-hotel-2x2', 'cruise-4-night', 'hotel-savings-400', 'hotel-savings-500'], IncentiveCatalog::keys());
 
         foreach (IncentiveCatalog::all() as $offer) {
             $text = strtolower(implode(' ', [$offer->name, $offer->headline, $offer->subheadline, $offer->tagline, $offer->finePrint, ...$offer->included]));
@@ -60,7 +60,7 @@ class IncentiveOffersTest extends TestCase
 
         $this->actingAs($staff)->get(route('admin.incentives.index'))
             ->assertOk()
-            ->assertSee('2 Airfares')->assertSee('$400')->assertSee('$500')->assertSee('in Dining Rewards');
+            ->assertSee('2 Airfares')->assertSee('4-Night Luxury Cruise')->assertSee('$400')->assertSee('$500')->assertSee('in Dining Rewards');
 
         $this->actingAs($staff)->post(route('admin.incentives.default'), ['incentive_key' => 'hotel-savings-500'])
             ->assertRedirect(route('admin.incentives.index'));
@@ -105,6 +105,23 @@ class IncentiveOffersTest extends TestCase
 
         $this->actingAs($staff)->get(route('admin.members.show', ['user' => $client, 'tab' => 'advertising']))
             ->assertOk()->assertSee('2 Airfares + 2 Nights Hotel')->assertSee('Presented — fixed on the record');
+    }
+
+    public function test_the_cruise_offer_can_be_sent_and_is_recorded(): void
+    {
+        $staff  = $this->staff();
+        $client = $this->client('cruise.client@example.com');
+
+        $this->actingAs($staff)->get(route('admin.incentives.index'))->assertOk()->assertSee('4-Night Luxury Cruise');
+        $this->actingAs($staff)->post(route('admin.members.incentive-assign', $client), ['incentive_key' => 'cruise-4-night'])->assertRedirect();
+
+        $this->signInAndSeeOffer($client)
+            ->assertSee('4-Night Luxury Cruise')
+            ->assertSee('5 days, 4 nights at sea')
+            ->assertSee('Interior stateroom accommodations for two guests')
+            ->assertSee('VIEW MY CRUISE REWARD');
+
+        $this->assertSame('4-Night Luxury Cruise', Record::where('event', Record::EVENT_INCENTIVE_PRESENTED)->sole()->incentive_name);
     }
 
     public function test_an_unknown_offer_is_refused(): void
