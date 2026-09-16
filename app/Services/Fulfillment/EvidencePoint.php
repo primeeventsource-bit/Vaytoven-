@@ -131,10 +131,16 @@ final readonly class EvidencePoint
                 Record::EVENT_INCENTIVE_PRESENTED    => $r->incentive_name.' presented',
                 Record::EVENT_INCENTIVE_ACKNOWLEDGED => $r->incentive_name.' acknowledged',
                 Record::EVENT_INCENTIVE_DELIVERED    => $r->incentive_name.' delivery recorded',
-                default                              => 'Advertisement first accessed',
+                default                              => $r->source === Record::SOURCE_STAFF_ATTESTATION
+                    ? 'Advertisement first accessed (staff attestation)'
+                    : 'Advertisement first accessed',
             },
             occurredAt: $r->occurred_at,
-            performedBy: in_array($r->event, [Record::EVENT_CORRECTION, Record::EVENT_INCENTIVE_DELIVERED], true) ? 'Admin' : 'Member',
+            performedBy: match (true) {
+                in_array($r->event, [Record::EVENT_CORRECTION, Record::EVENT_INCENTIVE_DELIVERED], true) => 'Admin',
+                $r->source === Record::SOURCE_STAFF_ATTESTATION => 'Staff attestation',
+                default => 'Member',
+            },
             actorName: $r->member_name,
             advertisementId: $r->property_reference,
             ipAddress: $r->ip_address,
@@ -153,6 +159,7 @@ final readonly class EvidencePoint
                 $r->event === Record::EVENT_CORRECTION          => $r->correction_note,
                 $r->event === Record::EVENT_INCENTIVE_DELIVERED => trim('Method: '.$r->delivery_method.' · Reference: '.$r->delivery_reference.($r->correction_note ? ' · '.$r->correction_note : '')),
                 $r->source === Record::SOURCE_BACKFILL_LOGIN    => 'Access recorded from the member\'s first login after activation',
+                $r->source === Record::SOURCE_STAFF_ATTESTATION => $r->correction_note,
                 $r->source !== Record::SOURCE_LIVE              => 'Backfilled from the activity log ('.$r->source.')',
                 default                                         => null,
             },

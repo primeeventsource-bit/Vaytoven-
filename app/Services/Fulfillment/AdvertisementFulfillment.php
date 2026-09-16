@@ -378,6 +378,81 @@ class AdvertisementFulfillment
           + $this->identityColumns($member));
     }
 
+    /**
+     * First access attested by staff: the member reviewed their live
+     * advertisement by phone with the staff member who activated it, at the
+     * recorded activation.
+     *
+     * Attributed, not disguised. The record names the attesting staff member
+     * and the account that directed it to be entered, carries no member IP or
+     * device (the member did not sign in at that moment), and says what it is
+     * on every screen and certificate.
+     *
+     * @return array{record: ?Record, staff: ?User, at: ?Carbon, reason: ?string}
+     */
+    public function attestAccessByActivatingStaff(Property $property, User $enteredBy, bool $commit): array
+    {
+        $member = $property->host;
+
+        if (! $member || $member->isStaff()) {
+            return ['record' => null, 'staff' => null, 'at' => null, 'reason' => 'no member owner'];
+        }
+
+        $scope = $this->scope($property);
+
+        if ($this->find(Record::EVENT_FIRST_ACCESS, $scope)) {
+            return ['record' => null, 'staff' => null, 'at' => null, 'reason' => 'already accessed'];
+        }
+
+        $activation = TrackingEvent::query()
+            ->with('actor')
+            ->where('event_type', ActivityType::AdvertisementActivated->value)
+            ->where('subject_reference', $property->reference)
+            ->orderByDesc('occurred_at')
+            ->orderByDesc('id')
+            ->first();
+
+        $staff = $activation?->actor;
+
+        if (! $activation || ! $staff || ! $staff->isStaff()) {
+            return ['record' => null, 'staff' => $staff, 'at' => $activation?->occurred_at, 'reason' => 'no staff activation on record'];
+        }
+
+        if (! $commit) {
+            return ['record' => null, 'staff' => $staff, 'at' => $activation->occurred_at, 'reason' => null];
+        }
+
+        $statement = sprintf(
+            'Staff attestation: the member reviewed their live advertisement by phone with %s at its activation. Entered at the direction of %s on %s.',
+            $staff->name, $enteredBy->name.' ('.$enteredBy->email.')', now()->toDateString(),
+        );
+
+        $event = $this->activity->record(
+            ActivityType::AdminAction,
+            null,
+            subjectType: 'property',
+            subjectReference: $property->reference,
+            result: 'completed',
+            metadata: ['action' => 'advertisement_access_attested', 'attesting_staff' => $staff->id, 'member_user_id' => $member->id],
+            actor: $enteredBy,
+        );
+
+        $record = $this->insert([
+            'event'                    => Record::EVENT_FIRST_ACCESS,
+            'dedupe_key'               => Record::EVENT_FIRST_ACCESS.':'.$scope['key'],
+            'source'                   => Record::SOURCE_STAFF_ATTESTATION,
+            'source_tracking_event_id' => $activation->id,
+            'tracking_event_id'        => $event?->id,
+            'recorded_by_user_id'      => $staff->id,
+            'correction_note'          => $statement,
+            'occurred_at'              => $activation->occurred_at,
+            'metadata'                 => ['entered_by_user_id' => $enteredBy->id, 'attesting_staff_user_id' => $staff->id],
+        ] + $this->advertisementColumns($property, $scope['period'], $activation->occurred_at)
+          + $this->memberColumns($member));
+
+        return ['record' => $record, 'staff' => $staff, 'at' => $activation->occurred_at, 'reason' => null];
+    }
+
     // --- reading -----------------------------------------------------------
 
     /**

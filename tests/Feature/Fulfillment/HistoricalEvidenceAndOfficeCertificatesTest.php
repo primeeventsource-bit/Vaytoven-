@@ -175,6 +175,44 @@ class HistoricalEvidenceAndOfficeCertificatesTest extends TestCase
         $this->assertSame('2026-08-24 16:46:08', $record->advertisement_activated_at->format('Y-m-d H:i:s'));
     }
 
+    /** Staff attestation: attributed to the activating staff member, at activation, and says so. */
+    public function test_staff_attested_access_is_attributed_and_labelled(): void
+    {
+        $eric   = User::factory()->create(['role' => UserRole::SuperAdmin, 'name' => 'Eric P', 'email' => 'eric@vaytoven.test']);
+        $tae    = User::factory()->create(['role' => UserRole::Admin, 'name' => 'Tae']);
+        $member = User::factory()->create(['role' => UserRole::Member, 'email' => 'craig@example.com']);
+        $property = Property::factory()->create(['host_id' => $member->id]);
+        $this->event(ActivityType::AdvertisementActivated, $tae, $property, '2026-09-14 16:51:21');
+
+        $this->artisan('vaytoven:attest-advertisement-access', ['--email' => ['craig@example.com'], '--by' => 'eric@vaytoven.test'])
+            ->assertSuccessful();
+        $this->assertSame(0, Record::count(), 'A dry run wrote records.');
+
+        // Refused without a staff "by".
+        $this->artisan('vaytoven:attest-advertisement-access', ['--email' => ['craig@example.com'], '--by' => 'craig@example.com', '--commit' => true])
+            ->assertFailed();
+
+        $this->artisan('vaytoven:attest-advertisement-access', ['--email' => ['craig@example.com'], '--by' => 'eric@vaytoven.test', '--commit' => true])
+            ->assertSuccessful();
+
+        $record = Record::sole();
+        $this->assertSame(Record::SOURCE_STAFF_ATTESTATION, $record->source);
+        $this->assertSame($tae->id, (int) $record->recorded_by_user_id);
+        $this->assertSame('2026-09-14 16:51:21', $record->occurred_at->format('Y-m-d H:i:s'));
+        $this->assertNull($record->ip_address, 'An attestation must not carry a member IP it never observed.');
+        $this->assertStringContainsString('by phone with Tae', $record->correction_note);
+        $this->assertStringContainsString('Eric P', $record->correction_note);
+        $this->assertTrue($record->verifies());
+
+        $point = \App\Services\Fulfillment\EvidencePoint::fromRecord($record, $member);
+        $this->assertSame('Staff attestation', $point->performedBy);
+        $this->assertSame('Advertisement first accessed (staff attestation)', $point->label);
+        $this->assertSame('accessed', app(\App\Services\Fulfillment\AdvertisementFulfillment::class)->state($property)['status']);
+
+        // The directing admin's entry is on the activity log as admin activity.
+        $this->assertSame($eric->id, TrackingEvent::where('event_type', ActivityType::AdminAction->value)->sole()->actor_user_id);
+    }
+
     // --- office certificates -------------------------------------------------
 
     public function test_certificates_go_to_the_office_only_for_real_clients_once(): void

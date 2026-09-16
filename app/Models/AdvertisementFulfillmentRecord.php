@@ -34,6 +34,9 @@ class AdvertisementFulfillmentRecord extends Model
     /** Access recorded from the member's first login after activation, by Vaytoven's decision of 2026-09-16. */
     public const SOURCE_BACKFILL_LOGIN = 'backfill:login';
 
+    /** Access attested by the staff member who walked the member through the live ad by phone. */
+    public const SOURCE_STAFF_ATTESTATION = 'staff_attestation';
+
     public $timestamps = false;
 
     protected $guarded = ['id'];
