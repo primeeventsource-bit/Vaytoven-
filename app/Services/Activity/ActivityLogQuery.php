@@ -82,16 +82,18 @@ class ActivityLogQuery
             // Member-generated means a signed-in account that is not staff.
             // The admin listing tools write the same member.* types, so the
             // type alone filed a super admin's edits under Members.
-            $query->whereIn('event_type', ActivityType::valuesForGroup('members'))
-                ->whereNotNull('actor_user_id')
+            // EVERYTHING a signed-in member did — their logins, their views
+            // of their own listing, their acceptance — not a list of event
+            // names. A type list left the tab at zero while members had
+            // hundreds of logins on record.
+            $query->whereNotNull('actor_user_id')
                 ->where(fn (Builder $q) => $this->whereActorIsNotStaff($q));
         } elseif ($group === 'admin') {
+            // Everything staff did, plus the explicitly-admin event types.
             $query->where(function (Builder $q) {
                 $q->whereIn('event_type', ActivityType::valuesForGroup('admin'))
-                    ->orWhere(function (Builder $q) {
-                        $q->whereIn('event_type', ActivityType::staffActionable())
-                            ->where(fn (Builder $q) => $this->whereActorIsStaff($q));
-                    });
+                    ->orWhere(fn (Builder $q) => $q->whereNotNull('actor_user_id')
+                        ->where(fn (Builder $q) => $this->whereActorIsStaff($q)));
             });
         } elseif ($group !== 'all') {
             $values = ActivityType::valuesForGroup($group);

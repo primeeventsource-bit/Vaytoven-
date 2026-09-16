@@ -510,8 +510,18 @@ class MemberAdvertisementFulfillmentTest extends TestCase
 
         $this->assertNull($legacyAdmin->actor_role);
 
-        $this->assertSame([$legacyMember->id], $this->tab('members')->pluck('id')->all());
-        $this->assertSame([$legacyAdmin->id], $this->tab('admin')->pluck('id')->all());
+        // A member's login is member activity too; an admin's login is not.
+        $memberLogin = TrackingEvent::create([
+            'event_type' => ActivityType::LoginSucceeded->value, 'actor_user_id' => $member->id,
+            'surface' => 'web', 'metadata' => [],
+        ]);
+        $adminLogin = TrackingEvent::create([
+            'event_type' => ActivityType::LoginSucceeded->value, 'actor_user_id' => $admin->id,
+            'surface' => 'web', 'metadata' => [],
+        ]);
+
+        $this->assertEqualsCanonicalizing([$legacyMember->id, $memberLogin->id], $this->tab('members')->pluck('id')->all());
+        $this->assertEqualsCanonicalizing([$legacyAdmin->id, $adminLogin->id], $this->tab('admin')->pluck('id')->all());
         $this->assertSame('Availability changed (by super admin)', $legacyAdmin->fresh()->activityLabel());
     }
 }
