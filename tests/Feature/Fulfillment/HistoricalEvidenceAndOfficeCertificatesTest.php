@@ -213,7 +213,7 @@ class HistoricalEvidenceAndOfficeCertificatesTest extends TestCase
         $this->assertSame(\App\Services\Fulfillment\EvidencePoint::STAFF_ATTESTATION_NOTE, $point->note);
         $html = view('certificates.advertisement-fulfillment',
             app(\App\Services\Fulfillment\FulfillmentCertificate::class)->payload($property->refresh()))->render();
-        $this->assertStringContainsString('staff attestation', $html);
+        $this->assertStringContainsString('with VAYTOVEN by phone at activation', $html);
         foreach (['Tae', 'Eric P', 'eric@vaytoven.test', $tae->email] as $leak) {
             $this->assertStringNotContainsString($leak, $html, "Certificate printed {$leak}");
         }

@@ -22,7 +22,7 @@ use Carbon\CarbonInterface;
  */
 final readonly class EvidencePoint
 {
-    public const STAFF_ATTESTATION_NOTE = 'Reviewed the live advertisement with Vaytoven staff by phone at activation (staff attestation)';
+    public const STAFF_ATTESTATION_NOTE = 'Reviewed the live advertisement with VAYTOVEN by phone at activation';
 
     public function __construct(
         public string $key,
