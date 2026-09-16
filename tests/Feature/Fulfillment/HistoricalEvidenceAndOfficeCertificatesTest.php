@@ -209,6 +209,15 @@ class HistoricalEvidenceAndOfficeCertificatesTest extends TestCase
         $this->assertSame('Advertisement first accessed (staff attestation)', $point->label);
         $this->assertSame('accessed', app(\App\Services\Fulfillment\AdvertisementFulfillment::class)->state($property)['status']);
 
+        // No staff name or email is printed — on the note or the certificate.
+        $this->assertSame(\App\Services\Fulfillment\EvidencePoint::STAFF_ATTESTATION_NOTE, $point->note);
+        $html = view('certificates.advertisement-fulfillment',
+            app(\App\Services\Fulfillment\FulfillmentCertificate::class)->payload($property->refresh()))->render();
+        $this->assertStringContainsString('staff attestation', $html);
+        foreach (['Tae', 'Eric P', 'eric@vaytoven.test', $tae->email] as $leak) {
+            $this->assertStringNotContainsString($leak, $html, "Certificate printed {$leak}");
+        }
+
         // The directing admin's entry is on the activity log as admin activity.
         $this->assertSame($eric->id, TrackingEvent::where('event_type', ActivityType::AdminAction->value)->sole()->actor_user_id);
     }

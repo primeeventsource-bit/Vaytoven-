@@ -22,6 +22,8 @@ use Carbon\CarbonInterface;
  */
 final readonly class EvidencePoint
 {
+    public const STAFF_ATTESTATION_NOTE = 'Reviewed the live advertisement with Vaytoven staff by phone at activation (staff attestation)';
+
     public function __construct(
         public string $key,
         public string $label,
@@ -159,7 +161,9 @@ final readonly class EvidencePoint
                 $r->event === Record::EVENT_CORRECTION          => $r->correction_note,
                 $r->event === Record::EVENT_INCENTIVE_DELIVERED => trim('Method: '.$r->delivery_method.' · Reference: '.$r->delivery_reference.($r->correction_note ? ' · '.$r->correction_note : '')),
                 $r->source === Record::SOURCE_BACKFILL_LOGIN    => 'Access recorded from the member\'s first login after activation',
-                $r->source === Record::SOURCE_STAFF_ATTESTATION => $r->correction_note,
+                // Never the stored note: it names the staff member and the
+                // directing account, and neither is printed anywhere.
+                $r->source === Record::SOURCE_STAFF_ATTESTATION => self::STAFF_ATTESTATION_NOTE,
                 $r->source !== Record::SOURCE_LIVE              => 'Backfilled from the activity log ('.$r->source.')',
                 default                                         => null,
             },
