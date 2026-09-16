@@ -137,4 +137,23 @@ class HistoricalEvidenceAndOfficeCertificatesTest extends TestCase
             ->assertSuccessful();
         Mail::assertSent(ClientCertificatesForOffice::class, 2);
     }
+    /** Every client's certificates can be downloaded from the register, no email needed. */
+    public function test_the_certificates_register_offers_both_downloads_for_every_client(): void
+    {
+        $this->seed(\Database\Seeders\RbacSeeder::class);
+        $staff = User::factory()->create(["role" => UserRole::SuperAdmin, "must_change_password" => false]);
+        $staff->roles()->sync([\App\Models\Role::where("key", "super_admin")->firstOrFail()->id]);
+
+        $client = User::factory()->create(["role" => UserRole::Member, "created_at" => "2026-08-01 10:00:00"]);
+        $property = Property::factory()->create(["host_id" => $client->id]);
+
+        $page = $this->actingAs($staff)->get(route("admin.fulfillment.index", ["view" => "certificates"]))->assertOk();
+
+        $usage = route("admin.users.certificate", ["user" => $client, "from" => "2026-08-01", "to" => now()->toDateString()]);
+        $fulfillment = route("admin.members.fulfillment-certificate", [$client, $property]);
+        $page->assertSee(e($usage), false)->assertSee(e($fulfillment), false);
+
+        $this->actingAs($staff)->get($usage)->assertOk()->assertHeader("Content-Type", "application/pdf");
+        $this->actingAs($staff)->get($fulfillment)->assertOk()->assertHeader("Content-Type", "application/pdf");
+    }
 }

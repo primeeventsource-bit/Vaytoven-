@@ -52,6 +52,13 @@
                     <a href="{{ route('admin.members.show', $m) }}" style="font-weight:700;">{{ $m->name }}</a>
                     <div class="vyt-faint" style="font-size:12.5px;">{{ $m->member_id ?: '#'.$m->id }} · {{ $m->email }}</div>
                     <div class="vyt-faint" style="font-size:12px;">{{ $m->addressOnFile()->area() ?? 'No address on file' }}</div>
+                    @if ($view === 'certificates' && auth()->user()?->hasPermission('users.view'))
+                        {{-- The same usage certificate the office email carried: the
+                             whole life of the account, not the default 90 days. --}}
+                        <div style="margin-top:6px;font-size:12.5px;">
+                            <a href="{{ route('admin.users.certificate', ['user' => $m, 'from' => $m->created_at?->toDateString(), 'to' => now()->toDateString()]) }}">Download service usage certificate</a>
+                        </div>
+                    @endif
                 </div>
 
                 @if (in_array($view, ['fulfillment', 'first-login'], true))
