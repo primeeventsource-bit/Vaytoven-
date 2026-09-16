@@ -31,6 +31,9 @@ class AdvertisementFulfillmentRecord extends Model
     public const SOURCE_LIVE     = 'live';
     public const SOURCE_BACKFILL = 'backfill:tracking_event';
 
+    /** Access recorded from the member's first login after activation, by Vaytoven's decision of 2026-09-16. */
+    public const SOURCE_BACKFILL_LOGIN = 'backfill:login';
+
     public $timestamps = false;
 
     protected $guarded = ['id'];

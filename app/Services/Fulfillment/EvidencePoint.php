@@ -152,6 +152,7 @@ final readonly class EvidencePoint
             note: match (true) {
                 $r->event === Record::EVENT_CORRECTION          => $r->correction_note,
                 $r->event === Record::EVENT_INCENTIVE_DELIVERED => trim('Method: '.$r->delivery_method.' · Reference: '.$r->delivery_reference.($r->correction_note ? ' · '.$r->correction_note : '')),
+                $r->source === Record::SOURCE_BACKFILL_LOGIN    => 'Access recorded from the member\'s first login after activation',
                 $r->source !== Record::SOURCE_LIVE              => 'Backfilled from the activity log ('.$r->source.')',
                 default                                         => null,
             },

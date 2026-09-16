@@ -83,6 +83,61 @@ class HistoricalEvidenceAndOfficeCertificatesTest extends TestCase
         $this->assertSame(0, Record::count());
     }
 
+    /** Vaytoven's 2026-09-16 decision: a member login after activation is recorded as access, and says so. */
+    public function test_from_logins_records_access_from_the_first_member_login_after_activation(): void
+    {
+        $admin    = User::factory()->create(['role' => UserRole::SuperAdmin]);
+        $member   = User::factory()->create(['role' => UserRole::Member]);
+        $property = Property::factory()->create(['host_id' => $member->id]);
+        $noLogin  = Property::factory()->create(['host_id' => User::factory()->create(['role' => UserRole::Member])->id]);
+        $unactivated = Property::factory()->create(['host_id' => User::factory()->create(['role' => UserRole::Member])->id]);
+
+        $loginEvent = fn (User $u, string $at, array $extra = []) => TrackingEvent::create([
+            'event_type' => ActivityType::LoginSucceeded->value, 'actor_user_id' => $u->id,
+            'surface' => 'web', 'metadata' => [], 'occurred_at' => $at,
+        ] + $extra);
+
+        $loginEvent($member, '2026-08-01 09:00:00');                       // before activation
+        $this->event(ActivityType::AdvertisementActivated, $admin, $property, '2026-08-02 10:00:00');
+        $this->event(ActivityType::AdvertisementActivated, $admin, $noLogin, '2026-08-02 10:00:00');
+        $loginEvent($admin, '2026-08-02 10:30:00');                        // staff — never
+        $first = $loginEvent($member, '2026-08-05 14:00:00', [
+            'ip_address' => '203.0.113.90', 'city' => 'Tampa', 'region' => 'Florida', 'country' => 'US',
+            'device_type' => 'mobile', 'browser' => 'Safari', 'platform' => 'iOS', 'session_id' => 'SES-LOGIN1',
+        ]);
+        $loginEvent($member, '2026-08-09 14:00:00');                       // later — not first
+        $loginEvent($unactivated->host, '2026-08-05 14:00:00');            // no recorded activation
+
+        $this->artisan('vaytoven:backfill-advertisement-access', ['--from-logins' => true])->assertSuccessful();
+        $this->assertSame(0, Record::count(), 'A dry run wrote records.');
+
+        $this->artisan('vaytoven:backfill-advertisement-access', ['--from-logins' => true, '--commit' => true])->assertSuccessful();
+
+        $record = Record::sole();
+        $this->assertSame($property->id, (int) $record->property_id);
+        $this->assertSame(Record::EVENT_FIRST_ACCESS, $record->event);
+        $this->assertSame(Record::SOURCE_BACKFILL_LOGIN, $record->source);
+        $this->assertSame($first->id, (int) $record->source_tracking_event_id);
+        $this->assertSame('2026-08-05 14:00:00', $record->occurred_at->format('Y-m-d H:i:s'));
+        $this->assertSame('203.0.113.90', $record->ip_address);
+        $this->assertSame('SES-LOGIN1', $record->session_id);
+        $this->assertSame('iOS', $record->platform);
+        $this->assertStringContainsString('first member login after advertisement activation', strtolower($record->metadata['basis']));
+        $this->assertTrue($record->verifies());
+        $this->assertSame(0, Record::where('event', Record::EVENT_ACCEPTED)->count());
+
+        $state = app(\App\Services\Fulfillment\AdvertisementFulfillment::class)->state($property);
+        $this->assertSame('accessed', $state['status']);
+        $this->assertSame(
+            "Access recorded from the member's first login after activation",
+            \App\Services\Fulfillment\EvidencePoint::fromRecord($record, $member)->note,
+        );
+
+        // Idempotent, and never overrides an existing access record.
+        $this->artisan('vaytoven:backfill-advertisement-access', ['--from-logins' => true, '--commit' => true])->assertSuccessful();
+        $this->assertSame(1, Record::count());
+    }
+
     // --- office certificates -------------------------------------------------
 
     public function test_certificates_go_to_the_office_only_for_real_clients_once(): void

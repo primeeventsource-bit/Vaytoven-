@@ -316,6 +316,68 @@ class AdvertisementFulfillment
           + $this->identityColumns($member));
     }
 
+    /**
+     * First access recorded from the member's first login after activation.
+     *
+     * Vaytoven decided on 2026-09-16 that a member signing in to their account
+     * after their advertisement went live counts as accessing it. The record
+     * says so: its source is backfill:login, it points at that login's own
+     * row, and it carries that login's own IP, device and time — so anyone
+     * reading the certificate can see exactly what the access is based on.
+     * Never an acceptance; never staff; never a login before activation.
+     */
+    public function backfillFirstAccessFromLogin(Property $property): ?Record
+    {
+        $member = $property->host;
+
+        if (! $member || $member->isStaff()) {
+            return null;
+        }
+
+        $scope = $this->scope($property);
+
+        if ($this->find(Record::EVENT_FIRST_ACCESS, $scope)) {
+            return null;
+        }
+
+        $activatedAt = $this->activatedAt($property, $scope['period']);
+        $login       = $this->firstLoginAfter($member, $activatedAt);
+
+        if (! $login) {
+            return null;
+        }
+
+        $isEvent = $login instanceof TrackingEvent;
+
+        return $this->insert([
+            'event'                    => Record::EVENT_FIRST_ACCESS,
+            'dedupe_key'               => Record::EVENT_FIRST_ACCESS.':'.$scope['key'],
+            'source'                   => Record::SOURCE_BACKFILL_LOGIN,
+            'source_tracking_event_id' => $isEvent ? $login->id : null,
+            'tracking_event_id'        => $isEvent ? $login->id : null,
+            'ip_address'               => $login->ip_address,
+            'country'                  => $login->country,
+            'region'                   => $login->region,
+            'city'                     => $login->city,
+            'latitude'                 => $login->latitude,
+            'longitude'                => $login->longitude,
+            'device_type'              => $login->device_type ?: ActivityRecorder::deviceType($login->user_agent),
+            'browser'                  => $login->browser,
+            'platform'                 => $isEvent ? $login->platform : $login->os,
+            // login_sessions.session_id is the framework session token and is
+            // never copied; activity rows carry the visit id.
+            'session_id'               => $isEvent ? $login->session_id : null,
+            'user_agent'               => $login->user_agent,
+            'occurred_at'              => $login->occurred_at,
+            'metadata'                 => [
+                'basis'            => 'First member login after advertisement activation, recorded as access by Vaytoven decision of 2026-09-16',
+                'login_session_id' => $isEvent ? null : $login->id,
+            ],
+        ] + $this->firstLoginColumns($login)
+          + $this->advertisementColumns($property, $scope['period'], $activatedAt)
+          + $this->identityColumns($member));
+    }
+
     // --- reading -----------------------------------------------------------
 
     /**
