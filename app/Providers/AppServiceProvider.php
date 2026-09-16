@@ -138,6 +138,11 @@ $this->app->singleton(GeoIpService::class, function ($app) {
 
     public function boot(): void
     {
+        // Self-styled pagination. The framework default assumes Tailwind,
+        // which these pages don't load, so its arrow SVGs filled the screen.
+        \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.vaytoven');
+        \Illuminate\Pagination\Paginator::defaultSimpleView('vendor.pagination.vaytoven-simple');
+
         // TrackAuthEvents subscriber is picked up automatically by Laravel 11's
         // event auto-discovery (any class in app/Listeners/ with a subscribe()
         // method gets registered). Don't call Event::subscribe() here — that
