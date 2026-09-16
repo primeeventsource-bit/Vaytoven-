@@ -50,9 +50,6 @@
             @else
                 <p class="vyt-faint" style="margin:0;">
                     Paid by invoice.
-                    @if ($orders->isNotEmpty())
-                        {{ $orders->count() }} unpaid {{ Str::plural('order', $orders->count()) }} on file — see Payments.
-                    @endif
                 </p>
             @endif
         </div>
