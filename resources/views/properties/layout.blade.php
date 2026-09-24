@@ -45,6 +45,15 @@
         .props-title { font-family:'Source Serif 4', serif; font-size:clamp(28px,3.5vw,42px); font-weight:600; letter-spacing:-.02em; margin:8px 0 18px; }
         .props-meta { font-size:13px; color:var(--muted); }
 
+        /* Result count and sort share a line, and wrap on a phone. */
+        .props-resultbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+        .props-sort { display:flex; align-items:center; gap:8px; margin:0; }
+        .props-sort label { font-size:13px; color:var(--muted); white-space:nowrap; }
+        .props-sort select {
+            padding:8px 10px; border:1px solid var(--line); border-radius:8px;
+            font-size:14px; background:#fff; color:var(--ink); max-width:190px;
+        }
+
         /* Filter bar */
         .props-filters {
             background:#fff; border:1px solid var(--line); border-radius:14px;

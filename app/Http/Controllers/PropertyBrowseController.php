@@ -7,6 +7,7 @@ use App\Enums\ActivityType;
 use App\Models\Amenity;
 use App\Models\Property;
 use App\Models\PropertyView;
+use App\Models\TrackingEvent;
 use App\Services\GeoIp\GeoIpService;
 use App\Services\Tracking\ActivityRecorder;
 use App\Support\EventCenters;
@@ -141,8 +142,9 @@ class PropertyBrowseController extends Controller
             }
         }
 
+        $sort = $this->applySort($query, (string) $request->query('sort', ''));
+
         $properties = $query
-            ->orderBy('price_cents')
             ->paginate(12)
             ->withQueryString();
 
@@ -168,7 +170,65 @@ class PropertyBrowseController extends Controller
             'selectedAmenities' => $amenitySlugs->all(),
             'eventCenters'      => EventCenters::all(),
             'selectedEventCenter' => $eventCenter['slug'] ?? '',
+            'sort'              => $sort,
+            'sortOptions'       => self::SORTS,
         ]);
+    }
+
+    /**
+     * How Stays is ordered, newest advertisement first.
+     *
+     * "Newest" is when the listing was PUBLISHED, not when the row was
+     * created or last edited and not when the member joined: a listing that
+     * goes live today belongs at the top, and editing an old one later does
+     * not move it. Listings with no publication date sort last rather than
+     * first — a missing date is not a recent one.
+     */
+    public const SORTS = [
+        'newest'       => 'Newest first',
+        'oldest'       => 'Oldest first',
+        'most_viewed'  => 'Most viewed',
+        'most_clicked' => 'Most clicked',
+    ];
+
+    private function applySort(\Illuminate\Database\Eloquent\Builder $query, string $requested): string
+    {
+        $sort = array_key_exists($requested, self::SORTS) ? $requested : 'newest';
+
+        match ($sort) {
+            'oldest' => $query
+                ->orderByRaw('published_at is null')
+                ->orderBy('published_at')
+                ->orderBy('id'),
+
+            'most_viewed' => $query
+                ->withCount('views')
+                ->orderByDesc('views_count')
+                ->orderByRaw('published_at is null')
+                ->orderByDesc('published_at'),
+
+            // Clicks live on the append-only activity log, keyed by the
+            // listing's reference rather than by a foreign key.
+            'most_clicked' => $query
+                ->select('properties.*')
+                ->selectSub(
+                    TrackingEvent::query()
+                        ->selectRaw('count(*)')
+                        ->whereColumn('subject_reference', 'properties.reference')
+                        ->where('event_type', ActivityType::AdvertisementClicked->value),
+                    'clicks_count',
+                )
+                ->orderByDesc('clicks_count')
+                ->orderByRaw('published_at is null')
+                ->orderByDesc('published_at'),
+
+            default => $query
+                ->orderByRaw('published_at is null')
+                ->orderByDesc('published_at')
+                ->orderByDesc('id'),
+        };
+
+        return $sort;
     }
 
     public function show(Property $property, Request $request, GeoIpService $geoIp): View|RedirectResponse

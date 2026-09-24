@@ -156,7 +156,31 @@
                     Find your next stay
                 @endif
             </h1>
-            <p class="props-meta">{{ $properties->total() }} {{ Str::plural('property', $properties->total()) }} available</p>
+            {{-- Count and sort on one line. Newest first is the default, so
+                 a member's advertisement is at the top the day it goes live. --}}
+            <div class="props-resultbar">
+                <p class="props-meta" style="margin:0;">{{ $properties->total() }} {{ Str::plural('property', $properties->total()) }} available</p>
+
+                <form method="GET" action="{{ route('properties.index') }}" class="props-sort">
+                    @foreach (request()->except(['sort', 'page']) as $name => $value)
+                        @if (is_array($value))
+                            @foreach ($value as $item)
+                                <input type="hidden" name="{{ $name }}[]" value="{{ $item }}">
+                            @endforeach
+                        @else
+                            <input type="hidden" name="{{ $name }}" value="{{ $value }}">
+                        @endif
+                    @endforeach
+
+                    <label for="props-sort">Sort by</label>
+                    <select id="props-sort" name="sort" onchange="this.form.submit()">
+                        @foreach ($sortOptions as $key => $label)
+                            <option value="{{ $key }}" @selected($sort === $key)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <noscript><button type="submit">Sort</button></noscript>
+                </form>
+            </div>
 
             @if ($properties->isEmpty())
                 <div class="props-empty">

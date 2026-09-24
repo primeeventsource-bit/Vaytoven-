@@ -98,6 +98,8 @@ class Property extends Model
             'beds' => 'integer',
             'minimum_nights' => 'integer',
             'status' => PropertyStatus::class,
+            // First time this listing went live. Stays sorts by it.
+            'published_at' => 'datetime',
             'cancellation_policy' => CancellationPolicy::class,
             'fee_structure' => FeeStructure::class,
             // Vacation Club Exchange Detection snapshot — written by
@@ -127,6 +129,22 @@ class Property extends Model
     {
         static::creating(function (self $property) {
             $property->reference ??= static::generateReference();
+        });
+
+        // When the listing FIRST went live, which is what Stays orders by.
+        //
+        // On the model rather than in a controller: listings go active from
+        // the admin console, the artisan commands and the seeders, and a
+        // timestamp that depends on each caller remembering it would be
+        // missing exactly where it matters.
+        //
+        // Set once and never moved. Editing a listing, or pausing and
+        // re-activating it, must not push it back to the top of Stays — the
+        // original publication is what a visitor sorting by "newest" means.
+        static::saving(function (self $property) {
+            if ($property->published_at === null && $property->status === PropertyStatus::Active) {
+                $property->published_at = now();
+            }
         });
     }
 
