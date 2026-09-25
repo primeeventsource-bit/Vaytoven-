@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\CancellationPolicy;
 use App\Enums\FeeStructure;
 use App\Enums\PropertyStatus;
+use App\Services\Listings\PublicPropertyRef;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -129,6 +130,26 @@ class Property extends Model
     {
         static::creating(function (self $property) {
             $property->reference ??= static::generateReference();
+        });
+
+        // The address this listing is published at.
+        //
+        // Set here as well as in the admin builder because a listing created
+        // for a member who had no member number yet would otherwise never get
+        // one, and the page would fall back to printing the MEMBER's number as
+        // the "Property ID" — the same value on every listing they own, and
+        // not an address that resolves.
+        static::created(function (self $property) {
+            if ($property->public_ref !== null || ! $property->host_id) {
+                return;
+            }
+
+            $host = $property->relationLoaded('host') ? $property->host : User::find($property->host_id);
+            $ref  = $host ? app(PublicPropertyRef::class)->nextFor($host) : null;
+
+            if ($ref) {
+                $property->forceFill(['public_ref' => $ref])->saveQuietly();
+            }
         });
 
         // When the listing FIRST went live, which is what Stays orders by.

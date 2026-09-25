@@ -84,6 +84,24 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Giving a member their number addresses their listings.
+     *
+     * On the model rather than on one admin screen: the number is also set
+     * when staff create a member alongside a listing, and a listing without
+     * its own address falls back to printing the member's number as its
+     * "Property ID" — one value shared across every listing they own.
+     * Existing addresses are never renumbered.
+     */
+    protected static function booted(): void
+    {
+        static::saved(function (self $user): void {
+            if ($user->wasChanged('member_id') && filled($user->member_id)) {
+                app(\App\Services\Listings\PublicPropertyRef::class)->assignFor($user);
+            }
+        });
+    }
+
     public function addressOnFile(): \App\Support\Location\AddressOnFile
     {
         return \App\Support\Location\AddressOnFile::fromUser($this);
