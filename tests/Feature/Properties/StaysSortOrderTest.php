@@ -136,4 +136,14 @@ class StaysSortOrderTest extends TestCase
         $this->assertSame(['Dated', 'Undated'], $this->titlesOn(route('properties.index')));
         $this->assertSame(['Dated', 'Undated'], $this->titlesOn(route('properties.index', ['sort' => 'oldest'])));
     }
+    /** The listing page shows when the advertisement was published. */
+    public function test_the_listing_page_shows_the_published_date(): void
+    {
+        $property = $this->published("Published listing", "2026-09-24 19:27:51");
+
+        $this->get(route("properties.show", $property))
+            ->assertOk()
+            ->assertSee("Advertised by")
+            ->assertSee("Published Sep 24, 2026");
+    }
 }

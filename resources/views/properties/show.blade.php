@@ -157,6 +157,13 @@
                              a full surname on top of that is what makes the set
                              identifying, and it tells the reader nothing useful. --}}
                         <p>{{ $property->host->publicDisplayName() }}</p>
+
+                        {{-- When this advertisement went live, which is also
+                             what Stays orders by. Editing the listing later
+                             does not change it. --}}
+                        @if ($property->published_at)
+                            <p class="props-published">Published {{ et($property->published_at, 'M j, Y') }}</p>
+                        @endif
                     </section>
                 @endif
             </div>

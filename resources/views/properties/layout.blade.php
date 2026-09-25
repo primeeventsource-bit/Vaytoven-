@@ -125,6 +125,7 @@
             font-size:12px; letter-spacing:.06em; text-transform:uppercase;
             color:var(--muted); font-weight:600; margin:0 0 2px;
         }
+        .props-published { font-size:13px; color:var(--muted); margin:2px 0 0; }
 
         /* Save button. Sits beside the title, so it stays visible without
            following the visitor down the page. */
