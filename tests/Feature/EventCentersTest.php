@@ -26,8 +26,8 @@ class EventCentersTest extends TestCase
     {
         return Property::factory()->create([
             'host_id' => User::factory()->create()->id,
-            'city'    => $city,
-            'status'  => $status->value,
+            'city' => $city,
+            'status' => $status->value,
         ]);
     }
 
@@ -36,7 +36,7 @@ class EventCentersTest extends TestCase
         $response = $this->get(route('event-centers.index'))->assertOk();
 
         foreach (['McCormick Place', 'Orange County Convention Center', 'Las Vegas Convention Center',
-                  'Georgia World Congress Center', 'Javits Center'] as $name) {
+            'Georgia World Congress Center', 'Javits Center'] as $name) {
             $response->assertSee($name);
         }
 
@@ -221,5 +221,105 @@ class EventCentersTest extends TestCase
         $this->assertGuest();
 
         $this->get(route('event-centers.index'))->assertOk();
+    }
+
+    // --- photographs ---------------------------------------------------------------
+
+    /**
+     * Every card carries a photograph of its own building.
+     *
+     * The cards used to lead with a 🏢 emoji. The rule the photographs replaced
+     * it under is that each one shows the named venue — not its city, not a
+     * stock convention hall — so a wrong or missing file is the whole failure,
+     * not a cosmetic one. A test cannot look at a picture, but it can insist
+     * that the file the card asks for is really on disk and really named after
+     * that venue; the pictures themselves were checked by eye before they were
+     * committed.
+     */
+    public function test_every_center_shows_a_photograph_of_its_own_venue(): void
+    {
+        $response = $this->get(route('event-centers.index'))->assertOk();
+
+        foreach (EventCenters::all() as $center) {
+            $this->assertSame($center['slug'], $center['photo']['file'],
+                'A photograph is filed under a different venue than the card it appears on.');
+
+            foreach ([1200, 800] as $width) {
+                $path = "images/event-centers/{$center['photo']['file']}-{$width}.jpg";
+
+                $response->assertSee(asset($path), false);
+                $this->assertFileExists(public_path($path));
+            }
+        }
+    }
+
+    public function test_the_building_emoji_is_gone(): void
+    {
+        $this->get(route('event-centers.index'))->assertOk()->assertDontSee('🏢');
+    }
+
+    /** The whole photograph opens the calendar, as the button under it does. */
+    public function test_the_photograph_links_to_that_centers_calendar(): void
+    {
+        $body = $this->get(route('event-centers.index'))->assertOk()->getContent();
+
+        foreach (EventCenters::all() as $center) {
+            $this->assertMatchesRegularExpression(
+                '/<a class="ec-card-photo"\s+href="'.preg_quote(e($center['calendar_url']), '/').'"/',
+                $body,
+                "The {$center['name']} photograph does not open its calendar.",
+            );
+        }
+    }
+
+    /**
+     * Below the fold waits; above it does not.
+     *
+     * Lazy-loading the two cards that are already on screen would delay the
+     * picture the visitor is looking at, which is the one case where the
+     * attribute costs more than it saves.
+     */
+    public function test_photographs_below_the_fold_are_lazy_loaded(): void
+    {
+        $body = $this->get(route('event-centers.index'))->assertOk()->getContent();
+
+        $this->assertSame(2, substr_count($body, 'loading="eager"'));
+        $this->assertSame(EventCenters::all()->count() - 2, substr_count($body, 'loading="lazy"'));
+    }
+
+    /**
+     * The credit is a licence term.
+     *
+     * CC BY and CC BY-SA permit the use on the condition that the author is
+     * named where the work appears. Dropping the line is not a tidy-up; it
+     * ends the permission the photographs are published under.
+     */
+    public function test_every_photograph_credits_its_author_and_licence(): void
+    {
+        $response = $this->get(route('event-centers.index'))->assertOk();
+
+        foreach (EventCenters::all() as $center) {
+            $photo = $center['photo'];
+
+            $response->assertSee($photo['by'], false);
+            $response->assertSee($photo['source'], false);
+
+            if (str_starts_with($photo['license'], 'CC ')) {
+                $this->assertNotNull($photo['license_url'],
+                    "A Creative Commons photograph of {$center['name']} does not link its licence.");
+                $response->assertSee($photo['license_url'], false);
+            }
+        }
+    }
+
+    /** Sizes are declared, so the text below does not jump when a photo lands. */
+    public function test_the_photographs_reserve_their_space(): void
+    {
+        $body = $this->get(route('event-centers.index'))->assertOk()->getContent();
+
+        $this->assertSame(
+            EventCenters::all()->count(),
+            substr_count($body, 'width="1200" height="675"'),
+        );
     }
 }

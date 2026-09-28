@@ -55,8 +55,26 @@
 
         .ec-card {
             background: #fff; border: 1px solid var(--line); border-radius: 18px;
-            padding: 26px 26px 22px; display: flex; flex-direction: column;
+            display: flex; flex-direction: column; overflow: hidden;
             box-shadow: 0 12px 32px -20px rgba(123,44,191,.20);
+        }
+        .ec-card-body { padding: 22px 26px; display: flex; flex-direction: column; flex: 1; }
+
+        /* The photo is a second route to the same calendar the button opens.
+           The zoom happens on the image inside a fixed 16:9 frame, so the card
+           never changes size and the grid never reflows under the pointer. */
+        .ec-card-photo {
+            display: block; aspect-ratio: 16 / 9; overflow: hidden;
+            background: #f3eef8; border-bottom: 1px solid var(--line);
+        }
+        .ec-card-photo img {
+            display: block; width: 100%; height: 100%; object-fit: cover;
+            transition: transform .5s ease;
+        }
+        .ec-card-photo:hover img, .ec-card-photo:focus-visible img { transform: scale(1.045); }
+        @media (prefers-reduced-motion: reduce) {
+            .ec-card-photo img { transition: none; }
+            .ec-card-photo:hover img, .ec-card-photo:focus-visible img { transform: none; }
         }
         .ec-card-place {
             font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase;
@@ -64,7 +82,7 @@
         }
         .ec-card h2 {
             font-family: 'Source Serif 4', serif; font-size: 25px; font-weight: 600;
-            letter-spacing: -.01em; margin: 9px 0 10px; display: flex; gap: 10px; align-items: baseline;
+            letter-spacing: -.01em; margin: 9px 0 10px;
         }
         .ec-card p { font-size: 14.5px; color: var(--ink); line-height: 1.55; margin: 0 0 16px; }
 
@@ -85,6 +103,13 @@
         .ec-btn-secondary { border: 1px solid var(--line); color: var(--ink); background: #fff; }
         .ec-btn-secondary:hover { border-color: var(--purple); color: var(--purple); }
 
+        /* A licence term, not a footnote: CC BY and CC BY-SA are conditional on
+           the author being named where the photograph is shown. */
+        .ec-credits {
+            margin: 34px 0 0; font-size: 12px; line-height: 1.7; color: var(--muted);
+        }
+        .ec-credits a { color: inherit; text-decoration: underline; }
+
     </style>
 </head>
 <body>
@@ -103,49 +128,91 @@
     <main class="ec-shell">
         <div class="ec-grid">
             @foreach ($centers as $center)
+                {{-- The two cards that open above the fold on a desktop screen
+                     load their photograph straight away; the rest wait until
+                     they are scrolled towards. --}}
+                @php($eager = $loop->index < 2)
+
                 <article class="ec-card">
-                    <div class="ec-card-place">{{ $center['city'] }}, {{ $center['region'] }}</div>
+                    {{-- The whole photograph opens the venue's calendar, which
+                         is what the button beneath it does too. Hidden from
+                         keyboard and screen readers precisely because it is a
+                         duplicate: it would otherwise be a second tab stop and
+                         a second announcement of the same destination. --}}
+                    <a class="ec-card-photo"
+                       href="{{ $center['calendar_url'] }}"
+                       target="_blank" rel="noopener noreferrer"
+                       tabindex="-1" aria-hidden="true"
+                       data-vyt-event="advertisement.clicked"
+                       data-vyt-subject-type="event_center"
+                       data-vyt-subject="{{ $center['slug'] }}">
+                        <img src="{{ asset('images/event-centers/'.$center['photo']['file'].'-1200.jpg') }}"
+                             srcset="{{ asset('images/event-centers/'.$center['photo']['file'].'-800.jpg') }} 800w,
+                                     {{ asset('images/event-centers/'.$center['photo']['file'].'-1200.jpg') }} 1200w"
+                             sizes="(min-width: 760px) 50vw, 100vw"
+                             width="1200" height="675"
+                             alt="{{ $center['photo']['alt'] }}"
+                             loading="{{ $eager ? 'eager' : 'lazy' }}"
+                             decoding="async"
+                             @if ($eager) fetchpriority="high" @endif>
+                    </a>
 
-                    <h2><span aria-hidden="true">🏢</span> {{ $center['name'] }}</h2>
+                    <div class="ec-card-body">
+                        <div class="ec-card-place">{{ $center['city'] }}, {{ $center['region'] }}</div>
 
-                    <p>{{ $center['blurb'] }}</p>
+                        <h2>{{ $center['name'] }}</h2>
 
-                    {{-- The live count, whatever it is.
-                         A page that promises somewhere to stay near McCormick
-                         Place while Vaytoven advertises nothing in Chicago
-                         wastes the click. Saying so costs nothing and the
-                         number climbs on its own as listings arrive. --}}
-                    <div class="ec-card-count">
-                        @if ($center['listings'] > 0)
-                            <strong>{{ $center['listings'].' '.Str::plural('advertisement', $center['listings']).' in '.$center['city'] }}</strong>
-                        @else
-                            {{ 'No '.$center['city'].' advertisements yet' }} — new listings are added regularly.
-                        @endif
-                    </div>
+                        <p>{{ $center['blurb'] }}</p>
 
-                    <div class="ec-card-actions">
-                        {{-- The venue publishes its own schedule and is the
-                             authority on it. Vaytoven links out rather than
-                             copying dates that go stale the moment one moves.
-                             noopener because these open in a new tab. --}}
-                        <a class="ec-btn ec-btn-secondary"
-                           href="{{ $center['calendar_url'] }}"
-                           target="_blank" rel="noopener noreferrer"
-                           data-vyt-event="advertisement.clicked"
-                           data-vyt-subject-type="event_center"
-                           data-vyt-subject="{{ $center['slug'] }}">
-                            View event calendar
-                            <span aria-hidden="true">↗</span>
-                        </a>
+                        {{-- The live count, whatever it is.
+                             A page that promises somewhere to stay near McCormick
+                             Place while Vaytoven advertises nothing in Chicago
+                             wastes the click. Saying so costs nothing and the
+                             number climbs on its own as listings arrive. --}}
+                        <div class="ec-card-count">
+                            @if ($center['listings'] > 0)
+                                <strong>{{ $center['listings'].' '.Str::plural('advertisement', $center['listings']).' in '.$center['city'] }}</strong>
+                            @else
+                                {{ 'No '.$center['city'].' advertisements yet' }} — new listings are added regularly.
+                            @endif
+                        </div>
 
-                        <a class="ec-btn ec-btn-primary"
-                           href="{{ route('properties.index', ['event_center' => $center['slug']]) }}">
-                            Explore properties nearby
-                        </a>
+                        <div class="ec-card-actions">
+                            {{-- The venue publishes its own schedule and is the
+                                 authority on it. Vaytoven links out rather than
+                                 copying dates that go stale the moment one moves.
+                                 noopener because these open in a new tab. --}}
+                            <a class="ec-btn ec-btn-secondary"
+                               href="{{ $center['calendar_url'] }}"
+                               target="_blank" rel="noopener noreferrer"
+                               data-vyt-event="advertisement.clicked"
+                               data-vyt-subject-type="event_center"
+                               data-vyt-subject="{{ $center['slug'] }}">
+                                View event calendar
+                                <span aria-hidden="true">↗</span>
+                            </a>
+
+                            <a class="ec-btn ec-btn-primary"
+                               href="{{ route('properties.index', ['event_center' => $center['slug']]) }}">
+                                Explore properties nearby
+                            </a>
+                        </div>
                     </div>
                 </article>
             @endforeach
         </div>
+
+        <p class="ec-credits">
+            Venue photographs:
+            @foreach ($centers as $center)
+                @php($photo = $center['photo'])
+                <a href="{{ $photo['source'] }}" target="_blank" rel="noopener noreferrer">{{ $center['name'] }}</a>
+                by {{ $photo['by'] }}@if ($photo['license_url']),
+                    <a href="{{ $photo['license_url'] }}" target="_blank" rel="noopener noreferrer">{{ $photo['license'] }}</a>@else,
+                    {{ $photo['license'] }}@endif{{ $loop->last ? '.' : ';' }}
+            @endforeach
+            Via Wikimedia Commons.
+        </p>
 
     </main>
 
