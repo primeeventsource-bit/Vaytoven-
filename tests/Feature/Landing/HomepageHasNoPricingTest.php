@@ -6,35 +6,67 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * The public homepage carries no prices.
+ * The public homepage quotes no package pricing.
  *
- * Package pricing belongs to the enrollment flow, and a nightly figure on a
- * marketing card is a number Vaytoven neither sets nor collects. A visitor
- * browsing stays is not shopping for an advertising package, and the package
- * price means nothing until somebody has chosen how many weeks they want
+ * What Vaytoven charges to advertise belongs to the enrollment flow: a
+ * visitor browsing stays is not shopping for an advertising package, and the
+ * figure means nothing before somebody has chosen how many weeks they want
  * advertised.
+ *
+ * Earnings projections are a different thing and stay: they are the owner's
+ * own rate and weeks, money Vaytoven never collects.
  */
 class HomepageHasNoPricingTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_the_homepage_shows_no_currency_amounts(): void
+    private function homepage(): string
     {
-        $body = $this->get('/')->assertOk()->getContent();
+        return preg_replace('/\s+/', ' ', strip_tags($this->get('/')->assertOk()->getContent()));
+    }
 
-        // Any "$12", "$1,200", "$84/week" — in copy, in a card, anywhere.
-        $this->assertDoesNotMatchRegularExpression(
-            '/\$\s?[0-9]/',
-            $body,
-            'A currency amount is back on the public homepage.',
-        );
+    public function test_the_homepage_quotes_no_package_price(): void
+    {
+        $text = $this->homepage();
 
-        foreach (['from $', '/week', 'Estimated annual earnings', 'Sample member earnings', 'Compare all features'] as $gone) {
-            $this->assertStringNotContainsString($gone, $body, "\"{$gone}\" is back on the homepage.");
+        foreach (['$249', '$349', '$449'] as $price) {
+            $this->assertStringNotContainsString($price, $text, "The homepage quotes the package price {$price}.");
+        }
+
+        foreach (['/week', 'per week', 'from $', 'Compare all features', 'Pick a package'] as $gone) {
+            $this->assertStringNotContainsStringIgnoringCase($gone, $text, "\"{$gone}\" is back on the homepage.");
         }
     }
 
-    /** The page still sells the thing — it just does not quote it. */
+    /**
+     * No percentage fee, anywhere.
+     *
+     * Vaytoven is paid to advertise and takes no share of what a guest pays.
+     * A "3%" beside an earnings figure describes a commission this company
+     * does not charge.
+     */
+    public function test_the_homepage_never_states_a_percentage_fee(): void
+    {
+        $this->assertDoesNotMatchRegularExpression(
+            '/\b\d+(\.\d+)?%\s*(fee|commission|cut)/i',
+            $this->homepage(),
+            'The homepage states a percentage fee.',
+        );
+    }
+
+    /** The projections a property owner comes for are still here. */
+    public function test_the_earnings_projections_are_still_shown(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Estimated annual earnings')
+            ->assertSee('Before our fee')
+            ->assertSee('Sample member earnings · illustrative')
+            ->assertSee('Illustrative only')
+            ->assertSee('Average nightly rate');
+    }
+
+    /** The page still leads a member into enrollment, where prices live. */
     public function test_the_homepage_still_leads_members_into_enrollment(): void
     {
         $this->get('/')
@@ -42,17 +74,18 @@ class HomepageHasNoPricingTest extends TestCase
             ->assertSee('Member Services')
             ->assertSee('Start Member Services')
             ->assertSee(route('member-services.show'), false)
-            ->assertSee('Managed Listing Program')
-            // Listings, enquiries and offers still front the page.
             ->assertSee('Featured stays')
             ->assertSee(route('properties.index'), false);
     }
 
-    /** Pricing lives in the enrollment flow, which is reached from the nav. */
-    public function test_package_pricing_is_still_available_once_enrollment_starts(): void
+    public function test_package_pricing_is_available_once_enrollment_starts(): void
     {
-        $body = $this->get(route('member-services.show'))->assertOk()->getContent();
+        $enrollment = preg_replace('/\s+/', ' ', strip_tags(
+            $this->get(route('member-services.show'))->assertOk()->getContent(),
+        ));
 
-        $this->assertMatchesRegularExpression('/\$\s?[0-9]/', $body, 'Enrollment lost its package pricing.');
+        foreach (['$249', '$349', '$449'] as $price) {
+            $this->assertStringContainsString($price, $enrollment, "Enrollment does not show {$price}.");
+        }
     }
 }

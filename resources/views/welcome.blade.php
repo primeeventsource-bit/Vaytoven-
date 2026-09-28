@@ -267,10 +267,17 @@
             backdrop-filter: blur(12px);
         }
         .calc-card h4 { font-family: 'Source Serif 4', serif; font-size: 17px; margin: 0 0 4px; font-weight: 500; color: rgba(255,255,255,.7); }
-        .calc-steps { margin: 18px 0 0; padding: 0 0 0 20px; display: grid; gap: 14px; }
-        .calc-steps li { color: rgba(255,255,255,.72); font-size: 15px; line-height: 1.55; }
-        .calc-steps li strong { color: #fff; }
-        .calc-steps-cta { display: inline-block; margin-top: 22px; color: var(--pink); font-weight: 600; font-size: 15px; }
+        .calc-earnings {
+            font-family: 'Source Serif 4', serif; font-size: clamp(48px, 6vw, 72px); font-weight: 600;
+            background: var(--gradient); -webkit-background-clip: text; color: transparent;
+            line-height: 1;
+            margin: 6px 0 8px;
+        }
+        .calc-period { color: rgba(255,255,255,.55); font-size: 14px; margin-bottom: 28px; }
+        .calc-row { margin-bottom: 22px; }
+        .calc-row:last-child { margin-bottom: 0; }
+        .calc-label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; }
+        .calc-label span:last-child { font-weight: 600; color: var(--pink); }
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-runnable-track { height: 4px; background: rgba(255,255,255,.18); border-radius: 4px; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 999px; background: var(--gradient); margin-top: -9px; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
@@ -313,6 +320,9 @@
         .earnings-row:first-of-type { border-top: 0; }
         .earnings-row strong { font-weight: 500; }
         .earnings-row em { font-style: normal; color: var(--muted); font-size: 13px; display: block; margin-top: 2px; }
+        .earnings-amt { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 17px; }
+        .earnings-total { padding-top: 22px; margin-top: 14px; border-top: 2px solid var(--ink); display: flex; justify-content: space-between; align-items: baseline; }
+        .earnings-total-num { font-family: 'Source Serif 4', serif; font-size: 36px; font-weight: 600; background: var(--gradient); -webkit-background-clip: text; color: transparent; line-height: 1; }
         .earnings-disclaimer { font-style: italic; font-size: 12px; color: var(--muted); margin-top: 18px; line-height: 1.5; }
         @media (max-width: 900px) { .members-grid { grid-template-columns: 1fr; } }
 
@@ -748,20 +758,24 @@
             </a>
         </div>
 
-        {{-- An earnings calculator lived here. It projected dollars Vaytoven
-             does not collect, pay out or control, off numbers a visitor typed
-             — and it is the owner's own rate that decides them. What the
-             platform actually does is the honest thing to show instead. --}}
+        {{-- What the owner could earn, from their own rate and their own
+             weeks. Shown BEFORE our fee: Vaytoven is paid to advertise and
+             takes no share of what a guest pays, so deducting a percentage
+             here would describe a commission this company does not charge. --}}
         <div class="calc-card">
-            <h4>How advertising here works</h4>
-            <ol class="calc-steps">
-                <li><strong>You list the time you are not using.</strong> Your property, your dates, your asking terms.</li>
-                <li><strong>Travelers find it and send offers.</strong> Each one expires in 24 hours, so nothing sits unanswered.</li>
-                <li><strong>You accept or decline.</strong> Guests deal with you directly and pay you directly.</li>
-                <li><strong>Vaytoven advertises.</strong> We take no cut of what you earn and never hold your money.</li>
-            </ol>
-            <a class="calc-steps-cta" href="{{ route('host.onboarding.index') }}"
-               data-track-audience="host" data-track-cta="host_onboarding_open_card">See what listing involves →</a>
+            <h4>Estimated annual earnings</h4>
+            <div class="calc-earnings" id="calc-earnings">$25,480</div>
+            <div class="calc-period">Before our fee · taxes and cleaning excluded</div>
+
+            <div class="calc-row">
+                <div class="calc-label"><span>Average nightly rate</span><span id="calc-rate">$280</span></div>
+                <input type="range" id="calc-rate-input" min="80" max="800" value="280" step="10">
+            </div>
+
+            <div class="calc-row">
+                <div class="calc-label"><span>Time booked per year</span><span id="calc-weeks">13</span></div>
+                <input type="range" id="calc-weeks-input" min="2" max="40" value="13" step="1">
+            </div>
         </div>
     </div>
 </section>
@@ -786,38 +800,40 @@
             </button>
         </div>
 
-        {{-- Illustrative earnings figures lived here. They were guesses about
-             money Vaytoven never touches, printed beside a program fee, which
-             is exactly the pairing that reads as a promise. --}}
         <div class="earnings-card">
-            <h4>What the Managed Listing Program covers</h4>
+            <h4>Sample member earnings · illustrative</h4>
 
             <div class="earnings-row">
                 <div>
-                    <strong>We build the advertisement</strong>
-                    <em>Photography brief, description and amenities, written for you</em>
+                    <strong>Maui beachfront, 1BR</strong>
+                    <em>1 week, peak season</em>
                 </div>
+                <div class="earnings-amt">$5,280</div>
             </div>
             <div class="earnings-row">
                 <div>
-                    <strong>We advertise your weeks</strong>
-                    <em>Across the Vaytoven network and partner channels, for a fixed 180-day term</em>
+                    <strong>Orlando studio</strong>
+                    <em>1 week, school break</em>
                 </div>
+                <div class="earnings-amt">$1,920</div>
             </div>
             <div class="earnings-row">
                 <div>
-                    <strong>You review every offer</strong>
-                    <em>Accept or decline from your own dashboard — guests pay you directly</em>
+                    <strong>Cabo San Lucas villa</strong>
+                    <em>1 week, shoulder season</em>
                 </div>
-            </div>
-            <div class="earnings-row">
-                <div>
-                    <strong>A specialist stays with you</strong>
-                    <em>One point of contact, working inside your club's rental rules</em>
-                </div>
+                <div class="earnings-amt">$3,240</div>
             </div>
 
-            <p class="earnings-disclaimer">Vaytoven advertises vacation properties. What a week is worth varies by property, season, club and inventory, and Vaytoven guarantees no result. Guests pay you directly; we neither collect nor hold that money. Program terms are quoted to you when you enquire.</p>
+            <div class="earnings-total">
+                <div>
+                    <div style="font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600;">Net to member</div>
+                    <div style="font-size:13px;color:var(--muted);">Before the one-time 180-day program fee</div>
+                </div>
+                <div class="earnings-total-num">$10,440</div>
+            </div>
+
+            <p class="earnings-disclaimer">Illustrative only — what you actually earn varies by property, season, club, and inventory, and Vaytoven guarantees no result. Guests pay you directly; we neither collect nor hold that money. We'll quote your specific portfolio after a quick call.</p>
         </div>
     </div>
 </section>
@@ -1065,6 +1081,29 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
+    // Earnings calculator. The figure is what the owner's own rate and weeks
+    // come to, BEFORE our advertising fee — no percentage is deducted,
+    // because Vaytoven takes no share of what a guest pays.
+    (function() {
+        const rateInput = document.getElementById('calc-rate-input');
+        const weeksInput = document.getElementById('calc-weeks-input');
+        const rateLabel = document.getElementById('calc-rate');
+        const weeksLabel = document.getElementById('calc-weeks');
+        const earnings = document.getElementById('calc-earnings');
+        const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+        function update() {
+            const rate = parseInt(rateInput.value, 10);
+            const weeks = parseInt(weeksInput.value, 10);
+            rateLabel.textContent = '$' + rate;
+            weeksLabel.textContent = weeks;
+            earnings.textContent = fmt.format(rate * weeks * 7);
+        }
+        rateInput.addEventListener('input', update);
+        weeksInput.addEventListener('input', update);
+        update();
+    })();
+
 
     // Save heart toggle
     document.querySelectorAll('.feature-heart').forEach(btn => {
