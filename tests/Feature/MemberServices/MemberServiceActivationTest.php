@@ -316,12 +316,20 @@ class MemberServiceActivationTest extends TestCase
             'The homepage does not link to Member Services activation.');
     }
 
-    public function test_the_homepage_shows_all_three_package_prices(): void
+    /**
+     * Package prices moved off the homepage and into enrollment: a visitor
+     * browsing stays is not shopping for an advertising package, and the
+     * figure means nothing before somebody has chosen their weeks. The
+     * activation page is where every price is now quoted.
+     */
+    public function test_the_package_prices_are_shown_in_enrollment_and_not_on_the_homepage(): void
     {
-        $text = preg_replace('/\s+/', ' ', strip_tags($this->get('/')->assertOk()->getContent()));
+        $home = preg_replace('/\s+/', ' ', strip_tags($this->get('/')->assertOk()->getContent()));
+        $enrollment = preg_replace('/\s+/', ' ', strip_tags($this->get(route('member-services.show'))->assertOk()->getContent()));
 
         foreach (['$249', '$349', '$449'] as $price) {
-            $this->assertStringContainsString($price, $text, "The homepage does not show {$price}.");
+            $this->assertStringNotContainsString($price, $home, "The homepage still quotes {$price}.");
+            $this->assertStringContainsString($price, $enrollment, "Enrollment does not show {$price}.");
         }
     }
 

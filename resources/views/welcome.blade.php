@@ -170,10 +170,6 @@
         }
         .dest-card h3 { font-family: 'Source Serif 4', serif; font-size: 26px; margin: 0; font-weight: 600; }
         .dest-card-meta { font-size: 13px; opacity: .85; }
-        .dest-card-price {
-            background: rgba(255,255,255,.95); color: var(--ink);
-            padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;
-        }
         @media (max-width: 900px) {
             .destinations-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 240px 240px 240px; }
             .dest-card:nth-child(1) { grid-row: span 1; grid-column: span 2; }
@@ -207,8 +203,7 @@
         .feature-card h3 { margin: 14px 0 4px; font-size: 17px; font-weight: 600; }
         .feature-meta { font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
         .feature-rating { display: inline-flex; align-items: center; gap: 4px; font-weight: 500; color: var(--ink); }
-        .feature-price { margin-top: 6px; font-weight: 600; }
-        .feature-price span { font-weight: 400; color: var(--muted); }
+        .feature-stay { margin-top: 6px; font-size: 14px; color: var(--muted); }
         @media (max-width: 1100px) { .featured-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 540px) { .featured-grid { grid-template-columns: 1fr; } }
 
@@ -272,17 +267,10 @@
             backdrop-filter: blur(12px);
         }
         .calc-card h4 { font-family: 'Source Serif 4', serif; font-size: 17px; margin: 0 0 4px; font-weight: 500; color: rgba(255,255,255,.7); }
-        .calc-earnings {
-            font-family: 'Source Serif 4', serif; font-size: clamp(48px, 6vw, 72px); font-weight: 600;
-            background: var(--gradient); -webkit-background-clip: text; color: transparent;
-            line-height: 1;
-            margin: 6px 0 8px;
-        }
-        .calc-period { color: rgba(255,255,255,.55); font-size: 14px; margin-bottom: 28px; }
-        .calc-row { margin-bottom: 22px; }
-        .calc-row:last-child { margin-bottom: 0; }
-        .calc-label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; }
-        .calc-label span:last-child { font-weight: 600; color: var(--pink); }
+        .calc-steps { margin: 18px 0 0; padding: 0 0 0 20px; display: grid; gap: 14px; }
+        .calc-steps li { color: rgba(255,255,255,.72); font-size: 15px; line-height: 1.55; }
+        .calc-steps li strong { color: #fff; }
+        .calc-steps-cta { display: inline-block; margin-top: 22px; color: var(--pink); font-weight: 600; font-size: 15px; }
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-runnable-track { height: 4px; background: rgba(255,255,255,.18); border-radius: 4px; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 999px; background: var(--gradient); margin-top: -9px; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
@@ -325,9 +313,6 @@
         .earnings-row:first-of-type { border-top: 0; }
         .earnings-row strong { font-weight: 500; }
         .earnings-row em { font-style: normal; color: var(--muted); font-size: 13px; display: block; margin-top: 2px; }
-        .earnings-amt { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 17px; }
-        .earnings-total { padding-top: 22px; margin-top: 14px; border-top: 2px solid var(--ink); display: flex; justify-content: space-between; align-items: baseline; }
-        .earnings-total-num { font-family: 'Source Serif 4', serif; font-size: 36px; font-weight: 600; background: var(--gradient); -webkit-background-clip: text; color: transparent; line-height: 1; }
         .earnings-disclaimer { font-style: italic; font-size: 12px; color: var(--muted); margin-top: 18px; line-height: 1.5; }
         @media (max-width: 900px) { .members-grid { grid-template-columns: 1fr; } }
 
@@ -579,8 +564,8 @@
             <div class="hero-stat-label">Average guest rating</div>
         </div>
         <div>
-            <div class="hero-stat-num">$0</div>
-            <div class="hero-stat-label">Charged to travelers</div>
+            <div class="hero-stat-num">Free</div>
+            <div class="hero-stat-label">For travelers to browse and enquire</div>
         </div>
     </div>
 </header>
@@ -600,7 +585,6 @@
                     <h3>Bali</h3>
                     <div class="dest-card-meta">Ubud · Seminyak · Uluwatu</div>
                 </div>
-                <span class="dest-card-price">from $84</span>
             </div>
         </a>
         <a href="{{ route('properties.index', ['destination' => 'santorini']) }}" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="santorini">
@@ -610,7 +594,6 @@
                     <h3>Santorini</h3>
                     <div class="dest-card-meta">Oia · Imerovigli</div>
                 </div>
-                <span class="dest-card-price">from $210</span>
             </div>
         </a>
         <a href="{{ route('properties.index', ['destination' => 'lake-tahoe']) }}" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="lake-tahoe">
@@ -620,7 +603,6 @@
                     <h3>Lake Tahoe</h3>
                     <div class="dest-card-meta">South Shore · Heavenly</div>
                 </div>
-                <span class="dest-card-price">from $146</span>
             </div>
         </a>
         <a href="{{ route('properties.index', ['destination' => 'paris']) }}" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="paris">
@@ -630,7 +612,6 @@
                     <h3>Paris</h3>
                     <div class="dest-card-meta">Le Marais · 7e</div>
                 </div>
-                <span class="dest-card-price">from $172</span>
             </div>
         </a>
         <a href="{{ route('properties.index', ['destination' => 'tokyo']) }}" class="dest-card" data-track-audience="traveler" data-track-cta="destination_select" data-track-meta-destination="tokyo">
@@ -640,7 +621,6 @@
                     <h3>Tokyo</h3>
                     <div class="dest-card-meta">Shibuya · Shimokitazawa</div>
                 </div>
-                <span class="dest-card-price">from $128</span>
             </div>
         </a>
     </div>
@@ -664,7 +644,7 @@
                 <span>Sleeps 4 · 2 bed</span>
                 <span class="feature-rating">★ 4.96</span>
             </div>
-            <div class="feature-price">$310 <span>7 days / 6 nights · May 12–17</span></div>
+            <div class="feature-stay">7 days / 6 nights · May 12–17</div>
         </article>
 
         <article class="feature-card">
@@ -677,7 +657,7 @@
                 <span>Sleeps 6 · 3 bed</span>
                 <span class="feature-rating">★ 4.98</span>
             </div>
-            <div class="feature-price">$245 <span>7 days / 6 nights · Jun 04–11</span></div>
+            <div class="feature-stay">7 days / 6 nights · Jun 04–11</div>
         </article>
 
         <article class="feature-card">
@@ -690,7 +670,7 @@
                 <span>Sleeps 4 · 2 bed</span>
                 <span class="feature-rating">★ 4.92</span>
             </div>
-            <div class="feature-price">$198 <span>7 days / 6 nights · Jul 22–27</span></div>
+            <div class="feature-stay">7 days / 6 nights · Jul 22–27</div>
         </article>
 
         <article class="feature-card">
@@ -703,7 +683,7 @@
                 <span>Sleeps 5 · 3 bed</span>
                 <span class="feature-rating">★ 4.95</span>
             </div>
-            <div class="feature-price">$156 <span>7 days / 6 nights · Sep 08–14</span></div>
+            <div class="feature-stay">7 days / 6 nights · Sep 08–14</div>
         </article>
     </div>
 </section>
@@ -768,20 +748,20 @@
             </a>
         </div>
 
+        {{-- An earnings calculator lived here. It projected dollars Vaytoven
+             does not collect, pay out or control, off numbers a visitor typed
+             — and it is the owner's own rate that decides them. What the
+             platform actually does is the honest thing to show instead. --}}
         <div class="calc-card">
-            <h4>Estimated annual earnings</h4>
-            <div class="calc-earnings" id="calc-earnings">$24,696</div>
-            <div class="calc-period">After our 3% fee · taxes and cleaning excluded</div>
-
-            <div class="calc-row">
-                <div class="calc-label"><span>Average nightly rate</span><span id="calc-rate">$280</span></div>
-                <input type="range" id="calc-rate-input" min="80" max="800" value="280" step="10">
-            </div>
-
-            <div class="calc-row">
-                <div class="calc-label"><span>Time booked per year</span><span id="calc-weeks">13</span></div>
-                <input type="range" id="calc-weeks-input" min="2" max="40" value="13" step="1">
-            </div>
+            <h4>How advertising here works</h4>
+            <ol class="calc-steps">
+                <li><strong>You list the time you are not using.</strong> Your property, your dates, your asking terms.</li>
+                <li><strong>Travelers find it and send offers.</strong> Each one expires in 24 hours, so nothing sits unanswered.</li>
+                <li><strong>You accept or decline.</strong> Guests deal with you directly and pay you directly.</li>
+                <li><strong>Vaytoven advertises.</strong> We take no cut of what you earn and never hold your money.</li>
+            </ol>
+            <a class="calc-steps-cta" href="{{ route('host.onboarding.index') }}"
+               data-track-audience="host" data-track-cta="host_onboarding_open_card">See what listing involves →</a>
         </div>
     </div>
 </section>
@@ -806,40 +786,38 @@
             </button>
         </div>
 
+        {{-- Illustrative earnings figures lived here. They were guesses about
+             money Vaytoven never touches, printed beside a program fee, which
+             is exactly the pairing that reads as a promise. --}}
         <div class="earnings-card">
-            <h4>Sample member earnings · illustrative</h4>
+            <h4>What the Managed Listing Program covers</h4>
 
             <div class="earnings-row">
                 <div>
-                    <strong>Maui beachfront, 1BR</strong>
-                    <em>1 week, peak season</em>
+                    <strong>We build the advertisement</strong>
+                    <em>Photography brief, description and amenities, written for you</em>
                 </div>
-                <div class="earnings-amt">$5,280</div>
             </div>
             <div class="earnings-row">
                 <div>
-                    <strong>Orlando studio</strong>
-                    <em>1 week, school break</em>
+                    <strong>We advertise your weeks</strong>
+                    <em>Across the Vaytoven network and partner channels, for a fixed 180-day term</em>
                 </div>
-                <div class="earnings-amt">$1,920</div>
             </div>
             <div class="earnings-row">
                 <div>
-                    <strong>Cabo San Lucas villa</strong>
-                    <em>1 week, shoulder season</em>
+                    <strong>You review every offer</strong>
+                    <em>Accept or decline from your own dashboard — guests pay you directly</em>
                 </div>
-                <div class="earnings-amt">$3,240</div>
             </div>
-
-            <div class="earnings-total">
+            <div class="earnings-row">
                 <div>
-                    <div style="font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600;">Net to member</div>
-                    <div style="font-size:13px;color:var(--muted);">Before the one-time 180-day program fee</div>
+                    <strong>A specialist stays with you</strong>
+                    <em>One point of contact, working inside your club's rental rules</em>
                 </div>
-                <div class="earnings-total-num">$10,440</div>
             </div>
 
-            <p class="earnings-disclaimer">Illustrative only — what you actually earn varies by property, season, club, and inventory, and Vaytoven guarantees no result. Guests pay you directly; we neither collect nor hold that money. We'll quote your specific portfolio after a quick call.</p>
+            <p class="earnings-disclaimer">Vaytoven advertises vacation properties. What a week is worth varies by property, season, club and inventory, and Vaytoven guarantees no result. Guests pay you directly; we neither collect nor hold that money. Program terms are quoted to you when you enquire.</p>
         </div>
     </div>
 </section>
@@ -847,70 +825,24 @@
 {{-- Member Services packages. This section is the reason the pricing page is
      findable at all: the activation flow shipped reachable only from a line at
      the foot of /members, which made it an orphan. --}}
+{{-- Member Services, without the price list.
+
+     Package pricing used to sit on the public homepage, package cards and a
+     comparison table included. It belongs to the enrollment flow: a visitor
+     browsing stays is not shopping for an advertising package, and the number
+     means nothing until somebody knows how many weeks they are advertising.
+     The cards still exist — on /member-services, where enrollment starts. --}}
 <section class="section pricing-section" id="pricing">
     <div class="section-header" style="text-align:center;margin-left:auto;margin-right:auto;">
         <div class="eyebrow">Member Services</div>
-        <h2 class="display">Pick a package, <em class="grad-text">activate online.</em></h2>
-        <p>Priced per week and charged once — not a recurring subscription. Choose your weeks and the total is calculated for you.</p>
+        <h2 class="display">Advertise your weeks, <em class="grad-text">start online.</em></h2>
+        <p>Choose how many weeks you want advertised and activate the whole thing yourself. The fee is charged once — not a recurring subscription — and your package and total are shown to you as you enroll.</p>
     </div>
 
-    @include('partials.package-cards', ['linkTo' => route('member-services.show')])
-
-    {{-- The matrix, for anyone who wants to compare rather than skim. --}}
-    <details class="pkg-compare-toggle">
-        <summary>Compare all features</summary>
-
-        <div class="pkg-compare-wrap">
-            <table class="pkg-compare">
-                <thead>
-                    <tr>
-                        <th style="text-align:left;">Feature</th>
-                        @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
-                            <th class="{{ $pkg->value === 'gold' ? 'col-gold' : '' }}">
-                                {{ $pkg->emoji() }} {{ strtoupper($pkg->label()) }}
-                            </th>
-                        @endforeach
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th>Price</th>
-                        @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
-                            <td class="{{ $pkg->value === 'gold' ? 'col-gold' : '' }}">
-                                <strong>${{ number_format($pkg->currentPricePerWeekCents() / 100, 0) }}/week</strong>
-                            </td>
-                        @endforeach
-                    </tr>
-
-                    @foreach (\App\Enums\MemberServicePackage::comparisonMatrix() as $row)
-                        <tr>
-                            <th>{{ $row['label'] }}</th>
-                            @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
-                                @php($v = $row['values'][$pkg->value] ?? '—')
-                                <td class="{{ $pkg->value === 'gold' ? 'col-gold' : '' }}{{ $v === '—' ? ' is-excluded' : '' }}">
-                                    {{ $v }}
-                                </td>
-                            @endforeach
-                        </tr>
-                    @endforeach
-
-                    <tr>
-                        <th>Package position</th>
-                        @foreach (\App\Enums\MemberServicePackage::ordered() as $pkg)
-                            <td class="{{ $pkg->value === 'gold' ? 'col-gold' : '' }}">
-                                <strong>{{ $pkg->position() }}</strong>
-                            </td>
-                        @endforeach
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </details>
-
-    <div style="text-align:center;margin-top:36px;">
+    <div style="text-align:center;">
         <a href="{{ route('member-services.show') }}" class="cta-primary"
            data-track-audience="member" data-track-cta="home_pricing_activate">
-            Activate Member Services
+            Start Member Services
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </a>
         <p style="color:var(--muted);font-size:13.5px;margin:16px 0 0;">
@@ -934,14 +866,14 @@
                     <div class="phone-card-img"></div>
                     <div class="phone-card-body">
                         <strong>Cliffside cottage, Big Sur</strong>
-                        <span>★ 4.96 · $310</span>
+                        <span>★ 4.96</span>
                     </div>
                 </div>
                 <div class="phone-card">
                     <div class="phone-card-img" style="background: linear-gradient(135deg, #4A2C5A, #7B2CBF);"></div>
                     <div class="phone-card-body">
                         <strong>Olive grove villa, Puglia</strong>
-                        <span>★ 4.98 · $245</span>
+                        <span>★ 4.98</span>
                     </div>
                 </div>
             </div>
@@ -989,7 +921,7 @@
         </div>
         <div class="testimonial">
             <div class="testimonial-quote">"</div>
-            <p>I list one property and it stays booked. The 3% fee vs. 15% elsewhere added up to $14K extra last year. Real numbers.</p>
+            <p>I list one property and it stays booked. Vaytoven advertises it, the offers come to me, and nobody takes a cut of what my guests pay.</p>
             <div class="testimonial-who">
                 <div class="testimonial-avatar" style="background: linear-gradient(135deg, #7B2CBF, #FF3D8A);"></div>
                 <div>
@@ -1133,28 +1065,6 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-    // Calc widget
-    (function() {
-        const rateInput = document.getElementById('calc-rate-input');
-        const weeksInput = document.getElementById('calc-weeks-input');
-        const rateLabel = document.getElementById('calc-rate');
-        const weeksLabel = document.getElementById('calc-weeks');
-        const earnings = document.getElementById('calc-earnings');
-        const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-
-        function update() {
-            const rate = parseInt(rateInput.value, 10);
-            const weeks = parseInt(weeksInput.value, 10);
-            rateLabel.textContent = '$' + rate;
-            weeksLabel.textContent = weeks;
-            const gross = rate * weeks * 7;
-            const net = gross * 0.97;
-            earnings.textContent = fmt.format(net);
-        }
-        rateInput.addEventListener('input', update);
-        weeksInput.addEventListener('input', update);
-        update();
-    })();
 
     // Save heart toggle
     document.querySelectorAll('.feature-heart').forEach(btn => {

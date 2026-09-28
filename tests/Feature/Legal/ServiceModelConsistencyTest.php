@@ -138,10 +138,13 @@ class ServiceModelConsistencyTest extends TestCase
     }
 
     /**
-     * Where a weekly rate IS shown, it must say the charge happens once.
+     * The homepage has to say the charge happens once.
      *
-     * "$449/week" on its own invites the reading that it bills weekly. The
-     * pricing section has to carry the qualifier next to the numbers.
+     * It was written when the weekly rate was printed here and "$449/week"
+     * invited the reading that it bills weekly. The prices have since moved
+     * into enrollment, but the billing model is not a price and still belongs
+     * in front of a member: "one fee" and "subscription" are the two things
+     * people confuse, and the Member Services section is where they decide.
      */
     public function test_the_pricing_section_says_the_fee_is_charged_once(): void
     {
