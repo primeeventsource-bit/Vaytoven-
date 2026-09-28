@@ -74,7 +74,6 @@ class HomepageHasNoPricingTest extends TestCase
             ->assertSee('Member Services')
             ->assertSee('Start Member Services')
             ->assertSee(route('member-services.show'), false)
-            ->assertSee('Featured stays')
             ->assertSee(route('properties.index'), false);
     }
 

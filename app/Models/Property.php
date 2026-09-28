@@ -312,6 +312,11 @@ class Property extends Model
         return $this->hasMany(PropertyView::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
     /**
      * The members-enquiry this listing was converted from (managed-listing path).
      * Null for normal host-listed properties (listing_source = 'host').

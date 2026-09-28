@@ -204,6 +204,22 @@
         .feature-meta { font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
         .feature-rating { display: inline-flex; align-items: center; gap: 4px; font-weight: 500; color: var(--ink); }
         .feature-stay { margin-top: 6px; font-size: 14px; color: var(--muted); }
+        a.feature-card { color: inherit; text-decoration: none; display: block; }
+        a.feature-card:hover { text-decoration: none; }
+        a.feature-card:hover h3 { color: var(--magenta); }
+
+        /* Page CTAs. cta-primary was used here but only ever styled on the
+           hosts page, so it rendered as a bare link. */
+        .cta-primary, .cta-secondary {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 14px 26px; border-radius: 999px;
+            font-weight: 600; font-size: 15px; text-decoration: none;
+            transition: transform .12s ease, box-shadow .15s ease;
+        }
+        .cta-primary { background: var(--gradient); color: #fff; }
+        .cta-secondary { border: 1px solid var(--line); color: var(--ink); background: #fff; }
+        .cta-primary:hover, .cta-secondary:hover { transform: translateY(-1px); text-decoration: none; }
+        .cta-secondary:hover { border-color: var(--magenta); color: var(--magenta); }
         @media (max-width: 1100px) { .featured-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 540px) { .featured-grid { grid-template-columns: 1fr; } }
 
@@ -636,67 +652,51 @@
     </div>
 </section>
 
+{{-- Real advertisements, newest first.
+
+     This row used to hold four invented listings — Big Sur, Puglia, the
+     Catskills, Marrakech — with invented ratings and dates, linking nowhere.
+     A homepage that shows inventory the company does not advertise is the
+     kind of thing a visitor discovers by clicking. These are the live ones,
+     in the order Stays uses, and each card opens the advertisement.
+
+     A rating only appears where somebody actually left one. --}}
+@if (! empty($featured) && $featured->isNotEmpty())
 <section class="section">
     <div class="section-header">
         <div class="eyebrow">Featured stays</div>
-        <h2 class="display">Locations our team have <em class="grad-text">visited themselves.</em></h2>
-        <p>If we wouldn't sleep there, we don't list it.</p>
+        <h2 class="display">Just listed on <em class="grad-text">Vaytoven.</em></h2>
+        <p>The newest advertisements from our members — every one of them a real property, advertised by its owner.</p>
     </div>
 
     <div class="featured-grid">
-        <article class="feature-card">
-            <div class="feature-img">
-                <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80" alt="" loading="lazy">
-                <button class="feature-heart" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
-            </div>
-            <h3>Cliffside cottage, Big Sur</h3>
-            <div class="feature-meta">
-                <span>Sleeps 4 · 2 bed</span>
-                <span class="feature-rating">★ 4.96</span>
-            </div>
-            <div class="feature-stay">7 days / 6 nights · May 12–17</div>
-        </article>
+        @foreach ($featured as $listing)
+            <a class="feature-card" href="{{ route('properties.show', $listing) }}"
+               data-track-audience="traveler" data-track-cta="home_featured_open"
+               data-track-meta-id="{{ $listing->id }}">
+                <div class="feature-img">
+                    @if ($listing->photos->isNotEmpty())
+                        <img src="{{ $listing->photos->first()->url }}" alt="{{ $listing->title }}" loading="lazy">
+                    @endif
+                </div>
+                <h3>{{ $listing->title }}</h3>
+                <div class="feature-meta">
+                    <span>{{ trim(collect([$listing->city, $listing->region])->filter()->implode(', ')) ?: $listing->country }}</span>
+                </div>
+                <div class="feature-stay">
+                    Sleeps {{ $listing->capacity }} · {{ $listing->bedrooms }} {{ Str::plural('bed', $listing->bedrooms) }}
+                    @if ($listing->published_at) · Listed {{ et($listing->published_at, 'M j, Y') }} @endif
+                </div>
+            </a>
+        @endforeach
+    </div>
 
-        <article class="feature-card">
-            <div class="feature-img">
-                <img src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=600&q=80" alt="" loading="lazy">
-                <button class="feature-heart" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
-            </div>
-            <h3>Olive grove villa, Puglia</h3>
-            <div class="feature-meta">
-                <span>Sleeps 6 · 3 bed</span>
-                <span class="feature-rating">★ 4.98</span>
-            </div>
-            <div class="feature-stay">7 days / 6 nights · Jun 04–11</div>
-        </article>
-
-        <article class="feature-card">
-            <div class="feature-img">
-                <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&q=80" alt="" loading="lazy">
-                <button class="feature-heart" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
-            </div>
-            <h3>Cedar A-frame, Catskills</h3>
-            <div class="feature-meta">
-                <span>Sleeps 4 · 2 bed</span>
-                <span class="feature-rating">★ 4.92</span>
-            </div>
-            <div class="feature-stay">7 days / 6 nights · Jul 22–27</div>
-        </article>
-
-        <article class="feature-card">
-            <div class="feature-img">
-                <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80" alt="" loading="lazy">
-                <button class="feature-heart" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
-            </div>
-            <h3>Riad with rooftop, Marrakech</h3>
-            <div class="feature-meta">
-                <span>Sleeps 5 · 3 bed</span>
-                <span class="feature-rating">★ 4.95</span>
-            </div>
-            <div class="feature-stay">7 days / 6 nights · Sep 08–14</div>
-        </article>
+    <div style="text-align:center;margin-top:32px;">
+        <a href="{{ route('properties.index') }}" class="cta-secondary"
+           data-track-audience="traveler" data-track-cta="home_featured_all">See all stays →</a>
     </div>
 </section>
+@endif
 
 <section class="section trust-section">
     <div class="trust-grid">
@@ -880,16 +880,19 @@
                 </div>
                 <div class="phone-card">
                     <div class="phone-card-img"></div>
+                    {{-- The mock shows real advertisements too: an app
+                         screenshot of places Vaytoven does not advertise is
+                         the same fiction as a featured card for one. --}}
                     <div class="phone-card-body">
-                        <strong>Cliffside cottage, Big Sur</strong>
-                        <span>★ 4.96</span>
+                        <strong>{{ $featured[0]->title ?? 'Your advertisement here' }}</strong>
+                        <span>{{ $featured[0]?->city ?? 'Listed by its owner' }}</span>
                     </div>
                 </div>
                 <div class="phone-card">
                     <div class="phone-card-img" style="background: linear-gradient(135deg, #4A2C5A, #7B2CBF);"></div>
                     <div class="phone-card-body">
-                        <strong>Olive grove villa, Puglia</strong>
-                        <span>★ 4.98</span>
+                        <strong>{{ $featured[1]->title ?? 'Advertised on Vaytoven' }}</strong>
+                        <span>{{ $featured[1]?->city ?? 'Guests deal with you directly' }}</span>
                     </div>
                 </div>
             </div>

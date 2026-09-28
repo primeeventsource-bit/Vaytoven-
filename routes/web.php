@@ -55,7 +55,8 @@ use App\Http\Controllers\Webhooks\DocuSignWebhookController;
 use App\Http\Controllers\Webhooks\NmiWebhookController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome');
+// The featured row shows real advertisements, so the homepage needs a query.
+Route::get('/', [\App\Http\Controllers\HomeController::class, 'show'])->name('home');
 
 // Throttled like every other public form. Without it this writes a row
 // per request from anonymous input, and it is the main lead form.
