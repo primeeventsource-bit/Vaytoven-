@@ -675,8 +675,10 @@
                data-track-audience="traveler" data-track-cta="home_featured_open"
                data-track-meta-id="{{ $listing->id }}">
                 <div class="feature-img">
-                    @if ($listing->photos->isNotEmpty())
-                        <img src="{{ $listing->photos->first()->url }}" alt="{{ $listing->title }}" loading="lazy">
+                    {{-- displayUrl(): an uploaded photo has a path and a null url. --}}
+                    @php($cover = $listing->photos->first())
+                    @if ($cover?->displayUrl())
+                        <img src="{{ $cover->displayUrl() }}" alt="{{ $cover->altText() }}" loading="lazy">
                     @endif
                 </div>
                 <h3>{{ $listing->title }}</h3>

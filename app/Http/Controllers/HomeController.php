@@ -28,7 +28,11 @@ class HomeController extends Controller
                 // without one waits for its photos rather than leading the
                 // homepage with an empty box.
                 ->whereHas('photos')
-                ->with(['photos' => fn ($q) => $q->orderBy('sort_order')])
+                // The chosen cover leads. reorder() because the relation
+                // itself sorts by sort_order, which would otherwise win and
+                // leave is_cover a tiebreaker; a listing with photos and no
+                // cover set is the normal state right after an upload.
+                ->with(['photos' => fn ($q) => $q->reorder()->orderByDesc('is_cover')->orderBy('sort_order')->orderBy('id')])
                 // No rating is carried. The old cards wore invented stars;
                 // a real one is impossible today — reviews hang off bookings,
                 // which this company retired, so the table is empty and

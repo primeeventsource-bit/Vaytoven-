@@ -113,4 +113,42 @@ class HomepageFeaturedListingsTest extends TestCase
 
         $this->assertDoesNotMatchRegularExpression('/\$\s?[0-9]/', $grid, 'A price is back on the featured cards.');
     }
+    /**
+     * The card points at the photo stream, not the url column.
+     *
+     * Uploaded photos live in a private bucket: the row carries a disk and a
+     * path, and url stays null. The homepage read url directly, so every real
+     * listing rendered <img src=""> — a row of broken pictures with the alt
+     * text showing. Stays already used displayUrl(); now both do.
+     */
+    public function test_uploaded_photos_are_served_through_the_photo_route(): void
+    {
+        $property = Property::factory()->create(['title' => 'Uploaded advertisement', 'status' => 'active']);
+        $property->forceFill(['published_at' => '2026-09-20 10:00:00'])->saveQuietly();
+
+        $photo = PropertyPhoto::create([
+            'property_id' => $property->id,
+            'disk'        => 's3',
+            'path'        => 'properties/'.$property->id.'/cover.jpg',
+            'url'         => null,
+            'sort_order'  => 1,
+        ]);
+
+        $grid = $this->featuredGrid();
+
+        $this->assertStringContainsString('src="'.route('properties.photo', $photo).'"', $grid);
+        $this->assertStringNotContainsString('src=""', $grid, 'A featured card has an empty image source.');
+    }
+
+    /** The cover a member chose is the one the homepage shows. */
+    public function test_the_chosen_cover_leads_the_card(): void
+    {
+        $property = Property::factory()->create(['title' => 'Covered advertisement', 'status' => 'active']);
+        $property->forceFill(['published_at' => '2026-09-20 10:00:00'])->saveQuietly();
+
+        PropertyPhoto::create(['property_id' => $property->id, 'url' => 'https://images.example.com/first.jpg', 'sort_order' => 1]);
+        PropertyPhoto::create(['property_id' => $property->id, 'url' => 'https://images.example.com/cover.jpg', 'sort_order' => 9, 'is_cover' => true]);
+
+        $this->assertStringContainsString('https://images.example.com/cover.jpg', $this->featuredGrid());
+    }
 }
